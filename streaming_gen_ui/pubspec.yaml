@@ -1,7 +1,6 @@
 name: streaming_gen_ui
 description: "[WIP] A powerful Dart package for streaming and decoding JSON data from LLMs in real-time, with built-in support for converting streamed data into Flutter widgets."
 version: 0.0.1-alpha.1
-publish_to: https://pub.dev
 homepage: https://github.com/ComsIndeed/streaming_gen_ui
 repository: https://github.com/ComsIndeed/streaming_gen_ui
 issue_tracker: https://github.com/ComsIndeed/streaming_gen_ui/issues
