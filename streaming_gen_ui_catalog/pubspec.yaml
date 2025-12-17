@@ -9,6 +9,8 @@ environment:
 dependencies:
   flutter:
     sdk: flutter
+  streaming_gen_ui:
+    path: ../streaming_gen_ui
 
 dev_dependencies:
   flutter_test:

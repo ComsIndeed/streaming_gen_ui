@@ -1,0 +1,42 @@
+name: streaming_gen_ui_monorepo
+
+packages:
+  - streaming_gen_ui
+  - streaming_gen_ui_catalog
+
+scripts:
+  bootstrap:
+    run: melos bootstrap
+    description: Bootstrap the monorepo by linking local packages.
+
+  clean:
+    run: melos clean
+    description: Clean the monorepo by removing generated files.
+
+  pub:get:
+    run: melos exec flutter pub get
+    description: Get dependencies for all packages.
+
+  analyze:
+    run: melos exec flutter analyze
+    description: Analyze all packages for issues.
+
+  format:
+    run: melos exec flutter format .
+    description: Format code in all packages.
+
+  test:
+    run: melos exec flutter test
+    description: Run tests for all packages.
+
+  build:
+    run: melos exec flutter build
+    description: Build all packages.
+
+  run:catalog:
+    run: cd streaming_gen_ui_catalog && flutter run
+    description: Run the catalog Flutter app.
+
+  lint:
+    run: melos exec flutter analyze
+    description: Lint all packages (alias for analyze).
