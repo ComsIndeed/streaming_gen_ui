@@ -1,0 +1,22 @@
+name: streaming_gen_ui_example
+description: Example application for the streaming_gen_ui package (Work in Progress).
+publish_to: 'none'
+version: 0.0.1
+
+environment:
+  sdk: ^3.10.1
+  flutter: ">=1.17.0"
+
+dependencies:
+  flutter:
+    sdk: flutter
+  streaming_gen_ui:
+    path: ../
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+  flutter_lints: ^6.0.0
+
+flutter:
+  uses-material-design: true

@@ -1,0 +1,59 @@
+# Ignore files and directories that shouldn't be included in the published package
+
+# Git
+.git
+.gitignore
+.gitattributes
+
+# IDE
+.idea/
+.vscode/
+*.code-workspace
+*.iml
+*.ipr
+*.iws
+
+# Test files (if not needed in published package)
+test/
+.dart_tool/
+
+# Examples (can be kept if desired for documentation)
+example/
+
+# Documentation build artifacts
+doc/api/
+.dartdoc_cache/
+
+# Build artifacts
+build/
+.packages
+
+# Environment files
+.env
+.env.local
+
+# OS specific
+.DS_Store
+Thumbs.db
+
+# CI/CD
+.github/
+.gitlab-ci.yml
+.travis.yml
+azure-pipelines.yml
+
+# Miscellaneous
+*.log
+.history/
+*.swp
+*.swo
+*~
+
+# Coverage
+coverage/
+.coverage/
+
+# Analysis
+.dart_tool/
+.flutter-plugins
+.flutter-plugins-dependencies

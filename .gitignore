@@ -1,0 +1,157 @@
+# Miscellaneous
+*.class
+*.log
+*.pyc
+*.swp
+*.swo
+*~
+.DS_Store
+.atom/
+.buildlog/
+.history
+.svn/
+migrate_working_dir/
+
+# IntelliJ related
+*.iml
+*.ipr
+*.iws
+.idea/
+*.iml
+
+# VS Code related
+.vscode/
+*.code-workspace
+.history/
+
+# The .vscode folder contains launch configuration and tasks you configure in
+# VS Code which you may wish to be included in version control, so this line
+# is commented out by default.
+#.vscode/
+
+# Flutter/Dart/Pub related
+**/doc/api/
+.dart_tool/
+.flutter-plugins
+.flutter-plugins-dependencies
+.packages
+.pub-cache/
+.pub/
+/build/
+/coverage/
+pubspec.lock
+
+# Package locks (lock files are not included in package repositories)
+**/pubspec.lock
+
+# Symbolic links to monorepo packages
+packages/
+
+# Android related
+**/android/**/gradle-wrapper.jar
+**/android/.gradle
+**/android/captures/
+**/android/gradlew
+**/android/gradlew.bat
+**/android/local.properties
+**/android/**/GeneratedPluginRegistrant.java
+**/android/key.properties
+**/android/*.jks
+**/android/*.keystore
+
+# iOS/macOS related
+**/ios/**/*.mode1v3
+**/ios/**/*.mode2v3
+**/ios/**/*.moved-aside
+**/ios/**/*.pbxuser
+**/ios/**/*.perspectivev3
+**/ios/**/*sync/
+**/ios/**/.sconsign.dblite
+**/ios/**/.tags*
+**/ios/**/.vscode/*
+!**/ios/**/.vscode/extensions.json
+**/ios/**/.idea/
+**/ios/**/xcuserdata/
+**/ios/**/Flutter/Flutter.framework
+**/ios/**/Flutter/Flutter.podspec
+**/ios/Flutter/Flutter.framework
+**/ios/Flutter/Flutter.podspec
+**/ios/**/flutter_assets/
+**/ios/**/ServiceDefinitions.json
+**/ios/**/Runner/GeneratedPluginRegistrant.*
+
+# Web related
+lib/generated_plugin_registrant.dart
+
+# Windows related
+windows/flutter/generated_plugins.cmake
+windows/flutter/generated_plugin_registrant.cc
+windows/flutter/generated_plugin_registrant.h
+windows/flutter/generated_plugins.cmake
+
+# Linux related
+linux/flutter/generated_plugins.cmake
+linux/flutter/generated_plugin_registrant.cc
+linux/flutter/generated_plugin_registrant.h
+linux/flutter/generated_plugins.cmake
+
+# macOS related
+macos/Flutter/GeneratedPluginRegistrant.swift
+macos/Flutter/ephemeral/
+
+# Generated files
+**/lib/generated/
+**/lib/generated_plugin_registrant.dart
+
+# Environment variables
+.env
+.env.local
+.env.*.local
+
+# IDE specific files
+.classpath
+.c9/
+*.launch
+.settings/
+*.sublime-workspace
+
+# OS specific files
+Thumbs.db
+.Thumbs.db
+
+# Backup files
+*.bak
+*.swp
+*.swo
+*~
+
+# Temporary files
+.tmp/
+*.temp
+*.tmp
+
+# Node modules (for web/npm related files)
+node_modules/
+npm-debug.log
+
+# Build outputs
+/out/
+/dist/
+/build/
+*.apk
+*.aab
+*.jks
+*.keystore
+*.ipa
+*.app
+
+# Misc
+.classpath
+.metadata
+.dart_tool/
+.flutter-plugins
+.packages
+.pub-cache/
+.pub/
+build/
+coverage/
