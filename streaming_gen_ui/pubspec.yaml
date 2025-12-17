@@ -5,7 +5,7 @@ publish_to: https://pub.dev
 homepage: https://github.com/ComsIndeed/streaming_gen_ui
 repository: https://github.com/ComsIndeed/streaming_gen_ui
 issue_tracker: https://github.com/ComsIndeed/streaming_gen_ui/issues
-publisher: vincentsanicolas.me
+# publisher: vincentsanicolas.me # Publisher is managed on pub.dev, not in pubspec.yaml
 
 environment:
   sdk: ^3.10.1
