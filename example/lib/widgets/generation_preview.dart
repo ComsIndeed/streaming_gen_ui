@@ -39,9 +39,6 @@ class GenerationPreview extends StatefulWidget {
 }
 
 class _GenerationPreviewState extends State<GenerationPreview> with SingleTickerProviderStateMixin {
-  String _accumulatedText = '';
-  bool _isProcessing = false;
-  StreamSubscription<String>? _subscription;
   bool _autoScroll = true;
   final ScrollController _blueprintScrollController = ScrollController();
   final ScrollController _previewScrollController = ScrollController();
@@ -58,10 +55,31 @@ class _GenerationPreviewState extends State<GenerationPreview> with SingleTicker
       duration: const Duration(milliseconds: 1500),
     );
 
-    widget.genUi.getViewState(widget.viewId).addListener(_scrollPreviewToBottom);
+    widget.genUi.getViewState(widget.viewId).addListener(_onViewStateChanged);
+    
+    // Check initial state
+    _updateArrowAnimation();
+  }
 
-    if (widget.textStream != null) {
-      _startListening();
+  void _onViewStateChanged() {
+    if (mounted) {
+      setState(() {
+        _scrollPreviewToBottom();
+        _scrollToBottom();
+        _updateArrowAnimation();
+      });
+    }
+  }
+
+  void _updateArrowAnimation() {
+    final state = widget.genUi.getViewState(widget.viewId);
+    final active = state.isProcessing && !widget.isPaused;
+    if (active) {
+      if (!_arrowAnimController.isAnimating) {
+        _arrowAnimController.repeat();
+      }
+    } else {
+      _arrowAnimController.stop();
     }
   }
 
@@ -70,70 +88,21 @@ class _GenerationPreviewState extends State<GenerationPreview> with SingleTicker
     super.didUpdateWidget(oldWidget);
     
     if (widget.viewId != oldWidget.viewId) {
-      widget.genUi.getViewState(oldWidget.viewId).removeListener(_scrollPreviewToBottom);
-      widget.genUi.getViewState(widget.viewId).addListener(_scrollPreviewToBottom);
+      widget.genUi.getViewState(oldWidget.viewId).removeListener(_onViewStateChanged);
+      widget.genUi.getViewState(widget.viewId).addListener(_onViewStateChanged);
     }
     
-    if (widget.textStream != oldWidget.textStream) {
-      _stopListening();
-      _accumulatedText = '';
-      if (widget.textStream != null) {
-        _startListening();
-      }
-    }
-    
-    if (widget.isPaused != oldWidget.isPaused) {
-      if (widget.isPaused) {
-        _arrowAnimController.stop();
-      } else if (_isProcessing) {
-        _arrowAnimController.repeat();
-      }
-    }
-  }
-
-  void _startListening() {
-    setState(() {
-      _isProcessing = true;
-      _accumulatedText = '';
-    });
-    _arrowAnimController.repeat();
-
-    _subscription = widget.textStream!.listen(
-      (chunk) {
-        setState(() {
-          _accumulatedText += chunk;
-        });
-        // Auto scroll raw stream panel to bottom
-        _scrollToBottom();
-      },
-      onDone: () {
-        setState(() {
-          _isProcessing = false;
-        });
-        _arrowAnimController.stop();
-      },
-      onError: (err) {
-        setState(() {
-          _isProcessing = false;
-        });
-        _arrowAnimController.stop();
-      },
-      cancelOnError: true,
-    );
-  }
-
-  void _stopListening() {
-    _subscription?.cancel();
-    _subscription = null;
+    _updateArrowAnimation();
   }
 
   void _scrollToBottom() {
     if (!_autoScroll) return;
+    final state = widget.genUi.getViewState(widget.viewId);
     if (_blueprintScrollController.hasClients) {
       // Calculate the exact height of the streamed text so far
       final textPainter = TextPainter(
         text: TextSpan(
-          text: _accumulatedText,
+          text: state.rawContent,
           style: const TextStyle(
             fontFamily: 'monospace',
             fontSize: 12.5,
@@ -187,8 +156,7 @@ class _GenerationPreviewState extends State<GenerationPreview> with SingleTicker
 
   @override
   void dispose() {
-    widget.genUi.getViewState(widget.viewId).removeListener(_scrollPreviewToBottom);
-    _stopListening();
+    widget.genUi.getViewState(widget.viewId).removeListener(_onViewStateChanged);
     _arrowAnimController.dispose();
     _blueprintScrollController.dispose();
     _previewScrollController.dispose();
@@ -197,43 +165,49 @@ class _GenerationPreviewState extends State<GenerationPreview> with SingleTicker
 
   @override
   Widget build(BuildContext context) {
-    // Parse accumulated text using external parser
-    final parsedResult = parseText(_accumulatedText);
+    final state = widget.genUi.getViewState(widget.viewId);
+    return ListenableBuilder(
+      listenable: state,
+      builder: (context, _) {
+        // Parse accumulated text using external parser
+        final parsedResult = parseText(state.rawContent);
 
-    return LayoutBuilder(
-      builder: (context, constraints) {
-        // Vertical or Horizontal depending on screen width
-        final bool isWide = constraints.maxWidth > 800;
+        return LayoutBuilder(
+          builder: (context, constraints) {
+            // Vertical or Horizontal depending on screen width
+            final bool isWide = constraints.maxWidth > 800;
 
-        final blueprintPanel = _buildBlueprintPanel(parsedResult);
-        final arrowPanel = _buildArrowPanel(isWide);
-        final whitePaperPanel = _buildWhitePaperPanel(parsedResult);
+            final blueprintPanel = _buildBlueprintPanel(parsedResult, state);
+            final arrowPanel = _buildArrowPanel(isWide, state);
+            final whitePaperPanel = _buildWhitePaperPanel(parsedResult, state);
 
-        if (isWide) {
-          return Row(
-            crossAxisAlignment: CrossAxisAlignment.stretch,
-            children: [
-              Expanded(flex: 10, child: blueprintPanel),
-              SizedBox(width: 80, child: arrowPanel),
-              Expanded(flex: 11, child: whitePaperPanel),
-            ],
-          );
-        } else {
-          return Column(
-            children: [
-              Expanded(flex: 5, child: blueprintPanel),
-              SizedBox(height: 60, child: arrowPanel),
-              Expanded(flex: 6, child: whitePaperPanel),
-            ],
-          );
-        }
+            if (isWide) {
+              return Row(
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: [
+                  Expanded(flex: 10, child: blueprintPanel),
+                  SizedBox(width: 80, child: arrowPanel),
+                  Expanded(flex: 11, child: whitePaperPanel),
+                ],
+              );
+            } else {
+              return Column(
+                children: [
+                  Expanded(flex: 5, child: blueprintPanel),
+                  SizedBox(height: 60, child: arrowPanel),
+                  Expanded(flex: 6, child: whitePaperPanel),
+                ],
+              );
+            }
+          },
+        );
       },
     );
   }
 
   // --- WIDGET BUILDERS ---
 
-  Widget _buildBlueprintPanel(ParsedResult parsed) {
+  Widget _buildBlueprintPanel(ParsedResult parsed, ViewState state) {
     return Container(
       decoration: BoxDecoration(
         gradient: LinearGradient(
@@ -385,11 +359,11 @@ class _GenerationPreviewState extends State<GenerationPreview> with SingleTicker
                     Container(
                       padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
                       decoration: BoxDecoration(
-                        color: _isProcessing
+                        color: state.isProcessing
                             ? (widget.isDarkMode ? const Color(0xFF0284C7).withValues(alpha: 0.3) : const Color(0xFFBAE6FD).withValues(alpha: 0.6))
                             : (widget.isDarkMode ? const Color(0xFF1E293B) : const Color(0xFFE2E8F0).withValues(alpha: 0.6)),
                         border: Border.all(
-                          color: _isProcessing 
+                          color: state.isProcessing 
                               ? (widget.isDarkMode ? const Color(0xFF38BDF8) : const Color(0xFF38BDF8)) 
                               : (widget.isDarkMode ? const Color(0xFF334155) : const Color(0xFFCBD5E1)),
                           width: 1,
@@ -399,7 +373,7 @@ class _GenerationPreviewState extends State<GenerationPreview> with SingleTicker
                       child: Row(
                         mainAxisSize: MainAxisSize.min,
                         children: [
-                          if (_isProcessing && !widget.isPaused) ...[
+                          if (state.isProcessing && !widget.isPaused) ...[
                             SizedBox(
                               width: 8,
                               height: 8,
@@ -415,9 +389,9 @@ class _GenerationPreviewState extends State<GenerationPreview> with SingleTicker
                             const SizedBox(width: 4),
                           ],
                           Text(
-                            widget.isPaused ? 'PAUSED' : (_isProcessing ? 'STREAMING' : 'IDLE'),
+                            widget.isPaused ? 'PAUSED' : (state.isProcessing ? 'STREAMING' : 'IDLE'),
                             style: TextStyle(
-                              color: _isProcessing 
+                              color: state.isProcessing 
                                   ? (widget.isDarkMode ? const Color(0xFF38BDF8) : const Color(0xFF0369A1)) 
                                   : (widget.isDarkMode ? const Color(0xFF94A3B8) : const Color(0xFF64748B)),
                               fontFamily: 'monospace',
@@ -481,8 +455,8 @@ class _GenerationPreviewState extends State<GenerationPreview> with SingleTicker
                               fontWeight: FontWeight.w500,
                             ),
                             children: [
-                              ..._buildBlueprintTextSpans(_accumulatedText, isGhost: false),
-                              if (_isProcessing)
+                              ..._buildBlueprintTextSpans(state.rawContent, isGhost: false),
+                              if (state.isProcessing)
                                 TextSpan(
                                   text: ' █',
                                   style: TextStyle(
@@ -788,7 +762,7 @@ class _GenerationPreviewState extends State<GenerationPreview> with SingleTicker
     return spans;
   }
 
-  Widget _buildArrowPanel(bool isWide) {
+  Widget _buildArrowPanel(bool isWide, ViewState state) {
     return Center(
       child: SizedBox(
         width: isWide ? 50 : 35,
@@ -799,7 +773,7 @@ class _GenerationPreviewState extends State<GenerationPreview> with SingleTicker
             return CustomPaint(
               painter: ArrowPainter(
                 animationValue: _arrowAnimController.value,
-                isActive: _isProcessing,
+                isActive: state.isProcessing,
                 isWide: isWide,
                 isDarkMode: widget.isDarkMode,
               ),
@@ -810,7 +784,7 @@ class _GenerationPreviewState extends State<GenerationPreview> with SingleTicker
     );
   }
 
-  Widget _buildWhitePaperPanel(ParsedResult parsed) {
+  Widget _buildWhitePaperPanel(ParsedResult parsed, ViewState state) {
     return Container(
       decoration: BoxDecoration(
         color: widget.isDarkMode ? const Color(0xFF0F172A) : Colors.white, // Crisp drafting paper sheet / dark blueprint paper
@@ -907,74 +881,6 @@ class _GenerationPreviewState extends State<GenerationPreview> with SingleTicker
   }
 
   // --- RENDERING STRATEGIES ---
-
-  Widget _buildRenderOutput(bool hasJson, Map<String, dynamic>? decodedJson, String? parseError, ParsedResult parsed) {
-    if (!hasJson) {
-      // 1. Initial State: Draw animated loading lines
-      return SkeletonLoader(isActive: _isProcessing, isDarkMode: widget.isDarkMode);
-    }
-
-    if (parseError != null) {
-      // 2. Mid-stream or faulty JSON: Draw partial skeletons next to dynamic error feedback
-      return Column(
-        crossAxisAlignment: CrossAxisAlignment.stretch,
-        children: [
-          SkeletonLoader(isActive: _isProcessing, isDarkMode: widget.isDarkMode),
-          const SizedBox(height: 16),
-          Container(
-            padding: const EdgeInsets.all(12),
-            decoration: BoxDecoration(
-              color: widget.isDarkMode ? const Color(0xFF4C0519) : const Color(0xFFFFF1F2),
-              borderRadius: BorderRadius.circular(8),
-              border: Border.all(
-                color: widget.isDarkMode ? const Color(0xFF9F1239) : const Color(0xFFFECDD3),
-              ),
-            ),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Row(
-                  children: [
-                    Icon(
-                      Icons.sync, 
-                      size: 14, 
-                      color: widget.isDarkMode ? const Color(0xFFFDA4AF) : const Color(0xFFE11D48),
-                    ),
-                    const SizedBox(width: 6),
-                    Text(
-                      'COMPILING STREAM SCHEMA...',
-                      style: TextStyle(
-                        fontSize: 9,
-                        fontFamily: 'monospace',
-                        fontWeight: FontWeight.bold,
-                        color: widget.isDarkMode ? const Color(0xFFFDA4AF) : const Color(0xFFBE123C),
-                      ),
-                    ),
-                  ],
-                ),
-                const SizedBox(height: 6),
-                Text(
-                  'Waiting for closed </${parsed.endTag.replaceAll('<', '').replaceAll('>', '').replaceAll('/', '')}> tag to finalize widgets. Current compiler status:\n$parseError',
-                  style: TextStyle(
-                    fontSize: 8.5,
-                    fontFamily: 'monospace',
-                    color: widget.isDarkMode ? const Color(0xFFFECDD3) : const Color(0xFF9F1239),
-                  ),
-                ),
-              ],
-            ),
-          ),
-        ],
-      );
-    }
-
-    if (decodedJson != null) {
-      // 3. Complete and successfully decoded: Render the dynamic widgets!
-      return DynamicWidgetRenderer(json: decodedJson, isDarkMode: widget.isDarkMode);
-    }
-
-    return const SizedBox();
-  }
 
   Widget _buildTabButton(int index, String label) {
     final isActive = _activeRightTabIndex == index;
@@ -1116,66 +1022,35 @@ class _GenerationPreviewState extends State<GenerationPreview> with SingleTicker
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        PropResolverRow(
-          label: 'namespace',
-          property: block.rootMapStream.getStringProperty('namespace'),
+        LiveMapInspector(
+          mapStream: block.rootMapStream,
           isDarkMode: widget.isDarkMode,
-        ),
-        const SizedBox(height: 8),
-        Text(
-          'Streamed Properties:',
-          style: TextStyle(
-            fontFamily: 'monospace',
-            fontSize: 9,
-            fontWeight: FontWeight.bold,
-            color: widget.isDarkMode ? const Color(0xFF475569) : const Color(0xFF94A3B8),
-          ),
-        ),
-        const SizedBox(height: 4),
-        PropResolverRow(
-          label: 'text',
-          property: block.rootMapStream.getStringProperty('text'),
-          isDarkMode: widget.isDarkMode,
-        ),
-        PropResolverRow(
-          label: 'action',
-          property: block.rootMapStream.getStringProperty('action'),
-          isDarkMode: widget.isDarkMode,
-        ),
-        PropResolverRow(
-          label: 'label',
-          property: block.rootMapStream.getStringProperty('label'),
-          isDarkMode: widget.isDarkMode,
-        ),
-        PropResolverRow(
-          label: 'hint',
-          property: block.rootMapStream.getStringProperty('hint'),
-          isDarkMode: widget.isDarkMode,
+          indentLevel: 0,
         ),
       ],
     );
   }
 }
 
-class PropResolverRow extends StatefulWidget {
-  final String label;
-  final StringPropertyStream? property;
+class LiveMapInspector extends StatefulWidget {
+  final MapPropertyStream mapStream;
   final bool isDarkMode;
+  final int indentLevel;
 
-  const PropResolverRow({
+  const LiveMapInspector({
     super.key,
-    required this.label,
-    this.property,
+    required this.mapStream,
     required this.isDarkMode,
+    this.indentLevel = 1,
   });
 
   @override
-  State<PropResolverRow> createState() => _PropResolverRowState();
+  State<LiveMapInspector> createState() => _LiveMapInspectorState();
 }
 
-class _PropResolverRowState extends State<PropResolverRow> {
-  String _accumulated = '';
-  StreamSubscription<String>? _sub;
+class _LiveMapInspectorState extends State<LiveMapInspector> {
+  final Map<String, dynamic> _values = {};
+  final Map<String, StreamSubscription> _subscriptions = {};
 
   @override
   void initState() {
@@ -1183,69 +1058,524 @@ class _PropResolverRowState extends State<PropResolverRow> {
     _startListening();
   }
 
+  void _startListening() {
+    widget.mapStream.onProperty((propertyStream, key) {
+      if (!mounted) return;
+
+      setState(() {
+        _values[key] = '...'; // Initial placeholder
+      });
+
+      _subscribeToProperty(key, propertyStream);
+    });
+  }
+
+  void _subscribeToProperty(String key, PropertyStream propertyStream) {
+    if (propertyStream is StringPropertyStream) {
+      String accumulated = '';
+      final sub = propertyStream.stream.listen((chunk) {
+        if (mounted) {
+          setState(() {
+            accumulated += chunk;
+            _values[key] = accumulated;
+          });
+        }
+      });
+      _subscriptions['$key-stream'] = sub;
+
+      propertyStream.future.then((full) {
+        if (mounted) {
+          setState(() {
+            _values[key] = full;
+          });
+        }
+      }).catchError((_) {});
+    } else if (propertyStream is NumberPropertyStream) {
+      final sub = propertyStream.stream.listen((val) {
+        if (mounted) {
+          setState(() {
+            _values[key] = val;
+          });
+        }
+      });
+      _subscriptions['$key-stream'] = sub;
+
+      propertyStream.future.then((val) {
+        if (mounted) {
+          setState(() {
+            _values[key] = val;
+          });
+        }
+      }).catchError((_) {});
+    } else if (propertyStream is BooleanPropertyStream) {
+      final sub = propertyStream.stream.listen((val) {
+        if (mounted) {
+          setState(() {
+            _values[key] = val;
+          });
+        }
+      });
+      _subscriptions['$key-stream'] = sub;
+
+      propertyStream.future.then((val) {
+        if (mounted) {
+          setState(() {
+            _values[key] = val;
+          });
+        }
+      }).catchError((_) {});
+    } else if (propertyStream is NullPropertyStream) {
+      propertyStream.future.then((_) {
+        if (mounted) {
+          setState(() {
+            _values[key] = null;
+          });
+        }
+      }).catchError((_) {});
+    } else if (propertyStream is MapPropertyStream) {
+      if (mounted) {
+        setState(() {
+          _values[key] = propertyStream;
+        });
+      }
+    } else if (propertyStream is ListPropertyStream) {
+      if (mounted) {
+        setState(() {
+          _values[key] = propertyStream;
+        });
+      }
+    }
+  }
+
   @override
-  void didUpdateWidget(covariant PropResolverRow oldWidget) {
+  void didUpdateWidget(covariant LiveMapInspector oldWidget) {
     super.didUpdateWidget(oldWidget);
-    if (widget.property != oldWidget.property) {
-      _stopListening();
-      _accumulated = '';
+    if (oldWidget.mapStream != widget.mapStream) {
+      _cancelSubscriptions();
+      _values.clear();
       _startListening();
     }
   }
 
-  void _startListening() {
-    if (widget.property == null) return;
-    _sub = widget.property!.stream.listen((chunk) {
-      setState(() {
-        _accumulated += chunk;
-      });
-    });
-    widget.property!.future.then((full) {
-      if (mounted) {
-        setState(() {
-          _accumulated = full;
-        });
-      }
-    });
-  }
-
-  void _stopListening() {
-    _sub?.cancel();
+  void _cancelSubscriptions() {
+    for (final sub in _subscriptions.values) {
+      sub.cancel();
+    }
+    _subscriptions.clear();
   }
 
   @override
   void dispose() {
-    _stopListening();
+    _cancelSubscriptions();
     super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
-    if (widget.property == null || _accumulated.isEmpty) return const SizedBox.shrink();
-    return Padding(
-      padding: const EdgeInsets.only(bottom: 4.0),
-      child: Row(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text(
-            '  "${widget.label}": ',
-            style: TextStyle(
-              fontFamily: 'monospace',
-              fontSize: 11,
-              color: widget.isDarkMode ? const Color(0xFF38BDF8) : const Color(0xFF0284C7),
-            ),
+    final String indent = '  ' * widget.indentLevel;
+    final keys = _values.keys.toList()..sort();
+
+    if (keys.isEmpty) {
+      return Padding(
+        padding: const EdgeInsets.only(left: 12.0),
+        child: Text(
+          '{}',
+          style: TextStyle(
+            fontFamily: 'monospace',
+            fontSize: 11,
+            color: widget.isDarkMode ? const Color(0xFF475569) : const Color(0xFF94A3B8),
           ),
-          Expanded(
-            child: Text(
-              '"$_accumulated"',
-              style: TextStyle(
-                fontFamily: 'monospace',
-                fontSize: 11,
-                color: widget.isDarkMode ? const Color(0xFF34D399) : const Color(0xFF059669),
+        ),
+      );
+    }
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: keys.map((key) {
+        final val = _values[key];
+
+        return Padding(
+          padding: const EdgeInsets.only(bottom: 4.0),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Row(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    '$indent"$key": ',
+                    style: TextStyle(
+                      fontFamily: 'monospace',
+                      fontSize: 11,
+                      fontWeight: FontWeight.w600,
+                      color: widget.isDarkMode ? const Color(0xFF38BDF8) : const Color(0xFF0284C7),
+                    ),
+                  ),
+                  Expanded(
+                    child: _buildValueWidget(val),
+                  ),
+                ],
               ),
-            ),
+              if (val is MapPropertyStream) ...[
+                LiveMapInspector(
+                  mapStream: val,
+                  isDarkMode: widget.isDarkMode,
+                  indentLevel: widget.indentLevel + 1,
+                ),
+              ] else if (val is ListPropertyStream) ...[
+                LiveListInspector(
+                  listStream: val,
+                  isDarkMode: widget.isDarkMode,
+                  indentLevel: widget.indentLevel + 1,
+                ),
+              ],
+            ],
           ),
-        ],
+        );
+      }).toList(),
+    );
+  }
+
+  Widget _buildValueWidget(dynamic val) {
+    if (val is MapPropertyStream) {
+      return Text(
+        '{',
+        style: TextStyle(
+          fontFamily: 'monospace',
+          fontSize: 11,
+          color: widget.isDarkMode ? const Color(0xFF64748B) : const Color(0xFF94A3B8),
+        ),
+      );
+    }
+    if (val is ListPropertyStream) {
+      return Text(
+        '[',
+        style: TextStyle(
+          fontFamily: 'monospace',
+          fontSize: 11,
+          color: widget.isDarkMode ? const Color(0xFF64748B) : const Color(0xFF94A3B8),
+        ),
+      );
+    }
+    if (val == null) {
+      return Text(
+        'null',
+        style: TextStyle(
+          fontFamily: 'monospace',
+          fontSize: 11,
+          fontWeight: FontWeight.bold,
+          color: widget.isDarkMode ? const Color(0xFFF43F5E) : const Color(0xFFE11D48),
+        ),
+      );
+    }
+    if (val is bool) {
+      return Text(
+        val.toString(),
+        style: TextStyle(
+          fontFamily: 'monospace',
+          fontSize: 11,
+          fontWeight: FontWeight.bold,
+          color: widget.isDarkMode ? const Color(0xFFFB923C) : const Color(0xFFEA580C),
+        ),
+      );
+    }
+    if (val is num) {
+      return Text(
+        val.toString(),
+        style: TextStyle(
+          fontFamily: 'monospace',
+          fontSize: 11,
+          color: widget.isDarkMode ? const Color(0xFFC084FC) : const Color(0xFF9333EA),
+        ),
+      );
+    }
+
+    final isStreamingPlaceholder = val == '...';
+    return Text(
+      '"$val"',
+      style: TextStyle(
+        fontFamily: 'monospace',
+        fontSize: 11,
+        color: isStreamingPlaceholder
+            ? (widget.isDarkMode ? const Color(0xFFFB7185) : const Color(0xFFF43F5E))
+            : (widget.isDarkMode ? const Color(0xFF34D399) : const Color(0xFF059669)),
+        fontStyle: isStreamingPlaceholder ? FontStyle.italic : FontStyle.normal,
+      ),
+    );
+  }
+}
+
+class LiveListInspector extends StatefulWidget {
+  final ListPropertyStream listStream;
+  final bool isDarkMode;
+  final int indentLevel;
+
+  const LiveListInspector({
+    super.key,
+    required this.listStream,
+    required this.isDarkMode,
+    required this.indentLevel,
+  });
+
+  @override
+  State<LiveListInspector> createState() => _LiveListInspectorState();
+}
+
+class _LiveListInspectorState extends State<LiveListInspector> {
+  final List<dynamic> _elements = [];
+  final Map<int, StreamSubscription> _subscriptions = {};
+
+  @override
+  void initState() {
+    super.initState();
+    _startListening();
+  }
+
+  void _startListening() {
+    widget.listStream.onElement((propertyStream, index) {
+      if (!mounted) return;
+
+      setState(() {
+        if (index >= _elements.length) {
+          _elements.add('...');
+        } else {
+          _elements[index] = '...';
+        }
+      });
+
+      _subscribeToElement(index, propertyStream);
+    });
+  }
+
+  void _subscribeToElement(int index, PropertyStream propertyStream) {
+    if (propertyStream is StringPropertyStream) {
+      String accumulated = '';
+      final sub = propertyStream.stream.listen((chunk) {
+        if (mounted) {
+          setState(() {
+            accumulated += chunk;
+            _elements[index] = accumulated;
+          });
+        }
+      });
+      _subscriptions[index] = sub;
+
+      propertyStream.future.then((full) {
+        if (mounted) {
+          setState(() {
+            _elements[index] = full;
+          });
+        }
+      }).catchError((_) {});
+    } else if (propertyStream is NumberPropertyStream) {
+      final sub = propertyStream.stream.listen((val) {
+        if (mounted) {
+          setState(() {
+            _elements[index] = val;
+          });
+        }
+      });
+      _subscriptions[index] = sub;
+
+      propertyStream.future.then((val) {
+        if (mounted) {
+          setState(() {
+            _elements[index] = val;
+          });
+        }
+      }).catchError((_) {});
+    } else if (propertyStream is BooleanPropertyStream) {
+      final sub = propertyStream.stream.listen((val) {
+        if (mounted) {
+          setState(() {
+            _elements[index] = val;
+          });
+        }
+      });
+      _subscriptions[index] = sub;
+
+      propertyStream.future.then((val) {
+        if (mounted) {
+          setState(() {
+            _elements[index] = val;
+          });
+        }
+      }).catchError((_) {});
+    } else if (propertyStream is NullPropertyStream) {
+      propertyStream.future.then((_) {
+        if (mounted) {
+          setState(() {
+            _elements[index] = null;
+          });
+        }
+      }).catchError((_) {});
+    } else if (propertyStream is MapPropertyStream) {
+      if (mounted) {
+        setState(() {
+          _elements[index] = propertyStream;
+        });
+      }
+    } else if (propertyStream is ListPropertyStream) {
+      if (mounted) {
+        setState(() {
+          _elements[index] = propertyStream;
+        });
+      }
+    }
+  }
+
+  @override
+  void didUpdateWidget(covariant LiveListInspector oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (oldWidget.listStream != widget.listStream) {
+      _cancelSubscriptions();
+      _elements.clear();
+      _startListening();
+    }
+  }
+
+  void _cancelSubscriptions() {
+    for (final sub in _subscriptions.values) {
+      sub.cancel();
+    }
+    _subscriptions.clear();
+  }
+
+  @override
+  void dispose() {
+    _cancelSubscriptions();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final String indent = '  ' * widget.indentLevel;
+
+    if (_elements.isEmpty) {
+      return Padding(
+        padding: const EdgeInsets.only(left: 12.0),
+        child: Text(
+          '[]',
+          style: TextStyle(
+            fontFamily: 'monospace',
+            fontSize: 11,
+            color: widget.isDarkMode ? const Color(0xFF475569) : const Color(0xFF94A3B8),
+          ),
+        ),
+      );
+    }
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: List.generate(_elements.length, (index) {
+        final val = _elements[index];
+
+        return Padding(
+          padding: const EdgeInsets.only(bottom: 4.0),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Row(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    '$indent- ',
+                    style: TextStyle(
+                      fontFamily: 'monospace',
+                      fontSize: 11,
+                      fontWeight: FontWeight.bold,
+                      color: widget.isDarkMode ? const Color(0xFF475569) : const Color(0xFF94A3B8),
+                    ),
+                  ),
+                  Expanded(
+                    child: _buildValueWidget(val),
+                  ),
+                ],
+              ),
+              if (val is MapPropertyStream) ...[
+                LiveMapInspector(
+                  mapStream: val,
+                  isDarkMode: widget.isDarkMode,
+                  indentLevel: widget.indentLevel + 1,
+                ),
+              ] else if (val is ListPropertyStream) ...[
+                LiveListInspector(
+                  listStream: val,
+                  isDarkMode: widget.isDarkMode,
+                  indentLevel: widget.indentLevel + 1,
+                ),
+              ],
+            ],
+          ),
+        );
+      }),
+    );
+  }
+
+  Widget _buildValueWidget(dynamic val) {
+    if (val is MapPropertyStream) {
+      return Text(
+        '{',
+        style: TextStyle(
+          fontFamily: 'monospace',
+          fontSize: 11,
+          color: widget.isDarkMode ? const Color(0xFF64748B) : const Color(0xFF94A3B8),
+        ),
+      );
+    }
+    if (val is ListPropertyStream) {
+      return Text(
+        '[',
+        style: TextStyle(
+          fontFamily: 'monospace',
+          fontSize: 11,
+          color: widget.isDarkMode ? const Color(0xFF64748B) : const Color(0xFF94A3B8),
+        ),
+      );
+    }
+    if (val == null) {
+      return Text(
+        'null',
+        style: TextStyle(
+          fontFamily: 'monospace',
+          fontSize: 11,
+          fontWeight: FontWeight.bold,
+          color: widget.isDarkMode ? const Color(0xFFF43F5E) : const Color(0xFFE11D48),
+        ),
+      );
+    }
+    if (val is bool) {
+      return Text(
+        val.toString(),
+        style: TextStyle(
+          fontFamily: 'monospace',
+          fontSize: 11,
+          fontWeight: FontWeight.bold,
+          color: widget.isDarkMode ? const Color(0xFFFB923C) : const Color(0xFFEA580C),
+        ),
+      );
+    }
+    if (val is num) {
+      return Text(
+        val.toString(),
+        style: TextStyle(
+          fontFamily: 'monospace',
+          fontSize: 11,
+          color: widget.isDarkMode ? const Color(0xFFC084FC) : const Color(0xFF9333EA),
+        ),
+      );
+    }
+
+    final isStreamingPlaceholder = val == '...';
+    return Text(
+      '"$val"',
+      style: TextStyle(
+        fontFamily: 'monospace',
+        fontSize: 11,
+        color: isStreamingPlaceholder
+            ? (widget.isDarkMode ? const Color(0xFFFB7185) : const Color(0xFFF43F5E))
+            : (widget.isDarkMode ? const Color(0xFF34D399) : const Color(0xFF059669)),
+        fontStyle: isStreamingPlaceholder ? FontStyle.italic : FontStyle.normal,
       ),
     );
   }

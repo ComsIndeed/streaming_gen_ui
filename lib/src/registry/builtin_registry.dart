@@ -356,7 +356,7 @@ class _StreamingRowState extends State<StreamingRow> {
   }
 }
 
-class StreamingContainer extends StatelessWidget {
+class StreamingContainer extends StatefulWidget {
   final MapPropertyStream mapStream;
   final WidgetRegistry registry;
 
@@ -367,14 +367,127 @@ class StreamingContainer extends StatelessWidget {
   });
 
   @override
+  State<StreamingContainer> createState() => _StreamingContainerState();
+}
+
+class _StreamingContainerState extends State<StreamingContainer> {
+  Color _color = Colors.white;
+  double _borderRadius = 16.0;
+  double? _height;
+  double? _width;
+
+  @override
+  void initState() {
+    super.initState();
+    _listenToStyles();
+  }
+
+  void _listenToStyles() {
+    // 1. Resolve background color (Hex or standard color string)
+    widget.mapStream.getStringProperty('color').stream.listen((colorHex) {
+      if (colorHex.isNotEmpty && mounted) {
+        setState(() {
+          _color = _parseColor(colorHex);
+        });
+      }
+    });
+
+    widget.mapStream.getStringProperty('color').future.then((colorHex) {
+      if (colorHex.isNotEmpty && mounted) {
+        setState(() {
+          _color = _parseColor(colorHex);
+        });
+      }
+    }).catchError((_) {});
+
+    // 2. Resolve border radius
+    widget.mapStream.getStringProperty('borderRadius').stream.listen((radiusStr) {
+      if (radiusStr.isNotEmpty && mounted) {
+        setState(() {
+          _borderRadius = double.tryParse(radiusStr) ?? 16.0;
+        });
+      }
+    });
+
+    widget.mapStream.getStringProperty('borderRadius').future.then((radiusStr) {
+      if (radiusStr.isNotEmpty && mounted) {
+        setState(() {
+          _borderRadius = double.tryParse(radiusStr) ?? 16.0;
+        });
+      }
+    }).catchError((_) {});
+
+    // 3. Resolve height
+    widget.mapStream.getStringProperty('height').stream.listen((heightStr) {
+      if (heightStr.isNotEmpty && mounted) {
+        setState(() {
+          _height = double.tryParse(heightStr);
+        });
+      }
+    });
+
+    widget.mapStream.getStringProperty('height').future.then((heightStr) {
+      if (heightStr.isNotEmpty && mounted) {
+        setState(() {
+          _height = double.tryParse(heightStr);
+        });
+      }
+    }).catchError((_) {});
+
+    // 4. Resolve width
+    widget.mapStream.getStringProperty('width').stream.listen((widthStr) {
+      if (widthStr.isNotEmpty && mounted) {
+        setState(() {
+          _width = double.tryParse(widthStr);
+        });
+      }
+    });
+
+    widget.mapStream.getStringProperty('width').future.then((widthStr) {
+      if (widthStr.isNotEmpty && mounted) {
+        setState(() {
+          _width = double.tryParse(widthStr);
+        });
+      }
+    }).catchError((_) {});
+  }
+
+  Color _parseColor(String colorStr) {
+    if (colorStr.startsWith('#')) {
+      final hex = colorStr.replaceAll('#', '');
+      if (hex.length == 6) {
+        return Color(int.parse('FF$hex', radix: 16));
+      } else if (hex.length == 8) {
+        return Color(int.parse(hex, radix: 16));
+      }
+    }
+    return Colors.white;
+  }
+
+  @override
+  void didUpdateWidget(StreamingContainer oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (oldWidget.mapStream != widget.mapStream) {
+      _color = Colors.white;
+      _borderRadius = 16.0;
+      _height = null;
+      _width = null;
+      _listenToStyles();
+    }
+  }
+
+  @override
   Widget build(BuildContext context) {
-    final childMap = mapStream.getMapProperty('child');
-    return Container(
+    final childMap = widget.mapStream.getMapProperty('child');
+    return AnimatedContainer(
+      duration: const Duration(milliseconds: 200),
       margin: const EdgeInsets.symmetric(vertical: 4),
       padding: const EdgeInsets.all(16),
+      height: _height,
+      width: _width,
       decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(16),
+        color: _color,
+        borderRadius: BorderRadius.circular(_borderRadius),
         border: Border.all(color: const Color(0xFFE5E7EB)),
         boxShadow: [
           BoxShadow(
@@ -386,7 +499,7 @@ class StreamingContainer extends StatelessWidget {
       ),
       child: StreamingWidget(
         mapStream: childMap,
-        registry: registry,
+        registry: widget.registry,
       ),
     );
   }

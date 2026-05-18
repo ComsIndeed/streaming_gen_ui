@@ -40,6 +40,7 @@ class StreamingGenUi {
 
     final defaultState = _viewController.getState(defaultId);
     defaultState.clear();
+    defaultState.setProcessing(true);
 
     final parser = StatefulStreamParser(
       defaultViewId: defaultId,
@@ -75,14 +76,17 @@ class StreamingGenUi {
     // Bind subscription manually so it can be cleanly cancelled midway
     final subscription = response.listen(
       (chunk) {
+        defaultState.appendRaw(chunk);
         parser.processChunk(chunk);
       },
       onDone: () {
+        defaultState.setProcessing(false);
         parser.close();
         _subscriptions.remove(defaultId);
         completer.complete();
       },
       onError: (err) {
+        defaultState.setProcessing(false);
         parser.close();
         _subscriptions.remove(defaultId);
         completer.completeError(err);

@@ -27,6 +27,14 @@ class ViewState extends ChangeNotifier {
   String _rawContent = '';
   String get rawContent => _rawContent;
 
+  bool _isProcessing = false;
+  bool get isProcessing => _isProcessing;
+
+  void setProcessing(bool processing) {
+    _isProcessing = processing;
+    notifyListeners();
+  }
+
   /// Concatenates all text blocks for conversational markdown queries
   String get conversationalText => _blocks
       .whereType<TextBlock>()
@@ -83,9 +91,15 @@ class ViewState extends ChangeNotifier {
     notifyListeners();
   }
 
+  void appendRaw(String chunk) {
+    _rawContent += chunk;
+    notifyListeners();
+  }
+
   void clear() {
     _blocks.clear();
     _rawContent = '';
+    _isProcessing = false;
     notifyListeners();
   }
 }
