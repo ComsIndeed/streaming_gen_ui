@@ -1,45 +1,80 @@
 import 'package:flutter/foundation.dart';
 import 'package:llm_json_stream/llm_json_stream.dart';
 
-class ViewState extends ChangeNotifier {
-  /// Accumulated clean conversational text (Markdown portions outside tag blocks)
-  String _conversationalText = '';
-  String get conversationalText => _conversationalText;
+abstract class ViewBlock {}
 
-  /// The root JSON map property stream when parsing starts inside the tag block
-  MapPropertyStream? _rootMapStream;
-  MapPropertyStream? get rootMapStream => _rootMapStream;
+class TextBlock extends ViewBlock {
+  String text = '';
+}
+
+class InteractiveBlock extends ViewBlock {
+  final String targetViewId;
+  final MapPropertyStream rootMapStream;
+  bool isComplete = false;
+
+  InteractiveBlock({
+    required this.targetViewId,
+    required this.rootMapStream,
+    this.isComplete = false,
+  });
+}
+
+class ViewState extends ChangeNotifier {
+  final List<ViewBlock> _blocks = [];
+  List<ViewBlock> get blocks => _blocks;
 
   /// Full raw input text (Conversational + XML tags) accumulated so far
   String _rawContent = '';
   String get rawContent => _rawContent;
 
-  /// Active JSON stream parser
-  JsonStreamParser? _jsonParser;
-  JsonStreamParser? get jsonParser => _jsonParser;
+  /// Concatenates all text blocks for conversational markdown queries
+  String get conversationalText => _blocks
+      .whereType<TextBlock>()
+      .map((b) => b.text)
+      .join('');
 
-  /// Whether the interactive tag block has been opened
-  bool _hasInteractive = false;
-  bool get hasInteractive => _hasInteractive;
+  /// Whether the view contains any interactive blocks
+  bool get hasInteractive => _blocks.any((b) => b is InteractiveBlock);
 
-  /// Whether the interactive tag block is fully parsed and completed
-  bool _isComplete = false;
-  bool get isComplete => _isComplete;
+  /// Backwards compatibility getter for the primary/first root map stream
+  MapPropertyStream? get rootMapStream {
+    final interactive = _blocks.whereType<InteractiveBlock>();
+    return interactive.isNotEmpty ? interactive.first.rootMapStream : null;
+  }
+
+  /// Backwards compatibility check for complete state
+  bool get isComplete => _blocks.whereType<InteractiveBlock>().every((b) => b.isComplete);
 
   void appendText(String chunk) {
-    _conversationalText += chunk;
+    if (_blocks.isEmpty || _blocks.last is! TextBlock) {
+      _blocks.add(TextBlock()..text = chunk);
+    } else {
+      (_blocks.last as TextBlock).text += chunk;
+    }
     notifyListeners();
   }
 
-  void startInteractive(Stream<String> jsonStream) {
-    _hasInteractive = true;
-    _jsonParser = JsonStreamParser(jsonStream);
-    _rootMapStream = _jsonParser!.getMapProperty('');
+  void startInteractiveBlock(String targetViewId, Stream<String> jsonStream) {
+    final parser = JsonStreamParser(jsonStream);
+    final rootMap = parser.getMapProperty('');
+    final block = InteractiveBlock(
+      targetViewId: targetViewId,
+      rootMapStream: rootMap,
+    );
+    _blocks.add(block);
     notifyListeners();
   }
 
-  void endInteractive() {
-    _isComplete = true;
+  void endInteractiveBlock(String targetViewId) {
+    for (int i = _blocks.length - 1; i >= 0; i--) {
+      final block = _blocks[i];
+      if (block is InteractiveBlock && block.targetViewId == targetViewId) {
+        block.isComplete = true;
+        break;
+      }
+    }
+    // Prepare a fresh TextBlock to catch subsequent streamed characters
+    _blocks.add(TextBlock());
     notifyListeners();
   }
 
@@ -49,11 +84,7 @@ class ViewState extends ChangeNotifier {
   }
 
   void clear() {
-    _conversationalText = '';
-    _rootMapStream = null;
-    _jsonParser = null;
-    _hasInteractive = false;
-    _isComplete = false;
+    _blocks.clear();
     _rawContent = '';
     notifyListeners();
   }

@@ -39,13 +39,21 @@ class StreamingGenUi {
         onText?.call(chunk);
       },
       onInterfaceBlockStart: (targetViewId, jsonStream, startTag) {
-        final targetState = _viewController.getState(targetViewId);
-        targetState.clear();
-        targetState.startInteractive(jsonStream);
+        if (targetViewId == defaultId) {
+          defaultState.startInteractiveBlock(targetViewId, jsonStream);
+        } else {
+          final targetState = _viewController.getState(targetViewId);
+          targetState.clear();
+          targetState.startInteractiveBlock(targetViewId, jsonStream);
+        }
       },
       onInterfaceBlockEnd: (targetViewId) {
-        final targetState = _viewController.getState(targetViewId);
-        targetState.endInteractive();
+        if (targetViewId == defaultId) {
+          defaultState.endInteractiveBlock(targetViewId);
+        } else {
+          final targetState = _viewController.getState(targetViewId);
+          targetState.endInteractiveBlock(targetViewId);
+        }
       },
       onComplete: (raw) {
         defaultState.updateRawContent(raw);

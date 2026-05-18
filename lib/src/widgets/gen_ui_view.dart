@@ -1,6 +1,7 @@
-import 'package:flutter/widgets.dart';
+import 'package:flutter/material.dart';
 import 'package:llm_json_stream/llm_json_stream.dart';
 import '../views/view_controller.dart';
+import '../views/view_state.dart';
 import '../registry/widget_registry.dart';
 
 class GenUiView extends StatelessWidget {
@@ -20,37 +21,11 @@ class GenUiView extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final state = controller.getState(viewId);
+    final isDark = Theme.of(context).brightness == Brightness.dark;
     return ListenableBuilder(
       listenable: state,
       builder: (context, _) {
-        final children = <Widget>[];
-
-        if (state.conversationalText.isNotEmpty) {
-          children.add(
-            Text(
-              state.conversationalText,
-              style: const TextStyle(
-                fontSize: 15,
-                height: 1.5,
-              ),
-            ),
-          );
-        }
-
-        if (state.hasInteractive && state.rootMapStream != null) {
-          if (children.isNotEmpty) {
-            children.add(const SizedBox(height: 16));
-          }
-          children.add(
-            StreamingWidget(
-              mapStream: state.rootMapStream!,
-              registry: registry,
-              onUnknownWidget: onUnknownWidget,
-            ),
-          );
-        }
-
-        if (children.isEmpty) {
+        if (state.blocks.isEmpty) {
           return const SizedBox.shrink();
         }
 
@@ -58,7 +33,34 @@ class GenUiView extends StatelessWidget {
           key: ValueKey('gen_ui_view_$viewId'),
           crossAxisAlignment: CrossAxisAlignment.stretch,
           mainAxisSize: MainAxisSize.min,
-          children: children,
+          children: state.blocks.map((block) {
+            if (block is TextBlock) {
+              if (block.text.isEmpty) {
+                return const SizedBox.shrink();
+              }
+              return Padding(
+                padding: const EdgeInsets.only(bottom: 12.0),
+                child: Text(
+                  block.text,
+                  style: TextStyle(
+                    fontSize: 15,
+                    color: isDark ? const Color(0xFFE2E8F0) : const Color(0xFF1F2937),
+                    height: 1.5,
+                  ),
+                ),
+              );
+            } else if (block is InteractiveBlock) {
+              return Padding(
+                padding: const EdgeInsets.only(bottom: 12.0),
+                child: StreamingWidget(
+                  mapStream: block.rootMapStream,
+                  registry: registry,
+                  onUnknownWidget: onUnknownWidget,
+                ),
+              );
+            }
+            return const SizedBox.shrink();
+          }).toList(),
         );
       },
     );
