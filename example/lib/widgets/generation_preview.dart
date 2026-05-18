@@ -44,6 +44,7 @@ class _GenerationPreviewState extends State<GenerationPreview> with SingleTicker
   StreamSubscription<String>? _subscription;
   bool _autoScroll = true;
   final ScrollController _blueprintScrollController = ScrollController();
+  final ScrollController _previewScrollController = ScrollController();
 
   // For arrow animations
   late final AnimationController _arrowAnimController;
@@ -56,6 +57,8 @@ class _GenerationPreviewState extends State<GenerationPreview> with SingleTicker
       duration: const Duration(milliseconds: 1500),
     );
 
+    widget.genUi.getViewState(widget.viewId).addListener(_scrollPreviewToBottom);
+
     if (widget.textStream != null) {
       _startListening();
     }
@@ -64,6 +67,11 @@ class _GenerationPreviewState extends State<GenerationPreview> with SingleTicker
   @override
   void didUpdateWidget(covariant GenerationPreview oldWidget) {
     super.didUpdateWidget(oldWidget);
+    
+    if (widget.viewId != oldWidget.viewId) {
+      widget.genUi.getViewState(oldWidget.viewId).removeListener(_scrollPreviewToBottom);
+      widget.genUi.getViewState(widget.viewId).addListener(_scrollPreviewToBottom);
+    }
     
     if (widget.textStream != oldWidget.textStream) {
       _stopListening();
@@ -163,11 +171,26 @@ class _GenerationPreviewState extends State<GenerationPreview> with SingleTicker
     }
   }
 
+  void _scrollPreviewToBottom() {
+    if (!_autoScroll) return;
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (_previewScrollController.hasClients) {
+        _previewScrollController.animateTo(
+          _previewScrollController.position.maxScrollExtent,
+          duration: const Duration(milliseconds: 150),
+          curve: Curves.easeOut,
+        );
+      }
+    });
+  }
+
   @override
   void dispose() {
+    widget.genUi.getViewState(widget.viewId).removeListener(_scrollPreviewToBottom);
     _stopListening();
     _arrowAnimController.dispose();
     _blueprintScrollController.dispose();
+    _previewScrollController.dispose();
     super.dispose();
   }
 
@@ -853,6 +876,7 @@ class _GenerationPreviewState extends State<GenerationPreview> with SingleTicker
 
                   Expanded(
                     child: SingleChildScrollView(
+                      controller: _previewScrollController,
                       physics: const BouncingScrollPhysics(),
                       child: widget.genUi.view(widget.viewId),
                     ),

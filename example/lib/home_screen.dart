@@ -98,6 +98,7 @@ class _HomeScreenState extends State<HomeScreen> {
       _isStreamingActive = false;
       _isPaused = false;
     });
+    _genUi.getViewState('page-$_currentPageIndex').clear();
   }
 
   void _runStreamingSimulationForPage(int pageIndex) {
