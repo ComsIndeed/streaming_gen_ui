@@ -1,10 +1,4 @@
-import 'package:flutter/material.dart';
-import 'package:llm_json_stream/llm_json_stream.dart';
+library streaming_gen_ui;
 
-class StreamingGenUi {
-  StreamingGenUi({required Stream<String> stream}) {
-    final jsonStream = JsonStreamParser(stream);
-  }
-
-  Widget view(String viewId) => const SizedBox.shrink();
-}
+export 'src/streaming_gen_ui.dart';
+// Add other exports here as needed
