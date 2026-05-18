@@ -31,11 +31,11 @@ class _GridPaperPainter extends CustomPainter {
   @override
   void paint(Canvas canvas, Size size) {
     final paintFine = Paint()
-      ..color = const Color(0xFFE2E8F0).withOpacity(0.4) // Soft slate grid lines
+      ..color = const Color(0xFFE2E8F0).withValues(alpha: 0.4) // Soft slate grid lines
       ..strokeWidth = 0.5;
 
     final paintPrimary = Paint()
-      ..color = const Color(0xFFCBD5E1).withOpacity(0.6) // Slightly thicker major grid lines
+      ..color = const Color(0xFFCBD5E1).withValues(alpha: 0.6) // Slightly thicker major grid lines
       ..strokeWidth = 1.0;
 
     final double gridSpacingFine = 25.0;
