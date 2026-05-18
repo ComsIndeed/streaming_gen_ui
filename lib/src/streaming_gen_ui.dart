@@ -4,6 +4,7 @@ import 'registry/builtin_registry.dart';
 import 'views/view_controller.dart';
 import 'views/view_state.dart';
 import 'widgets/gen_ui_view.dart';
+import 'parser/stream_parser.dart';
 
 class StreamingGenUi {
   final WidgetRegistry registry;
@@ -27,18 +28,48 @@ class StreamingGenUi {
     void Function(String textChunk)? onText,
     void Function(String fullRaw)? onComplete,
   }) async {
-    // TODO: Implement streaming parser multiplexer
+    final defaultId = viewId ?? 'default';
+    final defaultState = _viewController.getState(defaultId);
+    defaultState.clear();
+
+    final parser = StatefulStreamParser(
+      defaultViewId: defaultId,
+      onText: (chunk) {
+        defaultState.appendText(chunk);
+        onText?.call(chunk);
+      },
+      onInterfaceBlockStart: (targetViewId, jsonStream, startTag) {
+        final targetState = _viewController.getState(targetViewId);
+        targetState.clear();
+        targetState.startInteractive(jsonStream);
+      },
+      onInterfaceBlockEnd: (targetViewId) {
+        final targetState = _viewController.getState(targetViewId);
+        targetState.endInteractive();
+      },
+      onComplete: (raw) {
+        defaultState.updateRawContent(raw);
+        onComplete?.call(raw);
+      },
+    );
+
+    await for (final chunk in response) {
+      parser.processChunk(chunk);
+    }
+    parser.close();
   }
 
   /// Gets the final raw response string of a view (to save to DB)
   String? getViewData(String viewId) {
-    // TODO: Implement data retrieval
-    return null;
+    return _viewController.getState(viewId).rawContent;
   }
 
   /// Restores from saved raw response — internally just streams it as an instant single-value stream
   void restore({required String viewId, required String raw}) {
-    // TODO: Implement restore logic
+    stream(
+      Stream.value(raw),
+      viewId: viewId,
+    );
   }
 
   /// Exposes the reactive view state for manual listener bindings

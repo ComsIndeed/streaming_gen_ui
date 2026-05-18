@@ -3,7 +3,7 @@ import 'package:flutter/widgets.dart';
 class CoreText extends StatelessWidget {
   final Map<String, dynamic> properties;
 
-  const CoreText({Key? key, required this.properties}) : super(key: key);
+  const CoreText({super.key, required this.properties});
 
   @override
   Widget build(BuildContext context) {

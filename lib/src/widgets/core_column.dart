@@ -3,7 +3,7 @@ import 'package:flutter/widgets.dart';
 class CoreColumn extends StatelessWidget {
   final Map<String, dynamic> properties;
 
-  const CoreColumn({Key? key, required this.properties}) : super(key: key);
+  const CoreColumn({super.key, required this.properties});
 
   @override
   Widget build(BuildContext context) {

@@ -1,4 +1,4 @@
-library streaming_gen_ui;
+library;
 
 export 'src/streaming_gen_ui.dart';
 export 'src/views/view_state.dart';
