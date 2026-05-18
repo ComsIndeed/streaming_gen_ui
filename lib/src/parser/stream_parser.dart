@@ -118,8 +118,11 @@ class StatefulStreamParser {
     if (target.startsWith(nextLookahead)) {
       _lookahead = nextLookahead;
       if (_lookahead == target) {
-        _activeJsonController?.close();
+        final controller = _activeJsonController;
         _activeJsonController = null;
+        scheduleMicrotask(() {
+          controller?.close();
+        });
         onInterfaceBlockEnd?.call(_currentViewId);
         
         _state = ParserState.text;

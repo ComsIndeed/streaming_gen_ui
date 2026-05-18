@@ -45,6 +45,7 @@ class _GenerationPreviewState extends State<GenerationPreview> with SingleTicker
   bool _autoScroll = true;
   final ScrollController _blueprintScrollController = ScrollController();
   final ScrollController _previewScrollController = ScrollController();
+  int _activeRightTabIndex = 0;
 
   // For arrow animations
   late final AnimationController _arrowAnimController;
@@ -874,12 +875,27 @@ class _GenerationPreviewState extends State<GenerationPreview> with SingleTicker
                     thickness: 1.5,
                   ),
 
+                  // High-tech premium tab selector
+                  Row(
+                    children: [
+                      _buildTabButton(0, '🎨 VISUAL PREVIEW'),
+                      const SizedBox(width: 8),
+                      _buildTabButton(1, '🔍 STATE INSPECTOR (DEBUG)'),
+                    ],
+                  ),
+                  const SizedBox(height: 12),
+
                   Expanded(
-                    child: SingleChildScrollView(
-                      controller: _previewScrollController,
-                      physics: const BouncingScrollPhysics(),
-                      child: widget.genUi.view(widget.viewId),
-                    ),
+                    child: _activeRightTabIndex == 0
+                        ? SingleChildScrollView(
+                            controller: _previewScrollController,
+                            physics: const BouncingScrollPhysics(),
+                            child: widget.genUi.view(widget.viewId),
+                          )
+                        : SingleChildScrollView(
+                            physics: const BouncingScrollPhysics(),
+                            child: _buildStateInspector(),
+                          ),
                   ),
                 ],
               ),
@@ -958,5 +974,279 @@ class _GenerationPreviewState extends State<GenerationPreview> with SingleTicker
     }
 
     return const SizedBox();
+  }
+
+  Widget _buildTabButton(int index, String label) {
+    final isActive = _activeRightTabIndex == index;
+    return GestureDetector(
+      onTap: () {
+        setState(() {
+          _activeRightTabIndex = index;
+        });
+      },
+      child: AnimatedContainer(
+        duration: const Duration(milliseconds: 200),
+        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+        decoration: BoxDecoration(
+          color: isActive 
+              ? (widget.isDarkMode ? const Color(0xFF38BDF8).withValues(alpha: 0.15) : const Color(0xFF0EA5E9).withValues(alpha: 0.12))
+              : Colors.transparent,
+          borderRadius: BorderRadius.circular(6),
+          border: Border.all(
+            color: isActive 
+                ? (widget.isDarkMode ? const Color(0xFF38BDF8) : const Color(0xFF0EA5E9))
+                : Colors.transparent,
+          ),
+        ),
+        child: Text(
+          label,
+          style: TextStyle(
+            fontSize: 9.5,
+            fontFamily: 'monospace',
+            fontWeight: FontWeight.bold,
+            color: isActive 
+                ? (widget.isDarkMode ? const Color(0xFF38BDF8) : const Color(0xFF0EA5E9))
+                : (widget.isDarkMode ? const Color(0xFF64748B) : const Color(0xFF94A3B8)),
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildStateInspector() {
+    final state = widget.genUi.getViewState(widget.viewId);
+    return ListenableBuilder(
+      listenable: state,
+      builder: (context, _) {
+        if (state.blocks.isEmpty) {
+          return Padding(
+            padding: const EdgeInsets.only(top: 40.0),
+            child: Center(
+              child: Text(
+                'NO ACTIVE PARSED BLOCKS YET',
+                style: TextStyle(
+                  fontFamily: 'monospace',
+                  fontSize: 11,
+                  fontWeight: FontWeight.bold,
+                  color: widget.isDarkMode ? const Color(0xFF475569) : const Color(0xFF94A3B8),
+                ),
+              ),
+            ),
+          );
+        }
+
+        return Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: List.generate(state.blocks.length, (index) {
+            final block = state.blocks[index];
+            return Container(
+              margin: const EdgeInsets.only(bottom: 12),
+              padding: const EdgeInsets.all(12),
+              decoration: BoxDecoration(
+                color: widget.isDarkMode ? const Color(0xFF0F172A) : const Color(0xFFF8FAFC),
+                borderRadius: BorderRadius.circular(8),
+                border: Border.all(
+                  color: widget.isDarkMode ? const Color(0xFF1E293B) : const Color(0xFFE2E8F0),
+                  width: 1.5,
+                ),
+              ),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  // Block header
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Text(
+                        'BLOCK #0${index + 1} // ${block is TextBlock ? "TEXT_BLOCK" : "INTERACTIVE_BLOCK"}',
+                        style: TextStyle(
+                          fontSize: 9.5,
+                          fontFamily: 'monospace',
+                          fontWeight: FontWeight.bold,
+                          color: block is TextBlock
+                              ? (widget.isDarkMode ? const Color(0xFF34D399) : const Color(0xFF059669))
+                              : (widget.isDarkMode ? const Color(0xFF38BDF8) : const Color(0xFF0284C7)),
+                        ),
+                      ),
+                      if (block is InteractiveBlock)
+                        Container(
+                          padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 1.5),
+                          decoration: BoxDecoration(
+                            color: block.isComplete
+                                ? const Color(0x2210B981)
+                                : const Color(0x223B82F6),
+                            borderRadius: BorderRadius.circular(4),
+                          ),
+                          child: Text(
+                            block.isComplete ? 'COMPLETE' : 'STREAMING',
+                            style: TextStyle(
+                              fontSize: 8,
+                              fontFamily: 'monospace',
+                              fontWeight: FontWeight.bold,
+                              color: block.isComplete ? const Color(0xFF10B981) : const Color(0xFF3B82F6),
+                            ),
+                          ),
+                        ),
+                    ],
+                  ),
+                  const SizedBox(height: 8),
+                  
+                  if (block is TextBlock)
+                    Text(
+                      block.text.isEmpty ? '(Empty spacer text block)' : block.text,
+                      style: TextStyle(
+                        fontFamily: 'monospace',
+                        fontSize: 11,
+                        height: 1.4,
+                        color: widget.isDarkMode ? const Color(0xFF94A3B8) : const Color(0xFF64748B),
+                      ),
+                    )
+                  else if (block is InteractiveBlock)
+                    _buildInteractiveBlockDebug(block),
+                ],
+              ),
+            );
+          }),
+        );
+      },
+    );
+  }
+
+  Widget _buildInteractiveBlockDebug(InteractiveBlock block) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        PropResolverRow(
+          label: 'namespace',
+          property: block.rootMapStream.getStringProperty('namespace'),
+          isDarkMode: widget.isDarkMode,
+        ),
+        const SizedBox(height: 8),
+        Text(
+          'Streamed Properties:',
+          style: TextStyle(
+            fontFamily: 'monospace',
+            fontSize: 9,
+            fontWeight: FontWeight.bold,
+            color: widget.isDarkMode ? const Color(0xFF475569) : const Color(0xFF94A3B8),
+          ),
+        ),
+        const SizedBox(height: 4),
+        PropResolverRow(
+          label: 'text',
+          property: block.rootMapStream.getStringProperty('text'),
+          isDarkMode: widget.isDarkMode,
+        ),
+        PropResolverRow(
+          label: 'action',
+          property: block.rootMapStream.getStringProperty('action'),
+          isDarkMode: widget.isDarkMode,
+        ),
+        PropResolverRow(
+          label: 'label',
+          property: block.rootMapStream.getStringProperty('label'),
+          isDarkMode: widget.isDarkMode,
+        ),
+        PropResolverRow(
+          label: 'hint',
+          property: block.rootMapStream.getStringProperty('hint'),
+          isDarkMode: widget.isDarkMode,
+        ),
+      ],
+    );
+  }
+}
+
+class PropResolverRow extends StatefulWidget {
+  final String label;
+  final StringPropertyStream? property;
+  final bool isDarkMode;
+
+  const PropResolverRow({
+    super.key,
+    required this.label,
+    this.property,
+    required this.isDarkMode,
+  });
+
+  @override
+  State<PropResolverRow> createState() => _PropResolverRowState();
+}
+
+class _PropResolverRowState extends State<PropResolverRow> {
+  String _accumulated = '';
+  StreamSubscription<String>? _sub;
+
+  @override
+  void initState() {
+    super.initState();
+    _startListening();
+  }
+
+  @override
+  void didUpdateWidget(covariant PropResolverRow oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (widget.property != oldWidget.property) {
+      _stopListening();
+      _accumulated = '';
+      _startListening();
+    }
+  }
+
+  void _startListening() {
+    if (widget.property == null) return;
+    _sub = widget.property!.stream.listen((chunk) {
+      setState(() {
+        _accumulated += chunk;
+      });
+    });
+    widget.property!.future.then((full) {
+      if (mounted) {
+        setState(() {
+          _accumulated = full;
+        });
+      }
+    });
+  }
+
+  void _stopListening() {
+    _sub?.cancel();
+  }
+
+  @override
+  void dispose() {
+    _stopListening();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    if (widget.property == null || _accumulated.isEmpty) return const SizedBox.shrink();
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 4.0),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            '  "${widget.label}": ',
+            style: TextStyle(
+              fontFamily: 'monospace',
+              fontSize: 11,
+              color: widget.isDarkMode ? const Color(0xFF38BDF8) : const Color(0xFF0284C7),
+            ),
+          ),
+          Expanded(
+            child: Text(
+              '"$_accumulated"',
+              style: TextStyle(
+                fontFamily: 'monospace',
+                fontSize: 11,
+                color: widget.isDarkMode ? const Color(0xFF34D399) : const Color(0xFF059669),
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
   }
 }
