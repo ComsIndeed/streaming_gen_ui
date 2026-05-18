@@ -4,31 +4,76 @@
 
 ### Syntax and Usage
 
+The intended minimal use:
+
 ```dart
-// The one class you actually need
+// ─────────────────────────────────────────────
+// INTENDED USAGE
+// ─────────────────────────────────────────────
+
+// Setup
 final genUi = StreamingGenUi(registry: myRegistry);
 
-// Expose the prompt fragment — they inject it wherever they want
-final prompt = genUi.systemPrompt;
+// Inject the prompt fragment into your LLM system prompt however you want
+final systemPrompt = genUi.systemPrompt;
 
-// They call their LLM however they want, then pipe the stream in
-await genUi.stream(response, viewId: 'side-panel');  // Flowserract case
-await genUi.stream(response, viewId: 'message-42');  // Chat bubble case
-await genUi.stream(response, viewId: 'global-modal'); // Global action case
+// Pipe the LLM response stream in, save raw response on completion
+await genUi.stream(
+  llmStream,
+  viewId: 'message-42',
+  onComplete: (raw) => db.save(raw),
+);
 
-// Get final parsed data after completion (e.g. to save to DB)
-final data = genUi.getViewData('message-42');
+// Restore a past response from DB
+genUi.restore(viewId: 'message-42', raw: db.load('message-42'));
 
-// Restore from saved data — internally just streams it as an instant single-value stream
-genUi.restore(viewId: 'message-42', data: savedJson);
-
-// Cleanup when a view is permanently gone (e.g. chat cleared, logout)
-genUi.disposeView('message-42');
-
-// They place the view widget wherever they want in their tree
-genUi.view('side-panel')
+// Place the view anywhere in your widget tree
 genUi.view('message-42')
-genUi.view('global-modal')
+
+// Cleanup when permanently gone
+genUi.disposeView('message-42');
+```
+
+Full API being demonstrated:
+
+```dart
+// ─────────────────────────────────────────────
+// FULL API
+// ─────────────────────────────────────────────
+
+// Setup
+final genUi = StreamingGenUi(registry: myRegistry);
+
+// System prompt fragment to inject into your LLM
+final systemPrompt = genUi.systemPrompt;
+
+// Stream — all parameters
+await genUi.stream(
+  llmStream,
+  viewId: 'side-panel',          // optional — omit if only using callbacks
+  onText: (chunk) => ...,        // text portions only, tags stripped, as they stream
+  onComplete: (raw) => ...,      // full raw response (text + tags) for DB storage
+);
+
+// Multiple views from one response via <interface viewId="..."> tags
+// The LLM can target any mounted view by its ID in the tag itself
+await genUi.stream(
+  llmStream,
+  viewId: 'message-42',          // default target for untagged <interface> blocks
+  onText: (chunk) => ...,
+  onComplete: (raw) => db.save(raw),
+);
+
+// Restore from saved raw response
+genUi.restore(viewId: 'message-42', raw: savedRawString);
+
+// Place views anywhere in the widget tree
+genUi.view('side-panel')         // Flowserract side panel case
+genUi.view('message-42')         // Chat bubble case  
+genUi.view('global-modal')       // Global action case
+
+// Cleanup
+genUi.disposeView('message-42');
 ```
 
 - On initialize, they handle what UIs to register (or they use our prepackaged
@@ -44,7 +89,13 @@ genUi.view('global-modal')
 Basically: We give them a prompt fragment, they share us the response and which
 view we pipe the UI to, and we display the UI of a view ID requested.
 
-The model is instructed to respond normally using natural conversational language. At any point in the stream—whether between paragraphs or inline—the model can seamlessly embed a dynamic UI widget tree by enclosing a valid JSON payload within custom `<interface>` and `</interface>` tags. The streaming parser isolates these tagged blocks to render the visual UI components on-the-fly, while treating all content outside of them as standard markdown or text.
+The model is instructed to respond normally using natural conversational
+language. At any point in the stream—whether between paragraphs or inline—the
+model can seamlessly embed a dynamic UI widget tree by enclosing a valid JSON
+payload within custom `<interface>` and `</interface>` tags. The streaming
+parser isolates these tagged blocks to render the visual UI components
+on-the-fly, while treating all content outside of them as standard markdown or
+text.
 
 Cases:
 
