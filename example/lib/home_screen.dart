@@ -45,16 +45,12 @@ class _HomeScreenState extends State<HomeScreen> {
   // Customizable simulation parameters (Wider and larger)
   int _chunkSize = 6;
   int _speedMs = 40;
+  bool _isPaused = false;
 
   @override
   void initState() {
     super.initState();
     _pageController = PageController(initialPage: 0);
-    
-    // Auto-run first example on load
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      _runStreamingSimulationForPage(0);
-    });
   }
 
   /// Split a full string into chunks of a given size and push them
@@ -64,6 +60,9 @@ class _HomeScreenState extends State<HomeScreen> {
     int numChunks = (totalLength / chunkSize).ceil();
 
     for (int i = 0; i < numChunks; i++) {
+      while (_isPaused) {
+        await Future.delayed(const Duration(milliseconds: 50));
+      }
       int start = i * chunkSize;
       int end = (start + chunkSize < totalLength) ? start + chunkSize : totalLength;
       yield text.substring(start, end);
@@ -71,8 +70,17 @@ class _HomeScreenState extends State<HomeScreen> {
     }
   }
 
+  void _resetStream() {
+    setState(() {
+      _activeStreams[_currentPageIndex] = null;
+      _isStreamingActive = false;
+      _isPaused = false;
+    });
+  }
+
   void _runStreamingSimulationForPage(int pageIndex) {
     setState(() {
+      _isPaused = false;
       _simulationCounters[pageIndex] = (_simulationCounters[pageIndex] ?? 0) + 1;
       
       final String textToStream = _examples[pageIndex].content;
@@ -136,7 +144,6 @@ class _HomeScreenState extends State<HomeScreen> {
                     setState(() {
                       _currentPageIndex = index;
                     });
-                    _runStreamingSimulationForPage(index);
                   },
                   itemCount: _examples.length,
                   itemBuilder: (context, index) {
@@ -152,6 +159,7 @@ class _HomeScreenState extends State<HomeScreen> {
                           textStream: stream,
                           fullText: item.content, // Pass full text for background ghost JSON alignment
                           title: item.name,
+                          isPaused: _isPaused && _isStreamingActive,
                         ),
                       ),
                     );
@@ -197,7 +205,7 @@ class _HomeScreenState extends State<HomeScreen> {
           mainAxisSize: MainAxisSize.min,
           children: [
             // Bouncing micro-animated equalizer bars representing signal activity
-            TopBarVisualizer(isActive: _isStreamingActive),
+            TopBarVisualizer(isActive: _isStreamingActive && !_isPaused),
             const SizedBox(width: 20),
 
             // Chunk Size parameter slider
@@ -205,7 +213,7 @@ class _HomeScreenState extends State<HomeScreen> {
               label: 'CHUNK SIZE',
               value: _chunkSize.toDouble(),
               min: 1,
-              max: 20,
+              max: 100,
               displayValue: '$_chunkSize characters',
               onChanged: (val) {
                 setState(() {
@@ -220,7 +228,7 @@ class _HomeScreenState extends State<HomeScreen> {
               label: 'INTERVAL SPEED',
               value: _speedMs.toDouble(),
               min: 5,
-              max: 250,
+              max: 1000,
               displayValue: '$_speedMs ms',
               onChanged: (val) {
                 setState(() {
@@ -277,30 +285,91 @@ class _HomeScreenState extends State<HomeScreen> {
             ),
             const SizedBox(width: 20),
 
-            // Start Stream Button
-            SizedBox(
-              height: 40,
-              child: ElevatedButton.icon(
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: const Color(0xFF0F172A),
-                  foregroundColor: Colors.white,
-                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
-                  padding: const EdgeInsets.symmetric(horizontal: 16),
-                  elevation: 0,
-                ),
-                onPressed: () => _runStreamingSimulationForPage(_currentPageIndex),
-                icon: const Icon(Icons.play_arrow_rounded, size: 18, color: Color(0xFF38BDF8)),
-                label: const Text(
-                  'Start Stream',
-                  style: TextStyle(
-                    fontSize: 11,
-                    fontFamily: 'monospace',
-                    fontWeight: FontWeight.bold,
-                    letterSpacing: 0.5,
+            // Play, Pause, Reset Controls
+            if (!_isStreamingActive)
+              SizedBox(
+                height: 40,
+                child: ElevatedButton.icon(
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: const Color(0xFF0F172A),
+                    foregroundColor: Colors.white,
+                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+                    padding: const EdgeInsets.symmetric(horizontal: 16),
+                    elevation: 0,
+                  ),
+                  onPressed: () => _runStreamingSimulationForPage(_currentPageIndex),
+                  icon: const Icon(Icons.play_arrow_rounded, size: 18, color: Color(0xFF38BDF8)),
+                  label: const Text(
+                    'Start Stream',
+                    style: TextStyle(
+                      fontSize: 11,
+                      fontFamily: 'monospace',
+                      fontWeight: FontWeight.bold,
+                      letterSpacing: 0.5,
+                    ),
                   ),
                 ),
+              )
+            else
+              Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  SizedBox(
+                    height: 40,
+                    child: ElevatedButton.icon(
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: const Color(0xFF0F172A),
+                        foregroundColor: Colors.white,
+                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+                        padding: const EdgeInsets.symmetric(horizontal: 16),
+                        elevation: 0,
+                      ),
+                      onPressed: () => setState(() { _isPaused = !_isPaused; }),
+                      icon: Icon(
+                        _isPaused ? Icons.play_arrow_rounded : Icons.pause_rounded, 
+                        size: 18, 
+                        color: const Color(0xFF38BDF8)
+                      ),
+                      label: Text(
+                        _isPaused ? 'Resume' : 'Pause',
+                        style: const TextStyle(
+                          fontSize: 11,
+                          fontFamily: 'monospace',
+                          fontWeight: FontWeight.bold,
+                          letterSpacing: 0.5,
+                        ),
+                      ),
+                    ),
+                  ),
+                  const SizedBox(width: 8),
+                  SizedBox(
+                    height: 40,
+                    child: ElevatedButton.icon(
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: const Color(0xFFF1F5F9),
+                        foregroundColor: const Color(0xFF0F172A),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(8),
+                          side: const BorderSide(color: Color(0xFFE2E8F0)),
+                        ),
+                        padding: const EdgeInsets.symmetric(horizontal: 16),
+                        elevation: 0,
+                      ),
+                      onPressed: _resetStream,
+                      icon: const Icon(Icons.stop_rounded, size: 18, color: Color(0xFFEF4444)),
+                      label: const Text(
+                        'Reset',
+                        style: TextStyle(
+                          fontSize: 11,
+                          fontFamily: 'monospace',
+                          fontWeight: FontWeight.bold,
+                          letterSpacing: 0.5,
+                        ),
+                      ),
+                    ),
+                  ),
+                ],
               ),
-            ),
           ],
         ),
       ],

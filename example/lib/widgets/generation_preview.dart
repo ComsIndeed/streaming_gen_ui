@@ -10,12 +10,14 @@ class GenerationPreview extends StatefulWidget {
   final Stream<String>? textStream;
   final String fullText;
   final String title;
+  final bool isPaused;
 
   const GenerationPreview({
     super.key,
     this.textStream,
     required this.fullText,
     required this.title,
+    this.isPaused = false,
   });
 
   @override
@@ -48,11 +50,20 @@ class _GenerationPreviewState extends State<GenerationPreview> with SingleTicker
   @override
   void didUpdateWidget(covariant GenerationPreview oldWidget) {
     super.didUpdateWidget(oldWidget);
+    
     if (widget.textStream != oldWidget.textStream) {
       _stopListening();
       _accumulatedText = '';
       if (widget.textStream != null) {
         _startListening();
+      }
+    }
+    
+    if (widget.isPaused != oldWidget.isPaused) {
+      if (widget.isPaused) {
+        _arrowAnimController.stop();
+      } else if (_isProcessing) {
+        _arrowAnimController.repeat();
       }
     }
   }
@@ -284,7 +295,7 @@ class _GenerationPreviewState extends State<GenerationPreview> with SingleTicker
                       child: Row(
                         mainAxisSize: MainAxisSize.min,
                         children: [
-                          if (_isProcessing) ...[
+                          if (_isProcessing && !widget.isPaused) ...[
                             const SizedBox(
                               width: 8,
                               height: 8,
@@ -295,8 +306,12 @@ class _GenerationPreviewState extends State<GenerationPreview> with SingleTicker
                             ),
                             const SizedBox(width: 6),
                           ],
+                          if (widget.isPaused) ...[
+                            const Icon(Icons.pause, size: 10, color: Color(0xFF0369A1)),
+                            const SizedBox(width: 4),
+                          ],
                           Text(
-                            _isProcessing ? 'STREAMING' : 'IDLE',
+                            widget.isPaused ? 'PAUSED' : (_isProcessing ? 'STREAMING' : 'IDLE'),
                             style: TextStyle(
                               color: _isProcessing ? const Color(0xFF0369A1) : const Color(0xFF64748B),
                               fontFamily: 'monospace',
