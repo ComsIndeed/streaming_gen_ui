@@ -97,6 +97,26 @@ parser isolates these tagged blocks to render the visual UI components
 on-the-fly, while treating all content outside of them as standard markdown or
 text.
 
+### Streaming View & Target Routing Modes
+
+When the LLM streams its response, there are two layout modes based on the tags:
+
+#### 1. Single-View / Inline Chat Mode (Default)
+
+If the model streams an untagged `<interface>` block (meaning no `viewId` attribute is provided on the XML tag itself), all elements are rendered on the default view specified in `genUi.stream(...)`.
+
+- The `.view('message-42')` widget handles the entire layout sandwich.
+- It displays the preceding text, followed by the active dynamic widget, followed by the succeeding text.
+- Conversational text portions are automatically rendered in standard Markdown.
+
+#### 2. Multi-View / Target-Routed Mode
+
+If the model streams an interface block targeting a specific view (e.g. `<interface viewId="side-panel">`), the engine splits and routes the widgets dynamically.
+
+- The default stream view (like the active chat bubble) only displays the conversational text.
+- The target view container (mounted elsewhere via `genUi.view('side-panel')`) dynamically catches and compiles the dynamic widget layout on-the-fly.
+- Allows the LLM to control multiple separate layout zones across your application.
+
 Cases:
 
 - If unknown widget, allow an onUnknownWidget handler, default to error widget.
