@@ -148,7 +148,7 @@ class _HomeScreenState extends State<HomeScreen> {
                       child: Padding(
                         padding: const EdgeInsets.only(bottom: 12.0),
                         child: GenerationPreview(
-                          key: ValueKey('preview-$index-$simCount-$_chunkSize-$_speedMs'),
+                          key: ValueKey('preview-$index'),
                           textStream: stream,
                           fullText: item.content, // Pass full text for background ghost JSON alignment
                           title: item.name,

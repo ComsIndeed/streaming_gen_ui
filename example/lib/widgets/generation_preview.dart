@@ -26,6 +26,7 @@ class _GenerationPreviewState extends State<GenerationPreview> with SingleTicker
   String _accumulatedText = '';
   bool _isProcessing = false;
   StreamSubscription<String>? _subscription;
+  bool _autoScroll = true;
   final ScrollController _blueprintScrollController = ScrollController();
 
   // For arrow animations
@@ -93,11 +94,42 @@ class _GenerationPreviewState extends State<GenerationPreview> with SingleTicker
   }
 
   void _scrollToBottom() {
+    if (!_autoScroll) return;
     if (_blueprintScrollController.hasClients) {
+      // Calculate the exact height of the streamed text so far
+      final textPainter = TextPainter(
+        text: TextSpan(
+          text: _accumulatedText,
+          style: const TextStyle(
+            fontFamily: 'monospace',
+            fontSize: 12.5,
+            height: 1.5,
+            fontWeight: FontWeight.w500,
+          ),
+        ),
+        textDirection: TextDirection.ltr,
+      );
+
+      // Account for the horizontal padding of 8.0 on each side (16.0 total)
+      final double maxWidth = _blueprintScrollController.position.viewportDimension - 16.0;
+      textPainter.layout(maxWidth: maxWidth > 0 ? maxWidth : double.infinity);
+      final double currentTextHeight = textPainter.size.height;
+
       WidgetsBinding.instance.addPostFrameCallback((_) {
         if (_blueprintScrollController.hasClients) {
+          final double viewportHeight = _blueprintScrollController.position.viewportDimension;
+          
+          // Center the active typing cursor in the viewport
+          double targetScroll = currentTextHeight - (viewportHeight / 2);
+
+          if (targetScroll < 0) {
+            targetScroll = 0;
+          } else if (targetScroll > _blueprintScrollController.position.maxScrollExtent) {
+            targetScroll = _blueprintScrollController.position.maxScrollExtent;
+          }
+
           _blueprintScrollController.animateTo(
-            _blueprintScrollController.position.maxScrollExtent,
+            targetScroll,
             duration: const Duration(milliseconds: 100),
             curve: Curves.easeOut,
           );
@@ -194,43 +226,88 @@ class _GenerationPreviewState extends State<GenerationPreview> with SingleTicker
                     letterSpacing: 1.2,
                   ),
                 ),
-                Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
-                  decoration: BoxDecoration(
-                    color: _isProcessing
-                        ? const Color(0xFFBAE6FD).withOpacity(0.6)
-                        : const Color(0xFFE2E8F0).withOpacity(0.6),
-                    border: Border.all(
-                      color: _isProcessing ? const Color(0xFF38BDF8) : const Color(0xFFCBD5E1),
-                      width: 1,
-                    ),
-                    borderRadius: BorderRadius.circular(4),
-                  ),
-                  child: Row(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      if (_isProcessing) ...[
-                        const SizedBox(
-                          width: 8,
-                          height: 8,
-                          child: CircularProgressIndicator(
-                            strokeWidth: 1.5,
-                            color: Color(0xFF0284C7),
+                Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    InkWell(
+                      onTap: () {
+                        setState(() {
+                          _autoScroll = !_autoScroll;
+                        });
+                      },
+                      borderRadius: BorderRadius.circular(4),
+                      child: Container(
+                        padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                        decoration: BoxDecoration(
+                          color: _autoScroll ? const Color(0xFF0369A1).withOpacity(0.1) : Colors.transparent,
+                          borderRadius: BorderRadius.circular(4),
+                          border: Border.all(
+                            color: _autoScroll ? const Color(0xFF0369A1).withOpacity(0.3) : Colors.transparent,
+                            width: 1,
                           ),
                         ),
-                        const SizedBox(width: 6),
-                      ],
-                      Text(
-                        _isProcessing ? 'STREAMING' : 'IDLE',
-                        style: TextStyle(
-                          color: _isProcessing ? const Color(0xFF0369A1) : const Color(0xFF64748B),
-                          fontFamily: 'monospace',
-                          fontSize: 9,
-                          fontWeight: FontWeight.bold,
+                        child: Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            Icon(
+                              _autoScroll ? Icons.lock_outline : Icons.lock_open,
+                              size: 12,
+                              color: const Color(0xFF0369A1),
+                            ),
+                            const SizedBox(width: 4),
+                            Text(
+                              _autoScroll ? 'FOLLOW STREAM' : 'FREE SCROLL',
+                              style: const TextStyle(
+                                color: Color(0xFF0369A1),
+                                fontFamily: 'monospace',
+                                fontSize: 9,
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
+                          ],
                         ),
                       ),
-                    ],
-                  ),
+                    ),
+                    const SizedBox(width: 8),
+                    Container(
+                      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
+                      decoration: BoxDecoration(
+                        color: _isProcessing
+                            ? const Color(0xFFBAE6FD).withOpacity(0.6)
+                            : const Color(0xFFE2E8F0).withOpacity(0.6),
+                        border: Border.all(
+                          color: _isProcessing ? const Color(0xFF38BDF8) : const Color(0xFFCBD5E1),
+                          width: 1,
+                        ),
+                        borderRadius: BorderRadius.circular(4),
+                      ),
+                      child: Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          if (_isProcessing) ...[
+                            const SizedBox(
+                              width: 8,
+                              height: 8,
+                              child: CircularProgressIndicator(
+                                strokeWidth: 1.5,
+                                color: Color(0xFF0284C7),
+                              ),
+                            ),
+                            const SizedBox(width: 6),
+                          ],
+                          Text(
+                            _isProcessing ? 'STREAMING' : 'IDLE',
+                            style: TextStyle(
+                              color: _isProcessing ? const Color(0xFF0369A1) : const Color(0xFF64748B),
+                              fontFamily: 'monospace',
+                              fontSize: 9,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ],
                 ),
               ],
             ),
