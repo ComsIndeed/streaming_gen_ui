@@ -5,6 +5,7 @@ import 'package:example/data/mock_data.dart';
 import 'package:example/widgets/technical_grid_background.dart';
 import 'package:example/widgets/generation_preview.dart';
 import 'package:example/widgets/top_bar_visualizer.dart';
+import 'package:streaming_gen_ui/streaming_gen_ui.dart';
 
 class HomeScreen extends StatefulWidget {
   final bool isDarkMode;
@@ -23,6 +24,9 @@ class HomeScreen extends StatefulWidget {
 class _HomeScreenState extends State<HomeScreen> {
   // Test case data loaded cleanly from data module
   final List<ExampleData> _examples = mockExamples;
+  
+  // Package instance to drive reactive Dynamic UI streams
+  final StreamingGenUi _genUi = StreamingGenUi();
 
   late PageController _pageController;
   int _currentPageIndex = 0;
@@ -115,6 +119,12 @@ class _HomeScreenState extends State<HomeScreen> {
       _isStreamingActive = true;
     });
 
+    // Pipe LLM stream directly into the package engine under a unique page ID
+    _genUi.stream(
+      _activeStreams[pageIndex]!,
+      viewId: 'page-$pageIndex',
+    );
+
     _activeStreams[pageIndex]!.listen(
       null,
       onDone: () {
@@ -188,6 +198,8 @@ class _HomeScreenState extends State<HomeScreen> {
                           isPaused: _isPaused && _isStreamingActive,
                           isTokenSaverEnabled: _isTokenSaver,
                           isDarkMode: widget.isDarkMode,
+                          genUi: _genUi,
+                          viewId: 'page-$index',
                           onTokenSaverToggled: (val) {
                             setState(() {
                               _isTokenSaver = val;

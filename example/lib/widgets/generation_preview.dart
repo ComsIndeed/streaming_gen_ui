@@ -6,6 +6,7 @@ import 'package:example/utils/json_parser.dart';
 import 'package:example/widgets/custom_painters.dart';
 import 'package:example/widgets/skeleton_loader.dart';
 import 'package:example/widgets/dynamic_widget_renderer.dart';
+import 'package:streaming_gen_ui/streaming_gen_ui.dart';
 
 /// A premium widget that displays raw stream input in a classic blueprint paper style
 /// on the left, an animated processing arrow in the center, and a beautiful rendered
@@ -18,6 +19,8 @@ class GenerationPreview extends StatefulWidget {
   final bool isTokenSaverEnabled;
   final ValueChanged<bool>? onTokenSaverToggled;
   final bool isDarkMode;
+  final StreamingGenUi genUi;
+  final String viewId;
 
   const GenerationPreview({
     super.key,
@@ -28,6 +31,8 @@ class GenerationPreview extends StatefulWidget {
     this.isTokenSaverEnabled = false,
     this.onTokenSaverToggled,
     this.isDarkMode = false,
+    required this.genUi,
+    required this.viewId,
   });
 
   @override
@@ -783,20 +788,6 @@ class _GenerationPreviewState extends State<GenerationPreview> with SingleTicker
   }
 
   Widget _buildWhitePaperPanel(ParsedResult parsed) {
-    // Dynamic Widget Render Engine on the Right Panel (White Paper / Dark Paper)
-    final bool hasJson = parsed.hasInteractive && parsed.jsonText.trim().isNotEmpty;
-    Map<String, dynamic>? decodedJson;
-    String? parseError;
-
-    if (hasJson) {
-      try {
-        final String cleanedJson = cleanJsonString(parsed.jsonText);
-        decodedJson = jsonDecode(cleanedJson) as Map<String, dynamic>;
-      } catch (e) {
-        parseError = e.toString();
-      }
-    }
-
     return Container(
       decoration: BoxDecoration(
         color: widget.isDarkMode ? const Color(0xFF0F172A) : Colors.white, // Crisp drafting paper sheet / dark blueprint paper
@@ -864,7 +855,7 @@ class _GenerationPreviewState extends State<GenerationPreview> with SingleTicker
                   Expanded(
                     child: SingleChildScrollView(
                       physics: const BouncingScrollPhysics(),
-                      child: _buildRenderOutput(hasJson, decodedJson, parseError, parsed),
+                      child: widget.genUi.view(widget.viewId),
                     ),
                   ),
                 ],
