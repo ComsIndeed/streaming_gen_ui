@@ -11,6 +11,8 @@ class GenerationPreview extends StatefulWidget {
   final String fullText;
   final String title;
   final bool isPaused;
+  final bool isTokenSaverEnabled;
+  final ValueChanged<bool>? onTokenSaverToggled;
 
   const GenerationPreview({
     super.key,
@@ -18,6 +20,8 @@ class GenerationPreview extends StatefulWidget {
     required this.fullText,
     required this.title,
     this.isPaused = false,
+    this.isTokenSaverEnabled = false,
+    this.onTokenSaverToggled,
   });
 
   @override
@@ -240,6 +244,46 @@ class _GenerationPreviewState extends State<GenerationPreview> with SingleTicker
                 Row(
                   mainAxisSize: MainAxisSize.min,
                   children: [
+                    if (widget.onTokenSaverToggled != null) ...[
+                      InkWell(
+                        onTap: () {
+                          widget.onTokenSaverToggled!(!widget.isTokenSaverEnabled);
+                        },
+                        borderRadius: BorderRadius.circular(4),
+                        child: Container(
+                          padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                          decoration: BoxDecoration(
+                            color: widget.isTokenSaverEnabled ? const Color(0xFF059669).withOpacity(0.1) : Colors.transparent,
+                            borderRadius: BorderRadius.circular(4),
+                            border: Border.all(
+                              color: widget.isTokenSaverEnabled ? const Color(0xFF059669).withOpacity(0.3) : const Color(0xFF94A3B8).withOpacity(0.3),
+                              width: 1,
+                            ),
+                          ),
+                          child: Row(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              Icon(
+                                Icons.compress,
+                                size: 12,
+                                color: widget.isTokenSaverEnabled ? const Color(0xFF059669) : const Color(0xFF64748B),
+                              ),
+                              const SizedBox(width: 4),
+                              Text(
+                                'TOKEN SAVER',
+                                style: TextStyle(
+                                  color: widget.isTokenSaverEnabled ? const Color(0xFF059669) : const Color(0xFF64748B),
+                                  fontFamily: 'monospace',
+                                  fontSize: 9,
+                                  fontWeight: FontWeight.bold,
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ),
+                      const SizedBox(width: 8),
+                    ],
                     InkWell(
                       onTap: () {
                         setState(() {

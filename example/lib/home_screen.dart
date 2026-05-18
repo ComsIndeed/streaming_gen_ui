@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:convert';
 import 'dart:math';
 import 'package:flutter/material.dart';
 import 'package:example/widgets/technical_grid_background.dart';
@@ -46,6 +47,7 @@ class _HomeScreenState extends State<HomeScreen> {
   int _chunkSize = 6;
   int _speedMs = 40;
   bool _isPaused = false;
+  bool _isTokenSaver = false;
 
   @override
   void initState() {
@@ -70,6 +72,23 @@ class _HomeScreenState extends State<HomeScreen> {
     }
   }
 
+  String _minifyInteractiveBlock(String text) {
+    try {
+      final startMatch = text.indexOf('<interactive>');
+      final endMatch = text.indexOf('</interactive>');
+      if (startMatch != -1 && endMatch != -1 && startMatch < endMatch) {
+        final innerStart = startMatch + '<interactive>'.length;
+        final inner = text.substring(innerStart, endMatch);
+        final parsed = jsonDecode(inner);
+        final minified = jsonEncode(parsed);
+        return text.substring(0, innerStart) + '\n' + minified + '\n' + text.substring(endMatch);
+      }
+    } catch (e) {
+      // Ignore parsing errors and return raw
+    }
+    return text;
+  }
+
   void _resetStream() {
     setState(() {
       _activeStreams[_currentPageIndex] = null;
@@ -83,7 +102,10 @@ class _HomeScreenState extends State<HomeScreen> {
       _isPaused = false;
       _simulationCounters[pageIndex] = (_simulationCounters[pageIndex] ?? 0) + 1;
       
-      final String textToStream = _examples[pageIndex].content;
+      String textToStream = _examples[pageIndex].content;
+      if (_isTokenSaver) {
+        textToStream = _minifyInteractiveBlock(textToStream);
+      }
       final stream = streamTextInChunks(
         textToStream,
         _chunkSize,
@@ -151,15 +173,30 @@ class _HomeScreenState extends State<HomeScreen> {
                     final simCount = _simulationCounters[index] ?? 0;
                     final stream = _activeStreams[index];
 
+                    String displayContent = item.content;
+                    if (_isTokenSaver) {
+                      displayContent = _minifyInteractiveBlock(displayContent);
+                    }
+
                     return TechnicalGridBackground(
                       child: Padding(
                         padding: const EdgeInsets.only(bottom: 12.0),
                         child: GenerationPreview(
                           key: ValueKey('preview-$index'),
                           textStream: stream,
-                          fullText: item.content, // Pass full text for background ghost JSON alignment
+                          fullText: displayContent,
                           title: item.name,
                           isPaused: _isPaused && _isStreamingActive,
+                          isTokenSaverEnabled: _isTokenSaver,
+                          onTokenSaverToggled: (val) {
+                            setState(() {
+                              _isTokenSaver = val;
+                            });
+                            if (_isStreamingActive) {
+                              _resetStream();
+                              _runStreamingSimulationForPage(_currentPageIndex);
+                            }
+                          },
                         ),
                       ),
                     );
