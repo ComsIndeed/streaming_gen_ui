@@ -6,5 +6,5 @@ class StreamingGenUi {
     final jsonStream = JsonStreamParser(stream);
   }
 
-  Widget get view => const SizedBox.shrink();
+  Widget view(String viewId) => const SizedBox.shrink();
 }
