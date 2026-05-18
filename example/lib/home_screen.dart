@@ -66,10 +66,17 @@ class _HomeScreenState extends State<HomeScreen> {
 
   String _minifyInteractiveBlock(String text) {
     try {
-      final startMatch = text.indexOf('<interactive>');
-      final endMatch = text.indexOf('</interactive>');
+      int startMatch = text.indexOf('<interface>');
+      int tagLength = '<interface>'.length;
+      int endMatch = text.indexOf('</interface>');
+      if (startMatch == -1) {
+        startMatch = text.indexOf('<interactive>');
+        tagLength = '<interactive>'.length;
+        endMatch = text.indexOf('</interactive>');
+      }
+
       if (startMatch != -1 && endMatch != -1 && startMatch < endMatch) {
-        final innerStart = startMatch + '<interactive>'.length;
+        final innerStart = startMatch + tagLength;
         final inner = text.substring(innerStart, endMatch);
         final parsed = jsonDecode(inner);
         final minified = jsonEncode(parsed);

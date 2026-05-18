@@ -14,7 +14,16 @@ Color? parseHexColor(String hexString) {
 }
 
 ParsedResult parseText(String text) {
-  final int startIndex = text.indexOf('<interactive>');
+  int startIndex = text.indexOf('<interface>');
+  String startTag = '<interface>';
+  String endTag = '</interface>';
+
+  if (startIndex == -1) {
+    startIndex = text.indexOf('<interactive>');
+    startTag = '<interactive>';
+    endTag = '</interactive>';
+  }
+
   if (startIndex == -1) {
     return ParsedResult(
       preText: text,
@@ -22,13 +31,15 @@ ParsedResult parseText(String text) {
       postText: '',
       hasInteractive: false,
       isInteractiveClosed: false,
+      startTag: '<interface>',
+      endTag: '</interface>',
     );
   }
 
   final String preText = text.substring(0, startIndex);
-  final String remaining = text.substring(startIndex + '<interactive>'.length);
+  final String remaining = text.substring(startIndex + startTag.length);
 
-  final int endIndex = remaining.indexOf('</interactive>');
+  final int endIndex = remaining.indexOf(endTag);
   if (endIndex == -1) {
     return ParsedResult(
       preText: preText,
@@ -36,11 +47,13 @@ ParsedResult parseText(String text) {
       postText: '',
       hasInteractive: true,
       isInteractiveClosed: false,
+      startTag: startTag,
+      endTag: endTag,
     );
   }
 
   final String jsonText = remaining.substring(0, endIndex);
-  final String postText = remaining.substring(endIndex + '</interactive>'.length);
+  final String postText = remaining.substring(endIndex + endTag.length);
 
   return ParsedResult(
     preText: preText,
@@ -48,6 +61,8 @@ ParsedResult parseText(String text) {
     postText: postText,
     hasInteractive: true,
     isInteractiveClosed: true,
+    startTag: startTag,
+    endTag: endTag,
   );
 }
 

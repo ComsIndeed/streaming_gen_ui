@@ -4,6 +4,8 @@ class ParsedResult {
   final String postText;
   final bool hasInteractive;
   final bool isInteractiveClosed;
+  final String startTag;
+  final String endTag;
 
   ParsedResult({
     required this.preText,
@@ -11,5 +13,7 @@ class ParsedResult {
     required this.postText,
     required this.hasInteractive,
     required this.isInteractiveClosed,
+    required this.startTag,
+    required this.endTag,
   });
 }

@@ -33,7 +33,7 @@ final List<ExampleData> mockExamples = [
 const String exampleHotels = '''
 Here are some excellent hotel recommendations for your stay in Paris, curated just for you:
 
-<interactive>
+<interface>
 {
   "namespace": "core:column",
   "children": [
@@ -130,7 +130,7 @@ Here are some excellent hotel recommendations for your stay in Paris, curated ju
     }
   ]
 }
-</interactive>
+</interface>
 
 I hope these recommendations help you plan an unforgettable trip to Paris. Please let me know if you would like to filter by specific price ranges or search for other locations!
 ''';
@@ -138,7 +138,7 @@ I hope these recommendations help you plan an unforgettable trip to Paris. Pleas
 const String exampleProfile = '''
 Here is the user profile schema loaded from the secure production database:
 
-<interactive>
+<interface>
 {
   "namespace": "core:container",
   "padding": "16",
@@ -220,7 +220,7 @@ Here is the user profile schema loaded from the secure production database:
     ]
   }
 }
-</interactive>
+</interface>
 
 I have confirmed this profile has active read/write permissions. Let me know if you would like me to render another profile card or query the DB.
 ''';
@@ -228,7 +228,7 @@ I have confirmed this profile has active read/write permissions. Let me know if 
 const String exampleInvoice = '''
 Here is your airline invoice and electronic boarding pass information:
 
-<interactive>
+<interface>
 {
   "namespace": "core:column",
   "children": [
@@ -309,7 +309,7 @@ Here is your airline invoice and electronic boarding pass information:
     }
   ]
 }
-</interactive>
+</interface>
 
 Your ticket has been sent to your registered email address. Have a wonderful and safe flight with us!
 ''';

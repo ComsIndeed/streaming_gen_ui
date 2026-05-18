@@ -437,6 +437,7 @@ class _GenerationPreviewState extends State<GenerationPreview> with SingleTicker
                               fontFamily: 'monospace',
                               fontSize: 12.5,
                               height: 1.5,
+                              fontWeight: FontWeight.w500,
                             ),
                             children: _buildBlueprintTextSpans(widget.fullText, isGhost: true),
                           ),
@@ -445,11 +446,10 @@ class _GenerationPreviewState extends State<GenerationPreview> with SingleTicker
                         // 2. Active typing text overlayed exactly on top (Dark Slate Theme / Bright Theme)
                         RichText(
                           text: TextSpan(
-                            style: TextStyle(
+                            style: const TextStyle(
                               fontFamily: 'monospace',
                               fontSize: 12.5,
                               height: 1.5,
-                              color: widget.isDarkMode ? const Color(0xFFF1F5F9) : const Color(0xFF0F172A), // Soft dark slate text
                               fontWeight: FontWeight.w500,
                             ),
                             children: [
@@ -480,50 +480,284 @@ class _GenerationPreviewState extends State<GenerationPreview> with SingleTicker
   List<InlineSpan> _buildBlueprintTextSpans(String rawText, {required bool isGhost}) {
     final parsed = parseText(rawText);
     
-    final Color tagColor = isGhost 
-        ? (widget.isDarkMode ? const Color(0xFF38BDF8).withValues(alpha: 0.35) : const Color(0xFF0EA5E9).withValues(alpha: 0.25)) 
-        : (widget.isDarkMode ? const Color(0xFF38BDF8) : const Color(0xFF0284C7));
-    final Color jsonColor = isGhost 
-        ? (widget.isDarkMode ? const Color(0xFF38BDF8).withValues(alpha: 0.25) : const Color(0xFF0EA5E9).withValues(alpha: 0.18)) 
-        : (widget.isDarkMode ? const Color(0xFFF1F5F9) : const Color(0xFF0F172A));
-    final Color normalTextColor = isGhost 
-        ? (widget.isDarkMode ? const Color(0xFF38BDF8).withValues(alpha: 0.2) : const Color(0xFF0EA5E9).withValues(alpha: 0.14)) 
-        : (widget.isDarkMode ? const Color(0xFFCBD5E1) : const Color(0xFF334155));
+    // Shared typography base to secure pixel-perfect alignment
+    final TextStyle baseStyle = TextStyle(
+      fontFamily: 'monospace',
+      fontSize: 12.5,
+      height: 1.5,
+      fontWeight: FontWeight.w500,
+      letterSpacing: 0.0,
+      color: isGhost 
+          ? (widget.isDarkMode ? const Color(0xFF38BDF8).withValues(alpha: 0.15) : const Color(0xFF0EA5E9).withValues(alpha: 0.12)) 
+          : (widget.isDarkMode ? const Color(0xFFCBD5E1) : const Color(0xFF334155)),
+    );
 
-    return [
-      TextSpan(
-        text: parsed.preText,
-        style: TextStyle(color: normalTextColor),
-      ),
-      if (parsed.hasInteractive) ...[
-        TextSpan(
-          text: '\n<interactive>\n',
-          style: TextStyle(
+    final Color tagColor = isGhost 
+        ? (widget.isDarkMode ? const Color(0xFF38BDF8).withValues(alpha: 0.25) : const Color(0xFF0EA5E9).withValues(alpha: 0.2)) 
+        : (widget.isDarkMode ? const Color(0xFF38BDF8) : const Color(0xFF0284C7));
+
+    final List<InlineSpan> spans = [];
+
+    // 1. Pre text (Markdown parsed)
+    spans.addAll(_parseMarkdownToSpans(parsed.preText, baseStyle, isGhost));
+
+    // 2. Interactive block (JSON Syntax Highlighted + verbatim tags)
+    if (parsed.hasInteractive) {
+      spans.add(TextSpan(
+        text: '\n${parsed.startTag}\n',
+        style: baseStyle.copyWith(
+          color: tagColor,
+          fontWeight: FontWeight.bold,
+        ),
+      ));
+
+      spans.addAll(_parseJsonToSpans(parsed.jsonText, baseStyle, isGhost));
+
+      if (parsed.isInteractiveClosed) {
+        spans.add(TextSpan(
+          text: '\n${parsed.endTag}',
+          style: baseStyle.copyWith(
             color: tagColor,
             fontWeight: FontWeight.bold,
           ),
-        ),
-        TextSpan(
-          text: parsed.jsonText,
-          style: TextStyle(
-            color: jsonColor,
-            fontWeight: isGhost ? FontWeight.normal : FontWeight.w500,
+        ));
+      }
+    }
+
+    // 3. Post text (Markdown parsed)
+    spans.addAll(_parseMarkdownToSpans(parsed.postText, baseStyle, isGhost));
+
+    return spans;
+  }
+
+  List<InlineSpan> _parseJsonToSpans(String jsonStr, TextStyle baseStyle, bool isGhost) {
+    // Premium HSL-derived syntax colors for JSON tokens
+    // Ghost colors will be the same hues, but with very low opacity (0.2 to 0.3) so they stay readable yet dim.
+    final Color keyColor = isGhost 
+        ? (widget.isDarkMode ? const Color(0xFFF472B6).withValues(alpha: 0.25) : const Color(0xFFDB2777).withValues(alpha: 0.25)) // Pink
+        : (widget.isDarkMode ? const Color(0xFFF472B6) : const Color(0xFFDB2777));
+    
+    final Color stringColor = isGhost 
+        ? (widget.isDarkMode ? const Color(0xFF34D399).withValues(alpha: 0.25) : const Color(0xFF059669).withValues(alpha: 0.25)) // Green
+        : (widget.isDarkMode ? const Color(0xFF34D399) : const Color(0xFF059669));
+
+    final Color numberColor = isGhost 
+        ? (widget.isDarkMode ? const Color(0xFFFBBF24).withValues(alpha: 0.25) : const Color(0xFFD97706).withValues(alpha: 0.25)) // Amber
+        : (widget.isDarkMode ? const Color(0xFFFBBF24) : const Color(0xFFD97706));
+
+    final Color keywordColor = isGhost 
+        ? (widget.isDarkMode ? const Color(0xFFC084FC).withValues(alpha: 0.25) : const Color(0xFF7C3AED).withValues(alpha: 0.25)) // Purple
+        : (widget.isDarkMode ? const Color(0xFFC084FC) : const Color(0xFF7C3AED));
+
+    final Color braceColor = isGhost 
+        ? (widget.isDarkMode ? const Color(0xFF38BDF8).withValues(alpha: 0.3) : const Color(0xFF0284C7).withValues(alpha: 0.25)) // Cyber Blue
+        : (widget.isDarkMode ? const Color(0xFF38BDF8) : const Color(0xFF0284C7));
+
+    final Color normalColor = isGhost 
+        ? (widget.isDarkMode ? const Color(0xFFE2E8F0).withValues(alpha: 0.2) : const Color(0xFF475569).withValues(alpha: 0.15))
+        : (widget.isDarkMode ? const Color(0xFFCBD5E1) : const Color(0xFF475569));
+
+    // Monospaced tokenizer regex for JSON values
+    final regExp = RegExp(
+      r'("(\\u[a-zA-Z0-9]{4}|\\[^u]|[^\\"])*")|(-?\d+(?:\.\d*)?(?:[eE][+-]?\d+)?)|(true|false|null)|([{}[\]:,])|([^\s"{}[\]:,]+)',
+      multiLine: true,
+    );
+
+    final List<InlineSpan> spans = [];
+    int lastIndex = 0;
+
+    for (final match in regExp.allMatches(jsonStr)) {
+      if (match.start > lastIndex) {
+        final String whitespace = jsonStr.substring(lastIndex, match.start);
+        spans.add(TextSpan(text: whitespace, style: baseStyle.copyWith(color: normalColor)));
+      }
+
+      final String token = match.group(0)!;
+      if (match.group(1) != null) {
+        // String literal (key or value)
+        // Check if followed by colon (ignoring space) to determine if it is a JSON Key
+        final int colonCheckIndex = jsonStr.indexOf(':', match.end);
+        bool isKey = false;
+        if (colonCheckIndex != -1) {
+          final String between = jsonStr.substring(match.end, colonCheckIndex).trim();
+          if (between.isEmpty) {
+            isKey = true;
+          }
+        }
+
+        spans.add(TextSpan(
+          text: token,
+          style: baseStyle.copyWith(
+            color: isKey ? keyColor : stringColor,
+            fontWeight: FontWeight.w600,
           ),
-        ),
-        if (parsed.isInteractiveClosed)
-          TextSpan(
-            text: '\n</interactive>',
-            style: TextStyle(
-              color: tagColor,
-              fontWeight: FontWeight.bold,
-            ),
+        ));
+      } else if (match.group(3) != null) {
+        // Number literal
+        spans.add(TextSpan(
+          text: token,
+          style: baseStyle.copyWith(
+            color: numberColor,
+            fontWeight: FontWeight.w600,
           ),
-      ],
-      TextSpan(
-        text: parsed.postText,
-        style: TextStyle(color: normalTextColor),
-      ),
-    ];
+        ));
+      } else if (match.group(4) != null) {
+        // Boolean/null keyword
+        spans.add(TextSpan(
+          text: token,
+          style: baseStyle.copyWith(
+            color: keywordColor,
+            fontWeight: FontWeight.bold,
+          ),
+        ));
+      } else if (match.group(5) != null) {
+        // Brackets / punctuation
+        spans.add(TextSpan(
+          text: token,
+          style: baseStyle.copyWith(
+            color: braceColor,
+            fontWeight: FontWeight.bold,
+          ),
+        ));
+      } else {
+        // Other unmatched literals
+        spans.add(TextSpan(
+          text: token,
+          style: baseStyle.copyWith(color: normalColor),
+        ));
+      }
+
+      lastIndex = match.end;
+    }
+
+    if (lastIndex < jsonStr.length) {
+      spans.add(TextSpan(
+        text: jsonStr.substring(lastIndex),
+        style: baseStyle.copyWith(color: normalColor),
+      ));
+    }
+
+    return spans;
+  }
+
+  List<InlineSpan> _parseMarkdownToSpans(String text, TextStyle baseStyle, bool isGhost) {
+    final List<InlineSpan> spans = [];
+    final List<String> lines = text.split('\n');
+
+    final Color bulletColor = isGhost
+        ? (widget.isDarkMode ? const Color(0xFF38BDF8).withValues(alpha: 0.3) : const Color(0xFF0284C7).withValues(alpha: 0.2))
+        : (widget.isDarkMode ? const Color(0xFF38BDF8) : const Color(0xFF0284C7));
+
+    for (int i = 0; i < lines.length; i++) {
+      final String line = lines[i];
+      final String suffix = (i == lines.length - 1) ? '' : '\n';
+
+      if (line.startsWith('### ')) {
+        spans.addAll(_parseInlineMarkdown(
+          line.substring(4) + suffix, 
+          baseStyle.copyWith(
+            fontWeight: FontWeight.bold,
+            fontSize: baseStyle.fontSize! * 1.15,
+          ),
+          isGhost,
+        ));
+      } else if (line.startsWith('## ')) {
+        spans.addAll(_parseInlineMarkdown(
+          line.substring(3) + suffix, 
+          baseStyle.copyWith(
+            fontWeight: FontWeight.bold,
+            fontSize: baseStyle.fontSize! * 1.3,
+          ),
+          isGhost,
+        ));
+      } else if (line.startsWith('# ')) {
+        spans.addAll(_parseInlineMarkdown(
+          line.substring(2) + suffix, 
+          baseStyle.copyWith(
+            fontWeight: FontWeight.bold,
+            fontSize: baseStyle.fontSize! * 1.45,
+          ),
+          isGhost,
+        ));
+      } else if (line.startsWith('- ')) {
+        spans.add(TextSpan(
+          text: '• ',
+          style: baseStyle.copyWith(
+            fontWeight: FontWeight.bold,
+            color: bulletColor,
+          ),
+        ));
+        spans.addAll(_parseInlineMarkdown(line.substring(2) + suffix, baseStyle, isGhost));
+      } else {
+        spans.addAll(_parseInlineMarkdown(line + suffix, baseStyle, isGhost));
+      }
+    }
+    return spans;
+  }
+
+  List<InlineSpan> _parseInlineMarkdown(String text, TextStyle baseStyle, bool isGhost) {
+    final List<InlineSpan> spans = [];
+    final regExp = RegExp(
+      r'(\*\*(.*?)\*\*)|(\*(.*?)\*)|(`(.*?)`)',
+      multiLine: true,
+    );
+
+    final Color codeBg = isGhost
+        ? (widget.isDarkMode ? const Color(0xFF0284C7).withValues(alpha: 0.05) : const Color(0xFFBAE6FD).withValues(alpha: 0.05))
+        : (widget.isDarkMode ? const Color(0xFF0284C7).withValues(alpha: 0.15) : const Color(0xFFBAE6FD).withValues(alpha: 0.3));
+
+    final Color codeColor = isGhost
+        ? (widget.isDarkMode ? const Color(0xFF38BDF8).withValues(alpha: 0.35) : const Color(0xFF0369A1).withValues(alpha: 0.25))
+        : (widget.isDarkMode ? const Color(0xFF38BDF8) : const Color(0xFF0369A1));
+
+    int lastIndex = 0;
+    for (final match in regExp.allMatches(text)) {
+      if (match.start > lastIndex) {
+        spans.add(TextSpan(
+          text: text.substring(lastIndex, match.start),
+          style: baseStyle,
+        ));
+      }
+
+      if (match.group(1) != null) {
+        // Bold
+        final String content = match.group(2)!;
+        spans.add(TextSpan(
+          text: content,
+          style: baseStyle.copyWith(fontWeight: FontWeight.bold),
+        ));
+      } else if (match.group(3) != null) {
+        // Italic
+        final String content = match.group(4)!;
+        spans.add(TextSpan(
+          text: content,
+          style: baseStyle.copyWith(fontStyle: FontStyle.italic),
+        ));
+      } else if (match.group(5) != null) {
+        // Inline code block
+        final String content = match.group(6)!;
+        spans.add(TextSpan(
+          text: content,
+          style: baseStyle.copyWith(
+            fontFamily: 'monospace',
+            backgroundColor: codeBg,
+            color: codeColor,
+            fontWeight: FontWeight.bold,
+          ),
+        ));
+      }
+
+      lastIndex = match.end;
+    }
+
+    if (lastIndex < text.length) {
+      spans.add(TextSpan(
+        text: text.substring(lastIndex),
+        style: baseStyle,
+      ));
+    }
+
+    return spans;
   }
 
   Widget _buildArrowPanel(bool isWide) {
@@ -630,7 +864,7 @@ class _GenerationPreviewState extends State<GenerationPreview> with SingleTicker
                   Expanded(
                     child: SingleChildScrollView(
                       physics: const BouncingScrollPhysics(),
-                      child: _buildRenderOutput(hasJson, decodedJson, parseError),
+                      child: _buildRenderOutput(hasJson, decodedJson, parseError, parsed),
                     ),
                   ),
                 ],
@@ -644,7 +878,7 @@ class _GenerationPreviewState extends State<GenerationPreview> with SingleTicker
 
   // --- RENDERING STRATEGIES ---
 
-  Widget _buildRenderOutput(bool hasJson, Map<String, dynamic>? decodedJson, String? parseError) {
+  Widget _buildRenderOutput(bool hasJson, Map<String, dynamic>? decodedJson, String? parseError, ParsedResult parsed) {
     if (!hasJson) {
       // 1. Initial State: Draw animated loading lines
       return SkeletonLoader(isActive: _isProcessing, isDarkMode: widget.isDarkMode);
@@ -690,7 +924,7 @@ class _GenerationPreviewState extends State<GenerationPreview> with SingleTicker
                 ),
                 const SizedBox(height: 6),
                 Text(
-                  'Waiting for closed </interactive> tag to finalize widgets. Current compiler status:\n$parseError',
+                  'Waiting for closed </${parsed.endTag.replaceAll('<', '').replaceAll('>', '').replaceAll('/', '')}> tag to finalize widgets. Current compiler status:\n$parseError',
                   style: TextStyle(
                     fontSize: 8.5,
                     fontFamily: 'monospace',
