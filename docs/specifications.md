@@ -44,6 +44,8 @@ genUi.view('global-modal')
 Basically: We give them a prompt fragment, they share us the response and which
 view we pipe the UI to, and we display the UI of a view ID requested.
 
+The model is instructed to respond normally using natural conversational language. At any point in the stream—whether between paragraphs or inline—the model can seamlessly embed a dynamic UI widget tree by enclosing a valid JSON payload within custom `<interface>` and `</interface>` tags. The streaming parser isolates these tagged blocks to render the visual UI components on-the-fly, while treating all content outside of them as standard markdown or text.
+
 Cases:
 
 - If unknown widget, allow an onUnknownWidget handler, default to error widget.
