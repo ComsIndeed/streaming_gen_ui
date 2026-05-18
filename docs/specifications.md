@@ -182,6 +182,37 @@ Alpha V1 Built-In Widget Registry:
 
 - Text, Button, Column, Row, Container, Textfield,
 
+### Streaming Generative Architecture (`llm_json_stream` Integration)
+
+The package is powered by `llm_json_stream` under the hood. Instead of decoding static maps on completion, we digest tokens and build/update widgets progressively in real-time.
+
+This changes the `.register()` method's signature. Instead of static JSON maps, builders receive reactive property stream containers:
+
+```dart
+// The stream-aware builder signature
+void register(String namespace, Widget Function(MapPropertyStream mapStream) builder)
+```
+
+#### 1. Hierarchical Prop Passing (Recursive Stream Passing)
+
+For nested layouts, we extract the `MapPropertyStream` or `ListPropertyStream` of sub-properties and pass them recursively down the child widget trees.
+
+- Parents don't wait for the child block to finish.
+- They immediately mount the child widget, passing its dedicated sub-stream down for self-reactive updating.
+
+#### 2. The Accumulating String Builder
+
+To keep text typing continuously without flickering or losing context, standard text widgets utilize an accumulating string builder that progressively grows on every text token chunk.
+
+#### 3. Dynamic Action Activation (Disabled-to-Enabled Transitions)
+
+Buttons and inputs start in a disabled state (`onPressed = null` / greyed out) when first painted.
+
+- We listen to the action future via `mapStream.getStringProperty('action').future`.
+- The exact millisecond the LLM finishes streaming the button's action payload, the callback resolves, setting the onPressed method.
+- The button dynamically transitions from disabled (grey/inactive) to fully interactive in real-time.
+
 ### User Interactivity on the UIs
 
-<!-- TODO -->
+- Interactivity actions (like form submissions or button clicks) are mapped back to the application using a centralized action dispatcher.
+- Developers register active action callbacks inside the `StreamingGenUi` controller to listen to user interactions triggered by dynamic screens.
