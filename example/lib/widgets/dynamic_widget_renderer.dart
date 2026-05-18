@@ -3,12 +3,39 @@ import 'package:example/utils/json_parser.dart';
 
 class DynamicWidgetRenderer extends StatelessWidget {
   final Map<String, dynamic> json;
+  final bool isDarkMode;
 
-  const DynamicWidgetRenderer({super.key, required this.json});
+  const DynamicWidgetRenderer({
+    super.key,
+    required this.json,
+    this.isDarkMode = false,
+  });
 
   @override
   Widget build(BuildContext context) {
     return _buildWidgetFromJson(context, json);
+  }
+
+  Color? _mapColor(Color? original, bool isDarkMode) {
+    if (original == null) return null;
+    if (!isDarkMode) return original;
+
+    final double luminance = original.computeLuminance();
+    if (luminance > 0.85) {
+      // Map pure white / off-white container backgrounds to premium dark slate
+      return const Color(0xFF1D2432);
+    } else if (luminance > 0.5) {
+      // Map medium light grays to a dark background highlight
+      return const Color(0xFF2D3748);
+    } else if (luminance < 0.15) {
+      // Map deep charcoal / black texts to crisp slate-100 off-white
+      return const Color(0xFFF1F5F9);
+    } else if (luminance < 0.35) {
+      // Map slate-700 / slate-800 to slate-300 soft text
+      return const Color(0xFFCBD5E1);
+    }
+
+    return original;
   }
 
   Widget _buildWidgetFromJson(BuildContext context, Map<String, dynamic> json) {
@@ -59,14 +86,31 @@ class DynamicWidgetRenderer extends StatelessWidget {
           if (borderRaw is Map) {
             final String? bColor = borderRaw['color'];
             final double bWidth = double.tryParse(borderRaw['width']?.toString() ?? '1') ?? 1;
+            
+            Color borderColor = bColor != null 
+                ? (parseHexColor(bColor) ?? const Color(0xFFCBD5E1)) 
+                : const Color(0xFFCBD5E1);
+            if (isDarkMode) {
+              borderColor = const Color(0xFF334155);
+            }
+
             border = Border.all(
-              color: bColor != null ? (parseHexColor(bColor) ?? const Color(0xFFCBD5E1)) : const Color(0xFFCBD5E1),
+              color: borderColor,
               width: bWidth,
             );
           }
 
+          Color? bgColor = hexBg != null ? parseHexColor(hexBg) : null;
+          if (isDarkMode) {
+            if (bgColor == null || bgColor.computeLuminance() > 0.8) {
+              bgColor = const Color(0xFF1E293B);
+            } else {
+              bgColor = _mapColor(bgColor, true);
+            }
+          }
+
           decoration = BoxDecoration(
-            color: hexBg != null ? parseHexColor(hexBg) : null,
+            color: bgColor,
             borderRadius: BorderRadius.circular(borderRad),
             border: border,
           );
@@ -84,16 +128,27 @@ class DynamicWidgetRenderer extends StatelessWidget {
         final String text = json['text'] ?? '';
         final styleRaw = json['style'];
 
-        TextStyle textStyle = const TextStyle(fontSize: 13, color: Color(0xFF334155));
+        TextStyle textStyle = TextStyle(
+          fontSize: 13, 
+          color: isDarkMode ? const Color(0xFFCBD5E1) : const Color(0xFF334155),
+        );
         if (styleRaw is Map) {
           final double fs = double.tryParse(styleRaw['fontSize']?.toString() ?? '13') ?? 13;
           final String? hexColor = styleRaw['color'];
           final String? fontWeight = styleRaw['fontWeight'];
           final String? fontStyle = styleRaw['fontStyle'];
 
+          Color textColor = hexColor != null 
+              ? (parseHexColor(hexColor) ?? const Color(0xFF334155)) 
+              : const Color(0xFF334155);
+          
+          if (isDarkMode) {
+            textColor = _mapColor(textColor, true) ?? const Color(0xFFCBD5E1);
+          }
+
           textStyle = TextStyle(
             fontSize: fs,
-            color: hexColor != null ? (parseHexColor(hexColor) ?? const Color(0xFF334155)) : const Color(0xFF334155),
+            color: textColor,
             fontWeight: fontWeight == 'bold' ? FontWeight.bold : FontWeight.normal,
             fontStyle: fontStyle == 'italic' ? FontStyle.italic : FontStyle.normal,
           );
@@ -129,7 +184,7 @@ class DynamicWidgetRenderer extends StatelessWidget {
                     ),
                   ],
                 ),
-                backgroundColor: const Color(0xFF1E3A8A),
+                backgroundColor: isDarkMode ? const Color(0xFF1E293B) : const Color(0xFF1E3A8A),
                 duration: const Duration(seconds: 2),
                 behavior: SnackBarBehavior.floating,
                 shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
@@ -144,20 +199,20 @@ class DynamicWidgetRenderer extends StatelessWidget {
         return Container(
           padding: const EdgeInsets.all(8),
           decoration: BoxDecoration(
-            color: const Color(0xFFFFFBEB),
+            color: isDarkMode ? const Color(0xFF451A03) : const Color(0xFFFFFBEB),
             borderRadius: BorderRadius.circular(6),
-            border: Border.all(color: const Color(0xFFFCD34D)),
+            border: Border.all(color: isDarkMode ? const Color(0xFF9A3412) : const Color(0xFFFCD34D)),
           ),
           child: Row(
             mainAxisSize: MainAxisSize.min,
             children: [
-              const Icon(Icons.warning_amber_rounded, size: 16, color: Color(0xFFD97706)),
+              Icon(Icons.warning_amber_rounded, size: 16, color: isDarkMode ? const Color(0xFFFDBA74) : const Color(0xFFD97706)),
               const SizedBox(width: 6),
               Text(
                 'Unknown Namespace: $ns',
-                style: const TextStyle(
+                style: TextStyle(
                   fontSize: 11,
-                  color: Color(0xFFB45309),
+                  color: isDarkMode ? const Color(0xFFFDBA74) : const Color(0xFFB45309),
                   fontFamily: 'monospace',
                 ),
               ),

@@ -7,7 +7,14 @@ import 'package:example/widgets/generation_preview.dart';
 import 'package:example/widgets/top_bar_visualizer.dart';
 
 class HomeScreen extends StatefulWidget {
-  const HomeScreen({super.key});
+  final bool isDarkMode;
+  final VoidCallback onThemeToggle;
+
+  const HomeScreen({
+    super.key,
+    required this.isDarkMode,
+    required this.onThemeToggle,
+  });
 
   @override
   State<HomeScreen> createState() => _HomeScreenState();
@@ -131,7 +138,7 @@ class _HomeScreenState extends State<HomeScreen> {
     final activeExample = _examples[_currentPageIndex];
 
     return Scaffold(
-      backgroundColor: const Color(0xFFF8FAFC), // Textured grid base
+      backgroundColor: widget.isDarkMode ? const Color(0xFF030712) : const Color(0xFFF8FAFC), // Textured grid base
       body: SafeArea(
         child: Stack(
           children: [
@@ -163,6 +170,7 @@ class _HomeScreenState extends State<HomeScreen> {
                     }
 
                     return TechnicalGridBackground(
+                      isDarkMode: widget.isDarkMode,
                       child: Padding(
                         padding: const EdgeInsets.only(bottom: 12.0),
                         child: GenerationPreview(
@@ -172,6 +180,7 @@ class _HomeScreenState extends State<HomeScreen> {
                           title: item.name,
                           isPaused: _isPaused && _isStreamingActive,
                           isTokenSaverEnabled: _isTokenSaver,
+                          isDarkMode: widget.isDarkMode,
                           onTokenSaverToggled: (val) {
                             setState(() {
                               _isTokenSaver = val;
@@ -226,7 +235,11 @@ class _HomeScreenState extends State<HomeScreen> {
           mainAxisSize: MainAxisSize.min,
           children: [
             // Bouncing micro-animated equalizer bars representing signal activity
-            TopBarVisualizer(isActive: _isStreamingActive && !_isPaused),
+            TopBarVisualizer(
+              isActive: _isStreamingActive && !_isPaused,
+              activeColor: widget.isDarkMode ? const Color(0xFF38BDF8) : const Color(0xFF2563EB),
+              inactiveColor: widget.isDarkMode ? const Color(0xFF475569) : const Color(0xFF94A3B8).withValues(alpha: 0.5),
+            ),
             const SizedBox(width: 20),
 
             // Chunk Size parameter slider
@@ -275,18 +288,20 @@ class _HomeScreenState extends State<HomeScreen> {
                       width: 6,
                       height: 6,
                       decoration: BoxDecoration(
-                        color: _isStreamingActive ? const Color(0xFF2563EB) : const Color(0xFF64748B),
+                        color: _isStreamingActive 
+                            ? (widget.isDarkMode ? const Color(0xFF38BDF8) : const Color(0xFF2563EB))
+                            : (widget.isDarkMode ? const Color(0xFF475569) : const Color(0xFF64748B)),
                         shape: BoxShape.circle,
                       ),
                     ),
                     const SizedBox(width: 6),
                     Text(
                       'PAGE 0${_currentPageIndex + 1}/03 // ${active.shortName}',
-                      style: const TextStyle(
+                      style: TextStyle(
                         fontSize: 10,
                         fontFamily: 'monospace',
                         fontWeight: FontWeight.bold,
-                        color: Color(0xFF0F172A),
+                        color: widget.isDarkMode ? const Color(0xFFF1F5F9) : const Color(0xFF0F172A),
                         letterSpacing: 0.5,
                       ),
                     ),
@@ -298,7 +313,9 @@ class _HomeScreenState extends State<HomeScreen> {
                   style: TextStyle(
                     fontSize: 8,
                     fontFamily: 'monospace',
-                    color: const Color(0xFF64748B).withValues(alpha: 0.8),
+                    color: widget.isDarkMode 
+                        ? const Color(0xFF94A3B8).withValues(alpha: 0.8) 
+                        : const Color(0xFF64748B).withValues(alpha: 0.8),
                     letterSpacing: 0.5,
                   ),
                 ),
@@ -306,15 +323,50 @@ class _HomeScreenState extends State<HomeScreen> {
             ),
             const SizedBox(width: 20),
 
+            // Rotating micro-animated Dark Mode Toggle
+            IconButton(
+              onPressed: widget.onThemeToggle,
+              icon: AnimatedSwitcher(
+                duration: const Duration(milliseconds: 300),
+                transitionBuilder: (child, anim) => RotationTransition(
+                  turns: anim,
+                  child: FadeTransition(opacity: anim, child: child),
+                ),
+                child: Icon(
+                  widget.isDarkMode ? Icons.light_mode_rounded : Icons.dark_mode_rounded,
+                  key: ValueKey(widget.isDarkMode),
+                  color: widget.isDarkMode ? const Color(0xFFFBBF24) : const Color(0xFF475569),
+                  size: 20,
+                ),
+              ),
+              tooltip: widget.isDarkMode ? 'Switch to Light Mode' : 'Switch to Dark Mode',
+              style: IconButton.styleFrom(
+                backgroundColor: widget.isDarkMode ? const Color(0xFF1E293B) : const Color(0xFFF1F5F9),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(8),
+                  side: BorderSide(
+                    color: widget.isDarkMode ? const Color(0xFF334155) : const Color(0xFFE2E8F0),
+                  ),
+                ),
+                padding: const EdgeInsets.all(10),
+              ),
+            ),
+            const SizedBox(width: 12),
+
             // Play, Pause, Reset Controls
             if (!_isStreamingActive)
               SizedBox(
                 height: 40,
                 child: ElevatedButton.icon(
                   style: ElevatedButton.styleFrom(
-                    backgroundColor: const Color(0xFF0F172A),
+                    backgroundColor: widget.isDarkMode ? const Color(0xFF1E293B) : const Color(0xFF0F172A),
                     foregroundColor: Colors.white,
-                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(8),
+                      side: widget.isDarkMode 
+                          ? const BorderSide(color: Color(0xFF334155)) 
+                          : BorderSide.none,
+                    ),
                     padding: const EdgeInsets.symmetric(horizontal: 16),
                     elevation: 0,
                   ),
@@ -339,9 +391,14 @@ class _HomeScreenState extends State<HomeScreen> {
                     height: 40,
                     child: ElevatedButton.icon(
                       style: ElevatedButton.styleFrom(
-                        backgroundColor: const Color(0xFF0F172A),
+                        backgroundColor: widget.isDarkMode ? const Color(0xFF1E293B) : const Color(0xFF0F172A),
                         foregroundColor: Colors.white,
-                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(8),
+                          side: widget.isDarkMode 
+                              ? const BorderSide(color: Color(0xFF334155)) 
+                              : BorderSide.none,
+                        ),
                         padding: const EdgeInsets.symmetric(horizontal: 16),
                         elevation: 0,
                       ),
@@ -367,11 +424,13 @@ class _HomeScreenState extends State<HomeScreen> {
                     height: 40,
                     child: ElevatedButton.icon(
                       style: ElevatedButton.styleFrom(
-                        backgroundColor: const Color(0xFFF1F5F9),
-                        foregroundColor: const Color(0xFF0F172A),
+                        backgroundColor: widget.isDarkMode ? const Color(0xFF0F172A) : const Color(0xFFF1F5F9),
+                        foregroundColor: widget.isDarkMode ? const Color(0xFFF1F5F9) : const Color(0xFF0F172A),
                         shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(8),
-                          side: const BorderSide(color: Color(0xFFE2E8F0)),
+                          side: BorderSide(
+                            color: widget.isDarkMode ? const Color(0xFF1E293B) : const Color(0xFFE2E8F0),
+                          ),
                         ),
                         padding: const EdgeInsets.symmetric(horizontal: 16),
                         elevation: 0,
@@ -414,21 +473,21 @@ class _HomeScreenState extends State<HomeScreen> {
           children: [
             Text(
               label,
-              style: const TextStyle(
+              style: TextStyle(
                 fontSize: 8.5,
                 fontFamily: 'monospace',
                 fontWeight: FontWeight.bold,
-                color: Color(0xFF94A3B8),
+                color: widget.isDarkMode ? const Color(0xFF64748B) : const Color(0xFF94A3B8),
               ),
             ),
             const SizedBox(width: 6),
             Text(
               displayValue,
-              style: const TextStyle(
+              style: TextStyle(
                 fontSize: 9,
                 fontFamily: 'monospace',
                 fontWeight: FontWeight.bold,
-                color: Color(0xFF2563EB),
+                color: widget.isDarkMode ? const Color(0xFF38BDF8) : const Color(0xFF2563EB),
               ),
             ),
           ],
@@ -439,9 +498,9 @@ class _HomeScreenState extends State<HomeScreen> {
           child: SliderTheme(
             data: SliderThemeData(
               trackHeight: 3, // Thicker slide bar
-              activeTrackColor: const Color(0xFF2563EB),
-              inactiveTrackColor: const Color(0xFFE2E8F0),
-              thumbColor: const Color(0xFF2563EB),
+              activeTrackColor: widget.isDarkMode ? const Color(0xFF38BDF8) : const Color(0xFF2563EB),
+              inactiveTrackColor: widget.isDarkMode ? const Color(0xFF1E293B) : const Color(0xFFE2E8F0),
+              thumbColor: widget.isDarkMode ? const Color(0xFF38BDF8) : const Color(0xFF2563EB),
               thumbShape: const RoundSliderThumbShape(enabledThumbRadius: 6), // Larger thumb size
               overlayShape: const RoundSliderOverlayShape(overlayRadius: 0),
             ),
@@ -477,12 +536,15 @@ class _HomeScreenState extends State<HomeScreen> {
               width: 8,
               height: isSelected ? 24 : 8,
               decoration: BoxDecoration(
-                color: isSelected ? const Color(0xFF2563EB) : const Color(0xFFCBD5E1),
+                color: isSelected 
+                    ? (widget.isDarkMode ? const Color(0xFF38BDF8) : const Color(0xFF2563EB))
+                    : (widget.isDarkMode ? const Color(0xFF334155) : const Color(0xFFCBD5E1)),
                 borderRadius: BorderRadius.circular(4),
                 boxShadow: isSelected
                     ? [
                         BoxShadow(
-                          color: const Color(0xFF2563EB).withValues(alpha: 0.3),
+                          color: (widget.isDarkMode ? const Color(0xFF38BDF8) : const Color(0xFF2563EB))
+                              .withValues(alpha: 0.3),
                           blurRadius: 4,
                           spreadRadius: 1,
                         )

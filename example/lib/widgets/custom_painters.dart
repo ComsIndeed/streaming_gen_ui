@@ -40,10 +40,14 @@ class BlueprintGridPainter extends CustomPainter {
 
 /// Paper grid watermark painter for White Paper Layout
 class PaperWatermarkPainter extends CustomPainter {
+  final Color gridColor;
+
+  PaperWatermarkPainter({this.gridColor = const Color(0xFFF1F5F9)});
+
   @override
   void paint(Canvas canvas, Size size) {
     final gridPaint = Paint()
-      ..color = const Color(0xFFF1F5F9)
+      ..color = gridColor
       ..strokeWidth = 0.5;
 
     const double spacing = 15.0;
@@ -65,11 +69,13 @@ class ArrowPainter extends CustomPainter {
   final double animationValue;
   final bool isActive;
   final bool isWide;
+  final bool isDarkMode;
 
   ArrowPainter({
     required this.animationValue,
     required this.isActive,
     required this.isWide,
+    this.isDarkMode = false,
   });
 
   @override
@@ -120,8 +126,8 @@ class ArrowPainter extends CustomPainter {
 
       fillPaint.shader = gradient.createShader(Offset.zero & size);
     } else {
-      // Idle grey style
-      fillPaint.color = const Color(0xFFCBD5E1);
+      // Idle style
+      fillPaint.color = isDarkMode ? const Color(0xFF1E293B) : const Color(0xFFCBD5E1);
     }
 
     // Draw arrow body shadow/glow
@@ -139,7 +145,9 @@ class ArrowPainter extends CustomPainter {
 
     // Draw soft border around the arrow
     final Paint borderPaint = Paint()
-      ..color = isActive ? const Color(0xFF60A5FA) : const Color(0xFF94A3B8)
+      ..color = isActive
+          ? (isDarkMode ? const Color(0xFF38BDF8) : const Color(0xFF60A5FA))
+          : (isDarkMode ? const Color(0xFF334155) : const Color(0xFF94A3B8))
       ..strokeWidth = 1.2
       ..style = PaintingStyle.stroke;
     canvas.drawPath(arrowPath, borderPaint);
@@ -171,6 +179,7 @@ class ArrowPainter extends CustomPainter {
   bool shouldRepaint(covariant ArrowPainter oldDelegate) {
     return oldDelegate.animationValue != animationValue ||
         oldDelegate.isActive != isActive ||
-        oldDelegate.isWide != isWide;
+        oldDelegate.isWide != isWide ||
+        oldDelegate.isDarkMode != isDarkMode;
   }
 }

@@ -17,6 +17,7 @@ class GenerationPreview extends StatefulWidget {
   final bool isPaused;
   final bool isTokenSaverEnabled;
   final ValueChanged<bool>? onTokenSaverToggled;
+  final bool isDarkMode;
 
   const GenerationPreview({
     super.key,
@@ -26,6 +27,7 @@ class GenerationPreview extends StatefulWidget {
     this.isPaused = false,
     this.isTokenSaverEnabled = false,
     this.onTokenSaverToggled,
+    this.isDarkMode = false,
   });
 
   @override
@@ -206,19 +208,31 @@ class _GenerationPreviewState extends State<GenerationPreview> with SingleTicker
   Widget _buildBlueprintPanel(ParsedResult parsed) {
     return Container(
       decoration: BoxDecoration(
-        gradient: const LinearGradient(
+        gradient: LinearGradient(
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
-          colors: [
-            Color(0xFFF0F9FF), // Very soft cyan light blue
-            Color(0xFFE0F2FE),
-          ],
+          colors: widget.isDarkMode
+              ? [
+                  const Color(0xFF031525), // Very rich dark cyan
+                  const Color(0xFF07243A),
+                ]
+              : [
+                  const Color(0xFFF0F9FF), // Very soft cyan light blue
+                  const Color(0xFFE0F2FE),
+                ],
         ),
         borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: const Color(0xFFBAE6FD), width: 1.5),
+        border: Border.all(
+          color: widget.isDarkMode 
+              ? const Color(0xFF0284C7).withValues(alpha: 0.6) 
+              : const Color(0xFFBAE6FD), 
+          width: 1.5,
+        ),
         boxShadow: [
           BoxShadow(
-            color: Colors.blue.withValues(alpha: 0.03),
+            color: widget.isDarkMode 
+                ? Colors.black.withValues(alpha: 0.2) 
+                : Colors.blue.withValues(alpha: 0.03),
             blurRadius: 12,
             spreadRadius: 1,
             offset: const Offset(0, 4),
@@ -235,10 +249,10 @@ class _GenerationPreviewState extends State<GenerationPreview> with SingleTicker
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                const Text(
+                Text(
                   'RAW LLM STREAM INPUT',
                   style: TextStyle(
-                    color: Color(0xFF0369A1), // Elegant ocean blue title
+                    color: widget.isDarkMode ? const Color(0xFF38BDF8) : const Color(0xFF0369A1), // Elegant ocean blue title
                     fontFamily: 'monospace',
                     fontSize: 11,
                     fontWeight: FontWeight.bold,
@@ -257,10 +271,14 @@ class _GenerationPreviewState extends State<GenerationPreview> with SingleTicker
                         child: Container(
                           padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
                           decoration: BoxDecoration(
-                            color: widget.isTokenSaverEnabled ? const Color(0xFF059669).withValues(alpha: 0.1) : Colors.transparent,
+                            color: widget.isTokenSaverEnabled 
+                                ? (widget.isDarkMode ? const Color(0xFF34D399).withValues(alpha: 0.15) : const Color(0xFF059669).withValues(alpha: 0.1)) 
+                                : Colors.transparent,
                             borderRadius: BorderRadius.circular(4),
                             border: Border.all(
-                              color: widget.isTokenSaverEnabled ? const Color(0xFF059669).withValues(alpha: 0.3) : const Color(0xFF94A3B8).withValues(alpha: 0.3),
+                              color: widget.isTokenSaverEnabled 
+                                  ? (widget.isDarkMode ? const Color(0xFF34D399).withValues(alpha: 0.4) : const Color(0xFF059669).withValues(alpha: 0.3)) 
+                                  : (widget.isDarkMode ? const Color(0xFF475569).withValues(alpha: 0.4) : const Color(0xFF94A3B8).withValues(alpha: 0.3)),
                               width: 1,
                             ),
                           ),
@@ -270,13 +288,17 @@ class _GenerationPreviewState extends State<GenerationPreview> with SingleTicker
                               Icon(
                                 Icons.compress,
                                 size: 12,
-                                color: widget.isTokenSaverEnabled ? const Color(0xFF059669) : const Color(0xFF64748B),
+                                color: widget.isTokenSaverEnabled 
+                                    ? (widget.isDarkMode ? const Color(0xFF34D399) : const Color(0xFF059669)) 
+                                    : (widget.isDarkMode ? const Color(0xFF94A3B8) : const Color(0xFF64748B)),
                               ),
                               const SizedBox(width: 4),
                               Text(
                                 'TOKEN SAVER',
                                 style: TextStyle(
-                                  color: widget.isTokenSaverEnabled ? const Color(0xFF059669) : const Color(0xFF64748B),
+                                  color: widget.isTokenSaverEnabled 
+                                      ? (widget.isDarkMode ? const Color(0xFF34D399) : const Color(0xFF059669)) 
+                                      : (widget.isDarkMode ? const Color(0xFF94A3B8) : const Color(0xFF64748B)),
                                   fontFamily: 'monospace',
                                   fontSize: 9,
                                   fontWeight: FontWeight.bold,
@@ -298,10 +320,14 @@ class _GenerationPreviewState extends State<GenerationPreview> with SingleTicker
                       child: Container(
                         padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
                         decoration: BoxDecoration(
-                          color: _autoScroll ? const Color(0xFF0369A1).withValues(alpha: 0.1) : Colors.transparent,
+                          color: _autoScroll 
+                              ? (widget.isDarkMode ? const Color(0xFF38BDF8).withValues(alpha: 0.15) : const Color(0xFF0369A1).withValues(alpha: 0.1)) 
+                              : Colors.transparent,
                           borderRadius: BorderRadius.circular(4),
                           border: Border.all(
-                            color: _autoScroll ? const Color(0xFF0369A1).withValues(alpha: 0.3) : Colors.transparent,
+                            color: _autoScroll 
+                                ? (widget.isDarkMode ? const Color(0xFF38BDF8).withValues(alpha: 0.4) : const Color(0xFF0369A1).withValues(alpha: 0.3)) 
+                                : Colors.transparent,
                             width: 1,
                           ),
                         ),
@@ -311,13 +337,13 @@ class _GenerationPreviewState extends State<GenerationPreview> with SingleTicker
                             Icon(
                               _autoScroll ? Icons.lock_outline : Icons.lock_open,
                               size: 12,
-                              color: const Color(0xFF0369A1),
+                              color: widget.isDarkMode ? const Color(0xFF38BDF8) : const Color(0xFF0369A1),
                             ),
                             const SizedBox(width: 4),
                             Text(
                               _autoScroll ? 'FOLLOW STREAM' : 'FREE SCROLL',
-                              style: const TextStyle(
-                                color: Color(0xFF0369A1),
+                              style: TextStyle(
+                                color: widget.isDarkMode ? const Color(0xFF38BDF8) : const Color(0xFF0369A1),
                                 fontFamily: 'monospace',
                                 fontSize: 9,
                                 fontWeight: FontWeight.bold,
@@ -332,10 +358,12 @@ class _GenerationPreviewState extends State<GenerationPreview> with SingleTicker
                       padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
                       decoration: BoxDecoration(
                         color: _isProcessing
-                            ? const Color(0xFFBAE6FD).withValues(alpha: 0.6)
-                            : const Color(0xFFE2E8F0).withValues(alpha: 0.6),
+                            ? (widget.isDarkMode ? const Color(0xFF0284C7).withValues(alpha: 0.3) : const Color(0xFFBAE6FD).withValues(alpha: 0.6))
+                            : (widget.isDarkMode ? const Color(0xFF1E293B) : const Color(0xFFE2E8F0).withValues(alpha: 0.6)),
                         border: Border.all(
-                          color: _isProcessing ? const Color(0xFF38BDF8) : const Color(0xFFCBD5E1),
+                          color: _isProcessing 
+                              ? (widget.isDarkMode ? const Color(0xFF38BDF8) : const Color(0xFF38BDF8)) 
+                              : (widget.isDarkMode ? const Color(0xFF334155) : const Color(0xFFCBD5E1)),
                           width: 1,
                         ),
                         borderRadius: BorderRadius.circular(4),
@@ -344,24 +372,26 @@ class _GenerationPreviewState extends State<GenerationPreview> with SingleTicker
                         mainAxisSize: MainAxisSize.min,
                         children: [
                           if (_isProcessing && !widget.isPaused) ...[
-                            const SizedBox(
+                            SizedBox(
                               width: 8,
                               height: 8,
                               child: CircularProgressIndicator(
                                 strokeWidth: 1.5,
-                                color: Color(0xFF0284C7),
+                                color: widget.isDarkMode ? const Color(0xFF38BDF8) : const Color(0xFF0284C7),
                               ),
                             ),
                             const SizedBox(width: 6),
                           ],
                           if (widget.isPaused) ...[
-                            const Icon(Icons.pause, size: 10, color: Color(0xFF0369A1)),
+                            Icon(Icons.pause, size: 10, color: widget.isDarkMode ? const Color(0xFF38BDF8) : const Color(0xFF0369A1)),
                             const SizedBox(width: 4),
                           ],
                           Text(
                             widget.isPaused ? 'PAUSED' : (_isProcessing ? 'STREAMING' : 'IDLE'),
                             style: TextStyle(
-                              color: _isProcessing ? const Color(0xFF0369A1) : const Color(0xFF64748B),
+                              color: _isProcessing 
+                                  ? (widget.isDarkMode ? const Color(0xFF38BDF8) : const Color(0xFF0369A1)) 
+                                  : (widget.isDarkMode ? const Color(0xFF94A3B8) : const Color(0xFF64748B)),
                               fontFamily: 'monospace',
                               fontSize: 9,
                               fontWeight: FontWeight.bold,
@@ -374,7 +404,12 @@ class _GenerationPreviewState extends State<GenerationPreview> with SingleTicker
                 ),
               ],
             ),
-            const Divider(color: Color(0xFFBAE6FD), height: 20),
+            Divider(
+              color: widget.isDarkMode 
+                  ? const Color(0xFF0284C7).withValues(alpha: 0.4) 
+                  : const Color(0xFFBAE6FD), 
+              height: 20,
+            ),
 
             // Stream text scroll view
             Expanded(
@@ -384,8 +419,12 @@ class _GenerationPreviewState extends State<GenerationPreview> with SingleTicker
                 child: CustomPaint(
                   // Blueprint grid background drawing directly in scrollable viewport to scroll with content!
                   painter: BlueprintGridPainter(
-                    gridColor: const Color(0xFF0EA5E9).withValues(alpha: 0.12),
-                    majorColor: const Color(0xFF0EA5E9).withValues(alpha: 0.24),
+                    gridColor: widget.isDarkMode 
+                        ? const Color(0xFF38BDF8).withValues(alpha: 0.08) 
+                        : const Color(0xFF0EA5E9).withValues(alpha: 0.12),
+                    majorColor: widget.isDarkMode 
+                        ? const Color(0xFF38BDF8).withValues(alpha: 0.16) 
+                        : const Color(0xFF0EA5E9).withValues(alpha: 0.24),
                   ),
                   child: Padding(
                     padding: const EdgeInsets.symmetric(horizontal: 8.0, vertical: 12.0),
@@ -403,23 +442,23 @@ class _GenerationPreviewState extends State<GenerationPreview> with SingleTicker
                           ),
                         ),
 
-                        // 2. Active typing text overlayed exactly on top (Dark Slate Theme)
+                        // 2. Active typing text overlayed exactly on top (Dark Slate Theme / Bright Theme)
                         RichText(
                           text: TextSpan(
-                            style: const TextStyle(
+                            style: TextStyle(
                               fontFamily: 'monospace',
                               fontSize: 12.5,
                               height: 1.5,
-                              color: Color(0xFF0F172A), // Soft dark slate text
+                              color: widget.isDarkMode ? const Color(0xFFF1F5F9) : const Color(0xFF0F172A), // Soft dark slate text
                               fontWeight: FontWeight.w500,
                             ),
                             children: [
                               ..._buildBlueprintTextSpans(_accumulatedText, isGhost: false),
                               if (_isProcessing)
-                                const TextSpan(
+                                TextSpan(
                                   text: ' █',
                                   style: TextStyle(
-                                    color: Color(0xFF0284C7),
+                                    color: widget.isDarkMode ? const Color(0xFF38BDF8) : const Color(0xFF0284C7),
                                     fontWeight: FontWeight.bold,
                                   ),
                                 ),
@@ -441,9 +480,15 @@ class _GenerationPreviewState extends State<GenerationPreview> with SingleTicker
   List<InlineSpan> _buildBlueprintTextSpans(String rawText, {required bool isGhost}) {
     final parsed = parseText(rawText);
     
-    final Color tagColor = isGhost ? const Color(0xFF0EA5E9).withValues(alpha: 0.25) : const Color(0xFF0284C7);
-    final Color jsonColor = isGhost ? const Color(0xFF0EA5E9).withValues(alpha: 0.18) : const Color(0xFF0F172A);
-    final Color normalTextColor = isGhost ? const Color(0xFF0EA5E9).withValues(alpha: 0.14) : const Color(0xFF334155);
+    final Color tagColor = isGhost 
+        ? (widget.isDarkMode ? const Color(0xFF38BDF8).withValues(alpha: 0.35) : const Color(0xFF0EA5E9).withValues(alpha: 0.25)) 
+        : (widget.isDarkMode ? const Color(0xFF38BDF8) : const Color(0xFF0284C7));
+    final Color jsonColor = isGhost 
+        ? (widget.isDarkMode ? const Color(0xFF38BDF8).withValues(alpha: 0.25) : const Color(0xFF0EA5E9).withValues(alpha: 0.18)) 
+        : (widget.isDarkMode ? const Color(0xFFF1F5F9) : const Color(0xFF0F172A));
+    final Color normalTextColor = isGhost 
+        ? (widget.isDarkMode ? const Color(0xFF38BDF8).withValues(alpha: 0.2) : const Color(0xFF0EA5E9).withValues(alpha: 0.14)) 
+        : (widget.isDarkMode ? const Color(0xFFCBD5E1) : const Color(0xFF334155));
 
     return [
       TextSpan(
@@ -494,6 +539,7 @@ class _GenerationPreviewState extends State<GenerationPreview> with SingleTicker
                 animationValue: _arrowAnimController.value,
                 isActive: _isProcessing,
                 isWide: isWide,
+                isDarkMode: widget.isDarkMode,
               ),
             );
           },
@@ -503,7 +549,7 @@ class _GenerationPreviewState extends State<GenerationPreview> with SingleTicker
   }
 
   Widget _buildWhitePaperPanel(ParsedResult parsed) {
-    // Dynamic Widget Render Engine on the Right Panel (White Paper)
+    // Dynamic Widget Render Engine on the Right Panel (White Paper / Dark Paper)
     final bool hasJson = parsed.hasInteractive && parsed.jsonText.trim().isNotEmpty;
     Map<String, dynamic>? decodedJson;
     String? parseError;
@@ -519,12 +565,15 @@ class _GenerationPreviewState extends State<GenerationPreview> with SingleTicker
 
     return Container(
       decoration: BoxDecoration(
-        color: Colors.white, // Crisp drafting paper sheet
+        color: widget.isDarkMode ? const Color(0xFF0F172A) : Colors.white, // Crisp drafting paper sheet / dark blueprint paper
         borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: const Color(0xFFE2E8F0), width: 1.5),
+        border: Border.all(
+          color: widget.isDarkMode ? const Color(0xFF1E293B) : const Color(0xFFE2E8F0), 
+          width: 1.5,
+        ),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withValues(alpha: 0.04),
+            color: widget.isDarkMode ? Colors.black.withValues(alpha: 0.2) : Colors.black.withValues(alpha: 0.04),
             blurRadius: 16,
             spreadRadius: 1,
             offset: const Offset(0, 4),
@@ -539,7 +588,11 @@ class _GenerationPreviewState extends State<GenerationPreview> with SingleTicker
             child: Opacity(
               opacity: 0.25,
               child: CustomPaint(
-                painter: PaperWatermarkPainter(),
+                painter: PaperWatermarkPainter(
+                  gridColor: widget.isDarkMode 
+                      ? const Color(0xFF1E293B).withValues(alpha: 0.4) 
+                      : const Color(0xFFF1F5F9),
+                ),
               ),
             ),
           ),
@@ -557,18 +610,22 @@ class _GenerationPreviewState extends State<GenerationPreview> with SingleTicker
                     children: [
                       Text(
                         widget.title.toUpperCase(),
-                        style: const TextStyle(
-                          color: Color(0xFF64748B),
+                        style: TextStyle(
+                          color: widget.isDarkMode ? const Color(0xFF94A3B8) : const Color(0xFF64748B),
                           fontFamily: 'monospace',
                           fontSize: 10,
                           fontWeight: FontWeight.bold,
                           letterSpacing: 1.2,
                         ),
                       ),
-                      const Icon(Icons.architecture, size: 16, color: Color(0xFF94A3B8)),
+                      Icon(Icons.architecture, size: 16, color: widget.isDarkMode ? const Color(0xFF475569) : const Color(0xFF94A3B8)),
                     ],
                   ),
-                  const Divider(color: Color(0xFFF1F5F9), height: 16, thickness: 1.5),
+                  Divider(
+                    color: widget.isDarkMode ? const Color(0xFF1E293B) : const Color(0xFFF1F5F9), 
+                    height: 16, 
+                    thickness: 1.5,
+                  ),
 
                   Expanded(
                     child: SingleChildScrollView(
@@ -590,7 +647,7 @@ class _GenerationPreviewState extends State<GenerationPreview> with SingleTicker
   Widget _buildRenderOutput(bool hasJson, Map<String, dynamic>? decodedJson, String? parseError) {
     if (!hasJson) {
       // 1. Initial State: Draw animated loading lines
-      return SkeletonLoader(isActive: _isProcessing);
+      return SkeletonLoader(isActive: _isProcessing, isDarkMode: widget.isDarkMode);
     }
 
     if (parseError != null) {
@@ -598,29 +655,35 @@ class _GenerationPreviewState extends State<GenerationPreview> with SingleTicker
       return Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          SkeletonLoader(isActive: _isProcessing),
+          SkeletonLoader(isActive: _isProcessing, isDarkMode: widget.isDarkMode),
           const SizedBox(height: 16),
           Container(
             padding: const EdgeInsets.all(12),
             decoration: BoxDecoration(
-              color: const Color(0xFFFFF1F2),
+              color: widget.isDarkMode ? const Color(0xFF4C0519) : const Color(0xFFFFF1F2),
               borderRadius: BorderRadius.circular(8),
-              border: Border.all(color: const Color(0xFFFECDD3)),
+              border: Border.all(
+                color: widget.isDarkMode ? const Color(0xFF9F1239) : const Color(0xFFFECDD3),
+              ),
             ),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                const Row(
+                Row(
                   children: [
-                    Icon(Icons.sync, size: 14, color: Color(0xFFE11D48)),
-                    SizedBox(width: 6),
+                    Icon(
+                      Icons.sync, 
+                      size: 14, 
+                      color: widget.isDarkMode ? const Color(0xFFFDA4AF) : const Color(0xFFE11D48),
+                    ),
+                    const SizedBox(width: 6),
                     Text(
                       'COMPILING STREAM SCHEMA...',
                       style: TextStyle(
                         fontSize: 9,
                         fontFamily: 'monospace',
                         fontWeight: FontWeight.bold,
-                        color: Color(0xFFBE123C),
+                        color: widget.isDarkMode ? const Color(0xFFFDA4AF) : const Color(0xFFBE123C),
                       ),
                     ),
                   ],
@@ -628,10 +691,10 @@ class _GenerationPreviewState extends State<GenerationPreview> with SingleTicker
                 const SizedBox(height: 6),
                 Text(
                   'Waiting for closed </interactive> tag to finalize widgets. Current compiler status:\n$parseError',
-                  style: const TextStyle(
+                  style: TextStyle(
                     fontSize: 8.5,
                     fontFamily: 'monospace',
-                    color: Color(0xFF9F1239),
+                    color: widget.isDarkMode ? const Color(0xFFFECDD3) : const Color(0xFF9F1239),
                   ),
                 ),
               ],
@@ -643,7 +706,7 @@ class _GenerationPreviewState extends State<GenerationPreview> with SingleTicker
 
     if (decodedJson != null) {
       // 3. Complete and successfully decoded: Render the dynamic widgets!
-      return DynamicWidgetRenderer(json: decodedJson);
+      return DynamicWidgetRenderer(json: decodedJson, isDarkMode: widget.isDarkMode);
     }
 
     return const SizedBox();

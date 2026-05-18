@@ -3,7 +3,15 @@ import 'package:flutter/material.dart';
 
 class TopBarVisualizer extends StatefulWidget {
   final bool isActive;
-  const TopBarVisualizer({super.key, required this.isActive});
+  final Color activeColor;
+  final Color inactiveColor;
+
+  const TopBarVisualizer({
+    super.key,
+    required this.isActive,
+    this.activeColor = const Color(0xFF2563EB),
+    this.inactiveColor = const Color(0xFF94A3B8),
+  });
 
   @override
   State<TopBarVisualizer> createState() => _TopBarVisualizerState();
@@ -60,7 +68,7 @@ class _TopBarVisualizerState extends State<TopBarVisualizer> with SingleTickerPr
               height: 14 * factor,
               margin: const EdgeInsets.symmetric(horizontal: 2.0),
               decoration: BoxDecoration(
-                color: widget.isActive ? const Color(0xFF2563EB) : const Color(0xFF94A3B8).withValues(alpha: 0.5),
+                color: widget.isActive ? widget.activeColor : widget.inactiveColor,
                 borderRadius: BorderRadius.circular(1.5),
               ),
             );

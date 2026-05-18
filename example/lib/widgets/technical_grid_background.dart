@@ -2,10 +2,12 @@ import 'package:flutter/material.dart';
 
 class TechnicalGridBackground extends StatelessWidget {
   final Widget child;
+  final bool isDarkMode;
 
   const TechnicalGridBackground({
     super.key,
     required this.child,
+    this.isDarkMode = false,
   });
 
   @override
@@ -15,7 +17,7 @@ class TechnicalGridBackground extends StatelessWidget {
         // Clean graph paper grid CustomPainter
         Positioned.fill(
           child: CustomPaint(
-            painter: _GridPaperPainter(),
+            painter: _GridPaperPainter(isDarkMode: isDarkMode),
           ),
         ),
         // Child content above the grid
@@ -28,14 +30,22 @@ class TechnicalGridBackground extends StatelessWidget {
 }
 
 class _GridPaperPainter extends CustomPainter {
+  final bool isDarkMode;
+
+  _GridPaperPainter({required this.isDarkMode});
+
   @override
   void paint(Canvas canvas, Size size) {
     final paintFine = Paint()
-      ..color = const Color(0xFFE2E8F0).withValues(alpha: 0.4) // Soft slate grid lines
+      ..color = isDarkMode
+          ? const Color(0xFF1E293B).withValues(alpha: 0.4) // Soft slate grid lines in dark mode
+          : const Color(0xFFE2E8F0).withValues(alpha: 0.4) // Soft slate grid lines
       ..strokeWidth = 0.5;
 
     final paintPrimary = Paint()
-      ..color = const Color(0xFFCBD5E1).withValues(alpha: 0.6) // Slightly thicker major grid lines
+      ..color = isDarkMode
+          ? const Color(0xFF334155).withValues(alpha: 0.5) // Slightly thicker major grid lines in dark mode
+          : const Color(0xFFCBD5E1).withValues(alpha: 0.6) // Slightly thicker major grid lines
       ..strokeWidth = 1.0;
 
     final double gridSpacingFine = 25.0;

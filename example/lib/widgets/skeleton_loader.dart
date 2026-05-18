@@ -2,7 +2,12 @@ import 'package:flutter/material.dart';
 
 class SkeletonLoader extends StatelessWidget {
   final bool isActive;
-  const SkeletonLoader({super.key, required this.isActive});
+  final bool isDarkMode;
+  const SkeletonLoader({
+    super.key,
+    required this.isActive,
+    this.isDarkMode = false,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -17,9 +22,9 @@ class SkeletonLoader extends StatelessWidget {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              SkeletonBlock(widthPercent: w, height: 16, isActive: isActive),
+              SkeletonBlock(widthPercent: w, height: 16, isActive: isActive, isDarkMode: isDarkMode),
               const SizedBox(height: 6),
-              SkeletonBlock(widthPercent: w * 0.8, height: 10, isActive: isActive),
+              SkeletonBlock(widthPercent: w * 0.8, height: 10, isActive: isActive, isDarkMode: isDarkMode),
             ],
           ),
         );
@@ -32,12 +37,14 @@ class SkeletonBlock extends StatefulWidget {
   final double widthPercent;
   final double height;
   final bool isActive;
+  final bool isDarkMode;
 
   const SkeletonBlock({
     super.key,
     required this.widthPercent,
     required this.height,
     required this.isActive,
+    this.isDarkMode = false,
   });
 
   @override
@@ -86,11 +93,17 @@ class _SkeletonBlockState extends State<SkeletonBlock> with SingleTickerProvider
         animation: _shimmerController,
         builder: (context, child) {
           final gradient = LinearGradient(
-            colors: const [
-              Color(0xFFF1F5F9), // Light grey paper color
-              Color(0xFFE2E8F0),
-              Color(0xFFF1F5F9),
-            ],
+            colors: widget.isDarkMode
+                ? const [
+                    Color(0xFF1E293B), // Dark slate paper color
+                    Color(0xFF334155),
+                    Color(0xFF1E293B),
+                  ]
+                : const [
+                    Color(0xFFF1F5F9), // Light grey paper color
+                    Color(0xFFE2E8F0),
+                    Color(0xFFF1F5F9),
+                  ],
             stops: const [0.0, 0.5, 1.0],
             transform: SlidingGradientTransform(
               widget.isActive ? _shimmerController.value : 0.0,
@@ -102,7 +115,10 @@ class _SkeletonBlockState extends State<SkeletonBlock> with SingleTickerProvider
             decoration: BoxDecoration(
               gradient: gradient,
               borderRadius: BorderRadius.circular(4),
-              border: Border.all(color: const Color(0xFFF1F5F9), width: 0.5),
+              border: Border.all(
+                color: widget.isDarkMode ? const Color(0xFF1E293B) : const Color(0xFFF1F5F9), 
+                width: 0.5,
+              ),
             ),
           );
         },
