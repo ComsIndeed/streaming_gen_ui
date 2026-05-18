@@ -43,3 +43,72 @@ GenUiSurface(controller: genUi, id: 'global-modal')
 
 Basically: We give them a prompt fragment, they share us the response and which
 surface we pipe the UI to, and we display the UI of a surface ID requested.
+
+Cases:
+
+- If unknown widget, allow an onUnknownWidget handler, default to error widget.
+
+### JSON Schema & Protocal
+
+A widget JSON type will have the following JSON structure:
+
+```json
+{
+  "namespace": name here,
+  
+  ... (specific properties follows)
+}
+```
+
+Example:
+
+```json
+{
+  "namespace": "core:text",
+  "text": "A property specific to 'core:text'"
+}
+
+or 
+
+{
+  "namespace": "core:column",
+  "children": [
+    {
+      "namespace": "core:text",
+      "text": "Do not press the button!",
+    },
+    {
+      "namespace": "core:elevated_button",
+      "child": {
+        "namespace": "core:text",
+        "text": "The button."
+      }
+    }
+  ]
+}
+```
+
+We use flat maps for each widget, no nesting. This allows for nesting to only
+mean the widgets are nesting.
+
+### Built-In & Custom Registries
+
+On our built-in types, we create IDs for each widgets and don't sort them yet.
+
+Then we finally package them by category and use. Some widget collections may
+overlap with one another, which would've typically caused duplicate entries and
+prompting, but the ID system would allow a fix for that.
+
+The ID system will also serve as the namespacing system. The ID format is:
+
+`<provider>:name_in_snake_case` (like Minecraft lol)
+
+All the built-in widgets will have the provider as `core`
+
+Alpha V1 Built-In Widget Registry:
+
+- Text, Button, Column, Row, Container, Textfield,
+
+### User Interactivity on the UIs
+
+<!-- TODO -->
