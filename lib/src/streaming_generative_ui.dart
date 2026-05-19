@@ -1,4 +1,5 @@
 import 'package:flutter/widgets.dart';
+import 'package:llm_tag_parser/llm_tag_parser.dart';
 import 'package:streaming_gen_ui/src/models/view_state.dart';
 import 'package:streaming_gen_ui/src/models/widget_registry.dart';
 
@@ -9,16 +10,53 @@ class StreamingGenerativeUi with ChangeNotifier {
   StreamingGenerativeUi({required this.registry});
 
   // Input
-  Future<void> stream(Stream<String> stream, {required String viewId}) async {
-    final viewState = ViewState(stream: stream, widgetRegistry: registry);
-    _views[viewId] = viewState;
-    notifyListeners();
+  Future<void> stream(
+    Stream<String> stream, {
+    String? viewId,
+    void Function(String chunk)? onText,
+    void Function(String raw)? onComplete,
+  }) async {
+    final broadcastStream = stream.asBroadcastStream();
 
-    await stream.last;
+    if (viewId != null) {
+      final viewState = ViewState(stream: broadcastStream, widgetRegistry: registry);
+      _views[viewId] = viewState;
+      notifyListeners();
+    }
+
+    final fullRawBuffer = StringBuffer();
+
+    final parser = LlmTagParser(
+      stream: broadcastStream,
+      tags: [LlmTag(open: "<interface>", close: "</interface>")],
+    );
+
+    final textSubscription = parser.outside("<interface>").stream.listen((chunk) {
+      if (onText != null) {
+        onText(chunk);
+      }
+    });
+
+    final rawSubscription = broadcastStream.listen((chunk) {
+      fullRawBuffer.write(chunk);
+    });
+
+    try {
+      await broadcastStream.drain();
+    } catch (_) {
+      rethrow;
+    } finally {
+      await textSubscription.cancel();
+      await rawSubscription.cancel();
+    }
+
+    if (onComplete != null) {
+      onComplete(fullRawBuffer.toString());
+    }
   }
 
-  void restore(String content, {required String viewId}) =>
-      stream(Stream.value(content), viewId: viewId);
+  void restore({required String viewId, required String raw}) =>
+      stream(Stream.value(raw), viewId: viewId);
 
   // Output
   Widget view(String viewId) =>
