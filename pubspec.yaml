@@ -11,6 +11,12 @@ dependencies:
   flutter:
     sdk: flutter
   llm_json_stream: ^0.4.7
+  # llm_tag_parser: ^0.1.0
+  llm_tag_parser:
+    git:
+      url: https://github.com/ComsIndeed/llm-stream-parsers.git
+      path: packages/llm/llm_tag_parser_dart
+      ref: main
 
 dev_dependencies:
   flutter_test:

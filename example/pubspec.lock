@@ -115,6 +115,15 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "0.4.7"
+  llm_tag_parser:
+    dependency: transitive
+    description:
+      path: "packages/llm/llm_tag_parser_dart"
+      ref: main
+      resolved-ref: ae24c4df33046491a0647cf6c37e345c2cba44ab
+      url: "https://github.com/ComsIndeed/llm-stream-parsers.git"
+    source: git
+    version: "1.0.0"
   matcher:
     dependency: transitive
     description:

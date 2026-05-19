@@ -7,5 +7,5 @@ class WidgetRegistry {
 
   WidgetRegistry({required this.widgets});
 
-  String get systemPromptFragment => "";
+  String get systemPromptFragment => throw UnimplementedError();
 }
