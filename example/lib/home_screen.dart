@@ -1,5 +1,4 @@
 import 'dart:async';
-import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:example/data/mock_data.dart';
 import 'package:example/widgets/technical_grid_background.dart';
@@ -43,7 +42,6 @@ class _HomeScreenState extends State<HomeScreen> {
   int _chunkSize = 6;
   int _speedMs = 40;
   bool _isPaused = false;
-  bool _isTokenSaver = false;
 
   @override
   void initState() {
@@ -68,30 +66,6 @@ class _HomeScreenState extends State<HomeScreen> {
     }
   }
 
-  String _minifyInteractiveBlock(String text) {
-    try {
-      int startMatch = text.indexOf('<interface>');
-      int tagLength = '<interface>'.length;
-      int endMatch = text.indexOf('</interface>');
-      if (startMatch == -1) {
-        startMatch = text.indexOf('<interactive>');
-        tagLength = '<interactive>'.length;
-        endMatch = text.indexOf('</interactive>');
-      }
-
-      if (startMatch != -1 && endMatch != -1 && startMatch < endMatch) {
-        final innerStart = startMatch + tagLength;
-        final inner = text.substring(innerStart, endMatch);
-        final parsed = jsonDecode(inner);
-        final minified = jsonEncode(parsed);
-        return '${text.substring(0, innerStart)}\n$minified\n${text.substring(endMatch)}';
-      }
-    } catch (e) {
-      // Ignore parsing errors and return raw
-    }
-    return text;
-  }
-
   void _resetStream() {
     setState(() {
       _activeStreams[_currentPageIndex] = null;
@@ -108,9 +82,6 @@ class _HomeScreenState extends State<HomeScreen> {
       _simulationCounters[pageIndex] = (_simulationCounters[pageIndex] ?? 0) + 1;
       
       String textToStream = _examples[pageIndex].content;
-      if (_isTokenSaver) {
-        textToStream = _minifyInteractiveBlock(textToStream);
-      }
       final stream = streamTextInChunks(
         textToStream,
         _chunkSize,
@@ -157,7 +128,7 @@ class _HomeScreenState extends State<HomeScreen> {
     final activeExample = _examples[_currentPageIndex];
 
     return Scaffold(
-      backgroundColor: widget.isDarkMode ? const Color(0xFF030712) : const Color(0xFFF8FAFC), // Textured grid base
+      backgroundColor: widget.isDarkMode ? const Color(0xFF030712) : const Color(0xFFF8FAFC),
       body: SafeArea(
         child: Stack(
           children: [
@@ -165,8 +136,8 @@ class _HomeScreenState extends State<HomeScreen> {
             Positioned.fill(
               child: Padding(
                 padding: const EdgeInsets.only(
-                  top: 80.0, // Top margin to keep transparent header free
-                  left: 64.0, // Left padding to give room to centered indicators
+                  top: 80.0,
+                  left: 64.0,
                   right: 24.0,
                   bottom: 24.0,
                 ),
@@ -182,11 +153,7 @@ class _HomeScreenState extends State<HomeScreen> {
                   itemBuilder: (context, index) {
                     final item = _examples[index];
                     final stream = _activeStreams[index];
-
                     String displayContent = item.content;
-                    if (_isTokenSaver) {
-                      displayContent = _minifyInteractiveBlock(displayContent);
-                    }
 
                     return TechnicalGridBackground(
                       isDarkMode: widget.isDarkMode,
@@ -198,19 +165,9 @@ class _HomeScreenState extends State<HomeScreen> {
                           fullText: displayContent,
                           title: item.name,
                           isPaused: _isPaused && _isStreamingActive,
-                          isTokenSaverEnabled: _isTokenSaver,
                           isDarkMode: widget.isDarkMode,
                           genUi: _genUi,
                           viewId: 'page-$index',
-                          onTokenSaverToggled: (val) {
-                            setState(() {
-                              _isTokenSaver = val;
-                            });
-                            if (_isStreamingActive) {
-                              _resetStream();
-                              _runStreamingSimulationForPage(_currentPageIndex);
-                            }
-                          },
                         ),
                       ),
                     );
@@ -245,8 +202,6 @@ class _HomeScreenState extends State<HomeScreen> {
     );
   }
 
-  // --- TRANS-PARENT TOP BAR AND ACTION CONTROLS ---
-
   Widget _buildTransparentTopBar(ExampleData active) {
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -255,7 +210,6 @@ class _HomeScreenState extends State<HomeScreen> {
         Row(
           mainAxisSize: MainAxisSize.min,
           children: [
-            // Bouncing micro-animated equalizer bars representing signal activity
             TopBarVisualizer(
               isActive: _isStreamingActive && !_isPaused,
               activeColor: widget.isDarkMode ? const Color(0xFF38BDF8) : const Color(0xFF2563EB),
@@ -298,7 +252,6 @@ class _HomeScreenState extends State<HomeScreen> {
         Row(
           mainAxisSize: MainAxisSize.min,
           children: [
-            // Informative telemetry text
             Column(
               crossAxisAlignment: CrossAxisAlignment.end,
               mainAxisAlignment: MainAxisAlignment.center,
@@ -419,7 +372,7 @@ class _HomeScreenState extends State<HomeScreen> {
                           side: widget.isDarkMode 
                               ? const BorderSide(color: Color(0xFF334155)) 
                               : BorderSide.none,
-                        ),
+                    ),
                         padding: const EdgeInsets.symmetric(horizontal: 16),
                         elevation: 0,
                       ),
@@ -515,14 +468,14 @@ class _HomeScreenState extends State<HomeScreen> {
         ),
         SizedBox(
           height: 24,
-          width: 180, // Slider made longer as requested
+          width: 180,
           child: SliderTheme(
             data: SliderThemeData(
-              trackHeight: 3, // Thicker slide bar
+              trackHeight: 3,
               activeTrackColor: widget.isDarkMode ? const Color(0xFF38BDF8) : const Color(0xFF2563EB),
               inactiveTrackColor: widget.isDarkMode ? const Color(0xFF1E293B) : const Color(0xFFE2E8F0),
               thumbColor: widget.isDarkMode ? const Color(0xFF38BDF8) : const Color(0xFF2563EB),
-              thumbShape: const RoundSliderThumbShape(enabledThumbRadius: 6), // Larger thumb size
+              thumbShape: const RoundSliderThumbShape(enabledThumbRadius: 6),
               overlayShape: const RoundSliderOverlayShape(overlayRadius: 0),
             ),
             child: Slider(
