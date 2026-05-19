@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'package:flutter/widgets.dart';
+import 'package:llm_json_stream/llm_json_stream.dart';
 import 'package:streaming_gen_ui/src/models/widget_registry.dart';
 import 'package:streaming_gen_ui/src/widgets/accumulating_string_stream_builder.dart';
 
@@ -70,8 +71,37 @@ class TextBlock extends Block {
 }
 
 class WidgetBlock extends Block {
-  WidgetBlock({required super.registry});
+  late final JsonStreamParser parser;
+  late final Future<String> _nameFuture;
+
+  WidgetBlock({required super.registry}) {
+    parser = JsonStreamParser(stream, skipThoughts: true);
+    // Note: The spec uses "namespace" as the identifier key.
+    _nameFuture = parser.getStringProperty("namespace").future;
+  }
 
   @override
-  Widget build(BuildContext context) => throw UnimplementedError();
+  Widget build(BuildContext context) {
+    return FutureBuilder<String>(
+      future: _nameFuture,
+      builder: (context, snapshot) {
+        if (snapshot.connectionState != ConnectionState.done) {
+          return const SizedBox.shrink();
+        }
+
+        if (snapshot.hasError) {
+          return Text('Error parsing widget: ${snapshot.error}');
+        }
+
+        final name = snapshot.data!;
+        final widgetBuilder = registry.widgets[name];
+
+        if (widgetBuilder == null) {
+          return Text('Widget $name not found in registry');
+        }
+
+        return widgetBuilder(context, parser.getMapProperty(''));
+      },
+    );
+  }
 }

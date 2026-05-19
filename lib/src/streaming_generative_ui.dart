@@ -1,5 +1,4 @@
 import 'package:flutter/widgets.dart';
-import 'package:llm_json_stream/llm_json_stream.dart';
 import 'package:streaming_gen_ui/src/models/view_state.dart';
 import 'package:streaming_gen_ui/src/models/widget_registry.dart';
 
