@@ -11,32 +11,32 @@ sealed class Block {
       StreamController<String>.broadcast();
   bool _isClosed = false;
 
-  Block({required this.registry});
+  late final Stream<String> stream;
 
-  /// A stream of chunks for this block.
-  /// When a new listener subscribes, all historical chunks are fired immediately,
-  /// followed by any new chunks in real-time.
-  Stream<String> get stream {
-    final controller = StreamController<String>();
+  Block({required this.registry}) {
+    // Create a stable broadcast controller for the cached stream
+    final controller = StreamController<String>.broadcast();
 
-    // Emit all historical chunks immediately
-    for (final chunk in _chunks) {
-      controller.add(chunk);
-    }
+    controller.onListen = () {
+      // Emit all historical chunks immediately to the active subscriber
+      for (final chunk in _chunks) {
+        controller.add(chunk);
+      }
 
-    if (_isClosed) {
-      controller.close();
-    } else {
-      // Forward new chunks
-      final subscription = _controller.stream.listen(
-        controller.add,
-        onError: controller.addError,
-        onDone: controller.close,
-      );
-      controller.onCancel = () => subscription.cancel();
-    }
+      if (_isClosed) {
+        controller.close();
+      } else {
+        // Forward future chunks in real-time
+        final subscription = _controller.stream.listen(
+          controller.add,
+          onError: controller.addError,
+          onDone: controller.close,
+        );
+        controller.onCancel = () => subscription.cancel();
+      }
+    };
 
-    return controller.stream;
+    stream = controller.stream;
   }
 
   @mustCallSuper
