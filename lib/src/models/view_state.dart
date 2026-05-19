@@ -2,6 +2,7 @@ import 'package:flutter/widgets.dart';
 import 'package:llm_tag_parser/llm_tag_parser.dart';
 import 'package:streaming_gen_ui/src/models/block.dart';
 import 'package:streaming_gen_ui/src/models/widget_registry.dart';
+import 'package:streaming_gen_ui/src/widgets/streaming_widget.dart';
 
 /// Holds the column of widgets that will be displayed in the UI
 class ViewState with ChangeNotifier {
@@ -54,15 +55,18 @@ class ViewState with ChangeNotifier {
   }
 
   Widget get widget {
-    return AnimatedBuilder(
-      animation: this,
-      builder: (context, _) {
-        return Column(
-          mainAxisSize: MainAxisSize.min,
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: _blocks.map((block) => block.build(context)).toList(),
-        );
-      },
+    return StreamingUiProvider(
+      registry: widgetRegistry,
+      child: AnimatedBuilder(
+        animation: this,
+        builder: (context, _) {
+          return Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: _blocks.map((block) => block.build(context)).toList(),
+          );
+        },
+      ),
     );
   }
 }
