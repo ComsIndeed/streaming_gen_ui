@@ -2,6 +2,7 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:streaming_gen_ui/streaming_gen_ui.dart';
 import 'package:example/data/mock_data.dart';
+import 'package:example/data/custom_widgets.dart';
 import 'package:example/utilities/streamTextInChunk.dart';
 
 class HomeScreen extends StatefulWidget {
@@ -24,8 +25,15 @@ class _HomeScreenState extends State<HomeScreen> {
   @override
   void initState() {
     super.initState();
-    // Initialize our library controller with the core widget registry
-    _genUi = StreamingGenerativeUi(registry: Registries.core);
+    // Initialize our library controller with the combined widget registry
+    _genUi = StreamingGenerativeUi(
+      registry: WidgetRegistry(
+        widgets: {
+          ...Registries.core.widgets,
+          ...customRegistry,
+        },
+      ),
+    );
     _selectedExample = mockExamples.first;
   }
 
