@@ -160,7 +160,7 @@ class _HomeScreenState extends State<HomeScreen> {
                     Expanded(
                       child: Slider(
                         min: 10,
-                        max: 200,
+                        max: 500,
                         value: _speedMs,
                         onChanged: _isStreaming
                             ? null
@@ -197,9 +197,11 @@ class _HomeScreenState extends State<HomeScreen> {
                       onPressed: !_isStreaming
                           ? _startSimulation
                           : _pauseOrResumeSimulation,
-                      child: Text(!_isStreaming
-                          ? 'Start'
-                          : (_isPaused ? 'Resume' : 'Pause')),
+                      child: Text(
+                        !_isStreaming
+                            ? 'Start'
+                            : (_isPaused ? 'Resume' : 'Pause'),
+                      ),
                     ),
                     const SizedBox(width: 10),
                     ElevatedButton(
