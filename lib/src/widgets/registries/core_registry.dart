@@ -6,52 +6,160 @@ import 'package:streaming_gen_ui/src/widgets/streaming_widget.dart';
 final Map<String, Widget Function(BuildContext context, PropertyStream props)>
 coreRegistry = {
   // Basic text rendering
-  "core:text": (context, props) {
-    final textStream = props.asMap.getStringProperty("content");
+  "core:text": (context, props) => _StreamingText(props: props),
+  
+  // Dynamic action-activated button
+  "core:elevated_button": (context, props) => _StreamingElevatedButton(props: props),
+  
+  // Highly optimized self-appending Column
+  "core:column": (context, props) {
+    final childrenProperty = props.asMap.getListProperty("children");
+    return _StreamingColumn(childrenProperty: childrenProperty);
+  },
+  
+  // Highly optimized self-appending Row
+  "core:row": (context, props) {
+    final childrenProperty = props.asMap.getListProperty("children");
+    return _StreamingRow(childrenProperty: childrenProperty);
+  },
+  
+  // Smoothly animating styling container
+  "core:container": (context, props) => _StreamingContainer(props: props),
+  
+  // Dynamic action-activated TextField
+  "core:textfield": (context, props) => _StreamingTextField(props: props),
+};
+
+// --- Stateful Cached Core Widgets ---
+
+class _StreamingText extends StatefulWidget {
+  final PropertyStream props;
+
+  const _StreamingText({required this.props});
+
+  @override
+  State<_StreamingText> createState() => _StreamingTextState();
+}
+
+class _StreamingTextState extends State<_StreamingText> {
+  late Stream<String> _textStream;
+
+  @override
+  void initState() {
+    super.initState();
+    _initStream();
+  }
+
+  @override
+  void didUpdateWidget(covariant _StreamingText oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (widget.props != oldWidget.props) {
+      _initStream();
+    }
+  }
+
+  void _initStream() {
+    _textStream = widget.props.asMap.getStringProperty("content").stream;
+  }
+
+  @override
+  Widget build(BuildContext context) {
     return AccumulatingStringStreamBuilder(
-      stream: textStream.stream,
+      stream: _textStream,
       builder: (context, accumulatedText) => Text(accumulatedText),
     );
-  },
-  // Dynamic action-activated button
-  "core:elevated_button": (context, props) {
-    final mapStream = props.asMap;
-    final child = mapStream.getMapProperty("child");
-    final actionFuture = mapStream.getStringProperty("action").future;
+  }
+}
 
+class _StreamingElevatedButton extends StatefulWidget {
+  final PropertyStream props;
+
+  const _StreamingElevatedButton({required this.props});
+
+  @override
+  State<_StreamingElevatedButton> createState() => _StreamingElevatedButtonState();
+}
+
+class _StreamingElevatedButtonState extends State<_StreamingElevatedButton> {
+  late Future<String> _actionFuture;
+  late PropertyStream _childProp;
+
+  @override
+  void initState() {
+    super.initState();
+    _initProps();
+  }
+
+  @override
+  void didUpdateWidget(covariant _StreamingElevatedButton oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (widget.props != oldWidget.props) {
+      _initProps();
+    }
+  }
+
+  void _initProps() {
+    final mapStream = widget.props.asMap;
+    _actionFuture = mapStream.getStringProperty("action").future;
+    _childProp = mapStream.getMapProperty("child");
+  }
+
+  @override
+  Widget build(BuildContext context) {
     return FutureBuilder<String>(
-      future: actionFuture,
+      future: _actionFuture,
       builder: (context, snapshot) {
         final action = snapshot.data;
         final isEnabled = snapshot.connectionState == ConnectionState.done && action != null;
         
         return ElevatedButton(
           onPressed: isEnabled ? () {
-            // Action dispatcher placeholder
             debugPrint('Interaction: Button action clicked -> $action');
           } : null,
-          child: StreamingWidget(props: child),
+          child: StreamingWidget(props: _childProp),
         );
       },
     );
-  },
-  // Highly optimized self-appending Column
-  "core:column": (context, props) {
-    final childrenProperty = props.asMap.getListProperty("children");
-    return _StreamingColumn(childrenProperty: childrenProperty);
-  },
-  // Highly optimized self-appending Row
-  "core:row": (context, props) {
-    final childrenProperty = props.asMap.getListProperty("children");
-    return _StreamingRow(childrenProperty: childrenProperty);
-  },
-  // Smoothly animating styling container
-  "core:container": (context, props) {
-    final mapStream = props.asMap;
-    final childProperty = mapStream.getMapProperty("child");
+  }
+}
 
+class _StreamingContainer extends StatefulWidget {
+  final PropertyStream props;
+
+  const _StreamingContainer({required this.props});
+
+  @override
+  State<_StreamingContainer> createState() => _StreamingContainerState();
+}
+
+class _StreamingContainerState extends State<_StreamingContainer> {
+  late Stream<Map<String, dynamic>> _containerStream;
+  late PropertyStream _childProp;
+
+  @override
+  void initState() {
+    super.initState();
+    _initStream();
+  }
+
+  @override
+  void didUpdateWidget(covariant _StreamingContainer oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (widget.props != oldWidget.props) {
+      _initStream();
+    }
+  }
+
+  void _initStream() {
+    final mapStream = widget.props.asMap;
+    _containerStream = mapStream.stream;
+    _childProp = mapStream.getMapProperty("child");
+  }
+
+  @override
+  Widget build(BuildContext context) {
     return StreamBuilder<Map<String, dynamic>>(
-      stream: mapStream.stream,
+      stream: _containerStream,
       builder: (context, snapshot) {
         final data = snapshot.data ?? const {};
 
@@ -70,25 +178,57 @@ coreRegistry = {
             color: parsedColor,
             borderRadius: parsedColor != null ? BorderRadius.circular(8) : null,
           ),
-          child: StreamingWidget(props: childProperty),
+          child: StreamingWidget(props: _childProp),
         );
       },
     );
-  },
-  // Dynamic action-activated TextField
-  "core:textfield": (context, props) {
-    final mapStream = props.asMap;
-    final actionFuture = mapStream.getStringProperty("action").future;
+  }
+}
 
+class _StreamingTextField extends StatefulWidget {
+  final PropertyStream props;
+
+  const _StreamingTextField({required this.props});
+
+  @override
+  State<_StreamingTextField> createState() => _StreamingTextFieldState();
+}
+
+class _StreamingTextFieldState extends State<_StreamingTextField> {
+  late Stream<Map<String, dynamic>> _textFieldStream;
+  late Future<String> _actionFuture;
+
+  @override
+  void initState() {
+    super.initState();
+    _initProps();
+  }
+
+  @override
+  void didUpdateWidget(covariant _StreamingTextField oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (widget.props != oldWidget.props) {
+      _initProps();
+    }
+  }
+
+  void _initProps() {
+    final mapStream = widget.props.asMap;
+    _textFieldStream = mapStream.stream;
+    _actionFuture = mapStream.getStringProperty("action").future;
+  }
+
+  @override
+  Widget build(BuildContext context) {
     return StreamBuilder<Map<String, dynamic>>(
-      stream: mapStream.stream,
+      stream: _textFieldStream,
       builder: (context, snapshot) {
         final data = snapshot.data ?? const {};
         final hintText = data["placeholder"] as String? ?? data["hintText"] as String?;
         final labelText = data["labelText"] as String?;
 
         return FutureBuilder<String>(
-          future: actionFuture,
+          future: _actionFuture,
           builder: (context, actionSnapshot) {
             final action = actionSnapshot.data;
             final isEnabled = actionSnapshot.connectionState == ConnectionState.done && action != null;
@@ -108,8 +248,8 @@ coreRegistry = {
         );
       },
     );
-  },
-};
+  }
+}
 
 // --- Helper Stateful Widgets & Parsers ---
 

@@ -32,17 +32,42 @@ class StreamingUiProvider extends InheritedWidget {
 
 /// A reactive widget that dynamically resolves and displays a nested widget
 /// using property streams and the context-provided [WidgetRegistry].
-class StreamingWidget extends StatelessWidget {
+class StreamingWidget extends StatefulWidget {
   final PropertyStream props;
 
   const StreamingWidget({super.key, required this.props});
+
+  @override
+  State<StreamingWidget> createState() => _StreamingWidgetState();
+}
+
+class _StreamingWidgetState extends State<StreamingWidget> {
+  late Future<String> _namespaceFuture;
+
+  @override
+  void initState() {
+    super.initState();
+    _initFuture();
+  }
+
+  @override
+  void didUpdateWidget(covariant StreamingWidget oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (widget.props != oldWidget.props) {
+      _initFuture();
+    }
+  }
+
+  void _initFuture() {
+    _namespaceFuture = widget.props.asMap.getStringProperty("namespace").future;
+  }
 
   @override
   Widget build(BuildContext context) {
     final registry = StreamingUiProvider.of(context);
 
     return FutureBuilder<String>(
-      future: props.asMap.getStringProperty("namespace").future,
+      future: _namespaceFuture,
       builder: (context, snapshot) {
         if (snapshot.connectionState != ConnectionState.done) {
           return const SizedBox.shrink();
@@ -58,7 +83,7 @@ class StreamingWidget extends StatelessWidget {
           return Text('Widget $name not found in registry');
         }
 
-        return widgetBuilder(context, props);
+        return widgetBuilder(context, widget.props);
       },
     );
   }
