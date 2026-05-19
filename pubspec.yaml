@@ -24,3 +24,7 @@ dev_dependencies:
   flutter_lints: ^6.0.0
 
 flutter:
+
+dependency_overrides:
+  llm_tag_parser:
+    path: c:/Users/Truly/AAA_WORKSPACE_WINDOWS/_AAA_PROJECTS/llm-stream-parsers/packages/llm/llm_tag_parser_dart

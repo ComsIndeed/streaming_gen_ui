@@ -103,11 +103,15 @@ class TextBlock extends Block {
 class WidgetBlock extends Block {
   late final JsonStreamParser parser;
   late final Future<String> _nameFuture;
+  late final PropertyStream rootProps;
 
   WidgetBlock({required super.registry}) {
+    _debugLog('WidgetBlock constructor start.');
     parser = JsonStreamParser(stream, skipThoughts: true);
     // Note: The spec uses "namespace" as the identifier key.
     _nameFuture = parser.getStringProperty("namespace").future;
+    rootProps = parser.getMapProperty('');
+    _debugLog('WidgetBlock constructor end. rootProps initialized.');
   }
 
   @override
@@ -130,7 +134,7 @@ class WidgetBlock extends Block {
           return Text('Widget $name not found in registry');
         }
 
-        return widgetBuilder(context, parser.getMapProperty(''));
+        return widgetBuilder(context, rootProps);
       },
     );
   }
