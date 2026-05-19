@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:llm_json_stream/llm_json_stream.dart';
+import 'package:streaming_gen_ui/streaming_gen_ui.dart';
 
 // --- Custom User Profile Card ---
 class CustomUserProfileCard extends StatefulWidget {
@@ -12,39 +13,24 @@ class CustomUserProfileCard extends StatefulWidget {
 }
 
 class _CustomUserProfileCardState extends State<CustomUserProfileCard> {
-  late final Future<String> _nameFuture;
-  late final Future<String> _roleFuture;
-  late final Future<String> _colorFuture;
+  late final Stream<String> _nameStream;
+  late final Stream<String> _roleStream;
+  late final Stream<String> _colorStream;
 
   @override
   void initState() {
     super.initState();
-    _nameFuture = widget.props.asMap.getStringProperty('name').future;
-    _roleFuture = widget.props.asMap.getStringProperty('role').future;
-    _colorFuture = widget.props.asMap.getStringProperty('themeColor').future;
+    _nameStream = widget.props.asMap.getStringProperty('name').stream;
+    _roleStream = widget.props.asMap.getStringProperty('role').stream;
+    _colorStream = widget.props.asMap.getStringProperty('themeColor').stream;
   }
 
   @override
   Widget build(BuildContext context) {
-    return FutureBuilder<List<String>>(
-      future: Future.wait([_nameFuture, _roleFuture, _colorFuture]),
-      builder: (context, snapshot) {
-        if (!snapshot.hasData) {
-          return const Card(
-            margin: EdgeInsets.symmetric(vertical: 8),
-            child: SizedBox(
-              height: 100,
-              child: Center(
-                child: CircularProgressIndicator(),
-              ),
-            ),
-          );
-        }
-
-        final name = snapshot.data![0];
-        final role = snapshot.data![1];
-        final hexColor = snapshot.data![2];
-
+    return AccumulatingStringStreamBuilder(
+      stream: _colorStream,
+      initialValue: '#2196F3',
+      builder: (context, hexColor) {
         Color color;
         try {
           color = Color(int.parse(hexColor.replaceAll('#', '0xff')));
@@ -59,6 +45,13 @@ class _CustomUserProfileCardState extends State<CustomUserProfileCard> {
             color: color.withOpacity(0.08),
             borderRadius: BorderRadius.circular(16),
             border: Border.all(color: color, width: 2),
+            boxShadow: [
+              BoxShadow(
+                color: color.withOpacity(0.04),
+                blurRadius: 8,
+                offset: const Offset(0, 4),
+              ),
+            ],
           ),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
@@ -74,20 +67,31 @@ class _CustomUserProfileCardState extends State<CustomUserProfileCard> {
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        Text(
-                          name,
-                          style: TextStyle(
-                            fontSize: 18,
-                            fontWeight: FontWeight.bold,
-                            color: color,
-                          ),
+                        AccumulatingStringStreamBuilder(
+                          stream: _nameStream,
+                          builder: (context, name) {
+                            return Text(
+                              name.isEmpty ? 'Typing name...' : name,
+                              style: TextStyle(
+                                fontSize: 18,
+                                fontWeight: FontWeight.bold,
+                                color: color,
+                              ),
+                            );
+                          },
                         ),
-                        Text(
-                          role,
-                          style: TextStyle(
-                            fontSize: 12,
-                            color: Theme.of(context).colorScheme.onSurface.withOpacity(0.7),
-                          ),
+                        const SizedBox(height: 4),
+                        AccumulatingStringStreamBuilder(
+                          stream: _roleStream,
+                          builder: (context, role) {
+                            return Text(
+                              role.isEmpty ? 'Typing role...' : role,
+                              style: TextStyle(
+                                fontSize: 12,
+                                color: Theme.of(context).colorScheme.onSurface.withOpacity(0.7),
+                              ),
+                            );
+                          },
                         ),
                       ],
                     ),
@@ -113,61 +117,50 @@ class CustomHotelCard extends StatefulWidget {
 }
 
 class _CustomHotelCardState extends State<CustomHotelCard> {
-  late final Future<String> _titleFuture;
-  late final Future<String> _descFuture;
-  late final Future<String> _ratingFuture;
+  late final Stream<String> _titleStream;
+  late final Stream<String> _descStream;
+  late final Stream<String> _ratingStream;
 
   @override
   void initState() {
     super.initState();
-    _titleFuture = widget.props.asMap.getStringProperty('title').future;
-    _descFuture = widget.props.asMap.getStringProperty('description').future;
-    _ratingFuture = widget.props.asMap.getStringProperty('rating').future;
+    _titleStream = widget.props.asMap.getStringProperty('title').stream;
+    _descStream = widget.props.asMap.getStringProperty('description').stream;
+    _ratingStream = widget.props.asMap.getStringProperty('rating').stream;
   }
 
   @override
   Widget build(BuildContext context) {
-    return FutureBuilder<List<String>>(
-      future: Future.wait([_titleFuture, _descFuture, _ratingFuture]),
-      builder: (context, snapshot) {
-        if (!snapshot.hasData) {
-          return const Card(
-            margin: EdgeInsets.symmetric(vertical: 8),
-            child: SizedBox(
-              height: 120,
-              child: Center(
-                child: CircularProgressIndicator(),
-              ),
-            ),
-          );
-        }
-
-        final title = snapshot.data![0];
-        final desc = snapshot.data![1];
-        final rating = snapshot.data![2];
-
-        return Card(
-          margin: const EdgeInsets.symmetric(vertical: 8),
-          elevation: 4,
-          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-          child: Padding(
-            padding: const EdgeInsets.all(16),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
+    return Card(
+      margin: const EdgeInsets.symmetric(vertical: 8),
+      elevation: 4,
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+      child: Padding(
+        padding: const EdgeInsets.all(16),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    Expanded(
-                      child: Text(
-                        title,
+                Expanded(
+                  child: AccumulatingStringStreamBuilder(
+                    stream: _titleStream,
+                    builder: (context, title) {
+                      return Text(
+                        title.isEmpty ? 'Typing hotel name...' : title,
                         style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
-                      ),
-                    ),
-                    Container(
+                      );
+                    },
+                  ),
+                ),
+                AccumulatingStringStreamBuilder(
+                  stream: _ratingStream,
+                  builder: (context, rating) {
+                    return Container(
                       padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
                       decoration: BoxDecoration(
-                        color: Colors.amber.shade700,
+                        color: rating.isEmpty ? Colors.grey : Colors.amber.shade700,
                         borderRadius: BorderRadius.circular(12),
                       ),
                       child: Row(
@@ -176,27 +169,32 @@ class _CustomHotelCardState extends State<CustomHotelCard> {
                           const Icon(Icons.star, size: 14, color: Colors.white),
                           const SizedBox(width: 4),
                           Text(
-                            rating,
+                            rating.isEmpty ? '...' : rating,
                             style: const TextStyle(color: Colors.white, fontSize: 12, fontWeight: FontWeight.bold),
                           ),
                         ],
                       ),
-                    ),
-                  ],
+                    );
+                  },
                 ),
-                const SizedBox(height: 8),
-                Text(
-                  desc,
+              ],
+            ),
+            const SizedBox(height: 8),
+            AccumulatingStringStreamBuilder(
+              stream: _descStream,
+              builder: (context, desc) {
+                return Text(
+                  desc.isEmpty ? 'Typing description...' : desc,
                   style: TextStyle(
                     fontSize: 13,
                     color: Theme.of(context).colorScheme.onSurface.withOpacity(0.7),
                   ),
-                ),
-              ],
+                );
+              },
             ),
-          ),
-        );
-      },
+          ],
+        ),
+      ),
     );
   }
 }
