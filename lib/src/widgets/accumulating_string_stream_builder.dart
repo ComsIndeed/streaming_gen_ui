@@ -25,6 +25,14 @@ class AccumulatingStringStreamBuilder extends StatefulWidget {
       _AccumulatingStringStreamBuilderState();
 }
 
+const bool _verboseLog = true;
+
+void _debugLog(String msg) {
+  if (_verboseLog) {
+    debugPrint('[GEN_UI:STREAM_BUILDER] [${DateTime.now().toIso8601String().substring(11, 23)}] $msg');
+  }
+}
+
 class _AccumulatingStringStreamBuilderState
     extends State<AccumulatingStringStreamBuilder> {
   late String _accumulated;
@@ -34,6 +42,7 @@ class _AccumulatingStringStreamBuilderState
   void initState() {
     super.initState();
     _accumulated = widget.initialValue;
+    _debugLog('initState: initial value = "$_accumulated"');
     _subscribe();
   }
 
@@ -41,6 +50,7 @@ class _AccumulatingStringStreamBuilderState
   void didUpdateWidget(covariant AccumulatingStringStreamBuilder oldWidget) {
     super.didUpdateWidget(oldWidget);
     if (widget.stream != oldWidget.stream) {
+      _debugLog('didUpdateWidget: stream changed! Re-subscribing...');
       _unsubscribe();
       _accumulated = widget.initialValue;
       _subscribe();
@@ -49,28 +59,40 @@ class _AccumulatingStringStreamBuilderState
 
   @override
   void dispose() {
+    _debugLog('dispose called.');
     _unsubscribe();
     super.dispose();
   }
 
   void _subscribe() {
+    _debugLog('Subscribing to stream: ${widget.stream.hashCode}...');
     _subscription = widget.stream.listen(
       (chunk) {
         if (mounted) {
+          _debugLog('Received chunk: "${chunk.replaceAll('\n', '\\n')}"');
           setState(() {
             _accumulated += chunk;
           });
+          _debugLog('Accumulated length is now: ${_accumulated.length}');
+        } else {
+          _debugLog('Received chunk but widget not mounted: "$chunk"');
         }
       },
       onError: (error) {
-        // Gracefully ignore or handle stream errors
+        _debugLog('Stream error: $error');
+      },
+      onDone: () {
+        _debugLog('Stream done.');
       },
     );
   }
 
   void _unsubscribe() {
-    _subscription?.cancel();
-    _subscription = null;
+    if (_subscription != null) {
+      _debugLog('Unsubscribing from stream...');
+      _subscription?.cancel();
+      _subscription = null;
+    }
   }
 
   @override
