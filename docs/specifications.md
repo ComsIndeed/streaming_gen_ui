@@ -12,7 +12,7 @@ The intended minimal use:
 // ─────────────────────────────────────────────
 
 // Setup
-final genUi = StreamingGenUi(registry: myRegistry);
+final genUi = StreamingGenerativeUi(registry: myRegistry);
 
 // Inject the prompt fragment into your LLM system prompt however you want
 final systemPrompt = genUi.systemPrompt;
@@ -42,7 +42,7 @@ Full API being demonstrated:
 // ─────────────────────────────────────────────
 
 // Setup
-final genUi = StreamingGenUi(registry: myRegistry);
+final genUi = StreamingGenerativeUi(registry: myRegistry);
 
 // System prompt fragment to inject into your LLM
 final systemPrompt = genUi.systemPrompt;
@@ -103,19 +103,27 @@ When the LLM streams its response, there are two layout modes based on the tags:
 
 #### 1. Single-View / Inline Chat Mode (Default)
 
-If the model streams an untagged `<interface>` block (meaning no `viewId` attribute is provided on the XML tag itself), all elements are rendered on the default view specified in `genUi.stream(...)`.
+If the model streams an untagged `<interface>` block (meaning no `viewId`
+attribute is provided on the XML tag itself), all elements are rendered on the
+default view specified in `genUi.stream(...)`.
 
 - The `.view('message-42')` widget handles the entire layout sandwich.
-- It displays the preceding text, followed by the active dynamic widget, followed by the succeeding text.
+- It displays the preceding text, followed by the active dynamic widget,
+  followed by the succeeding text.
 - Conversational text portions are automatically rendered in standard Markdown.
 
 #### 2. Multi-View / Target-Routed Mode
 
-If the model streams an interface block targeting a specific view (e.g. `<interface viewId="side-panel">`), the engine splits and routes the widgets dynamically.
+If the model streams an interface block targeting a specific view (e.g.
+`<interface viewId="side-panel">`), the engine splits and routes the widgets
+dynamically.
 
-- The default stream view (like the active chat bubble) only displays the conversational text.
-- The target view container (mounted elsewhere via `genUi.view('side-panel')`) dynamically catches and compiles the dynamic widget layout on-the-fly.
-- Allows the LLM to control multiple separate layout zones across your application.
+- The default stream view (like the active chat bubble) only displays the
+  conversational text.
+- The target view container (mounted elsewhere via `genUi.view('side-panel')`)
+  dynamically catches and compiles the dynamic widget layout on-the-fly.
+- Allows the LLM to control multiple separate layout zones across your
+  application.
 
 Cases:
 
@@ -184,9 +192,12 @@ Alpha V1 Built-In Widget Registry:
 
 ### Streaming Generative Architecture (`llm_json_stream` Integration)
 
-The package is powered by `llm_json_stream` under the hood. Instead of decoding static maps on completion, we digest tokens and build/update widgets progressively in real-time.
+The package is powered by `llm_json_stream` under the hood. Instead of decoding
+static maps on completion, we digest tokens and build/update widgets
+progressively in real-time.
 
-This changes the `.register()` method's signature. Instead of static JSON maps, builders receive reactive property stream containers:
+This changes the `.register()` method's signature. Instead of static JSON maps,
+builders receive reactive property stream containers:
 
 ```dart
 // The stream-aware builder signature
@@ -195,24 +206,34 @@ void register(String namespace, Widget Function(MapPropertyStream mapStream) bui
 
 #### 1. Hierarchical Prop Passing (Recursive Stream Passing)
 
-For nested layouts, we extract the `MapPropertyStream` or `ListPropertyStream` of sub-properties and pass them recursively down the child widget trees.
+For nested layouts, we extract the `MapPropertyStream` or `ListPropertyStream`
+of sub-properties and pass them recursively down the child widget trees.
 
 - Parents don't wait for the child block to finish.
-- They immediately mount the child widget, passing its dedicated sub-stream down for self-reactive updating.
+- They immediately mount the child widget, passing its dedicated sub-stream down
+  for self-reactive updating.
 
 #### 2. The Accumulating String Builder
 
-To keep text typing continuously without flickering or losing context, standard text widgets utilize an accumulating string builder that progressively grows on every text token chunk.
+To keep text typing continuously without flickering or losing context, standard
+text widgets utilize an accumulating string builder that progressively grows on
+every text token chunk.
 
 #### 3. Dynamic Action Activation (Disabled-to-Enabled Transitions)
 
-Buttons and inputs start in a disabled state (`onPressed = null` / greyed out) when first painted.
+Buttons and inputs start in a disabled state (`onPressed = null` / greyed out)
+when first painted.
 
-- We listen to the action future via `mapStream.getStringProperty('action').future`.
-- The exact millisecond the LLM finishes streaming the button's action payload, the callback resolves, setting the onPressed method.
-- The button dynamically transitions from disabled (grey/inactive) to fully interactive in real-time.
+- We listen to the action future via
+  `mapStream.getStringProperty('action').future`.
+- The exact millisecond the LLM finishes streaming the button's action payload,
+  the callback resolves, setting the onPressed method.
+- The button dynamically transitions from disabled (grey/inactive) to fully
+  interactive in real-time.
 
 ### User Interactivity on the UIs
 
-- Interactivity actions (like form submissions or button clicks) are mapped back to the application using a centralized action dispatcher.
-- Developers register active action callbacks inside the `StreamingGenUi` controller to listen to user interactions triggered by dynamic screens.
+- Interactivity actions (like form submissions or button clicks) are mapped back
+  to the application using a centralized action dispatcher.
+- Developers register active action callbacks inside the `StreamingGenerativeUi`
+  controller to listen to user interactions triggered by dynamic screens.
