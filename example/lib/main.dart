@@ -14,7 +14,7 @@ class MyApp extends StatefulWidget {
 }
 
 class _MyAppState extends State<MyApp> {
-  ThemeMode _themeMode = ThemeMode.dark;
+  final ThemeMode _themeMode = ThemeMode.dark;
 
   @override
   Widget build(BuildContext context) {
@@ -24,23 +24,21 @@ class _MyAppState extends State<MyApp> {
       themeMode: _themeMode,
       theme: ThemeData(
         brightness: Brightness.light,
-        colorScheme: ColorScheme.fromSeed(seedColor: Colors.blue, brightness: Brightness.light),
+        colorScheme: ColorScheme.fromSeed(
+          seedColor: Colors.blue,
+          brightness: Brightness.light,
+        ),
         useMaterial3: true,
       ),
       darkTheme: ThemeData(
         brightness: Brightness.dark,
-        colorScheme: ColorScheme.fromSeed(seedColor: Colors.blue, brightness: Brightness.dark),
+        colorScheme: ColorScheme.fromSeed(
+          seedColor: Colors.blue,
+          brightness: Brightness.dark,
+        ),
         useMaterial3: true,
       ),
-      home: HomeScreen(
-        isDarkMode: _themeMode == ThemeMode.dark,
-        onThemeToggle: () {
-          setState(() {
-            _themeMode = _themeMode == ThemeMode.dark ? ThemeMode.light : ThemeMode.dark;
-          });
-        },
-      ),
+      home: HomeScreen(),
     );
   }
 }
-
