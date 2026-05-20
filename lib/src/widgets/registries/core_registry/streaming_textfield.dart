@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:llm_json_stream/llm_json_stream.dart';
 
+import 'package:streaming_gen_ui/src/widgets/registries/core_registry/streaming_entrance.dart';
+
 /// An input text field that progressively configures its labels and hint text,
 /// and dynamically activates once its submit callback action resolves from the stream.
 class StreamingTextField extends StatefulWidget {
@@ -38,55 +40,86 @@ class _StreamingTextFieldState extends State<StreamingTextField> {
 
   @override
   Widget build(BuildContext context) {
-    return StreamBuilder<Map<String, dynamic>>(
-      stream: _textFieldStream,
-      builder: (context, snapshot) {
-        final data = snapshot.data ?? const {};
-        final hintText = data["placeholder"] as String? ?? data["hintText"] as String?;
-        final labelText = data["labelText"] as String?;
-        final colorHex = data["color"] as String?;
-        final fillColor = _parseColor(colorHex) ?? Theme.of(context).colorScheme.surfaceContainer;
+    final theme = Theme.of(context);
 
-        return FutureBuilder<String>(
-          future: _actionFuture,
-          builder: (context, actionSnapshot) {
-            final action = actionSnapshot.data;
-            final isEnabled = actionSnapshot.connectionState == ConnectionState.done && action != null;
+    return StreamingEntrance(
+      child: StreamBuilder<Map<String, dynamic>>(
+        stream: _textFieldStream,
+        builder: (context, snapshot) {
+          final data = snapshot.data ?? const {};
+          final hintText = data["placeholder"] as String? ?? data["hintText"] as String?;
+          final labelText = data["labelText"] as String?;
+          final colorHex = data["color"] as String?;
+          final fillColor = _parseColor(colorHex) ?? theme.colorScheme.surfaceContainerLow;
 
-            return TextField(
-              enabled: isEnabled,
-              decoration: InputDecoration(
-                hintText: hintText,
-                labelText: labelText,
-                filled: true,
-                fillColor: fillColor,
-                border: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(12),
-                  borderSide: BorderSide(
-                    color: Theme.of(context).colorScheme.outline,
+          return FutureBuilder<String>(
+            future: _actionFuture,
+            builder: (context, actionSnapshot) {
+              final action = actionSnapshot.data;
+              final isEnabled = actionSnapshot.connectionState == ConnectionState.done && action != null;
+
+              return TextField(
+                enabled: isEnabled,
+                style: TextStyle(
+                  color: theme.colorScheme.onSurface,
+                  fontSize: 14,
+                ),
+                decoration: InputDecoration(
+                  hintText: hintText ?? "Enter text...",
+                  hintStyle: TextStyle(
+                    color: theme.colorScheme.onSurface.withOpacity(0.35),
+                    fontSize: 14,
+                  ),
+                  labelText: labelText,
+                  labelStyle: TextStyle(color: theme.colorScheme.primary),
+                  filled: true,
+                  fillColor: isEnabled
+                      ? fillColor
+                      : theme.colorScheme.surfaceContainerLowest.withOpacity(0.4),
+                  contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+                  prefixIcon: Icon(
+                    Icons.search,
+                    size: 18,
+                    color: isEnabled
+                        ? theme.colorScheme.primary
+                        : theme.colorScheme.onSurface.withOpacity(0.2),
+                  ),
+                  border: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(12),
+                    borderSide: BorderSide(
+                      color: theme.colorScheme.outline.withOpacity(0.12),
+                    ),
+                  ),
+                  enabledBorder: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(12),
+                    borderSide: BorderSide(
+                      // ignore: deprecated_member_use
+                      color: theme.colorScheme.outline.withOpacity(0.12),
+                    ),
+                  ),
+                  disabledBorder: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(12),
+                    borderSide: BorderSide(
+                      // ignore: deprecated_member_use
+                      color: theme.colorScheme.outline.withOpacity(0.06),
+                    ),
+                  ),
+                  focusedBorder: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(12),
+                    borderSide: BorderSide(
+                      color: theme.colorScheme.primary,
+                      width: 1.5,
+                    ),
                   ),
                 ),
-                enabledBorder: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(12),
-                  borderSide: BorderSide(
-                    color: Theme.of(context).colorScheme.outline.withOpacity(0.5),
-                  ),
-                ),
-                focusedBorder: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(12),
-                  borderSide: BorderSide(
-                    color: Theme.of(context).colorScheme.primary,
-                    width: 2,
-                  ),
-                ),
-              ),
-              onSubmitted: isEnabled ? (value) {
-                debugPrint('Interaction: TextField submitted value -> $value for action -> $action');
-              } : null,
-            );
-          },
-        );
-      },
+                onSubmitted: isEnabled ? (value) {
+                  debugPrint('[GEN_UI:TEXTFIELD] Submitted: "$value" -> $action');
+                } : null,
+              );
+            },
+          );
+        },
+      ),
     );
   }
 }

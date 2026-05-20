@@ -23,45 +23,71 @@ class _CustomUserProfileCardState extends State<CustomUserProfileCard> {
 
   @override
   Widget build(BuildContext context) {
-    return AccumulatingStringStreamBuilder(
-      stream: _colorStream,
-      initialValue: '#2196F3',
-      builder: (context, hexColor) {
-        Color color;
-        try {
-          color = Color(int.parse(hexColor.replaceAll('#', '0xff')));
-        } catch (_) {
-          color = Colors.blue;
-        }
+    final theme = Theme.of(context);
 
-        return Container(
-          margin: const EdgeInsets.symmetric(vertical: 8),
-          padding: const EdgeInsets.all(16),
-          decoration: BoxDecoration(
-            color: color.withOpacity(0.08),
-            borderRadius: BorderRadius.circular(16),
-            border: Border.all(color: color, width: 2),
-            boxShadow: [
-              BoxShadow(
-                color: color.withOpacity(0.04),
-                blurRadius: 8,
-                offset: const Offset(0, 4),
+    return StreamingEntrance(
+      child: AccumulatingStringStreamBuilder(
+        stream: _colorStream,
+        initialValue: '#2196F3',
+        builder: (context, hexColor) {
+          Color color;
+          try {
+            color = Color(int.parse(hexColor.replaceAll('#', '0xff')));
+          } catch (_) {
+            color = theme.colorScheme.primary;
+          }
+
+          return AnimatedContainer(
+            duration: const Duration(milliseconds: 350),
+            curve: const Cubic(0.2, 0.8, 0.2, 1.0), // Standard Snap Curve
+            margin: const EdgeInsets.symmetric(vertical: 8),
+            padding: const EdgeInsets.all(16),
+            decoration: BoxDecoration(
+              // ignore: deprecated_member_use
+              color: color.withOpacity(0.06),
+              borderRadius: BorderRadius.circular(16),
+              border: Border.all(
+                // ignore: deprecated_member_use
+                color: color.withOpacity(0.25),
+                width: 1.5,
               ),
-            ],
-          ),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Row(
+              boxShadow: [
+                BoxShadow(
+                  // ignore: deprecated_member_use
+                  color: color.withOpacity(0.04),
+                  blurRadius: 16,
+                  offset: const Offset(0, 8),
+                ),
+              ],
+            ),
+            child: AnimatedSize(
+              duration: const Duration(milliseconds: 300),
+              curve: Curves.easeOutCubic,
+              alignment: Alignment.topCenter,
+              child: Row(
+                crossAxisAlignment: CrossAxisAlignment.center,
                 children: [
-                  CircleAvatar(
-                    backgroundColor: color,
-                    child: const Icon(Icons.person, color: Colors.white),
+                  AnimatedContainer(
+                    duration: const Duration(milliseconds: 350),
+                    curve: Curves.easeOutCubic,
+                    width: 44,
+                    height: 44,
+                    decoration: BoxDecoration(
+                      // ignore: deprecated_member_use
+                      color: color.withOpacity(0.12),
+                      shape: BoxShape.circle,
+                    ),
+                    child: Icon(
+                      Icons.person_rounded,
+                      color: color,
+                      size: 24,
+                    ),
                   ),
-                  const SizedBox(width: 12),
+                  const SizedBox(width: 16),
                   Expanded(
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
+                      mainAxisSize: MainAxisSize.min,
                       children: [
                         StreamingText(
                           props: widget.props,
@@ -70,9 +96,10 @@ class _CustomUserProfileCardState extends State<CustomUserProfileCard> {
                           builder: (context, name) => Text(
                             name,
                             style: TextStyle(
-                              fontSize: 18,
+                              fontSize: 16,
                               fontWeight: FontWeight.bold,
                               color: color,
+                              letterSpacing: -0.2,
                             ),
                           ),
                         ),
@@ -84,8 +111,10 @@ class _CustomUserProfileCardState extends State<CustomUserProfileCard> {
                           builder: (context, role) => Text(
                             role,
                             style: TextStyle(
-                              fontSize: 12,
-                              color: Theme.of(context).colorScheme.onSurface.withOpacity(0.7),
+                              fontSize: 13,
+                              // ignore: deprecated_member_use
+                              color: theme.colorScheme.onSurface.withOpacity(0.6),
+                              fontWeight: FontWeight.w500,
                             ),
                           ),
                         ),
@@ -94,10 +123,10 @@ class _CustomUserProfileCardState extends State<CustomUserProfileCard> {
                   ),
                 ],
               ),
-            ],
-          ),
-        );
-      },
+            ),
+          );
+        },
+      ),
     );
   }
 }
@@ -110,68 +139,114 @@ class CustomHotelCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Card(
-      margin: const EdgeInsets.symmetric(vertical: 8),
-      elevation: 4,
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-      child: Padding(
-        padding: const EdgeInsets.all(16),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+    final theme = Theme.of(context);
+
+    return StreamingEntrance(
+      child: AnimatedContainer(
+        duration: const Duration(milliseconds: 300),
+        margin: const EdgeInsets.symmetric(vertical: 8),
+        decoration: BoxDecoration(
+          color: theme.colorScheme.surfaceContainerLow,
+          borderRadius: BorderRadius.circular(16),
+          border: Border.all(
+            // ignore: deprecated_member_use
+            color: theme.colorScheme.outline.withOpacity(0.08),
+          ),
+          boxShadow: [
+            BoxShadow(
+              // ignore: deprecated_member_use
+              color: Colors.black.withOpacity(0.03),
+              blurRadius: 12,
+              offset: const Offset(0, 6),
+            ),
+          ],
+        ),
+        child: AnimatedSize(
+          duration: const Duration(milliseconds: 300),
+          curve: Curves.easeOutCubic,
+          alignment: Alignment.topCenter,
+          child: Padding(
+            padding: const EdgeInsets.all(16),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              mainAxisSize: MainAxisSize.min,
               children: [
-                Expanded(
-                  child: StreamingText(
-                    props: props,
-                    propertyName: 'title',
-                    initialValue: 'Typing hotel name...',
-                    builder: (context, title) => Text(
-                      title,
-                      style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Expanded(
+                      child: StreamingText(
+                        props: props,
+                        propertyName: 'title',
+                        initialValue: 'Typing hotel name...',
+                        builder: (context, title) => Text(
+                          title,
+                          style: TextStyle(
+                            fontSize: 16,
+                            fontWeight: FontWeight.bold,
+                            color: theme.colorScheme.onSurface,
+                            letterSpacing: -0.2,
+                          ),
+                        ),
+                      ),
                     ),
-                  ),
+                    const SizedBox(width: 8),
+                    StreamingText(
+                      props: props,
+                      propertyName: 'rating',
+                      builder: (context, rating) {
+                        final hasRating = rating.isNotEmpty && rating != '...';
+                        return AnimatedContainer(
+                          duration: const Duration(milliseconds: 300),
+                          padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                          decoration: BoxDecoration(
+                            color: hasRating
+                                ? Colors.amber.shade700
+                                : theme.colorScheme.surfaceContainerHigh,
+                            borderRadius: BorderRadius.circular(8),
+                          ),
+                          child: Row(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              Icon(
+                                Icons.star_rounded,
+                                size: 14,
+                                color: hasRating ? Colors.white : theme.colorScheme.onSurface.withOpacity(0.3),
+                              ),
+                              const SizedBox(width: 4),
+                              Text(
+                                hasRating ? rating : '...',
+                                style: TextStyle(
+                                  color: hasRating ? Colors.white : theme.colorScheme.onSurface.withOpacity(0.4),
+                                  fontSize: 12,
+                                  fontWeight: FontWeight.bold,
+                                ),
+                              ),
+                            ],
+                          ),
+                        );
+                      },
+                    ),
+                  ],
                 ),
+                const SizedBox(height: 12),
                 StreamingText(
                   props: props,
-                  propertyName: 'rating',
-                  builder: (context, rating) => Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-                    decoration: BoxDecoration(
-                      color: rating.isEmpty ? Colors.grey : Colors.amber.shade700,
-                      borderRadius: BorderRadius.circular(12),
-                    ),
-                    child: Row(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        const Icon(Icons.star, size: 14, color: Colors.white),
-                        const SizedBox(width: 4),
-                        Text(
-                          rating.isEmpty ? '...' : rating,
-                          style: const TextStyle(color: Colors.white, fontSize: 12, fontWeight: FontWeight.bold),
-                        ),
-                      ],
+                  propertyName: 'description',
+                  initialValue: 'Typing description...',
+                  builder: (context, desc) => Text(
+                    desc,
+                    style: TextStyle(
+                      fontSize: 13,
+                      height: 1.4,
+                      // ignore: deprecated_member_use
+                      color: theme.colorScheme.onSurface.withOpacity(0.6),
                     ),
                   ),
                 ),
               ],
             ),
-            const SizedBox(height: 8),
-            StreamingText(
-              props: props,
-              propertyName: 'description',
-              initialValue: 'Typing description...',
-              builder: (context, desc) => Text(
-                desc,
-                style: TextStyle(
-                  fontSize: 13,
-                  // ignore: deprecated_member_use
-                  color: Theme.of(context).colorScheme.onSurface.withOpacity(0.7),
-                ),
-              ),
-            ),
-          ],
+          ),
         ),
       ),
     );

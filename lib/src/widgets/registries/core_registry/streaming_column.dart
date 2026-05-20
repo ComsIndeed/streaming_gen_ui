@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:llm_json_stream/llm_json_stream.dart';
 import 'package:streaming_gen_ui/src/widgets/streaming_widget.dart';
 
+import 'package:streaming_gen_ui/src/widgets/registries/core_registry/streaming_entrance.dart';
+
 /// A layout component that dynamically displays nested children vertically
 /// as they stream in progressively.
 class StreamingColumn extends StatelessWidget {
@@ -23,15 +25,22 @@ class StreamingColumn extends StatelessWidget {
         // Dynamically instantiate clean, reactive PropertyStream wrappers for each element index
         final childrenList = List.generate(
           list.length,
-          (index) => StreamingWidget(
-            props: childrenProperty.getMapProperty('[$index]'),
+          (index) => StreamingEntrance(
+            child: StreamingWidget(
+              props: childrenProperty.getMapProperty('[$index]'),
+            ),
           ),
         );
 
-        return Column(
-          mainAxisSize: MainAxisSize.min,
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: childrenList,
+        return AnimatedSize(
+          duration: const Duration(milliseconds: 300),
+          curve: Curves.easeOutCubic,
+          alignment: Alignment.topCenter,
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: childrenList,
+          ),
         );
       },
     );
