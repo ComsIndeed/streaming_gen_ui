@@ -66,12 +66,18 @@ class _AccumulatingStringStreamBuilderState
 
   void _subscribe() {
     _debugLog('Subscribing to stream: ${widget.stream.hashCode}...');
+    bool hasReceivedData = false;
     _subscription = widget.stream.listen(
       (chunk) {
         if (mounted) {
           _debugLog('Received chunk: "${chunk.replaceAll('\n', '\\n')}"');
           setState(() {
-            _accumulated += chunk;
+            if (!hasReceivedData) {
+              _accumulated = chunk;
+              hasReceivedData = true;
+            } else {
+              _accumulated += chunk;
+            }
           });
           _debugLog('Accumulated length is now: ${_accumulated.length}');
         } else {
