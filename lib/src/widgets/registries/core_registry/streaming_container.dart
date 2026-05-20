@@ -1,7 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/widgets.dart';
 import 'package:llm_json_stream/llm_json_stream.dart';
-import 'package:streaming_gen_ui/src/widgets/registries/core_registry/streaming_entrance.dart';
 import 'package:streaming_gen_ui/streaming_gen_ui.dart';
 
 /// A styled box container that dynamically listens to visual specifications
