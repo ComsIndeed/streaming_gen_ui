@@ -26,7 +26,14 @@ Stream<String> streamTextInChunks({
   required String text,
   required int chunkSize,
   required Duration interval,
+  int chunkSizeImmediatelyEmit = 0,
+  bool emitImmediately = true,
 }) async* {
+  if (emitImmediately == false) await Future.delayed(interval);
+
+  yield text.substring(0, chunkSizeImmediatelyEmit);
+  text = text.substring(chunkSizeImmediatelyEmit);
+
   // Calculate the number of chunks we'll need.
   int totalLength = text.length;
   int numChunks = (totalLength / chunkSize).ceil();
