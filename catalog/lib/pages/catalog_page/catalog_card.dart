@@ -11,7 +11,7 @@ class CatalogCard extends StatelessWidget {
   const CatalogCard({super.key, required this.catalogItem});
 
   Stream<String> get stream => streamTextInChunks(
-    text: "<interface>${catalogItem.widgetDefinition.jsonExample}</interfacex>",
+    text: "<interface>${catalogItem.widgetDefinition.jsonExample}</interface>",
     chunkSize: 4,
     interval: Duration(milliseconds: 100),
     chunkSizeImmediatelyEmit: '<interface>{"namespace":"  core:'.length,

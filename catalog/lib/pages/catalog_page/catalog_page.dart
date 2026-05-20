@@ -3,6 +3,7 @@ import 'package:streaming_gen_ui/streaming_gen_ui.dart';
 import 'package:streaming_gen_ui_widget_catalog/core/models/widget_catalog_item.dart';
 import 'package:streaming_gen_ui_widget_catalog/core/widget_catalog.dart';
 import 'package:streaming_gen_ui_widget_catalog/pages/catalog_page/catalog_card.dart';
+import 'package:streaming_gen_ui_widget_catalog/pages/catalog_page/catalog_categories.dart';
 import 'package:streaming_gen_ui_widget_catalog/pages/catalog_page/catalog_search_bar.dart';
 import 'package:streaming_gen_ui_widget_catalog/widgets/graph_background.dart';
 
@@ -66,7 +67,12 @@ class _CatalogPageState extends State<CatalogPage> {
                 const SizedBox(height: 64),
 
                 // 2. Search Bar
-                CatalogSearchBar(),
+                Wrap(
+                  children: [
+                    CatalogSearchBar(),
+                    CatalogCategories(widgetCatalog: widgetCatalog),
+                  ],
+                ),
                 const SizedBox(height: 24),
 
                 // Catalog list
