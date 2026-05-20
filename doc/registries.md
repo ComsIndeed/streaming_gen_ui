@@ -39,6 +39,25 @@ To solve prompt-synchronization drift, eliminate file bloat, and allow clean pac
    * A `WidgetRegistry` is simply a **Set of references** pointing to the population database.
    * Multiple registries can reference the exact same population elements without duplication.
 
+### 🧩 Widget Definitions & Live Catalog Previews
+
+Every concrete widget in the population is defined by a `WidgetDefinition` structure containing its builder function, schema constraints, and an illustrative JSON example:
+
+```dart
+class WidgetDefinition {
+  final WidgetBuilderFunction builder;
+  final String description;
+  final Map<String, String> properties;
+  final String jsonExample; // <-- Critical for streaming catalog previews
+}
+```
+
+#### The `jsonExample` Streaming Preview Pattern
+
+The `jsonExample` field serves two primary roles:
+1. **Developer Reference & Prompt Compilation:** It represents the exact JSON schema the LLM is expected to generate when emitting this widget.
+2. **Catalog Live Simulation:** Rather than presenting a static component in the widget catalog, the catalog page uses the `jsonExample` to simulate a real-world streaming experience. The engine reads the `jsonExample` string, splits it into micro-chunks (e.g., character-by-character or small token sequences), and feeds this raw chunked stream directly into the generative UI engine. This allows developers to verify and inspect the widget's transitional animations, skeleton shimmers, and progressive layout morphing (Continuous State Morphing) in real-time, exactly as an end-user would experience it.
+
 ---
 
 ## ➕ Dynamic Set Math & Composition API
