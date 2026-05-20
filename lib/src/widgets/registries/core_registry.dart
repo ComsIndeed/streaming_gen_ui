@@ -272,10 +272,18 @@ class _StreamingColumn extends StatelessWidget {
           debugPrint('[GEN_UI:WARNING] core:column layout streaming complete but contains 0 items!');
         }
 
+        // Dynamically instantiate clean, reactive PropertyStream wrappers for each element index
+        final childrenList = List.generate(
+          list.length,
+          (index) => StreamingWidget(
+            props: childrenProperty.getMapProperty('[$index]'),
+          ),
+        );
+
         return Column(
           mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.start,
-          children: list.map((elementProp) => StreamingWidget(props: elementProp as PropertyStream)).toList(),
+          children: childrenList,
         );
       },
     );
@@ -298,10 +306,18 @@ class _StreamingRow extends StatelessWidget {
           debugPrint('[GEN_UI:WARNING] core:row layout streaming complete but contains 0 items!');
         }
 
+        // Dynamically instantiate clean, reactive PropertyStream wrappers for each element index
+        final childrenList = List.generate(
+          list.length,
+          (index) => StreamingWidget(
+            props: childrenProperty.getMapProperty('[$index]'),
+          ),
+        );
+
         return Row(
           mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.center,
-          children: list.map((elementProp) => StreamingWidget(props: elementProp as PropertyStream)).toList(),
+          children: childrenList,
         );
       },
     );
