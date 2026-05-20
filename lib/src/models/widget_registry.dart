@@ -22,6 +22,34 @@ class WidgetRegistry {
 
   WidgetRegistry({required this.widgets});
 
+  /// ➕ Union Operator: Merge two registries together seamlessly.
+  WidgetRegistry operator +(WidgetRegistry other) {
+    return WidgetRegistry(widgets: {
+      ...widgets,
+      ...other.widgets,
+    });
+  }
+
+  /// 🎯 Subset Filter: Derive a new registry containing only selected IDs.
+  WidgetRegistry only(List<String> ids) {
+    final filtered = <String, WidgetDefinition>{};
+    for (final id in ids) {
+      if (widgets.containsKey(id)) {
+        filtered[id] = widgets[id]!;
+      }
+    }
+    return WidgetRegistry(widgets: filtered);
+  }
+
+  /// ➖ Subtraction: Derive a new registry excluding selected IDs.
+  WidgetRegistry without(List<String> ids) {
+    final filtered = Map<String, WidgetDefinition>.from(widgets);
+    for (final id in ids) {
+      filtered.remove(id);
+    }
+    return WidgetRegistry(widgets: filtered);
+  }
+
   String get systemPromptFragment {
     final catalog = widgets.entries.map((entry) {
       final key = entry.key;

@@ -1,11 +1,9 @@
-import 'package:flutter/widgets.dart';
+import 'package:flutter/material.dart';
 import 'package:llm_json_stream/llm_json_stream.dart';
 import 'package:streaming_gen_ui/src/widgets/accumulating_string_stream_builder.dart';
 
 /// A utility widget that progressively listens to and accumulates a specific
 /// text property from a [PropertyStream]. 
-///
-/// It provides a clean API for developers creating custom widgets in the registry.
 class StreamingText extends StatefulWidget {
   /// The reactive property stream to parse from.
   final PropertyStream props;

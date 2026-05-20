@@ -2,7 +2,7 @@ export 'src/streaming_generative_ui.dart';
 export 'src/models/widget_registry.dart';
 export 'src/models/view_state.dart';
 export 'src/widgets/accumulating_string_stream_builder.dart';
-export 'src/widgets/streaming_text.dart';
+export 'src/widgets/core/streaming_text.dart';
 export 'src/widgets/registries/registries.dart';
 export 'src/widgets/streaming_widget.dart';
 export 'src/widgets/streaming_error_widget.dart';
