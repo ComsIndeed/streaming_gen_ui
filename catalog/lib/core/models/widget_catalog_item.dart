@@ -1,8 +1,31 @@
 import 'package:streaming_gen_ui/streaming_gen_ui.dart';
 
 class WidgetCatalogItem {
-  String get provider => namespace.split(':')[0];
-  String get displayName => namespace.split(':')[1];
+  String get displayProvider {
+    final formattedName = namespace
+        .split(':')[0]
+        .split("_")
+        .map((e) => e[0].toUpperCase() + e.substring(1))
+        .join(" ");
+
+    if (formattedName == "Ui") return "UI";
+    if (formattedName == "Doc") return "Document";
+    if (formattedName == "Dash") return "Dashboard";
+
+    return formattedName;
+  }
+
+  String get provider => namespace
+      .split(':')[0]
+      .split("_")
+      .map((e) => e[0].toUpperCase() + e.substring(1))
+      .join(" ");
+
+  String get displayName => namespace
+      .split(':')[1]
+      .split("_")
+      .map((e) => e[0].toUpperCase() + e.substring(1))
+      .join(" ");
   String namespace;
   WidgetDefinition widgetDefinition;
 
