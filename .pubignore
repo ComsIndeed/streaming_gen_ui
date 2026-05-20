@@ -37,4 +37,8 @@ doc/internals.md
 doc/registries.md
 doc/specifications.md
 
+# Exclude catalogs app workspace
+catalog/
+
+
 
