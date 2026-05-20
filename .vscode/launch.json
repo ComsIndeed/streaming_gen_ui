@@ -5,7 +5,7 @@
       "name": "Catalog App (Windows Debug)",
       "request": "launch",
       "type": "dart",
-      "program": "catalog/lib/main.dart",
+      "program": "lib/main.dart",
       "cwd": "catalog",
       "args": ["-d", "windows"]
     },
@@ -13,7 +13,7 @@
       "name": "Catalog App (Web Debug)",
       "request": "launch",
       "type": "dart",
-      "program": "catalog/lib/main.dart",
+      "program": "lib/main.dart",
       "cwd": "catalog",
       "args": ["-d", "chrome"]
     },
