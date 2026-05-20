@@ -8,7 +8,15 @@ final Map<String, WidgetDefinition>
 coreRegistry = {
   // Basic text rendering
   "core:text": WidgetDefinition(
-    builder: (context, props) => StreamingText(props: props),
+    builder: (context, props) => StreamingText(
+      props: props,
+      builder: (context, text) => Text(
+        text,
+        style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+              color: Theme.of(context).colorScheme.onSurface,
+            ),
+      ),
+    ),
     description: "Displays a streamed block of text.",
     properties: {"content": "String (the text content to display)"},
     jsonExample: '{"namespace":"core:text","content":"Hello World!"}',
@@ -178,10 +186,23 @@ class _StreamingContainerState extends State<_StreamingContainer> {
           width: width,
           height: height,
           decoration: BoxDecoration(
-            color: parsedColor,
-            borderRadius: parsedColor != null ? BorderRadius.circular(8) : null,
+            color: parsedColor ?? Theme.of(context).colorScheme.surfaceContainerHigh,
+            borderRadius: BorderRadius.circular(12),
+            border: Border.all(
+              color: Theme.of(context).colorScheme.outline.withOpacity(0.12),
+            ),
+            boxShadow: [
+              BoxShadow(
+                color: Colors.black.withOpacity(0.04),
+                blurRadius: 8,
+                offset: const Offset(0, 4),
+              ),
+            ],
           ),
-          child: StreamingWidget(props: _childProp),
+          child: Padding(
+            padding: const EdgeInsets.all(12),
+            child: StreamingWidget(props: _childProp),
+          ),
         );
       },
     );
@@ -229,6 +250,8 @@ class _StreamingTextFieldState extends State<_StreamingTextField> {
         final data = snapshot.data ?? const {};
         final hintText = data["placeholder"] as String? ?? data["hintText"] as String?;
         final labelText = data["labelText"] as String?;
+        final colorHex = data["color"] as String?;
+        final fillColor = _parseColor(colorHex) ?? Theme.of(context).colorScheme.surfaceContainer;
 
         return FutureBuilder<String>(
           future: _actionFuture,
@@ -241,7 +264,27 @@ class _StreamingTextFieldState extends State<_StreamingTextField> {
               decoration: InputDecoration(
                 hintText: hintText,
                 labelText: labelText,
-                border: const OutlineInputBorder(),
+                filled: true,
+                fillColor: fillColor,
+                border: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(12),
+                  borderSide: BorderSide(
+                    color: Theme.of(context).colorScheme.outline,
+                  ),
+                ),
+                enabledBorder: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(12),
+                  borderSide: BorderSide(
+                    color: Theme.of(context).colorScheme.outline.withOpacity(0.5),
+                  ),
+                ),
+                focusedBorder: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(12),
+                  borderSide: BorderSide(
+                    color: Theme.of(context).colorScheme.primary,
+                    width: 2,
+                  ),
+                ),
               ),
               onSubmitted: isEnabled ? (value) {
                 debugPrint('Interaction: TextField submitted value -> $value for action -> $action');

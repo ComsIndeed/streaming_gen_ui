@@ -24,11 +24,17 @@ sealed class Block {
     _debugLog('Block created: $runtimeType');
   }
 
-  /// Returns a fresh, active single-subscription stream that replays all 
+  Stream<String>? _cachedStream;
+
+  /// Returns a cached broadcast stream that replays all 
   /// historically accumulated chunks immediately, and then continues forwarding 
   /// future chunks in real-time if the block is still streaming.
   Stream<String> get stream {
-    final controller = StreamController<String>();
+    if (_cachedStream != null) {
+      return _cachedStream!;
+    }
+
+    final controller = StreamController<String>.broadcast();
 
     // Emit all historical chunks immediately to this new subscriber
     for (final chunk in _chunks) {
@@ -56,7 +62,8 @@ sealed class Block {
       };
     }
 
-    return controller.stream;
+    _cachedStream = controller.stream;
+    return _cachedStream!;
   }
 
   @mustCallSuper

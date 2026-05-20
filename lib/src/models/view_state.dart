@@ -98,8 +98,10 @@ class ViewState with ChangeNotifier {
     notifyListeners();
   }
 
+  Widget? _cachedWidget;
+
   Widget get widget {
-    return StreamingUiProvider(
+    _cachedWidget ??= StreamingUiProvider(
       registry: widgetRegistry,
       showInternalErrors: showInternalErrors,
       errorBuilder: errorBuilder,
@@ -114,5 +116,6 @@ class ViewState with ChangeNotifier {
         },
       ),
     );
+    return _cachedWidget!;
   }
 }
