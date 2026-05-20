@@ -237,3 +237,88 @@ when first painted.
   to the application using a centralized action dispatcher.
 - Developers register active action callbacks inside the `StreamingGenerativeUi`
   controller to listen to user interactions triggered by dynamic screens.
+
+### The Self-Documenting Widget Definition Registry
+
+To permanently cure prompt-synchronization drift, the registry has migrated from
+mapping namespaces to raw builder functions, to a formal metadata-based
+**`WidgetDefinition`** contract:
+
+```dart
+class WidgetDefinition {
+  final WidgetBuilderFunction builder;
+  final String description;
+  final Map<String, String> properties;
+  final String jsonExample;
+
+  const WidgetDefinition({
+    required this.builder,
+    required this.description,
+    required this.properties,
+    required this.jsonExample,
+  });
+}
+```
+
+#### Dynamic Prompt Generation
+
+Because every widget formally registers its schema, the `WidgetRegistry`
+programmatically compiles this metadata into a precise system prompt fragment:
+
+- Automatically loops over all registered namespaces (`widgets.entries`).
+- Generates details of each component's **Description**, **Properties**, and
+  **JSON Examples**.
+- Developers can access this complete compiled output via `genUi.systemPrompt`
+  or `myRegistry.systemPromptFragment`.
+
+### Public UI API: Exposing `StreamingText` and `StreamingWidget`
+
+To make building custom interactive layout components extremely effortless and
+boilerplate-free, we expose **`StreamingText`** and **`StreamingWidget`** in the
+public API:
+
+#### 1. StreamingText (For Progressive Text Rendering)
+
+```dart
+StreamingText(
+  props: widget.props,
+  propertyName: 'name',
+  initialValue: 'Typing name...',
+  builder: (context, name) => Text(
+    name,
+    style: TextStyle(fontWeight: FontWeight.bold, color: Colors.blue),
+  ),
+)
+```
+
+#### 2. StreamingWidget (For Dynamic Nested Components)
+
+```dart
+// Easily mount nested dynamic child properties inside columns, containers, or custom cards
+StreamingWidget(props: childPropertyStream)
+```
+
+- **Stateless Custom Widgets:** Custom widgets no longer need to be stateful,
+  listen to property stream subscriptions in `initState`, handle
+  `didUpdateWidget` stream modifications, or dispose of resources. They can be
+  100% `StatelessWidget`s.
+- **PropertyStream vs Stream<String> Contract:**
+  - **Structured Namespace Registries:** Must take **`PropertyStream`** to
+    access complex, recursive trees, layout containers, and multiple
+    sibling/nested values.
+  - **Leaf Utility Components:** Take **`Stream<String>`** or utilize
+    `StreamingText` to cleanly render accumulated progressive typewriter text
+    segments with 0 boilerplate.
+
+### Stable Stateful Connection States
+
+In Flutter, querying `.future` or `.stream` inside a builder or `build()` method
+yields fresh object references on every parent frame repaint, resetting the
+connection state to `waiting`.
+
+- Core widgets and resolvers are wrapped inside private/public stateful
+  wrappers.
+- The property streams are cached permanently inside `initState` or
+  constructors.
+- Caching preserves absolute frame stability, preventing dynamic layout rebuild
+  connection resets during hot reloads or state changes.

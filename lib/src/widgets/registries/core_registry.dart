@@ -1,75 +1,78 @@
 import 'package:flutter/material.dart';
 import 'package:llm_json_stream/llm_json_stream.dart';
-import 'package:streaming_gen_ui/src/widgets/accumulating_string_stream_builder.dart';
+import 'package:streaming_gen_ui/src/models/widget_registry.dart';
+import 'package:streaming_gen_ui/src/widgets/streaming_text.dart';
 import 'package:streaming_gen_ui/src/widgets/streaming_widget.dart';
 
-final Map<String, Widget Function(BuildContext context, PropertyStream props)>
+final Map<String, WidgetDefinition>
 coreRegistry = {
   // Basic text rendering
-  "core:text": (context, props) => _StreamingText(props: props),
+  "core:text": WidgetDefinition(
+    builder: (context, props) => StreamingText(props: props),
+    description: "Displays a streamed block of text.",
+    properties: {"content": "String (the text content to display)"},
+    jsonExample: '{"namespace":"core:text","content":"Hello World!"}',
+  ),
   
   // Dynamic action-activated button
-  "core:elevated_button": (context, props) => _StreamingElevatedButton(props: props),
+  "core:elevated_button": WidgetDefinition(
+    builder: (context, props) => _StreamingElevatedButton(props: props),
+    description: "A clickable button with action callbacks.",
+    properties: {
+      "child": "Component (a nested component, usually core:text)",
+      "action": "String (the callback action key)"
+    },
+    jsonExample: '{"namespace":"core:elevated_button","child":{"namespace":"core:text","content":"Submit"},"action":"submit_action"}',
+  ),
   
   // Highly optimized self-appending Column
-  "core:column": (context, props) {
-    final childrenProperty = props.asMap.getListProperty("children");
-    return _StreamingColumn(childrenProperty: childrenProperty);
-  },
+  "core:column": WidgetDefinition(
+    builder: (context, props) {
+      final childrenProperty = props.asMap.getListProperty("children");
+      return _StreamingColumn(childrenProperty: childrenProperty);
+    },
+    description: "A vertical layout system containing nested children.",
+    properties: {"children": "List<Component> (the child components in vertical order)"},
+    jsonExample: '{"namespace":"core:column","children":[{"namespace":"core:text","content":"First"},{"namespace":"core:text","content":"Second"}]}',
+  ),
   
   // Highly optimized self-appending Row
-  "core:row": (context, props) {
-    final childrenProperty = props.asMap.getListProperty("children");
-    return _StreamingRow(childrenProperty: childrenProperty);
-  },
+  "core:row": WidgetDefinition(
+    builder: (context, props) {
+      final childrenProperty = props.asMap.getListProperty("children");
+      return _StreamingRow(childrenProperty: childrenProperty);
+    },
+    description: "A horizontal layout system containing nested children.",
+    properties: {"children": "List<Component> (the child components in horizontal order)"},
+    jsonExample: '{"namespace":"core:row","children":[{"namespace":"core:text","content":"Left"},{"namespace":"core:text","content":"Right"}]}',
+  ),
   
   // Smoothly animating styling container
-  "core:container": (context, props) => _StreamingContainer(props: props),
+  "core:container": WidgetDefinition(
+    builder: (context, props) => _StreamingContainer(props: props),
+    description: "A styled box container that smoothly animates dimensions and colors when parsed.",
+    properties: {
+      "child": "Component (optional nested child component)",
+      "width": "Num (optional width)",
+      "height": "Num (optional height)",
+      "color": "String (optional HEX color code, e.g. #ff5500)"
+    },
+    jsonExample: '{"namespace":"core:container","child":{"namespace":"core:text","content":"Box!"},"width":200,"height":100,"color":"#ff5500"}',
+  ),
   
   // Dynamic action-activated TextField
-  "core:textfield": (context, props) => _StreamingTextField(props: props),
+  "core:textfield": WidgetDefinition(
+    builder: (context, props) => _StreamingTextField(props: props),
+    description: "An input text field for user input.",
+    properties: {
+      "placeholder": "String (the input placeholder text)",
+      "action": "String (the callback action key triggered on submit)"
+    },
+    jsonExample: '{"namespace":"core:textfield","placeholder":"Enter name...","action":"search_action"}',
+  ),
 };
 
 // --- Stateful Cached Core Widgets ---
-
-class _StreamingText extends StatefulWidget {
-  final PropertyStream props;
-
-  const _StreamingText({required this.props});
-
-  @override
-  State<_StreamingText> createState() => _StreamingTextState();
-}
-
-class _StreamingTextState extends State<_StreamingText> {
-  late Stream<String> _textStream;
-
-  @override
-  void initState() {
-    super.initState();
-    _initStream();
-  }
-
-  @override
-  void didUpdateWidget(covariant _StreamingText oldWidget) {
-    super.didUpdateWidget(oldWidget);
-    if (widget.props != oldWidget.props) {
-      _initStream();
-    }
-  }
-
-  void _initStream() {
-    _textStream = widget.props.asMap.getStringProperty("content").stream;
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    return AccumulatingStringStreamBuilder(
-      stream: _textStream,
-      builder: (context, accumulatedText) => Text(accumulatedText),
-    );
-  }
-}
 
 class _StreamingElevatedButton extends StatefulWidget {
   final PropertyStream props;

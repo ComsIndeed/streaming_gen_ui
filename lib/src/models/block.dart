@@ -128,13 +128,13 @@ class WidgetBlock extends Block {
         }
 
         final name = snapshot.data!;
-        final widgetBuilder = registry.widgets[name];
+        final widgetDefinition = registry.widgets[name];
 
-        if (widgetBuilder == null) {
+        if (widgetDefinition == null) {
           return Text('Widget $name not found in registry');
         }
 
-        return widgetBuilder(context, rootProps);
+        return widgetDefinition.builder(context, rootProps);
       },
     );
   }

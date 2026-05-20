@@ -77,13 +77,13 @@ class _StreamingWidgetState extends State<StreamingWidget> {
         }
 
         final name = snapshot.data!;
-        final widgetBuilder = registry.widgets[name];
+        final widgetDefinition = registry.widgets[name];
 
-        if (widgetBuilder == null) {
+        if (widgetDefinition == null) {
           return Text('Widget $name not found in registry');
         }
 
-        return widgetBuilder(context, widget.props);
+        return widgetDefinition.builder(context, widget.props);
       },
     );
   }

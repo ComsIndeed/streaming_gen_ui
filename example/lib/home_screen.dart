@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:streaming_gen_ui/streaming_gen_ui.dart';
 import 'package:example/data/mock_data.dart';
 import 'package:example/data/custom_widgets.dart';
+import 'package:example/chat_screen.dart';
 import 'package:example/utilities/streamTextInChunk.dart';
 
 class HomeScreen extends StatefulWidget {
@@ -129,159 +130,178 @@ class _HomeScreenState extends State<HomeScreen> {
       height: 1.4,
     );
 
-    return Scaffold(
-      appBar: AppBar(title: const Text('Generative UI Playground')),
-      body: Column(
-        children: [
-          // Control Bar
-          Padding(
-            padding: const EdgeInsets.symmetric(
-              horizontal: 16.0,
-              vertical: 8.0,
-            ),
-            child: Column(
-              children: [
-                Row(
-                  children: [
-                    const Text('Dataset: '),
-                    DropdownButton<ExampleData>(
-                      value: _selectedExample,
-                      items: mockExamples.map((ex) {
-                        return DropdownMenuItem<ExampleData>(
-                          value: ex,
-                          child: Text(ex.name),
-                        );
-                      }).toList(),
-                      onChanged: _isStreaming
-                          ? null
-                          : (val) {
-                              if (val != null) {
-                                setState(() {
-                                  _selectedExample = val;
-                                  _terminalText = ''; // Clear terminal preview
-                                });
-                              }
-                            },
-                    ),
-                    const SizedBox(width: 20),
-                    const Text('Speed Delay: '),
-                    Expanded(
-                      child: Slider(
-                        min: 10,
-                        max: 500,
-                        value: _speedMs,
-                        onChanged: _isStreaming
-                            ? null
-                            : (val) {
-                                setState(() {
-                                  _speedMs = val;
-                                });
-                              },
-                      ),
-                    ),
-                    Text('${_speedMs.round()}ms'),
-                  ],
-                ),
-                Row(
-                  children: [
-                    const Text('Chunk Size: '),
-                    Expanded(
-                      child: Slider(
-                        min: 1,
-                        max: 30,
-                        value: _chunkSize,
-                        onChanged: _isStreaming
-                            ? null
-                            : (val) {
-                                setState(() {
-                                  _chunkSize = val;
-                                });
-                              },
-                      ),
-                    ),
-                    Text('${_chunkSize.round()} chars'),
-                    const SizedBox(width: 20),
-                    ElevatedButton(
-                      onPressed: !_isStreaming
-                          ? _startSimulation
-                          : _pauseOrResumeSimulation,
-                      child: Text(
-                        !_isStreaming
-                            ? 'Start'
-                            : (_isPaused ? 'Resume' : 'Pause'),
-                      ),
-                    ),
-                    const SizedBox(width: 10),
-                    ElevatedButton(
-                      onPressed: _isStreaming ? _stopSimulation : null,
-                      child: const Text('Stop'),
-                    ),
-                    const SizedBox(width: 10),
-                    ElevatedButton(
-                      onPressed: _isStreaming || _terminalText.isNotEmpty
-                          ? _resetSimulation
-                          : null,
-                      child: const Text('Reset'),
-                    ),
-                  ],
-                ),
-              ],
-            ),
+    return DefaultTabController(
+      length: 2,
+      child: Scaffold(
+        appBar: AppBar(
+          title: const Text('Generative UI Playground'),
+          bottom: const TabBar(
+            tabs: [
+              Tab(text: '💻 Simulation Playground', icon: Icon(Icons.psychology_outlined)),
+              Tab(text: '🤖 Live AI LLM Chat', icon: Icon(Icons.forum_outlined)),
+            ],
           ),
-          const Divider(height: 1),
-          // Viewport panels
-          Expanded(
-            child: Row(
-              crossAxisAlignment: CrossAxisAlignment.stretch,
+        ),
+        body: TabBarView(
+          physics: const NeverScrollableScrollPhysics(), // Prevent swipe-slide gesture conflicts
+          children: [
+            // Tab 1: Simulation Playground
+            Column(
               children: [
-                // Left Panel: Raw terminal output with stacked ghost text
-                Expanded(
-                  child: Container(
-                    color: Colors.black87,
-                    padding: const EdgeInsets.all(12.0),
-                    child: SingleChildScrollView(
-                      child: Stack(
+                // Control Bar
+                Padding(
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 16.0,
+                    vertical: 8.0,
+                  ),
+                  child: Column(
+                    children: [
+                      Row(
                         children: [
-                          // Ghost template background
-                          Text(
-                            _selectedExample.content,
-                            style: textStyle.copyWith(color: Colors.white30),
+                          const Text('Dataset: '),
+                          DropdownButton<ExampleData>(
+                            value: _selectedExample,
+                            items: mockExamples.map((ex) {
+                              return DropdownMenuItem<ExampleData>(
+                                value: ex,
+                                child: Text(ex.name),
+                              );
+                            }).toList(),
+                            onChanged: _isStreaming
+                                ? null
+                                : (val) {
+                                    if (val != null) {
+                                      setState(() {
+                                        _selectedExample = val;
+                                        _terminalText = ''; // Clear terminal preview
+                                      });
+                                    }
+                                  },
                           ),
-                          // Live active text overlay
-                          Text(
-                            _terminalText,
-                            style: textStyle.copyWith(
-                              color: Colors.greenAccent,
+                          const SizedBox(width: 20),
+                          const Text('Speed Delay: '),
+                          Expanded(
+                            child: Slider(
+                              min: 10,
+                              max: 500,
+                              value: _speedMs,
+                              onChanged: _isStreaming
+                                  ? null
+                                  : (val) {
+                                      setState(() {
+                                        _speedMs = val;
+                                      });
+                                    },
                             ),
+                          ),
+                          Text('${_speedMs.round()}ms'),
+                        ],
+                      ),
+                      Row(
+                        children: [
+                          const Text('Chunk Size: '),
+                          Expanded(
+                            child: Slider(
+                              min: 1,
+                              max: 30,
+                              value: _chunkSize,
+                              onChanged: _isStreaming
+                                  ? null
+                                  : (val) {
+                                      setState(() {
+                                        _chunkSize = val;
+                                      });
+                                    },
+                            ),
+                          ),
+                          Text('${_chunkSize.round()} chars'),
+                          const SizedBox(width: 20),
+                          ElevatedButton(
+                            onPressed: !_isStreaming
+                                ? _startSimulation
+                                : _pauseOrResumeSimulation,
+                            child: Text(
+                              !_isStreaming
+                                  ? 'Start'
+                                  : (_isPaused ? 'Resume' : 'Pause'),
+                            ),
+                          ),
+                          const SizedBox(width: 10),
+                          ElevatedButton(
+                            onPressed: _isStreaming ? _stopSimulation : null,
+                            child: const Text('Stop'),
+                          ),
+                          const SizedBox(width: 10),
+                          ElevatedButton(
+                            onPressed: _isStreaming || _terminalText.isNotEmpty
+                                ? _resetSimulation
+                                : null,
+                            child: const Text('Reset'),
                           ),
                         ],
                       ),
-                    ),
+                    ],
                   ),
                 ),
-                const VerticalDivider(width: 1),
-                // Right Panel: Visual rendering of generative UI view
+                const Divider(height: 1),
+                // Viewport panels
                 Expanded(
-                  child: SingleChildScrollView(
-                    padding: const EdgeInsets.all(16.0),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        const Text(
-                          'Visual Canvas Output:',
-                          style: TextStyle(fontWeight: FontWeight.bold),
+                  child: Row(
+                    crossAxisAlignment: CrossAxisAlignment.stretch,
+                    children: [
+                      // Left Panel: Raw terminal output with stacked ghost text
+                      Expanded(
+                        child: Container(
+                          color: Colors.black87,
+                          padding: const EdgeInsets.all(12.0),
+                          child: SingleChildScrollView(
+                            child: Stack(
+                              children: [
+                                // Ghost template background
+                                Text(
+                                  _selectedExample.content,
+                                  style: textStyle.copyWith(color: Colors.white30),
+                                ),
+                                // Live active text overlay
+                                Text(
+                                  _terminalText,
+                                  style: textStyle.copyWith(
+                                    color: Colors.greenAccent,
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
                         ),
-                        const SizedBox(height: 12),
-                        // Display the reactive view from our engine
-                        _genUi.view('playground-view'),
-                      ],
-                    ),
+                      ),
+                      const VerticalDivider(width: 1),
+                      // Right Panel: Visual rendering of generative UI view
+                      Expanded(
+                        child: SingleChildScrollView(
+                          padding: const EdgeInsets.all(16.0),
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              const Text(
+                                'Visual Canvas Output:',
+                                style: TextStyle(fontWeight: FontWeight.bold),
+                              ),
+                              const SizedBox(height: 12),
+                              // Display the reactive view from our engine
+                              _genUi.view('playground-view'),
+                            ],
+                          ),
+                        ),
+                      ),
+                    ],
                   ),
                 ),
               ],
             ),
-          ),
-        ],
+            // Tab 2: Live Gemini AI Chat
+            ChatScreen(genUi: _genUi),
+          ],
+        ),
       ),
     );
   }
