@@ -1,0 +1,28 @@
+# .pubignore
+# Exclude standard local files, environment configs, and IDE directories
+.env
+.idea/
+*.iml
+.vscode/
+
+# Exclude package development cache and local build folders
+.dart_tool/
+.packages
+build/
+.metadata
+pubspec.lock
+
+# Exclude the heavy, platform-specific files in the example workspace
+example/android/
+example/ios/
+example/web/
+example/windows/
+example/macos/
+example/linux/
+example/lib/
+example/test/
+example/pubspec.yaml
+example/pubspec.lock
+example/.dart_tool/
+example/.metadata
+example/build/
