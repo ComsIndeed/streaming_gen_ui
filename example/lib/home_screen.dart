@@ -4,7 +4,7 @@ import 'package:streaming_gen_ui/streaming_gen_ui.dart';
 import 'package:example/data/mock_data.dart';
 import 'package:example/data/custom_widgets.dart';
 import 'package:example/chat_screen.dart';
-import 'package:example/utilities/streamTextInChunk.dart';
+import 'package:example/utilities/stream_text_in_chunk.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});

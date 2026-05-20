@@ -166,6 +166,7 @@ class CustomHotelCard extends StatelessWidget {
                 desc,
                 style: TextStyle(
                   fontSize: 13,
+                  // ignore: deprecated_member_use
                   color: Theme.of(context).colorScheme.onSurface.withOpacity(0.7),
                 ),
               ),

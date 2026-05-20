@@ -59,10 +59,12 @@ class _StreamingContainerState extends State<StreamingContainer> {
             color: parsedColor ?? Theme.of(context).colorScheme.surfaceContainerHigh,
             borderRadius: BorderRadius.circular(12),
             border: Border.all(
+              // ignore: deprecated_member_use
               color: Theme.of(context).colorScheme.outline.withOpacity(0.12),
             ),
             boxShadow: [
               BoxShadow(
+                // ignore: deprecated_member_use
                 color: Colors.black.withOpacity(0.04),
                 blurRadius: 8,
                 offset: const Offset(0, 4),
