@@ -25,7 +25,7 @@ Every component must accommodate this lifecycle. Nothing must appear instantly; 
 
 ---
 
-## 🎨 The Five Rules of Generative Motion
+## 🎨 The Six Rules of Generative Motion
 
 ### 1. The Ghostly Entry Rule
 * **Problem:** When the parser identifies a tag (e.g. `<interface>`), the widget mounts and pops onto the screen instantly, causing jarring visual jumps.
@@ -62,6 +62,14 @@ Every component must accommodate this lifecycle. Nothing must appear instantly; 
   * **Step A (Track):** Render a thin, subtle horizontal track line growing from left-to-right.
   * **Step B (Labels):** Slide down the minimum/maximum bounds when they resolve.
   * **Step C (Thumb):** Pop the active dragging thumb into view once the default value arrives.
+
+### 6. The Stable Alignment Rule (Jitter Prevention)
+* **Problem:** During boundary size expansion (via `AnimatedSize`), dynamic children (like text blocks) jitter and shake wildly. This happens because default container alignments recalculate layout centering continuously while the bounding box expands.
+* **Guideline:** Lock content alignment strictly to the start of its expansion origin so elements remain rock-solid and stable.
+* **Execution:**
+  * For vertical layout streams (`Column`): Set `AnimatedSize.alignment` to `Alignment.topCenter` or `Alignment.topLeft`.
+  * For horizontal layout streams (`Row` or single-line rows): Set `AnimatedSize.alignment` to `Alignment.centerLeft` or `Alignment.topLeft`.
+  * This guarantees that already-rendered content remains perfectly static and anchored on the screen while the parent boundaries expand fluidly away from it.
 
 ---
 

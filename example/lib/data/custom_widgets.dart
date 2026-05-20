@@ -63,7 +63,7 @@ class _CustomUserProfileCardState extends State<CustomUserProfileCard> {
             child: AnimatedSize(
               duration: const Duration(milliseconds: 300),
               curve: Curves.easeOutCubic,
-              alignment: Alignment.topCenter,
+              alignment: Alignment.topLeft,
               child: Row(
                 crossAxisAlignment: CrossAxisAlignment.center,
                 children: [
@@ -164,7 +164,7 @@ class CustomHotelCard extends StatelessWidget {
         child: AnimatedSize(
           duration: const Duration(milliseconds: 300),
           curve: Curves.easeOutCubic,
-          alignment: Alignment.topCenter,
+          alignment: Alignment.topLeft,
           child: Padding(
             padding: const EdgeInsets.all(16),
             child: Column(
