@@ -26,3 +26,7 @@ example/pubspec.lock
 example/.dart_tool/
 example/.metadata
 example/build/
+
+# Exclude large media and demo assets
+demos/
+
