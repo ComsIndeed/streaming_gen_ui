@@ -2,6 +2,22 @@
   "version": "0.2.0",
   "configurations": [
     {
+      "name": "Catalog App (Windows Debug)",
+      "request": "launch",
+      "type": "dart",
+      "program": "catalog/lib/main.dart",
+      "cwd": "catalog",
+      "args": ["-d", "windows"]
+    },
+    {
+      "name": "Catalog App (Web Debug)",
+      "request": "launch",
+      "type": "dart",
+      "program": "catalog/lib/main.dart",
+      "cwd": "catalog",
+      "args": ["-d", "chrome"]
+    },
+    {
       "name": "Example App (Debug)",
       "request": "launch",
       "type": "dart",
