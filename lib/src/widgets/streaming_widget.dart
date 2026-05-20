@@ -1,33 +1,40 @@
-import 'package:flutter/widgets.dart';
+import 'package:flutter/material.dart';
 import 'package:llm_json_stream/llm_json_stream.dart';
 import 'package:streaming_gen_ui/src/models/widget_registry.dart';
+import 'package:streaming_gen_ui/src/widgets/streaming_error_widget.dart';
 
 /// Hosts the active [WidgetRegistry] in the widget tree.
 class StreamingUiProvider extends InheritedWidget {
   final WidgetRegistry registry;
+  final bool showInternalErrors;
+  final GenerativeUiErrorBuilder? errorBuilder;
 
   const StreamingUiProvider({
     super.key,
     required this.registry,
+    required this.showInternalErrors,
+    this.errorBuilder,
     required super.child,
   });
 
   /// Tries to look up the [WidgetRegistry] from the closest ancestor [StreamingUiProvider].
-  static WidgetRegistry? maybeOf(BuildContext context) {
-    return context.dependOnInheritedWidgetOfExactType<StreamingUiProvider>()?.registry;
+  static StreamingUiProvider? maybeOf(BuildContext context) {
+    return context.dependOnInheritedWidgetOfExactType<StreamingUiProvider>();
   }
 
   /// Looks up the [WidgetRegistry] from the closest ancestor [StreamingUiProvider].
   /// Throws an assertion error if not found.
   static WidgetRegistry of(BuildContext context) {
-    final registry = maybeOf(context);
-    assert(registry != null, 'No StreamingUiProvider found in context. Make sure your view is mounted within the StreamingGenerativeUi system.');
-    return registry!;
+    final provider = maybeOf(context);
+    assert(provider != null, 'No StreamingUiProvider found in context. Make sure your view is mounted within the StreamingGenerativeUi system.');
+    return provider!.registry;
   }
 
   @override
   bool updateShouldNotify(StreamingUiProvider oldWidget) =>
-      registry != oldWidget.registry;
+      registry != oldWidget.registry || 
+      showInternalErrors != oldWidget.showInternalErrors ||
+      errorBuilder != oldWidget.errorBuilder;
 }
 
 /// A reactive widget that dynamically resolves and displays a nested widget
@@ -64,7 +71,14 @@ class _StreamingWidgetState extends State<StreamingWidget> {
 
   @override
   Widget build(BuildContext context) {
-    final registry = StreamingUiProvider.of(context);
+    final provider = StreamingUiProvider.maybeOf(context);
+    final registry = provider?.registry;
+    final showInternalErrors = provider?.showInternalErrors ?? true;
+    final errorBuilder = provider?.errorBuilder;
+
+    if (registry == null) {
+      return const Text('No StreamingUiProvider found in context.');
+    }
 
     return FutureBuilder<String>(
       future: _namespaceFuture,
@@ -73,17 +87,33 @@ class _StreamingWidgetState extends State<StreamingWidget> {
           return const SizedBox.shrink();
         }
         if (snapshot.hasError) {
-          return Text('Error loading widget namespace: ${snapshot.error}');
+          return StreamingErrorWidget(
+            error: 'Error loading namespace: ${snapshot.error}',
+            showInternalErrors: showInternalErrors,
+            customBuilder: errorBuilder,
+          );
         }
 
         final name = snapshot.data!;
         final widgetDefinition = registry.widgets[name];
 
         if (widgetDefinition == null) {
-          return Text('Widget $name not found in registry');
+          return StreamingErrorWidget(
+            error: 'Widget "$name" not found in registry',
+            showInternalErrors: showInternalErrors,
+            customBuilder: errorBuilder,
+          );
         }
 
-        return widgetDefinition.builder(context, widget.props);
+        try {
+          return widgetDefinition.builder(context, widget.props);
+        } catch (e, stack) {
+          return StreamingErrorWidget(
+            error: 'Rendering Error ($name): $e\n$stack',
+            showInternalErrors: showInternalErrors,
+            customBuilder: errorBuilder,
+          );
+        }
       },
     );
   }

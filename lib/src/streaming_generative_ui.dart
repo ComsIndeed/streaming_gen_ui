@@ -2,12 +2,19 @@ import 'package:flutter/widgets.dart';
 import 'package:llm_tag_parser/llm_tag_parser.dart';
 import 'package:streaming_gen_ui/src/models/view_state.dart';
 import 'package:streaming_gen_ui/src/models/widget_registry.dart';
+import 'package:streaming_gen_ui/src/widgets/streaming_error_widget.dart';
 
 class StreamingGenerativeUi with ChangeNotifier {
   final WidgetRegistry registry;
   final Map<String, ViewState> _views = {};
+  final bool showInternalErrors;
+  final GenerativeUiErrorBuilder? errorBuilder;
 
-  StreamingGenerativeUi({required this.registry});
+  StreamingGenerativeUi({
+    required this.registry,
+    this.showInternalErrors = true,
+    this.errorBuilder,
+  });
 
   // Input
   Future<void> stream(
@@ -19,7 +26,12 @@ class StreamingGenerativeUi with ChangeNotifier {
     final broadcastStream = stream.asBroadcastStream();
 
     if (viewId != null) {
-      final viewState = ViewState(stream: broadcastStream, widgetRegistry: registry);
+      final viewState = ViewState(
+        stream: broadcastStream,
+        widgetRegistry: registry,
+        showInternalErrors: showInternalErrors,
+        errorBuilder: errorBuilder,
+      );
       _views[viewId] = viewState;
       notifyListeners();
     }

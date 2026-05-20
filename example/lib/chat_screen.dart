@@ -337,21 +337,34 @@ class _ChatScreenState extends State<ChatScreen> {
                               ),
                             ),
                             const SizedBox(height: 4),
-                            // Message content (monospaced in raw mode for code look)
-                            Text(
-                              dispText.isEmpty && !isUser ? 'Thinking...' : dispText,
-                              style: TextStyle(
-                                color: isUser
-                                    ? Theme.of(context).colorScheme.onPrimary
-                                    : Theme.of(context).colorScheme.onSurface,
-                                fontFamily: _showRawText && !isUser ? 'monospace' : null,
-                                fontSize: _showRawText && !isUser ? 12 : null,
-                              ),
-                            ),
-                            if (!isUser && !_showRawText) ...[
-                              const SizedBox(height: 8),
-                              // Visual artifact injected cleanly right inside the chat bubble!
-                              widget.genUi.view(msg.viewId),
+                            // Message content
+                            if (isUser)
+                              Text(
+                                dispText,
+                                style: TextStyle(
+                                  color: Theme.of(context).colorScheme.onPrimary,
+                                ),
+                              )
+                            else if (_showRawText)
+                              Text(
+                                dispText.isEmpty ? 'Thinking...' : dispText,
+                                style: TextStyle(
+                                  color: Theme.of(context).colorScheme.onSurface,
+                                  fontFamily: 'monospace',
+                                  fontSize: 12,
+                                ),
+                              )
+                            else ...[
+                              if (msg.cleanText.isEmpty)
+                                Text(
+                                  'Thinking...',
+                                  style: TextStyle(
+                                    color: Theme.of(context).colorScheme.onSurface.withOpacity(0.5),
+                                    fontStyle: FontStyle.italic,
+                                  ),
+                                )
+                              else
+                                widget.genUi.view(msg.viewId),
                             ],
                           ],
                         ),

@@ -3,6 +3,7 @@ import 'package:llm_tag_parser/llm_tag_parser.dart';
 import 'package:streaming_gen_ui/src/models/block.dart';
 import 'package:streaming_gen_ui/src/models/widget_registry.dart';
 import 'package:streaming_gen_ui/src/widgets/streaming_widget.dart';
+import 'package:streaming_gen_ui/src/widgets/streaming_error_widget.dart';
 
 const bool _verboseLog = true;
 
@@ -16,8 +17,15 @@ void _debugLog(String msg) {
 class ViewState with ChangeNotifier {
   final List<Block> _blocks = [];
   final WidgetRegistry widgetRegistry;
+  final bool showInternalErrors;
+  final GenerativeUiErrorBuilder? errorBuilder;
 
-  ViewState({required Stream<String> stream, required this.widgetRegistry}) {
+  ViewState({
+    required Stream<String> stream,
+    required this.widgetRegistry,
+    this.showInternalErrors = true,
+    this.errorBuilder,
+  }) {
     _debugLog('ViewState initialized.');
     seperateStream(stream);
   }
@@ -77,7 +85,11 @@ class ViewState with ChangeNotifier {
         _blocks.last.close();
       }
       _debugLog('_addWidgetBlock: creating new WidgetBlock');
-      _blocks.add(WidgetBlock(registry: widgetRegistry));
+      _blocks.add(WidgetBlock(
+        registry: widgetRegistry,
+        showInternalErrors: showInternalErrors,
+        errorBuilder: errorBuilder,
+      ));
     }
     final block = _blocks.last as WidgetBlock;
     block.addChunk(chunk);
@@ -89,6 +101,8 @@ class ViewState with ChangeNotifier {
   Widget get widget {
     return StreamingUiProvider(
       registry: widgetRegistry,
+      showInternalErrors: showInternalErrors,
+      errorBuilder: errorBuilder,
       child: AnimatedBuilder(
         animation: this,
         builder: (context, _) {

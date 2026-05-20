@@ -1,8 +1,9 @@
 import 'dart:async';
-import 'package:flutter/widgets.dart';
+import 'package:flutter/material.dart';
 import 'package:llm_json_stream/llm_json_stream.dart';
 import 'package:streaming_gen_ui/src/models/widget_registry.dart';
 import 'package:streaming_gen_ui/src/widgets/accumulating_string_stream_builder.dart';
+import 'package:streaming_gen_ui/src/widgets/streaming_error_widget.dart';
 
 const bool _verboseLog = true;
 
@@ -104,8 +105,14 @@ class WidgetBlock extends Block {
   late final JsonStreamParser parser;
   late final Future<String> _nameFuture;
   late final PropertyStream rootProps;
+  final bool showInternalErrors;
+  final GenerativeUiErrorBuilder? errorBuilder;
 
-  WidgetBlock({required super.registry}) {
+  WidgetBlock({
+    required super.registry,
+    this.showInternalErrors = true,
+    this.errorBuilder,
+  }) {
     _debugLog('WidgetBlock constructor start.');
     parser = JsonStreamParser(stream, skipThoughts: true);
     // Note: The spec uses "namespace" as the identifier key.
@@ -124,17 +131,33 @@ class WidgetBlock extends Block {
         }
 
         if (snapshot.hasError) {
-          return Text('Error parsing widget: ${snapshot.error}');
+          return StreamingErrorWidget(
+            error: 'Error parsing widget: ${snapshot.error}',
+            showInternalErrors: showInternalErrors,
+            customBuilder: errorBuilder,
+          );
         }
 
         final name = snapshot.data!;
         final widgetDefinition = registry.widgets[name];
 
         if (widgetDefinition == null) {
-          return Text('Widget $name not found in registry');
+          return StreamingErrorWidget(
+            error: 'Widget "$name" not found in registry',
+            showInternalErrors: showInternalErrors,
+            customBuilder: errorBuilder,
+          );
         }
 
-        return widgetDefinition.builder(context, rootProps);
+        try {
+          return widgetDefinition.builder(context, rootProps);
+        } catch (e, stack) {
+          return StreamingErrorWidget(
+            error: 'Rendering Error ($name): $e\n$stack',
+            showInternalErrors: showInternalErrors,
+            customBuilder: errorBuilder,
+          );
+        }
       },
     );
   }
