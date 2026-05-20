@@ -13,7 +13,7 @@ class PreviewPage extends StatelessWidget {
   Stream<String> get stream => streamTextInChunks(
     text: "<interface>${catalogItem.widgetDefinition.jsonExample}</interface>",
     chunkSize: 4,
-    interval: Duration(milliseconds: 100),
+    interval: Duration(milliseconds: 300),
     chunkSizeImmediatelyEmit: '<interface>{"namespace":"  core:'.length,
   );
 
@@ -27,7 +27,7 @@ class PreviewPage extends StatelessWidget {
 
     return Scaffold(
       body: Padding(
-        padding: const EdgeInsets.all(8.0),
+        padding: const EdgeInsets.all(16.0),
         child: Row(
           crossAxisAlignment: .start,
           children: [
@@ -109,9 +109,24 @@ class PreviewPage extends StatelessWidget {
                               minWidth: double.infinity,
                               minHeight: 256,
                             ),
-                            child: Text(
-                              catalogItem.widgetDefinition.jsonExample,
-                              style: TextStyle(fontSize: 18),
+                            child: Stack(
+                              children: [
+                                AccumulatingStringStreamBuilder(
+                                  stream: stream,
+                                  builder: (_, text) => Text(
+                                    text,
+                                    style: TextStyle(fontSize: 18),
+                                  ),
+                                ),
+                                Text(
+                                  "<interface>${catalogItem.widgetDefinition.jsonExample}</interface>",
+                                  style: TextStyle(
+                                    fontSize: 18,
+                                    color: theme.colorScheme.onSurface
+                                        .withAlpha(50),
+                                  ),
+                                ),
+                              ],
                             ),
                           ),
                         ),
@@ -137,7 +152,7 @@ class PreviewPage extends StatelessWidget {
                     children: [
                       SizedBox.expand(
                         child: Padding(
-                          padding: const EdgeInsets.fromLTRB(8, 8, 8, 32),
+                          padding: const EdgeInsets.all(64),
                           child: FittedBox(
                             child: streamingGenUi.view('main-view'),
                           ),
