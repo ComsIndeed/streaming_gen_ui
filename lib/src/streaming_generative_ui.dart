@@ -12,7 +12,7 @@ class StreamingGenerativeUi with ChangeNotifier {
 
   StreamingGenerativeUi({
     required this.registry,
-    this.showInternalErrors = true,
+    this.showInternalErrors = false,
     this.errorBuilder,
   });
 
@@ -43,7 +43,9 @@ class StreamingGenerativeUi with ChangeNotifier {
       tags: [LlmTag(open: "<interface>", close: "</interface>")],
     );
 
-    final textSubscription = parser.outside("<interface>").stream.listen((chunk) {
+    final textSubscription = parser.outside("<interface>").stream.listen((
+      chunk,
+    ) {
       if (onText != null) {
         onText(chunk);
       }

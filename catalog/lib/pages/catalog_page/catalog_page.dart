@@ -16,7 +16,11 @@ class CatalogPage extends StatefulWidget {
 
 class _CatalogPageState extends State<CatalogPage> {
   final widgetCatalog = WidgetCatalog(
-    catalogItems: [...WidgetCatalogItem.fromRegistry(Registries.all)],
+    catalogItems: [
+      ...WidgetCatalogItem.fromRegistry(
+        Registries.all.only(["dash:data_table", "core:box"]),
+      ),
+    ],
   );
 
   @override

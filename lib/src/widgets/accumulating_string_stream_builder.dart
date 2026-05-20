@@ -25,11 +25,13 @@ class AccumulatingStringStreamBuilder extends StatefulWidget {
       _AccumulatingStringStreamBuilderState();
 }
 
-const bool _verboseLog = true;
+const bool _verboseLog = false;
 
 void _debugLog(String msg) {
   if (_verboseLog) {
-    debugPrint('[GEN_UI:STREAM_BUILDER] [${DateTime.now().toIso8601String().substring(11, 23)}] $msg');
+    debugPrint(
+      '[GEN_UI:STREAM_BUILDER] [${DateTime.now().toIso8601String().substring(11, 23)}] $msg',
+    );
   }
 }
 

@@ -5,11 +5,13 @@ import 'package:streaming_gen_ui/src/models/widget_registry.dart';
 import 'package:streaming_gen_ui/src/widgets/accumulating_string_stream_builder.dart';
 import 'package:streaming_gen_ui/src/widgets/streaming_error_widget.dart';
 
-const bool _verboseLog = true;
+const bool _verboseLog = false;
 
 void _debugLog(String msg) {
   if (_verboseLog) {
-    debugPrint('[GEN_UI:BLOCK] [${DateTime.now().toIso8601String().substring(11, 23)}] $msg');
+    debugPrint(
+      '[GEN_UI:BLOCK] [${DateTime.now().toIso8601String().substring(11, 23)}] $msg',
+    );
   }
 }
 
@@ -26,7 +28,7 @@ sealed class Block {
 
   Stream<String>? _cachedStream;
 
-  /// Returns a stream that replays all historically accumulated chunks immediately 
+  /// Returns a stream that replays all historically accumulated chunks immediately
   /// to each new subscriber, and then forwards future chunks in real-time.
   Stream<String> get stream {
     _cachedStream ??= Stream<String>.multi((controller) {
@@ -63,11 +65,15 @@ sealed class Block {
   @mustCallSuper
   void addChunk(String chunk) {
     if (_isClosed) {
-      _debugLog('$runtimeType addChunk failed: Block already closed. (Chunk: "$chunk")');
+      _debugLog(
+        '$runtimeType addChunk failed: Block already closed. (Chunk: "$chunk")',
+      );
       return;
     }
     _chunks.add(chunk);
-    _debugLog('$runtimeType addChunk: buffered chunk "${chunk.replaceAll('\n', '\\n')}" (Total count: ${_chunks.length})');
+    _debugLog(
+      '$runtimeType addChunk: buffered chunk "${chunk.replaceAll('\n', '\\n')}" (Total count: ${_chunks.length})',
+    );
     _controller.add(chunk);
   }
 

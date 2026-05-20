@@ -5,11 +5,13 @@ import 'package:streaming_gen_ui/src/models/widget_registry.dart';
 import 'package:streaming_gen_ui/src/widgets/streaming_widget.dart';
 import 'package:streaming_gen_ui/src/widgets/streaming_error_widget.dart';
 
-const bool _verboseLog = true;
+const bool _verboseLog = false;
 
 void _debugLog(String msg) {
   if (_verboseLog) {
-    debugPrint('[GEN_UI:VIEW_STATE] [${DateTime.now().toIso8601String().substring(11, 23)}] $msg');
+    debugPrint(
+      '[GEN_UI:VIEW_STATE] [${DateTime.now().toIso8601String().substring(11, 23)}] $msg',
+    );
   }
 }
 
@@ -36,7 +38,7 @@ class ViewState with ChangeNotifier {
       stream: stream,
       tags: [LlmTag(open: "<interface>", close: "</interface>")],
     );
-    
+
     parser
         .within("<interface>")
         .stream
@@ -46,26 +48,32 @@ class ViewState with ChangeNotifier {
             _addWidgetBlock(chunk);
           },
           onDone: () => _debugLog('LlmTagParser: within("<interface>") done.'),
-          onError: (err) => _debugLog('LlmTagParser: within("<interface>") error: $err'),
+          onError: (err) =>
+              _debugLog('LlmTagParser: within("<interface>") error: $err'),
         );
-        
+
     parser
         .outside("<interface>")
         .stream
         .listen(
           (chunk) {
-            _debugLog('LlmTagParser: received outside("<interface>"): "${chunk.replaceAll('\n', '\\n')}"');
+            _debugLog(
+              'LlmTagParser: received outside("<interface>"): "${chunk.replaceAll('\n', '\\n')}"',
+            );
             _addTextBlock(chunk);
           },
           onDone: () => _debugLog('LlmTagParser: outside("<interface>") done.'),
-          onError: (err) => _debugLog('LlmTagParser: outside("<interface>") error: $err'),
+          onError: (err) =>
+              _debugLog('LlmTagParser: outside("<interface>") error: $err'),
         );
   }
 
   void _addTextBlock(String chunk) {
     if (_blocks.isEmpty || _blocks.last is! TextBlock) {
       if (_blocks.isNotEmpty) {
-        _debugLog('_addTextBlock: closing previous block ${_blocks.last.runtimeType}');
+        _debugLog(
+          '_addTextBlock: closing previous block ${_blocks.last.runtimeType}',
+        );
         _blocks.last.close();
       }
       _debugLog('_addTextBlock: creating new TextBlock');
@@ -74,27 +82,35 @@ class ViewState with ChangeNotifier {
     final block = _blocks.last as TextBlock;
     block.addChunk(chunk);
 
-    _debugLog('_addTextBlock: notifying views. Total block count: ${_blocks.length}');
+    _debugLog(
+      '_addTextBlock: notifying views. Total block count: ${_blocks.length}',
+    );
     notifyListeners();
   }
 
   void _addWidgetBlock(String chunk) {
     if (_blocks.isEmpty || _blocks.last is! WidgetBlock) {
       if (_blocks.isNotEmpty) {
-        _debugLog('_addWidgetBlock: closing previous block ${_blocks.last.runtimeType}');
+        _debugLog(
+          '_addWidgetBlock: closing previous block ${_blocks.last.runtimeType}',
+        );
         _blocks.last.close();
       }
       _debugLog('_addWidgetBlock: creating new WidgetBlock');
-      _blocks.add(WidgetBlock(
-        registry: widgetRegistry,
-        showInternalErrors: showInternalErrors,
-        errorBuilder: errorBuilder,
-      ));
+      _blocks.add(
+        WidgetBlock(
+          registry: widgetRegistry,
+          showInternalErrors: showInternalErrors,
+          errorBuilder: errorBuilder,
+        ),
+      );
     }
     final block = _blocks.last as WidgetBlock;
     block.addChunk(chunk);
 
-    _debugLog('_addWidgetBlock: notifying views. Total block count: ${_blocks.length}');
+    _debugLog(
+      '_addWidgetBlock: notifying views. Total block count: ${_blocks.length}',
+    );
     notifyListeners();
   }
 
