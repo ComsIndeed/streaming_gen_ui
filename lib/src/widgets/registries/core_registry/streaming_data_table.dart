@@ -133,20 +133,32 @@ class _StreamingDataTableState extends State<StreamingDataTable> {
                             );
                           }).toList(),
                           rows: rowsList.map((row) {
-                            final cells = (row as List<dynamic>);
-                            return DataRow(
-                              cells: cells.map((cell) {
-                                return DataCell(
-                                  Text(
-                                    cell.toString(),
-                                    style: TextStyle(
-                                      color: theme.colorScheme.onSurfaceVariant,
-                                      fontSize: 13,
-                                    ),
+                            final List<dynamic> cellsList = row is List<dynamic> ? row : const [];
+                            
+                            // Map existing cells, handling null or partial values
+                            final dataCells = cellsList.map((cell) {
+                              return DataCell(
+                                Text(
+                                  cell?.toString() ?? '',
+                                  style: TextStyle(
+                                    color: theme.colorScheme.onSurfaceVariant,
+                                    fontSize: 13,
                                   ),
-                                );
-                              }).toList(),
-                            );
+                                ),
+                              );
+                            }).toList();
+
+                            // Pad cells with empty cells to exactly match columns count (prevents DataTable assertion crashes)
+                            while (dataCells.length < colsList.length) {
+                              dataCells.add(const DataCell(SizedBox.shrink()));
+                            }
+
+                            // Truncate cells if there are somehow more cells than columns
+                            if (dataCells.length > colsList.length) {
+                              dataCells.removeRange(colsList.length, dataCells.length);
+                            }
+
+                            return DataRow(cells: dataCells);
                           }).toList(),
                         ),
                       );
