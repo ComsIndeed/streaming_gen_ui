@@ -28,7 +28,7 @@ class _StreamingContainerState extends State<StreamingContainer> {
   @override
   void didUpdateWidget(covariant StreamingContainer oldWidget) {
     super.didUpdateWidget(oldWidget);
-    if (widget.props != oldWidget.props) {
+    if (!identical(widget.props, oldWidget.props)) {
       _initStream();
     }
   }

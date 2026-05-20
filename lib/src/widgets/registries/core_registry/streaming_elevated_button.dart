@@ -29,7 +29,7 @@ class _StreamingElevatedButtonState extends State<StreamingElevatedButton> {
   @override
   void didUpdateWidget(covariant StreamingElevatedButton oldWidget) {
     super.didUpdateWidget(oldWidget);
-    if (widget.props != oldWidget.props) {
+    if (!identical(widget.props, oldWidget.props)) {
       _initProps();
     }
   }

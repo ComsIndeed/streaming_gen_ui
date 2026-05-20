@@ -27,7 +27,7 @@ class _StreamingTextFieldState extends State<StreamingTextField> {
   @override
   void didUpdateWidget(covariant StreamingTextField oldWidget) {
     super.didUpdateWidget(oldWidget);
-    if (widget.props != oldWidget.props) {
+    if (!identical(widget.props, oldWidget.props)) {
       _initProps();
     }
   }

@@ -49,7 +49,7 @@ class _AccumulatingStringStreamBuilderState
   @override
   void didUpdateWidget(covariant AccumulatingStringStreamBuilder oldWidget) {
     super.didUpdateWidget(oldWidget);
-    if (widget.stream != oldWidget.stream) {
+    if (!identical(widget.stream, oldWidget.stream)) {
       _debugLog('didUpdateWidget: stream changed! Re-subscribing...');
       _unsubscribe();
       _accumulated = widget.initialValue;

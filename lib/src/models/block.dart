@@ -26,24 +26,20 @@ sealed class Block {
 
   Stream<String>? _cachedStream;
 
-  /// Returns a cached broadcast stream that replays all 
-  /// historically accumulated chunks immediately, and then continues forwarding 
-  /// future chunks in real-time if the block is still streaming.
+  /// Returns a stream that replays all historically accumulated chunks immediately 
+  /// to each new subscriber, and then forwards future chunks in real-time.
   Stream<String> get stream {
-    if (_cachedStream != null) {
-      return _cachedStream!;
-    }
+    _cachedStream ??= Stream<String>.multi((controller) {
+      // Emit all historical chunks immediately to this new subscriber
+      for (final chunk in _chunks) {
+        controller.add(chunk);
+      }
 
-    final controller = StreamController<String>.broadcast();
+      if (_isClosed) {
+        controller.close();
+        return;
+      }
 
-    // Emit all historical chunks immediately to this new subscriber
-    for (final chunk in _chunks) {
-      controller.add(chunk);
-    }
-
-    if (_isClosed) {
-      controller.close();
-    } else {
       // Forward real-time chunks from the broadcast _controller
       final subscription = _controller.stream.listen(
         (chunk) {
@@ -60,9 +56,7 @@ sealed class Block {
       controller.onCancel = () {
         subscription.cancel();
       };
-    }
-
-    _cachedStream = controller.stream;
+    });
     return _cachedStream!;
   }
 

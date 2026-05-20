@@ -60,7 +60,7 @@ class _StreamingWidgetState extends State<StreamingWidget> {
   @override
   void didUpdateWidget(covariant StreamingWidget oldWidget) {
     super.didUpdateWidget(oldWidget);
-    if (widget.props != oldWidget.props) {
+    if (!identical(widget.props, oldWidget.props)) {
       _initFuture();
     }
   }

@@ -33,6 +33,7 @@ class StreamingText extends StatefulWidget {
 
 class _StreamingTextState extends State<StreamingText> {
   late Stream<String> _textStream;
+  late Future<String> _textFuture;
 
   @override
   void initState() {
@@ -43,26 +44,36 @@ class _StreamingTextState extends State<StreamingText> {
   @override
   void didUpdateWidget(covariant StreamingText oldWidget) {
     super.didUpdateWidget(oldWidget);
-    if (widget.props != oldWidget.props || widget.propertyName != oldWidget.propertyName) {
+    if (!identical(widget.props, oldWidget.props) || widget.propertyName != oldWidget.propertyName) {
       _initStream();
     }
   }
 
   void _initStream() {
-    _textStream = widget.props.asMap.getStringProperty(widget.propertyName).stream;
+    final prop = widget.props.asMap.getStringProperty(widget.propertyName);
+    _textStream = prop.stream;
+    _textFuture = prop.future;
   }
 
   @override
   Widget build(BuildContext context) {
     return StreamingEntrance(
-      child: AccumulatingStringStreamBuilder(
-        stream: _textStream,
-        initialValue: widget.initialValue,
-        builder: (context, accumulatedText) {
-          if (widget.builder != null) {
-            return widget.builder!(context, accumulatedText);
-          }
-          return Text(accumulatedText);
+      child: FutureBuilder<String>(
+        future: _textFuture,
+        builder: (context, snapshot) {
+          final isDone = snapshot.connectionState == ConnectionState.done && snapshot.hasData;
+          final currentInitial = isDone ? snapshot.data! : widget.initialValue;
+
+          return AccumulatingStringStreamBuilder(
+            stream: _textStream,
+            initialValue: currentInitial,
+            builder: (context, accumulatedText) {
+              if (widget.builder != null) {
+                return widget.builder!(context, accumulatedText);
+              }
+              return Text(accumulatedText);
+            },
+          );
         },
       ),
     );

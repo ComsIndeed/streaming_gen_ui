@@ -111,7 +111,12 @@ class ViewState with ChangeNotifier {
           return Column(
             mainAxisSize: MainAxisSize.min,
             crossAxisAlignment: CrossAxisAlignment.start,
-            children: _blocks.map((block) => block.build(context)).toList(),
+            children: _blocks.map((block) {
+              return KeyedSubtree(
+                key: ObjectKey(block),
+                child: block.build(context),
+              );
+            }).toList(),
           );
         },
       ),

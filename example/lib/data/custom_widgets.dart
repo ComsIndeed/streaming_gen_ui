@@ -13,12 +13,29 @@ class CustomUserProfileCard extends StatefulWidget {
 }
 
 class _CustomUserProfileCardState extends State<CustomUserProfileCard> {
-  late final Stream<String> _colorStream;
+  late Stream<String> _colorStream;
+  late Future<String> _colorFuture;
 
   @override
   void initState() {
     super.initState();
-    _colorStream = widget.props.asMap.getStringProperty('themeColor').stream;
+    _initProps();
+  }
+
+  @override
+  void didUpdateWidget(covariant CustomUserProfileCard oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (!identical(widget.props, oldWidget.props)) {
+      setState(() {
+        _initProps();
+      });
+    }
+  }
+
+  void _initProps() {
+    final prop = widget.props.asMap.getStringProperty('themeColor');
+    _colorStream = prop.stream;
+    _colorFuture = prop.future;
   }
 
   @override
@@ -26,104 +43,112 @@ class _CustomUserProfileCardState extends State<CustomUserProfileCard> {
     final theme = Theme.of(context);
 
     return StreamingEntrance(
-      child: AccumulatingStringStreamBuilder(
-        stream: _colorStream,
-        initialValue: '#2196F3',
-        builder: (context, hexColor) {
-          Color color;
-          try {
-            color = Color(int.parse(hexColor.replaceAll('#', '0xff')));
-          } catch (_) {
-            color = theme.colorScheme.primary;
-          }
+      child: FutureBuilder<String>(
+        future: _colorFuture,
+        builder: (context, snapshot) {
+          final isDone = snapshot.connectionState == ConnectionState.done && snapshot.hasData;
+          final currentInitial = isDone ? snapshot.data! : '#2196F3';
 
-          return AnimatedContainer(
-            duration: const Duration(milliseconds: 350),
-            curve: const Cubic(0.2, 0.8, 0.2, 1.0), // Standard Snap Curve
-            margin: const EdgeInsets.symmetric(vertical: 8),
-            padding: const EdgeInsets.all(16),
-            decoration: BoxDecoration(
-              // ignore: deprecated_member_use
-              color: color.withOpacity(0.06),
-              borderRadius: BorderRadius.circular(16),
-              border: Border.all(
-                // ignore: deprecated_member_use
-                color: color.withOpacity(0.25),
-                width: 1.5,
-              ),
-              boxShadow: [
-                BoxShadow(
+          return AccumulatingStringStreamBuilder(
+            stream: _colorStream,
+            initialValue: currentInitial,
+            builder: (context, hexColor) {
+              Color color;
+              try {
+                color = Color(int.parse(hexColor.replaceAll('#', '0xff')));
+              } catch (_) {
+                color = theme.colorScheme.primary;
+              }
+
+              return AnimatedContainer(
+                duration: const Duration(milliseconds: 350),
+                curve: const Cubic(0.2, 0.8, 0.2, 1.0), // Standard Snap Curve
+                margin: const EdgeInsets.symmetric(vertical: 8),
+                padding: const EdgeInsets.all(16),
+                decoration: BoxDecoration(
                   // ignore: deprecated_member_use
-                  color: color.withOpacity(0.04),
-                  blurRadius: 16,
-                  offset: const Offset(0, 8),
-                ),
-              ],
-            ),
-            child: AnimatedSize(
-              duration: const Duration(milliseconds: 300),
-              curve: Curves.easeOutCubic,
-              alignment: Alignment.topLeft,
-              child: Row(
-                crossAxisAlignment: CrossAxisAlignment.center,
-                children: [
-                  AnimatedContainer(
-                    duration: const Duration(milliseconds: 350),
-                    curve: Curves.easeOutCubic,
-                    width: 44,
-                    height: 44,
-                    decoration: BoxDecoration(
+                  color: color.withOpacity(0.06),
+                  borderRadius: BorderRadius.circular(16),
+                  border: Border.all(
+                    // ignore: deprecated_member_use
+                    color: color.withOpacity(0.25),
+                    width: 1.5,
+                  ),
+                  boxShadow: [
+                    BoxShadow(
                       // ignore: deprecated_member_use
-                      color: color.withOpacity(0.12),
-                      shape: BoxShape.circle,
+                      color: color.withOpacity(0.04),
+                      blurRadius: 16,
+                      offset: const Offset(0, 8),
                     ),
-                    child: Icon(
-                      Icons.person_rounded,
-                      color: color,
-                      size: 24,
-                    ),
-                  ),
-                  const SizedBox(width: 16),
-                  Expanded(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        StreamingText(
-                          props: widget.props,
-                          propertyName: 'name',
-                          initialValue: 'Typing name...',
-                          builder: (context, name) => Text(
-                            name,
-                            style: TextStyle(
-                              fontSize: 16,
-                              fontWeight: FontWeight.bold,
-                              color: color,
-                              letterSpacing: -0.2,
-                            ),
-                          ),
+                  ],
+                ),
+                child: AnimatedSize(
+                  duration: const Duration(milliseconds: 300),
+                  curve: Curves.easeOutCubic,
+                  alignment: Alignment.topLeft,
+                  child: Row(
+                    crossAxisAlignment: CrossAxisAlignment.center,
+                    children: [
+                      AnimatedContainer(
+                        duration: const Duration(milliseconds: 350),
+                        curve: Curves.easeOutCubic,
+                        width: 44,
+                        height: 44,
+                        decoration: BoxDecoration(
+                          // ignore: deprecated_member_use
+                          color: color.withOpacity(0.12),
+                          shape: BoxShape.circle,
                         ),
-                        const SizedBox(height: 4),
-                        StreamingText(
-                          props: widget.props,
-                          propertyName: 'role',
-                          initialValue: 'Typing role...',
-                          builder: (context, role) => Text(
-                            role,
-                            style: TextStyle(
-                              fontSize: 13,
-                              // ignore: deprecated_member_use
-                              color: theme.colorScheme.onSurface.withOpacity(0.6),
-                              fontWeight: FontWeight.w500,
-                            ),
-                          ),
+                        child: Icon(
+                          Icons.person_rounded,
+                          color: color,
+                          size: 24,
                         ),
-                      ],
-                    ),
+                      ),
+                      const SizedBox(width: 16),
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            StreamingText(
+                              props: widget.props,
+                              propertyName: 'name',
+                              initialValue: 'Typing name...',
+                              builder: (context, name) => Text(
+                                name,
+                                style: TextStyle(
+                                  fontSize: 16,
+                                  fontWeight: FontWeight.bold,
+                                  color: color,
+                                  letterSpacing: -0.2,
+                                ),
+                              ),
+                            ),
+                            const SizedBox(height: 4),
+                            StreamingText(
+                              props: widget.props,
+                              propertyName: 'role',
+                              initialValue: 'Typing role...',
+                              builder: (context, role) => Text(
+                                role,
+                                style: TextStyle(
+                                  fontSize: 13,
+                                  // ignore: deprecated_member_use
+                                  color: theme.colorScheme.onSurface.withOpacity(0.6),
+                                  fontWeight: FontWeight.w500,
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ],
                   ),
-                ],
-              ),
-            ),
+                ),
+              );
+            },
           );
         },
       ),
