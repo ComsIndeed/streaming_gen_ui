@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
+import 'dart:math' as math;
 import 'package:flutter/material.dart';
 import 'package:streaming_gen_ui/streaming_gen_ui.dart';
 
@@ -37,6 +38,36 @@ class _ChatScreenState extends State<ChatScreen> {
   bool _isSending = false;
   bool _showApiKey = true;
   bool _showRawText = false; // The switcher state: Raw vs Parsed
+
+  bool _enableSpeedLimit = false; // By default off
+  double _speedFactor = 1.0; // 0.01 to 1.0
+
+  Stream<String> _throttleStream(Stream<String> sourceStream) async* {
+    if (!_enableSpeedLimit) {
+      yield* sourceStream;
+      return;
+    }
+
+    final random = math.Random();
+
+    await for (final chunk in sourceStream) {
+      // Scale delay based on the Speedometer factor
+      int i = 0;
+      while (i < chunk.length) {
+        // Randomized small chunk sizes between 1 and 3 characters
+        final size = random.nextInt(3) + 1;
+        final end = (i + size < chunk.length) ? i + size : chunk.length;
+        final subChunk = chunk.substring(i, end);
+        yield subChunk;
+        i = end;
+
+        // Scale randomized base delay by the speed factor
+        final baseDelayMs = random.nextInt(20) + 10; // 10ms to 30ms base delay
+        final scaledDelayMs = (baseDelayMs / _speedFactor).round();
+        await Future.delayed(Duration(milliseconds: scaledDelayMs));
+      }
+    }
+  }
 
   @override
   void initState() {
@@ -167,9 +198,12 @@ class _ChatScreenState extends State<ChatScreen> {
     });
     _scrollToBottom();
 
-    // Pipe the AI stream controller directly into our Generative UI engine!
+    // 1. Create a throttled/delayed stream from the original raw controller stream
+    final throttledAiStream = _throttleStream(aiController.stream).asBroadcastStream();
+
+    // 2. Pipe the throttled stream directly into our Generative UI engine!
     widget.genUi.stream(
-      aiController.stream,
+      throttledAiStream,
       viewId: aiViewId,
       onText: (textChunk) {
         aiMessage.cleanText += textChunk;
@@ -177,6 +211,20 @@ class _ChatScreenState extends State<ChatScreen> {
           setState(() {});
           _scrollToBottom();
         }
+      },
+    );
+
+    // 3. Listen to the throttled stream to update the raw text in raw mode at the matching speed!
+    final throttledSubscription = throttledAiStream.listen(
+      (chunk) {
+        aiMessage.rawText += chunk;
+        if (_showRawText) {
+          setState(() {});
+          _scrollToBottom();
+        }
+      },
+      onError: (err) {
+        debugPrint('Throttled stream error: $err');
       },
     );
 
@@ -230,12 +278,8 @@ class _ChatScreenState extends State<ChatScreen> {
             final data = jsonDecode(dataStr);
             final content = data['choices'][0]['delta']['content'] as String?;
             if (content != null && content.isNotEmpty) {
-              aiMessage.rawText += content;
+              // Add direct content to our controller, which feeds the throttled delayed stream!
               aiController.add(content);
-              if (_showRawText) {
-                setState(() {});
-                _scrollToBottom();
-              }
             }
           } catch (_) {}
         }
@@ -247,6 +291,7 @@ class _ChatScreenState extends State<ChatScreen> {
       });
     } finally {
       aiController.close();
+      await throttledSubscription.cancel();
       client?.close();
       setState(() {
         _isSending = false;
@@ -320,6 +365,83 @@ class _ChatScreenState extends State<ChatScreen> {
                 ],
               ),
             ),
+          ),
+        ),
+        // Speedometer / Throttle Simulator Control Panel
+        Container(
+          padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 6.0),
+          color: Theme.of(context).colorScheme.surfaceContainerLowest,
+          child: Row(
+            children: [
+              Icon(
+                Icons.speed_outlined,
+                color: _enableSpeedLimit
+                    ? Theme.of(context).colorScheme.primary
+                    : Theme.of(context).colorScheme.onSurfaceVariant,
+                size: 20,
+              ),
+              const SizedBox(width: 8),
+              Text(
+                '⚡ Stream Speedometer:',
+                style: TextStyle(
+                  fontWeight: FontWeight.bold,
+                  fontSize: 12,
+                  color: _enableSpeedLimit
+                      ? Theme.of(context).colorScheme.primary
+                      : Theme.of(context).colorScheme.onSurfaceVariant,
+                ),
+              ),
+              const SizedBox(width: 8),
+              Switch(
+                value: _enableSpeedLimit,
+                onChanged: (val) {
+                  setState(() {
+                    _enableSpeedLimit = val;
+                  });
+                },
+              ),
+              if (_enableSpeedLimit) ...[
+                const SizedBox(width: 12),
+                Expanded(
+                  child: Row(
+                    children: [
+                      const Text(
+                        'Delay Factor:',
+                        style: TextStyle(fontSize: 11, color: Colors.grey),
+                      ),
+                      Expanded(
+                        child: Slider(
+                          value: _speedFactor,
+                          min: 0.01,
+                          max: 1.0,
+                          onChanged: (val) {
+                            setState(() {
+                              _speedFactor = val;
+                            });
+                          },
+                        ),
+                      ),
+                      Text(
+                        _speedFactor == 1.0
+                            ? 'Full Speed'
+                            : '${(_speedFactor * 100).round()}% (${(1.0 / _speedFactor).toStringAsFixed(0)}x slower)',
+                        style: TextStyle(
+                          fontSize: 11,
+                          fontWeight: FontWeight.bold,
+                          color: Theme.of(context).colorScheme.primary,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ] else ...[
+                const Spacer(),
+                const Text(
+                  'Running at full API speed',
+                  style: TextStyle(fontSize: 11, color: Colors.grey, fontStyle: FontStyle.italic),
+                ),
+              ],
+            ],
           ),
         ),
         const Divider(height: 1),
