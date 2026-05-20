@@ -30,3 +30,11 @@ example/build/
 # Exclude large media and demo assets
 demos/
 
+# Exclude internal developer documentation specifications
+doc/engine.md
+doc/guidelines.md
+doc/internals.md
+doc/registries.md
+doc/specifications.md
+
+

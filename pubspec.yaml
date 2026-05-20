@@ -1,7 +1,7 @@
 name: streaming_gen_ui
-description: "A new Flutter package project."
-version: 0.0.1
-homepage:
+description: "A high-performance streaming Generative UI engine for Flutter. Render interactive components reactively as raw LLM streams flow in character-by-character."
+version: 0.1.0
+repository: https://github.com/ComsIndeed/streaming-gen-ui
 
 environment:
   sdk: ^3.11.0
@@ -11,12 +11,7 @@ dependencies:
   flutter:
     sdk: flutter
   llm_json_stream: ^0.4.7
-  # llm_tag_parser: ^0.1.0
-  llm_tag_parser:
-    git:
-      url: https://github.com/ComsIndeed/llm-stream-parsers.git
-      path: packages/llm/llm_tag_parser_dart
-      ref: main
+  llm_tag_parser: ^0.1.1
 
 dev_dependencies:
   flutter_test:
@@ -25,6 +20,3 @@ dev_dependencies:
 
 flutter:
 
-dependency_overrides:
-  llm_tag_parser:
-    path: c:/Users/Truly/AAA_WORKSPACE_WINDOWS/_AAA_PROJECTS/llm-stream-parsers/packages/llm/llm_tag_parser_dart
