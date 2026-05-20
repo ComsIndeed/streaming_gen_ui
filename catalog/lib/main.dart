@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:streaming_gen_ui_widget_catalog/catalog_page.dart';
+import 'package:streaming_gen_ui_widget_catalog/pages/catalog_page/catalog_page.dart';
 
 void main() {
   runApp(const MainApp());

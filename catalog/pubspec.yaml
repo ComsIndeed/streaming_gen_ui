@@ -1,6 +1,6 @@
 name: streaming_gen_ui_widget_catalog
 description: "A new Flutter project."
-publish_to: 'none'
+publish_to: "none"
 version: 0.1.0+1
 
 environment:
@@ -9,6 +9,9 @@ environment:
 dependencies:
   flutter:
     sdk: flutter
+  llm_json_stream: ^0.4.7
+  streaming_gen_ui:
+    path: "../"
 
 dev_dependencies:
   flutter_test:

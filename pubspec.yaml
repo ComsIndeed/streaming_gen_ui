@@ -12,6 +12,8 @@ dependencies:
     sdk: flutter
   llm_json_stream: ^0.4.7
   llm_tag_parser: ^0.1.1
+  # llm_json_stream:
+  #   path: "../_TEMPORARY_/llm_json_stream_dart"
 
 dev_dependencies:
   flutter_test:
@@ -19,4 +21,3 @@ dev_dependencies:
   flutter_lints: ^6.0.0
 
 flutter:
-

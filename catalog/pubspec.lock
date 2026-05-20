@@ -99,6 +99,22 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "6.1.0"
+  llm_json_stream:
+    dependency: "direct main"
+    description:
+      name: llm_json_stream
+      sha256: "6c5d4c808243bd8393815caf1c79843c6d22b6e508f715ab1ab1dbb787072240"
+      url: "https://pub.dev"
+    source: hosted
+    version: "0.4.7"
+  llm_tag_parser:
+    dependency: transitive
+    description:
+      name: llm_tag_parser
+      sha256: "61d72fbb8456bc24e8ca9c3b5e1b329269dd405c823775ffcb912cebae43f4cb"
+      url: "https://pub.dev"
+    source: hosted
+    version: "0.1.1"
   matcher:
     dependency: transitive
     description:
@@ -160,6 +176,13 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "2.1.4"
+  streaming_gen_ui:
+    dependency: "direct main"
+    description:
+      path: ".."
+      relative: true
+    source: path
+    version: "0.1.0"
   string_scanner:
     dependency: transitive
     description:
