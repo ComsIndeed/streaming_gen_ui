@@ -36,10 +36,8 @@ class CatalogCard extends StatelessWidget {
           5, // where did the 5 come from to make it fit?
       height: 240,
       child: Hero(
-        tag: "catalog-card",
-        key: ObjectKey('catalog-card-hero'),
+        tag: "catalog-card-${catalogItem.namespace}",
         child: Card(
-          key: ObjectKey('catalog-card'),
           clipBehavior: Clip.antiAlias,
           shape: RoundedSuperellipseBorder(
             borderRadius: BorderRadius.circular(24),

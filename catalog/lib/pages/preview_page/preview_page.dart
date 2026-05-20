@@ -193,10 +193,8 @@ class _PreviewPageState extends State<PreviewPage> {
                 ),
               ),
               Hero(
-                tag: 'catalog-card',
-                key: ObjectKey('catalog-card-hero'),
+                tag: 'catalog-card-${widget.catalogItem.namespace}',
                 child: SizedBox(
-                  key: ObjectKey('catalog-card'),
                   width: sizes.width * 0.60,
                   height: double.infinity,
                   child: Card(

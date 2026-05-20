@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:streaming_gen_ui_widget_catalog/pages/catalog_page/catalog_page.dart';
+import 'package:streaming_gen_ui_widget_catalog/homepage.dart';
 
 void main() {
   runApp(const MainApp());
@@ -23,7 +23,7 @@ class MainApp extends StatelessWidget {
         colorSchemeSeed: Colors.blueGrey,
       ),
       themeMode: ThemeMode.system, // Respect system light/dark settings
-      home: const CatalogPage(),
+      home: const Homepage(),
     );
   }
 }
