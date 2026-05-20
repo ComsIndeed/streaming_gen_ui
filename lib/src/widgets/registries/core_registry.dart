@@ -256,71 +256,54 @@ class _StreamingTextFieldState extends State<_StreamingTextField> {
 
 // --- Helper Stateful Widgets & Parsers ---
 
-class _StreamingColumn extends StatefulWidget {
+class _StreamingColumn extends StatelessWidget {
   final ListPropertyStream<dynamic> childrenProperty;
 
   const _StreamingColumn({required this.childrenProperty});
 
   @override
-  State<_StreamingColumn> createState() => _StreamingColumnState();
-}
-
-class _StreamingColumnState extends State<_StreamingColumn> {
-  final List<Widget> _children = [];
-
-  @override
-  void initState() {
-    super.initState();
-    // Arm the trap: only append new elements when they start parsing
-    widget.childrenProperty.onElement((propertyStream, index) {
-      if (mounted) {
-        setState(() {
-          _children.add(StreamingWidget(props: propertyStream));
-        });
-      }
-    });
-  }
-
-  @override
   Widget build(BuildContext context) {
-    return Column(
-      mainAxisSize: MainAxisSize.min,
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: _children,
+    return StreamBuilder<List<dynamic>>(
+      stream: childrenProperty.stream,
+      builder: (context, snapshot) {
+        final list = snapshot.data ?? const [];
+
+        if (snapshot.connectionState == ConnectionState.done && list.isEmpty) {
+          debugPrint('[GEN_UI:WARNING] core:column layout streaming complete but contains 0 items!');
+        }
+
+        return Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: list.map((elementProp) => StreamingWidget(props: elementProp as PropertyStream)).toList(),
+        );
+      },
     );
   }
 }
 
-class _StreamingRow extends StatefulWidget {
+class _StreamingRow extends StatelessWidget {
   final ListPropertyStream<dynamic> childrenProperty;
 
   const _StreamingRow({required this.childrenProperty});
 
   @override
-  State<_StreamingRow> createState() => _StreamingRowState();
-}
-
-class _StreamingRowState extends State<_StreamingRow> {
-  final List<Widget> _children = [];
-
-  @override
-  void initState() {
-    super.initState();
-    widget.childrenProperty.onElement((propertyStream, index) {
-      if (mounted) {
-        setState(() {
-          _children.add(StreamingWidget(props: propertyStream));
-        });
-      }
-    });
-  }
-
-  @override
   Widget build(BuildContext context) {
-    return Row(
-      mainAxisSize: MainAxisSize.min,
-      crossAxisAlignment: CrossAxisAlignment.center,
-      children: _children,
+    return StreamBuilder<List<dynamic>>(
+      stream: childrenProperty.stream,
+      builder: (context, snapshot) {
+        final list = snapshot.data ?? const [];
+
+        if (snapshot.connectionState == ConnectionState.done && list.isEmpty) {
+          debugPrint('[GEN_UI:WARNING] core:row layout streaming complete but contains 0 items!');
+        }
+
+        return Row(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.center,
+          children: list.map((elementProp) => StreamingWidget(props: elementProp as PropertyStream)).toList(),
+        );
+      },
     );
   }
 }

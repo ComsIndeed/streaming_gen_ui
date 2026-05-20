@@ -39,6 +39,63 @@ class _ChatScreenState extends State<ChatScreen> {
   bool _showRawText = false; // The switcher state: Raw vs Parsed
 
   @override
+  void initState() {
+    super.initState();
+    _loadEnvApiKey();
+  }
+
+  void _loadEnvApiKey() {
+    try {
+      // 1. Try reading from environment define first
+      final envKey = const String.fromEnvironment('GEMINI_API_KEY');
+      if (envKey.isNotEmpty && envKey != 'YOUR_GEMINI_API_KEY_HERE') {
+        setState(() {
+          _apiKey = envKey;
+          _showApiKey = false;
+        });
+        debugPrint('Loaded GEMINI_API_KEY from environment define successfully!');
+        return;
+      }
+
+      // 2. Try reading from local files (.env) at root or example root
+      final possiblePaths = [
+        '.env',
+        'example/.env',
+        '../.env',
+      ];
+
+      for (final path in possiblePaths) {
+        final file = File(path);
+        if (file.existsSync()) {
+          final lines = file.readAsLinesSync();
+          for (final line in lines) {
+            final trimmed = line.trim();
+            if (trimmed.startsWith('GEMINI_API_KEY=')) {
+              final key = trimmed.split('=').sublist(1).join('=').trim();
+              // Remove quotes if present
+              var cleanKey = key;
+              if ((cleanKey.startsWith("'") && cleanKey.endsWith("'")) ||
+                  (cleanKey.startsWith('"') && cleanKey.endsWith('"'))) {
+                cleanKey = cleanKey.substring(1, cleanKey.length - 1);
+              }
+              if (cleanKey.isNotEmpty && cleanKey != 'YOUR_GEMINI_API_KEY_HERE') {
+                setState(() {
+                  _apiKey = cleanKey;
+                  _showApiKey = false;
+                });
+                debugPrint('Loaded GEMINI_API_KEY from $path successfully!');
+                return;
+              }
+            }
+          }
+        }
+      }
+    } catch (e) {
+      debugPrint('Failed to load local .env key: $e');
+    }
+  }
+
+  @override
   void dispose() {
     for (final msg in _messages) {
       msg.streamController.close();

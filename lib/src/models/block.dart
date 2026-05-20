@@ -20,49 +20,43 @@ sealed class Block {
       StreamController<String>.broadcast();
   bool _isClosed = false;
 
-  late final Stream<String> stream;
-
   Block({required this.registry}) {
     _debugLog('Block created: $runtimeType');
+  }
 
-    // Create a stable broadcast controller for the cached stream
-    final controller = StreamController<String>.broadcast();
+  /// Returns a fresh, active single-subscription stream that replays all 
+  /// historically accumulated chunks immediately, and then continues forwarding 
+  /// future chunks in real-time if the block is still streaming.
+  Stream<String> get stream {
+    final controller = StreamController<String>();
 
-    controller.onListen = () {
-      _debugLog('$runtimeType onListen: active subscriber connected. Replaying ${_chunks.length} chunks.');
-      // Emit all historical chunks immediately to the active subscriber
-      for (final chunk in _chunks) {
-        controller.add(chunk);
-      }
+    // Emit all historical chunks immediately to this new subscriber
+    for (final chunk in _chunks) {
+      controller.add(chunk);
+    }
 
-      if (_isClosed) {
-        _debugLog('$runtimeType onListen: already closed, closing subscriber controller.');
-        controller.close();
-      } else {
-        _debugLog('$runtimeType onListen: open, subscribing to real-time _controller.');
-        // Forward future chunks in real-time
-        final subscription = _controller.stream.listen(
-          (chunk) {
-            _debugLog('$runtimeType forwarded real-time chunk: "$chunk"');
-            controller.add(chunk);
-          },
-          onError: (err) {
-            _debugLog('$runtimeType forwarded error: $err');
-            controller.addError(err);
-          },
-          onDone: () {
-            _debugLog('$runtimeType real-time stream done, closing controller.');
-            controller.close();
-          },
-        );
-        controller.onCancel = () {
-          _debugLog('$runtimeType subscriber cancelled subscription.');
-          subscription.cancel();
-        };
-      }
-    };
+    if (_isClosed) {
+      controller.close();
+    } else {
+      // Forward real-time chunks from the broadcast _controller
+      final subscription = _controller.stream.listen(
+        (chunk) {
+          controller.add(chunk);
+        },
+        onError: (err) {
+          controller.addError(err);
+        },
+        onDone: () {
+          controller.close();
+        },
+      );
 
-    stream = controller.stream;
+      controller.onCancel = () {
+        subscription.cancel();
+      };
+    }
+
+    return controller.stream;
   }
 
   @mustCallSuper
