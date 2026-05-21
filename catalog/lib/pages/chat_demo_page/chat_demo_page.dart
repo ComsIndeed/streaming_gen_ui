@@ -380,27 +380,43 @@ class _ChatDemoPageState extends State<ChatDemoPage> {
     DemoMessage message,
   ) {
     final cubit = context.read<ChatDemoCubit>();
+    final showRaw = context.select((ChatDemoCubit c) => c.state.showRawResponse);
+
     return Align(
       alignment: Alignment.centerLeft,
       child: Container(
         margin: const EdgeInsets.symmetric(vertical: 8),
         padding: const EdgeInsets.all(12),
         decoration: BoxDecoration(
-          color: theme.colorScheme.surfaceContainerLow,
+          color: showRaw ? Colors.black.withOpacity(0.9) : theme.colorScheme.surfaceContainerLow,
           borderRadius: BorderRadius.circular(16),
           border: Border.all(
             color: theme.colorScheme.outline.withOpacity(0.08),
           ),
         ),
-        child: ListenableBuilder(
-          listenable: cubit.generativeUi,
-          builder: (context, _) {
-            return cubit.generativeUi.view(
-              message.id,
-              textBlockBuilder: (context, text) => GptMarkdown(text),
-            );
-          },
-        ),
+        child: showRaw
+            ? Container(
+                width: double.infinity,
+                padding: const EdgeInsets.all(8),
+                child: SelectableText(
+                  message.text.isEmpty ? "..." : message.text,
+                  style: const TextStyle(
+                    fontFamily: 'monospace',
+                    fontSize: 12,
+                    height: 1.4,
+                    color: Colors.greenAccent,
+                  ),
+                ),
+              )
+            : ListenableBuilder(
+                listenable: cubit.generativeUi,
+                builder: (context, _) {
+                  return cubit.generativeUi.view(
+                    message.id,
+                    textBlockBuilder: (context, text) => GptMarkdown(text),
+                  );
+                },
+              ),
       ),
     );
   }
@@ -860,6 +876,7 @@ class _ChatConsoleInputState extends State<_ChatConsoleInput> {
   }
 
   Widget _buildExpandedDrawerInput(BuildContext context, ThemeData theme) {
+    final showRaw = context.select((ChatDemoCubit c) => c.state.showRawResponse);
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -890,17 +907,13 @@ class _ChatConsoleInputState extends State<_ChatConsoleInput> {
         ),
         const Divider(height: 1, thickness: 0.5, indent: 12, endIndent: 12),
         const SizedBox(height: 16),
-        Expanded(
-          child: Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 12),
-            child: GridView.count(
-              crossAxisCount: 3,
-              crossAxisSpacing: 12,
-              mainAxisSpacing: 12,
-              childAspectRatio: 1.8,
-              physics: const NeverScrollableScrollPhysics(),
-              children: [
-                _buildConsoleUtilityCard(
+        Container(
+          height: 110,
+          padding: const EdgeInsets.symmetric(horizontal: 12),
+          child: Row(
+            children: [
+              Expanded(
+                child: _buildConsoleUtilityCard(
                   icon: Icons.delete_sweep_rounded,
                   title: "Clear Chat",
                   subtitle: "Reset discussion",
@@ -910,7 +923,10 @@ class _ChatConsoleInputState extends State<_ChatConsoleInput> {
                     context.read<ChatDemoCubit>().clearChat();
                   },
                 ),
-                _buildConsoleUtilityCard(
+              ),
+              const SizedBox(width: 12),
+              Expanded(
+                child: _buildConsoleUtilityCard(
                   icon: Icons.code_rounded,
                   title: "Raw Response",
                   subtitle: "Toggle raw text",
@@ -918,10 +934,13 @@ class _ChatConsoleInputState extends State<_ChatConsoleInput> {
                   isToggle: true,
                   isActive: false,
                   onTap: () {
-                    // Non-functional as requested
+                    // Disabled
                   },
                 ),
-                _buildConsoleUtilityCard(
+              ),
+              const SizedBox(width: 12),
+              Expanded(
+                child: _buildConsoleUtilityCard(
                   icon: Icons.terminal_rounded,
                   title: "System Prompt",
                   subtitle: "View instructions",
@@ -931,8 +950,8 @@ class _ChatConsoleInputState extends State<_ChatConsoleInput> {
                     _showSystemPromptModal(context, theme);
                   },
                 ),
-              ],
-            ),
+              ),
+            ],
           ),
         ),
       ],
@@ -1075,6 +1094,14 @@ class _ConsoleUtilityCardState extends State<_ConsoleUtilityCard> {
   void initState() {
     super.initState();
     _toggleState = widget.isActive;
+  }
+
+  @override
+  void didUpdateWidget(covariant _ConsoleUtilityCard oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (oldWidget.isActive != widget.isActive) {
+      _toggleState = widget.isActive;
+    }
   }
 
   @override

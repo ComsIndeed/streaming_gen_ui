@@ -25,6 +25,7 @@ class ChatDemoState {
   final List<DemoMessage> messages;
   final bool isThinking;
   final String? errorMessage;
+  final bool showRawResponse;
 
   const ChatDemoState({
     required this.textBoxMode,
@@ -32,6 +33,7 @@ class ChatDemoState {
     required this.messages,
     required this.isThinking,
     this.errorMessage,
+    this.showRawResponse = false,
   });
 
   ChatDemoState copyWith({
@@ -40,6 +42,7 @@ class ChatDemoState {
     List<DemoMessage>? messages,
     bool? isThinking,
     String? errorMessage,
+    bool? showRawResponse,
   }) {
     return ChatDemoState(
       textBoxMode: textBoxMode ?? this.textBoxMode,
@@ -47,6 +50,7 @@ class ChatDemoState {
       messages: messages ?? this.messages,
       isThinking: isThinking ?? this.isThinking,
       errorMessage: errorMessage ?? this.errorMessage,
+      showRawResponse: showRawResponse ?? this.showRawResponse,
     );
   }
 
@@ -55,6 +59,7 @@ class ChatDemoState {
     CanvasMode? canvasMode,
     List<DemoMessage>? messages,
     bool? isThinking,
+    bool? showRawResponse,
   }) {
     return ChatDemoState(
       textBoxMode: textBoxMode ?? this.textBoxMode,
@@ -62,6 +67,7 @@ class ChatDemoState {
       messages: messages ?? this.messages,
       isThinking: isThinking ?? this.isThinking,
       errorMessage: null,
+      showRawResponse: showRawResponse ?? this.showRawResponse,
     );
   }
 }
@@ -106,6 +112,10 @@ ${generativeUi.registry.systemPromptFragment}
 
   void clearError() {
     emit(state.copyWithClearedError());
+  }
+
+  void toggleRawResponse() {
+    emit(state.copyWith(showRawResponse: !state.showRawResponse));
   }
 
   void clearChat() {
@@ -155,8 +165,24 @@ ${generativeUi.registry.systemPromptFragment}
     try {
       final textStream = _agentService!.streamResponse(text, _history);
 
+      final StringBuffer accumulated = StringBuffer();
+      final trackedStream = textStream.map((chunk) {
+        accumulated.write(chunk);
+        
+        final updatedMessages = state.messages.map((m) {
+          if (m.id == aiMsgId) {
+            return m.copyWith(text: accumulated.toString());
+          }
+          return m;
+        }).toList();
+
+        emit(state.copyWith(messages: updatedMessages));
+        
+        return chunk;
+      });
+
       await generativeUi.stream(
-        textStream,
+        trackedStream,
         viewId: aiMsgId,
         onComplete: (raw) {
           // Add to LLM history for subsequent turns
