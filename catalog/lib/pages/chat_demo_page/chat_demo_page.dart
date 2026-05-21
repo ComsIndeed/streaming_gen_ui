@@ -27,7 +27,7 @@ class ChatDemoPage extends StatelessWidget {
                       // 1. LEFT PANEL: Chat conversation space
                       Expanded(
                         child: Padding(
-                          padding: const EdgeInsets.fromLTRB(16, 16, 16, 96),
+                          padding: const EdgeInsets.fromLTRB(16, 16, 16, 0),
                           child: Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
@@ -69,8 +69,106 @@ class ChatDemoPage extends StatelessWidget {
                                 ],
                               ),
                               const SizedBox(height: 24),
-                              // Empty chat conversation space
-                              const Expanded(child: SizedBox.shrink()),
+                              // Scrollable Chat Message Space
+                              Expanded(
+                                child: Column(
+                                  children: [
+                                    if (state.errorMessage != null)
+                                      Padding(
+                                        padding: const EdgeInsets.only(bottom: 16),
+                                        child: Container(
+                                          width: double.infinity,
+                                          padding: const EdgeInsets.all(16),
+                                          decoration: BoxDecoration(
+                                            color: theme.colorScheme.errorContainer,
+                                            borderRadius: BorderRadius.circular(16),
+                                            border: Border.all(
+                                              color: theme.colorScheme.error.withOpacity(0.3),
+                                            ),
+                                          ),
+                                          child: Row(
+                                            children: [
+                                              Icon(Icons.warning_amber_rounded, color: theme.colorScheme.error),
+                                              const SizedBox(width: 12),
+                                              Expanded(
+                                                child: Text(
+                                                  state.errorMessage!,
+                                                  style: TextStyle(
+                                                    color: theme.colorScheme.onErrorContainer,
+                                                    fontSize: 13,
+                                                    fontWeight: FontWeight.w500,
+                                                  ),
+                                                ),
+                                              ),
+                                              IconButton(
+                                                icon: const Icon(Icons.close, size: 18),
+                                                color: theme.colorScheme.onErrorContainer,
+                                                onPressed: () => context.read<ChatDemoCubit>().clearError(),
+                                              ),
+                                            ],
+                                          ),
+                                        ),
+                                      ),
+                                    Expanded(
+                                      child: Center(
+                                        child: Container(
+                                          constraints: const BoxConstraints(maxWidth: 720),
+                                          child: ListView.builder(
+                                            itemCount: state.messages.length,
+                                            padding: const EdgeInsets.only(bottom: 140, left: 16, right: 16),
+                                            physics: const BouncingScrollPhysics(),
+                                            itemBuilder: (context, index) {
+                                              final message = state.messages[index];
+                                              if (message.isUser) {
+                                                return Align(
+                                                  alignment: Alignment.centerRight,
+                                                  child: Container(
+                                                    margin: const EdgeInsets.symmetric(vertical: 4),
+                                                    padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+                                                    decoration: BoxDecoration(
+                                                      color: theme.colorScheme.primaryContainer,
+                                                      borderRadius: BorderRadius.circular(16),
+                                                    ),
+                                                    child: Text(
+                                                      message.text,
+                                                      style: TextStyle(
+                                                        color: theme.colorScheme.onPrimaryContainer,
+                                                        fontSize: 14,
+                                                      ),
+                                                    ),
+                                                  ),
+                                                );
+                                              } else {
+                                                final cubit = context.read<ChatDemoCubit>();
+                                                return Align(
+                                                  alignment: Alignment.centerLeft,
+                                                  child: Container(
+                                                    margin: const EdgeInsets.symmetric(vertical: 8),
+                                                    padding: const EdgeInsets.all(12),
+                                                    decoration: BoxDecoration(
+                                                      color: theme.colorScheme.surfaceContainerLow,
+                                                      borderRadius: BorderRadius.circular(16),
+                                                      border: Border.all(
+                                                        color: theme.colorScheme.outline.withOpacity(0.08),
+                                                      ),
+                                                    ),
+                                                    child: ListenableBuilder(
+                                                      listenable: cubit.generativeUi,
+                                                      builder: (context, _) {
+                                                        return cubit.generativeUi.view(message.id);
+                                                      },
+                                                    ),
+                                                  ),
+                                                );
+                                              }
+                                            },
+                                          ),
+                                        ),
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ),
                             ],
                           ),
                         ),
@@ -341,16 +439,19 @@ class _ChatConsoleInputState extends State<_ChatConsoleInput> {
   bool _isConsoleHovered = false;
 
   late final FocusNode _focusNode;
+  late final TextEditingController _controller;
 
   @override
   void initState() {
     super.initState();
+    _controller = TextEditingController();
     _focusNode = FocusNode();
     _focusNode.addListener(_handleFocusChange);
   }
 
   @override
   void dispose() {
+    _controller.dispose();
     _focusNode.removeListener(_handleFocusChange);
     _focusNode.dispose();
     super.dispose();
@@ -361,6 +462,14 @@ class _ChatConsoleInputState extends State<_ChatConsoleInput> {
       setState(() {
         _isTextFieldFocused = _focusNode.hasFocus;
       });
+    }
+  }
+
+  void _submit() {
+    final text = _controller.text.trim();
+    if (text.isNotEmpty) {
+      context.read<ChatDemoCubit>().sendMessage(text);
+      _controller.clear();
     }
   }
 
@@ -470,7 +579,9 @@ class _ChatConsoleInputState extends State<_ChatConsoleInput> {
                     child: widget.isChatExpanded
                         ? _buildExpandedDrawerInput(context, theme)
                         : TextField(
+                            controller: _controller,
                             focusNode: _focusNode,
+                            onSubmitted: (_) => _submit(),
                             textAlignVertical: TextAlignVertical.center,
                             decoration: const InputDecoration(
                               hintText: 'Talk to AI',
@@ -502,7 +613,7 @@ class _ChatConsoleInputState extends State<_ChatConsoleInput> {
                         duration: const Duration(milliseconds: 150),
                         curve: Curves.easeOutBack,
                         child: IconButton.filled(
-                          onPressed: () {},
+                          onPressed: _submit,
                           icon: Icon(
                             Icons.arrow_upward,
                             color: theme.colorScheme.onPrimary,

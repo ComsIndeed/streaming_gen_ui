@@ -10,7 +10,8 @@ dependencies:
   flutter:
     sdk: flutter
   flutter_bloc: ^9.1.1
-  llm_json_stream: ^0.4.7
+  llm_json_stream: ^1.0.0
+  dartantic_ai: ^3.4.0
   streaming_gen_ui:
     path: "../"
 
