@@ -17,7 +17,7 @@ class _HomepageState extends State<Homepage> {
   @override
   void initState() {
     super.initState();
-    pageController = PageController(initialPage: 1);
+    pageController = PageController(initialPage: 0);
     pageController.addListener(() {
       if (mounted && pageController.hasClients) {
         setState(() {
