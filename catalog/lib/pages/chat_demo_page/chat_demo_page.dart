@@ -498,6 +498,7 @@ class _ChatConsoleInputState extends State<_ChatConsoleInput> {
   bool _isSendButtonPressed = false;
   bool _isSendButtonHovered = false;
   bool _isConsoleHovered = false;
+  bool _isAnimatingChatExpansion = false;
 
   late final FocusNode _focusNode;
   late final TextEditingController _controller;
@@ -508,6 +509,14 @@ class _ChatConsoleInputState extends State<_ChatConsoleInput> {
     _controller = TextEditingController();
     _focusNode = FocusNode();
     _focusNode.addListener(_handleFocusChange);
+  }
+
+  @override
+  void didUpdateWidget(covariant _ChatConsoleInput oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (widget.isChatExpanded != oldWidget.isChatExpanded) {
+      _isAnimatingChatExpansion = true;
+    }
   }
 
   @override
@@ -570,14 +579,12 @@ class _ChatConsoleInputState extends State<_ChatConsoleInput> {
         BoxShadow(
           color: theme.colorScheme.primary.withOpacity(0.12),
           blurRadius: 24,
-          spreadRadius: 2,
           offset: const Offset(0, 0),
         )
       else if (_isConsoleHovered)
         BoxShadow(
           color: theme.colorScheme.primary.withOpacity(0.04),
           blurRadius: 16,
-          spreadRadius: 1,
           offset: const Offset(0, 2),
         ),
     ];
@@ -590,8 +597,17 @@ class _ChatConsoleInputState extends State<_ChatConsoleInput> {
         duration: const Duration(milliseconds: 200),
         curve: customSnap,
         child: AnimatedContainer(
-          duration: const Duration(milliseconds: 200),
-          curve: customSnap,
+          duration: _isAnimatingChatExpansion
+              ? const Duration(milliseconds: 350)
+              : const Duration(milliseconds: 200),
+          curve: _isAnimatingChatExpansion ? Curves.easeInOutBack : customSnap,
+          onEnd: () {
+            if (_isAnimatingChatExpansion) {
+              setState(() {
+                _isAnimatingChatExpansion = false;
+              });
+            }
+          },
           width: widget.isCanvasExpanded
               ? (widget.sizes.width * 0.4 - 32).clamp(
                   100.0,
@@ -599,91 +615,95 @@ class _ChatConsoleInputState extends State<_ChatConsoleInput> {
                 )
               : 512.0 + (widget.isChatExpanded ? 64 : 0),
           height: widget.isChatExpanded ? 256.0 : 64.0,
-          decoration: ShapeDecoration(
-            shape: RoundedSuperellipseBorder(
-              borderRadius: BorderRadius.circular(32),
-              side: BorderSide(color: borderColor, width: borderWidth),
+          child: AnimatedContainer(
+            duration: const Duration(milliseconds: 200),
+            curve: customSnap,
+            decoration: ShapeDecoration(
+              shape: RoundedSuperellipseBorder(
+                borderRadius: BorderRadius.circular(32),
+                side: BorderSide(color: borderColor, width: borderWidth),
+              ),
+              color: theme.colorScheme.secondaryContainer,
+              shadows: shadows,
             ),
-            color: theme.colorScheme.secondaryContainer,
-            shadows: shadows,
-          ),
-          child: Padding(
-            padding: const EdgeInsets.all(8.0),
-            child: Row(
-              crossAxisAlignment: CrossAxisAlignment.center,
-              children: [
-                AnimatedAlign(
-                  alignment: widget.isChatExpanded
-                      ? Alignment.topLeft
-                      : Alignment.centerLeft,
-                  duration: Durations.short1,
-                  child: IconButton(
-                    onPressed: () {
-                      final cubit = context.read<ChatDemoCubit>();
-                      cubit.setTextBoxMode(
-                        widget.isChatExpanded
-                            ? TextBoxMode.textfield
-                            : TextBoxMode.media,
-                      );
-                    },
-                    icon: AnimatedSwitcher(
-                      duration: Durations.short4,
-                      child: widget.isChatExpanded
-                          ? const Icon(Icons.close, key: ValueKey('close'))
-                          : const Icon(Icons.add, key: ValueKey('add')),
+            child: Padding(
+              padding: const EdgeInsets.all(8.0),
+              child: Row(
+                crossAxisAlignment: CrossAxisAlignment.center,
+                children: [
+                  AnimatedAlign(
+                    alignment: widget.isChatExpanded
+                        ? Alignment.topLeft
+                        : Alignment.centerLeft,
+                    duration: Durations.short1,
+                    child: IconButton(
+                      onPressed: () {
+                        final cubit = context.read<ChatDemoCubit>();
+                        cubit.setTextBoxMode(
+                          widget.isChatExpanded
+                              ? TextBoxMode.textfield
+                              : TextBoxMode.media,
+                        );
+                      },
+                      icon: AnimatedSwitcher(
+                        duration: Durations.short4,
+                        child: widget.isChatExpanded
+                            ? const Icon(Icons.close, key: ValueKey('close'))
+                            : const Icon(Icons.add, key: ValueKey('add')),
+                      ),
                     ),
                   ),
-                ),
-                Expanded(
-                  child: AnimatedSwitcher(
-                    duration: Durations.short4,
-                    child: widget.isChatExpanded
-                        ? _buildExpandedDrawerInput(context, theme)
-                        : TextField(
-                            controller: _controller,
-                            focusNode: _focusNode,
-                            onSubmitted: (_) => _submit(),
-                            textAlignVertical: TextAlignVertical.center,
-                            decoration: const InputDecoration(
-                              hintText: 'Talk to AI',
-                              border: InputBorder.none,
-                              contentPadding: EdgeInsets.symmetric(
-                                horizontal: 12,
-                                vertical: 12,
+                  Expanded(
+                    child: AnimatedSwitcher(
+                      duration: Durations.short4,
+                      child: widget.isChatExpanded
+                          ? _buildExpandedDrawerInput(context, theme)
+                          : TextField(
+                              controller: _controller,
+                              focusNode: _focusNode,
+                              onSubmitted: (_) => _submit(),
+                              textAlignVertical: TextAlignVertical.center,
+                              decoration: const InputDecoration(
+                                hintText: 'Talk to AI',
+                                border: InputBorder.none,
+                                contentPadding: EdgeInsets.symmetric(
+                                  horizontal: 12,
+                                  vertical: 12,
+                                ),
                               ),
                             ),
-                          ),
+                    ),
                   ),
-                ),
-                if (!widget.isChatExpanded)
-                  Listener(
-                    onPointerDown: (_) =>
-                        setState(() => _isSendButtonPressed = true),
-                    onPointerUp: (_) =>
-                        setState(() => _isSendButtonPressed = false),
-                    onPointerCancel: (_) =>
-                        setState(() => _isSendButtonPressed = false),
-                    child: MouseRegion(
-                      onEnter: (_) =>
-                          setState(() => _isSendButtonHovered = true),
-                      onExit: (_) =>
-                          setState(() => _isSendButtonHovered = false),
-                      cursor: SystemMouseCursors.click,
-                      child: AnimatedScale(
-                        scale: _isSendButtonHovered ? 1.15 : 1.0,
-                        duration: const Duration(milliseconds: 150),
-                        curve: Curves.easeOutBack,
-                        child: IconButton.filled(
-                          onPressed: _submit,
-                          icon: Icon(
-                            Icons.arrow_upward,
-                            color: theme.colorScheme.onPrimary,
+                  if (!widget.isChatExpanded)
+                    Listener(
+                      onPointerDown: (_) =>
+                          setState(() => _isSendButtonPressed = true),
+                      onPointerUp: (_) =>
+                          setState(() => _isSendButtonPressed = false),
+                      onPointerCancel: (_) =>
+                          setState(() => _isSendButtonPressed = false),
+                      child: MouseRegion(
+                        onEnter: (_) =>
+                            setState(() => _isSendButtonHovered = true),
+                        onExit: (_) =>
+                            setState(() => _isSendButtonHovered = false),
+                        cursor: SystemMouseCursors.click,
+                        child: AnimatedScale(
+                          scale: _isSendButtonHovered ? 1.15 : 1.0,
+                          duration: const Duration(milliseconds: 150),
+                          curve: Curves.easeOutBack,
+                          child: IconButton.filled(
+                            onPressed: _submit,
+                            icon: Icon(
+                              Icons.arrow_upward,
+                              color: theme.colorScheme.onPrimary,
+                            ),
                           ),
                         ),
                       ),
                     ),
-                  ),
-              ],
+                ],
+              ),
             ),
           ),
         ),
