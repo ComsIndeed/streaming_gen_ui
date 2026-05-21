@@ -4,61 +4,31 @@ import 'package:streaming_gen_ui/src/widgets/accumulating_string_stream_builder.
 import 'package:streaming_gen_ui/src/widgets/registries/core_registry/streaming_entrance.dart';
 import 'package:streaming_gen_ui/src/widgets/streaming_widget.dart';
 
-class StreamingBentoCard extends StatefulWidget {
+class StreamingBentoCard extends StatelessWidget {
   final PropertyStream props;
 
   const StreamingBentoCard({super.key, required this.props});
 
   @override
-  State<StreamingBentoCard> createState() => _StreamingBentoCardState();
-}
-
-class _StreamingBentoCardState extends State<StreamingBentoCard> {
-  late Stream<Map<String, dynamic>> _cardStream;
-  late Stream<String> _titleStream;
-  late Future<String> _titleFuture;
-  late Stream<String> _subtitleStream;
-  late Future<String> _subtitleFuture;
-  late ListPropertyStream<dynamic> _bodyProperty;
-  late PropertyStream _footerProperty;
-
-  @override
-  void initState() {
-    super.initState();
-    _initStream();
-  }
-
-  @override
-  void didUpdateWidget(covariant StreamingBentoCard oldWidget) {
-    super.didUpdateWidget(oldWidget);
-    if (!identical(widget.props, oldWidget.props)) {
-      _initStream();
-    }
-  }
-
-  void _initStream() {
-    final mapStream = widget.props.asMap;
-    _cardStream = mapStream.stream;
-
-    final titleProp = mapStream.getStringProperty("title");
-    _titleStream = titleProp.stream;
-    _titleFuture = titleProp.future;
-
-    final subtitleProp = mapStream.getStringProperty("subtitle");
-    _subtitleStream = subtitleProp.stream;
-    _subtitleFuture = subtitleProp.future;
-
-    _bodyProperty = mapStream.getListProperty("body");
-    _footerProperty = mapStream.getMapProperty("footer");
-  }
-
-  @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
+    final mapStream = props.asMap;
+    final cardStream = mapStream.stream;
+
+    final titleProp = mapStream.getStringProperty("title");
+    final titleStream = titleProp.stream;
+    final titleFuture = titleProp.future;
+
+    final subtitleProp = mapStream.getStringProperty("subtitle");
+    final subtitleStream = subtitleProp.stream;
+    final subtitleFuture = subtitleProp.future;
+
+    final bodyProperty = mapStream.getListProperty("body");
+    final footerProperty = mapStream.getMapProperty("footer");
 
     return StreamingEntrance(
       child: StreamBuilder<Map<String, dynamic>>(
-        stream: _cardStream,
+        stream: cardStream,
         builder: (context, snapshot) {
           final data = snapshot.data ?? const {};
 
@@ -97,13 +67,13 @@ class _StreamingBentoCardState extends State<StreamingBentoCard> {
                   children: [
                     // Header Block
                     FutureBuilder<String>(
-                      future: _titleFuture,
+                      future: titleFuture,
                       builder: (context, titleSnap) {
                         final isDone = titleSnap.connectionState == ConnectionState.done && titleSnap.hasData;
                         final initialTitle = isDone ? titleSnap.data! : '';
 
                         return AccumulatingStringStreamBuilder(
-                          stream: _titleStream,
+                          stream: titleStream,
                           initialValue: initialTitle,
                           builder: (context, titleText) {
                             if (titleText.isEmpty) return const SizedBox.shrink();
@@ -123,13 +93,13 @@ class _StreamingBentoCardState extends State<StreamingBentoCard> {
                                 ),
                                 const SizedBox(height: 4),
                                 FutureBuilder<String>(
-                                  future: _subtitleFuture,
+                                  future: subtitleFuture,
                                   builder: (context, subSnap) {
                                     final isSubDone = subSnap.connectionState == ConnectionState.done && subSnap.hasData;
                                     final initialSub = isSubDone ? subSnap.data! : '';
 
                                     return AccumulatingStringStreamBuilder(
-                                      stream: _subtitleStream,
+                                      stream: subtitleStream,
                                       initialValue: initialSub,
                                       builder: (context, subText) {
                                         if (subText.isEmpty) return const SizedBox.shrink();
@@ -158,7 +128,7 @@ class _StreamingBentoCardState extends State<StreamingBentoCard> {
 
                     // Body List of Widgets
                     StreamBuilder<List<dynamic>>(
-                      stream: _bodyProperty.stream,
+                      stream: bodyProperty.stream,
                       builder: (context, bodySnap) {
                         final bodyList = bodySnap.data ?? const [];
                         if (bodyList.isEmpty) return const SizedBox.shrink();
@@ -172,7 +142,7 @@ class _StreamingBentoCardState extends State<StreamingBentoCard> {
                               padding: EdgeInsets.only(bottom: index == bodyList.length - 1 ? 0 : 12.0),
                               child: StreamingEntrance(
                                 child: StreamingWidget(
-                                  props: _bodyProperty.getMapProperty('[$index]'),
+                                  props: bodyProperty.getMapProperty('[$index]'),
                                 ),
                               ),
                             ),
@@ -183,7 +153,7 @@ class _StreamingBentoCardState extends State<StreamingBentoCard> {
 
                     // Optional Footer Widget
                     FutureBuilder<String>(
-                      future: _footerProperty.asMap.getStringProperty("namespace").future,
+                      future: footerProperty.asMap.getStringProperty("namespace").future,
                       builder: (context, footerSnap) {
                         if (footerSnap.connectionState == ConnectionState.done &&
                             footerSnap.hasData &&
@@ -197,7 +167,7 @@ class _StreamingBentoCardState extends State<StreamingBentoCard> {
                                 child: Divider(height: 1),
                               ),
                               StreamingEntrance(
-                                child: StreamingWidget(props: _footerProperty),
+                                child: StreamingWidget(props: footerProperty),
                               ),
                             ],
                           );

@@ -4,44 +4,20 @@ import 'package:streaming_gen_ui/streaming_gen_ui.dart';
 
 /// A styled box container that dynamically listens to visual specifications
 /// from a [PropertyStream] and smoothly animates its dimensions and color properties.
-class StreamingContainer extends StatefulWidget {
+class StreamingContainer extends StatelessWidget {
   final PropertyStream props;
 
   const StreamingContainer({super.key, required this.props});
 
   @override
-  State<StreamingContainer> createState() => _StreamingContainerState();
-}
-
-class _StreamingContainerState extends State<StreamingContainer> {
-  late Stream<Map<String, dynamic>> _containerStream;
-  late PropertyStream _childProp;
-
-  @override
-  void initState() {
-    super.initState();
-    _initStream();
-  }
-
-  @override
-  void didUpdateWidget(covariant StreamingContainer oldWidget) {
-    super.didUpdateWidget(oldWidget);
-    if (!identical(widget.props, oldWidget.props)) {
-      _initStream();
-    }
-  }
-
-  void _initStream() {
-    final mapStream = widget.props.asMap;
-    _containerStream = mapStream.stream;
-    _childProp = mapStream.getMapProperty("child");
-  }
-
-  @override
   Widget build(BuildContext context) {
+    final mapStream = props.asMap;
+    final containerStream = mapStream.stream;
+    final childProp = mapStream.getMapProperty("child");
+
     return StreamingEntrance(
       child: StreamBuilder<Map<String, dynamic>>(
-        stream: _containerStream,
+        stream: containerStream,
         builder: (context, snapshot) {
           final data = snapshot.data ?? const {};
 
@@ -80,7 +56,7 @@ class _StreamingContainerState extends State<StreamingContainer> {
               alignment: Alignment.topLeft,
               child: Padding(
                 padding: const EdgeInsets.all(16),
-                child: StreamingWidget(props: _childProp),
+                child: StreamingWidget(props: childProp),
               ),
             ),
           );

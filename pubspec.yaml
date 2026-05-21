@@ -10,7 +10,7 @@ environment:
 dependencies:
   flutter:
     sdk: flutter
-  llm_json_stream: ^0.4.7
+  llm_json_stream: ^1.0.0
   llm_tag_parser: ^0.1.1
   # llm_json_stream:
   #   path: "../_TEMPORARY_/llm_json_stream_dart"

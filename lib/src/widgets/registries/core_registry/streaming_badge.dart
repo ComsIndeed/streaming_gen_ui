@@ -3,49 +3,23 @@ import 'package:llm_json_stream/llm_json_stream.dart';
 import 'package:streaming_gen_ui/src/widgets/accumulating_string_stream_builder.dart';
 import 'package:streaming_gen_ui/src/widgets/registries/core_registry/streaming_entrance.dart';
 
-class StreamingBadge extends StatefulWidget {
+class StreamingBadge extends StatelessWidget {
   final PropertyStream props;
 
   const StreamingBadge({super.key, required this.props});
 
   @override
-  State<StreamingBadge> createState() => _StreamingBadgeState();
-}
-
-class _StreamingBadgeState extends State<StreamingBadge> {
-  late Stream<String> _labelStream;
-  late Future<String> _labelFuture;
-  late Stream<Map<String, dynamic>> _badgeStream;
-
-  @override
-  void initState() {
-    super.initState();
-    _initStream();
-  }
-
-  @override
-  void didUpdateWidget(covariant StreamingBadge oldWidget) {
-    super.didUpdateWidget(oldWidget);
-    if (!identical(widget.props, oldWidget.props)) {
-      _initStream();
-    }
-  }
-
-  void _initStream() {
-    final mapStream = widget.props.asMap;
-    _badgeStream = mapStream.stream;
-    final labelProp = mapStream.getStringProperty("label");
-    _labelStream = labelProp.stream;
-    _labelFuture = labelProp.future;
-  }
-
-  @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
+    final mapStream = props.asMap;
+    final badgeStream = mapStream.stream;
+    final labelProp = mapStream.getStringProperty("label");
+    final labelStream = labelProp.stream;
+    final labelFuture = labelProp.future;
 
     return StreamingEntrance(
       child: StreamBuilder<Map<String, dynamic>>(
-        stream: _badgeStream,
+        stream: badgeStream,
         builder: (context, snapshot) {
           final data = snapshot.data ?? const {};
 
@@ -92,13 +66,13 @@ class _StreamingBadgeState extends State<StreamingBadge> {
           }
 
           return FutureBuilder<String>(
-            future: _labelFuture,
+            future: labelFuture,
             builder: (context, labelSnapshot) {
               final isDone = labelSnapshot.connectionState == ConnectionState.done && labelSnapshot.hasData;
               final initial = isDone ? labelSnapshot.data! : '';
 
               return AccumulatingStringStreamBuilder(
-                stream: _labelStream,
+                stream: labelStream,
                 initialValue: initial,
                 builder: (context, labelText) {
                   if (labelText.isEmpty) return const SizedBox.shrink();

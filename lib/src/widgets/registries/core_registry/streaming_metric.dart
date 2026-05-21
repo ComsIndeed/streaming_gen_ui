@@ -3,68 +3,36 @@ import 'package:llm_json_stream/llm_json_stream.dart';
 import 'package:streaming_gen_ui/src/widgets/accumulating_string_stream_builder.dart';
 import 'package:streaming_gen_ui/src/widgets/registries/core_registry/streaming_entrance.dart';
 
-class StreamingMetric extends StatefulWidget {
+class StreamingMetric extends StatelessWidget {
   final PropertyStream props;
 
   const StreamingMetric({super.key, required this.props});
 
   @override
-  State<StreamingMetric> createState() => _StreamingMetricState();
-}
-
-class _StreamingMetricState extends State<StreamingMetric> {
-  late Stream<Map<String, dynamic>> _metricStream;
-  late Stream<String> _labelStream;
-  late Future<String> _labelFuture;
-  late Stream<String> _valueStream;
-  late Future<String> _valueFuture;
-  late Stream<String> _trendStream;
-  late Future<String> _trendFuture;
-  late Stream<String> _trendDirStream;
-  late Future<String> _trendDirFuture;
-
-  @override
-  void initState() {
-    super.initState();
-    _initStream();
-  }
-
-  @override
-  void didUpdateWidget(covariant StreamingMetric oldWidget) {
-    super.didUpdateWidget(oldWidget);
-    if (!identical(widget.props, oldWidget.props)) {
-      _initStream();
-    }
-  }
-
-  void _initStream() {
-    final mapStream = widget.props.asMap;
-    _metricStream = mapStream.stream;
-
-    final labelProp = mapStream.getStringProperty("label");
-    _labelStream = labelProp.stream;
-    _labelFuture = labelProp.future;
-
-    final valueProp = mapStream.getStringProperty("value");
-    _valueStream = valueProp.stream;
-    _valueFuture = valueProp.future;
-
-    final trendProp = mapStream.getStringProperty("trend");
-    _trendStream = trendProp.stream;
-    _trendFuture = trendProp.future;
-
-    final trendDirProp = mapStream.getStringProperty("trendDirection");
-    _trendDirStream = trendDirProp.stream;
-    _trendDirFuture = trendDirProp.future;
-  }
-
-  @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
+    final mapStream = props.asMap;
+    final metricStream = mapStream.stream;
+
+    final labelProp = mapStream.getStringProperty("label");
+    final labelStream = labelProp.stream;
+    final labelFuture = labelProp.future;
+
+    final valueProp = mapStream.getStringProperty("value");
+    final valueStream = valueProp.stream;
+    final valueFuture = valueProp.future;
+
+    final trendProp = mapStream.getStringProperty("trend");
+    final trendStream = trendProp.stream;
+    final trendFuture = trendProp.future;
+
+    final trendDirProp = mapStream.getStringProperty("trendDirection");
+    final trendDirStream = trendDirProp.stream;
+    final trendDirFuture = trendDirProp.future;
 
     return StreamingEntrance(
       child: StreamBuilder<Map<String, dynamic>>(
-        stream: _metricStream,
+        stream: metricStream,
         builder: (context, snapshot) {
           final data = snapshot.data ?? const {};
 
@@ -93,13 +61,13 @@ class _StreamingMetricState extends State<StreamingMetric> {
                 children: [
                   // Label text (top)
                   FutureBuilder<String>(
-                    future: _labelFuture,
+                    future: labelFuture,
                     builder: (context, labelSnap) {
                       final isDone = labelSnap.connectionState == ConnectionState.done && labelSnap.hasData;
                       final initialLabel = isDone ? labelSnap.data! : '';
 
                       return AccumulatingStringStreamBuilder(
-                        stream: _labelStream,
+                        stream: labelStream,
                         initialValue: initialLabel,
                         builder: (context, labelVal) {
                           return Text(
@@ -119,13 +87,13 @@ class _StreamingMetricState extends State<StreamingMetric> {
 
                   // Large Value Display (middle)
                   FutureBuilder<String>(
-                    future: _valueFuture,
+                    future: valueFuture,
                     builder: (context, valSnap) {
                       final isDone = valSnap.connectionState == ConnectionState.done && valSnap.hasData;
                       final initialVal = isDone ? valSnap.data! : '...';
 
                       return AccumulatingStringStreamBuilder(
-                        stream: _valueStream,
+                        stream: valueStream,
                         initialValue: initialVal,
                         builder: (context, valText) {
                           return Text(
@@ -145,13 +113,13 @@ class _StreamingMetricState extends State<StreamingMetric> {
 
                   // Trend details (bottom)
                   FutureBuilder<String>(
-                    future: _trendDirFuture,
+                    future: trendDirFuture,
                     builder: (context, trendDirSnap) {
                       final isDoneDir = trendDirSnap.connectionState == ConnectionState.done && trendDirSnap.hasData;
                       final initialDir = isDoneDir ? trendDirSnap.data! : 'neutral';
 
                       return AccumulatingStringStreamBuilder(
-                        stream: _trendDirStream,
+                        stream: trendDirStream,
                         initialValue: initialDir,
                         builder: (context, dirVal) {
                           final dir = dirVal.trim().toLowerCase();
@@ -168,13 +136,13 @@ class _StreamingMetricState extends State<StreamingMetric> {
                           }
 
                           return FutureBuilder<String>(
-                            future: _trendFuture,
+                            future: trendFuture,
                             builder: (context, trendSnap) {
                               final isDoneTrend = trendSnap.connectionState == ConnectionState.done && trendSnap.hasData;
                               final initialTrend = isDoneTrend ? trendSnap.data! : '';
 
                               return AccumulatingStringStreamBuilder(
-                                stream: _trendStream,
+                                stream: trendStream,
                                 initialValue: initialTrend,
                                 builder: (context, trendVal) {
                                   if (trendVal.isEmpty) return const SizedBox.shrink();

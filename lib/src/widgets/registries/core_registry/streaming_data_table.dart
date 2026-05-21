@@ -3,49 +3,23 @@ import 'package:llm_json_stream/llm_json_stream.dart';
 import 'package:streaming_gen_ui/src/widgets/accumulating_string_stream_builder.dart';
 import 'package:streaming_gen_ui/src/widgets/registries/core_registry/streaming_entrance.dart';
 
-class StreamingDataTable extends StatefulWidget {
+class StreamingDataTable extends StatelessWidget {
   final PropertyStream props;
 
   const StreamingDataTable({super.key, required this.props});
 
   @override
-  State<StreamingDataTable> createState() => _StreamingDataTableState();
-}
-
-class _StreamingDataTableState extends State<StreamingDataTable> {
-  late Stream<String> _titleStream;
-  late Future<String> _titleFuture;
-  late ListPropertyStream<dynamic> _columnsProperty;
-  late ListPropertyStream<dynamic> _rowsProperty;
-
-  @override
-  void initState() {
-    super.initState();
-    _initStream();
-  }
-
-  @override
-  void didUpdateWidget(covariant StreamingDataTable oldWidget) {
-    super.didUpdateWidget(oldWidget);
-    if (!identical(widget.props, oldWidget.props)) {
-      _initStream();
-    }
-  }
-
-  void _initStream() {
-    final mapStream = widget.props.asMap;
-
-    final titleProp = mapStream.getStringProperty("title");
-    _titleStream = titleProp.stream;
-    _titleFuture = titleProp.future;
-
-    _columnsProperty = mapStream.getListProperty("columns");
-    _rowsProperty = mapStream.getListProperty("rows");
-  }
-
-  @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
+    final mapStream = props.asMap;
+
+    final titleProp = mapStream.getStringProperty("title");
+    final titleStream = titleProp.stream;
+    final titleFuture = titleProp.future;
+
+    final columnsProperty = mapStream.getListProperty("columns");
+    final rowsProperty = mapStream.getListProperty("rows");
+
 
     return StreamingEntrance(
       child: AnimatedContainer(
@@ -70,7 +44,7 @@ class _StreamingDataTableState extends State<StreamingDataTable> {
             children: [
               // Title display
               FutureBuilder<String>(
-                future: _titleFuture,
+                future: titleFuture,
                 builder: (context, titleSnap) {
                   final isDone =
                       titleSnap.connectionState == ConnectionState.done &&
@@ -78,7 +52,7 @@ class _StreamingDataTableState extends State<StreamingDataTable> {
                   final initialTitle = isDone ? titleSnap.data! : '';
 
                   return AccumulatingStringStreamBuilder(
-                    stream: _titleStream,
+                    stream: titleStream,
                     initialValue: initialTitle,
                     builder: (context, titleVal) {
                       if (titleVal.isEmpty) return const SizedBox.shrink();
@@ -102,13 +76,13 @@ class _StreamingDataTableState extends State<StreamingDataTable> {
 
               // Horizontal Scrollable Data Table
               StreamBuilder<List<dynamic>>(
-                stream: _columnsProperty.stream,
+                stream: columnsProperty.stream,
                 builder: (context, colSnap) {
                   final colsList = colSnap.data ?? const [];
                   if (colsList.isEmpty) return const SizedBox.shrink();
 
                   return StreamBuilder<List<dynamic>>(
-                    stream: _rowsProperty.stream,
+                    stream: rowsProperty.stream,
                     builder: (context, rowSnap) {
                       final rowsList = rowSnap.data ?? const [];
 

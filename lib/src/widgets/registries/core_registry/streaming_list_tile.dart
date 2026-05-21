@@ -4,59 +4,30 @@ import 'package:streaming_gen_ui/src/widgets/accumulating_string_stream_builder.
 import 'package:streaming_gen_ui/src/widgets/registries/core_registry/streaming_entrance.dart';
 import 'package:streaming_gen_ui/src/widgets/streaming_widget.dart';
 
-class StreamingListTile extends StatefulWidget {
+class StreamingListTile extends StatelessWidget {
   final PropertyStream props;
 
   const StreamingListTile({super.key, required this.props});
 
   @override
-  State<StreamingListTile> createState() => _StreamingListTileState();
-}
-
-class _StreamingListTileState extends State<StreamingListTile> {
-  late Stream<Map<String, dynamic>> _tileStream;
-  late Stream<String> _titleStream;
-  late Future<String> _titleFuture;
-  late Stream<String> _subtitleStream;
-  late Future<String> _subtitleFuture;
-  late PropertyStream _trailingProperty;
-
-  @override
-  void initState() {
-    super.initState();
-    _initStream();
-  }
-
-  @override
-  void didUpdateWidget(covariant StreamingListTile oldWidget) {
-    super.didUpdateWidget(oldWidget);
-    if (!identical(widget.props, oldWidget.props)) {
-      _initStream();
-    }
-  }
-
-  void _initStream() {
-    final mapStream = widget.props.asMap;
-    _tileStream = mapStream.stream;
-
-    final titleProp = mapStream.getStringProperty("title");
-    _titleStream = titleProp.stream;
-    _titleFuture = titleProp.future;
-
-    final subtitleProp = mapStream.getStringProperty("subtitle");
-    _subtitleStream = subtitleProp.stream;
-    _subtitleFuture = subtitleProp.future;
-
-    _trailingProperty = mapStream.getMapProperty("trailing");
-  }
-
-  @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
+    final mapStream = props.asMap;
+    final tileStream = mapStream.stream;
+
+    final titleProp = mapStream.getStringProperty("title");
+    final titleStream = titleProp.stream;
+    final titleFuture = titleProp.future;
+
+    final subtitleProp = mapStream.getStringProperty("subtitle");
+    final subtitleStream = subtitleProp.stream;
+    final subtitleFuture = subtitleProp.future;
+
+    final trailingProperty = mapStream.getMapProperty("trailing");
 
     return StreamingEntrance(
       child: StreamBuilder<Map<String, dynamic>>(
-        stream: _tileStream,
+        stream: tileStream,
         builder: (context, snapshot) {
           final data = snapshot.data ?? const {};
 
@@ -109,13 +80,13 @@ class _StreamingListTileState extends State<StreamingListTile> {
                       mainAxisSize: MainAxisSize.min,
                       children: [
                         FutureBuilder<String>(
-                          future: _titleFuture,
+                          future: titleFuture,
                           builder: (context, titleSnap) {
                             final isDone = titleSnap.connectionState == ConnectionState.done && titleSnap.hasData;
                             final initialTitle = isDone ? titleSnap.data! : '';
 
                             return AccumulatingStringStreamBuilder(
-                              stream: _titleStream,
+                              stream: titleStream,
                               initialValue: initialTitle,
                               builder: (context, titleText) {
                                 return Text(
@@ -133,13 +104,13 @@ class _StreamingListTileState extends State<StreamingListTile> {
                         ),
                         const SizedBox(height: 2),
                         FutureBuilder<String>(
-                          future: _subtitleFuture,
+                          future: subtitleFuture,
                           builder: (context, subSnap) {
                             final isDone = subSnap.connectionState == ConnectionState.done && subSnap.hasData;
                             final initialSub = isDone ? subSnap.data! : '';
 
                             return AccumulatingStringStreamBuilder(
-                              stream: _subtitleStream,
+                              stream: subtitleStream,
                               initialValue: initialSub,
                               builder: (context, subText) {
                                 if (subText.isEmpty) return const SizedBox.shrink();
@@ -162,14 +133,14 @@ class _StreamingListTileState extends State<StreamingListTile> {
 
                   // Trailing widget
                   FutureBuilder<String>(
-                    future: _trailingProperty.asMap.getStringProperty("namespace").future,
+                    future: trailingProperty.asMap.getStringProperty("namespace").future,
                     builder: (context, trailingSnap) {
                       if (trailingSnap.connectionState == ConnectionState.done &&
                           trailingSnap.hasData &&
                           trailingSnap.data!.isNotEmpty) {
                         return Padding(
                           padding: const EdgeInsets.only(left: 12),
-                          child: StreamingWidget(props: _trailingProperty),
+                          child: StreamingWidget(props: trailingProperty),
                         );
                       }
                       return const SizedBox.shrink();

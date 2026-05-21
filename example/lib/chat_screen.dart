@@ -87,16 +87,14 @@ class _ChatScreenState extends State<ChatScreen> {
           _apiKey = envKey;
           _showApiKey = false;
         });
-        debugPrint('Loaded GEMINI_API_KEY from environment define successfully!');
+        debugPrint(
+          'Loaded GEMINI_API_KEY from environment define successfully!',
+        );
         return;
       }
 
       // 2. Try reading from local files (.env) at root or example root
-      final possiblePaths = [
-        '.env',
-        'example/.env',
-        '../.env',
-      ];
+      final possiblePaths = ['.env', 'example/.env', '../.env'];
 
       for (final path in possiblePaths) {
         final file = File(path);
@@ -112,7 +110,8 @@ class _ChatScreenState extends State<ChatScreen> {
                   (cleanKey.startsWith('"') && cleanKey.endsWith('"'))) {
                 cleanKey = cleanKey.substring(1, cleanKey.length - 1);
               }
-              if (cleanKey.isNotEmpty && cleanKey != 'YOUR_GEMINI_API_KEY_HERE') {
+              if (cleanKey.isNotEmpty &&
+                  cleanKey != 'YOUR_GEMINI_API_KEY_HERE') {
                 setState(() {
                   _apiKey = cleanKey;
                   _showApiKey = false;
@@ -145,13 +144,15 @@ class _ChatScreenState extends State<ChatScreen> {
     WidgetsBinding.instance.addPostFrameCallback((_) {
       if (_scrollController.hasClients) {
         _isAutoScrolling = true;
-        _scrollController.animateTo(
-          _scrollController.position.maxScrollExtent,
-          duration: const Duration(milliseconds: 300),
-          curve: Curves.easeOut,
-        ).then((_) {
-          _isAutoScrolling = false;
-        });
+        _scrollController
+            .animateTo(
+              _scrollController.position.maxScrollExtent,
+              duration: const Duration(milliseconds: 300),
+              curve: Curves.easeOut,
+            )
+            .then((_) {
+              _isAutoScrolling = false;
+            });
       }
     });
   }
@@ -160,7 +161,8 @@ class _ChatScreenState extends State<ChatScreen> {
     if (!_scrollController.hasClients || _isAutoScrolling) return;
 
     final threshold = 20.0;
-    final isAtBottom = _scrollController.position.pixels >=
+    final isAtBottom =
+        _scrollController.position.pixels >=
         (_scrollController.position.maxScrollExtent - threshold);
 
     if (isAtBottom && !_lockScrollToBottom) {
@@ -196,13 +198,15 @@ class _ChatScreenState extends State<ChatScreen> {
     final userController = StreamController<String>.broadcast();
 
     setState(() {
-      _messages.add(ChatMessage(
-        sender: 'user',
-        rawText: text,
-        cleanText: text,
-        viewId: userViewId,
-        streamController: userController,
-      ));
+      _messages.add(
+        ChatMessage(
+          sender: 'user',
+          rawText: text,
+          cleanText: text,
+          viewId: userViewId,
+          streamController: userController,
+        ),
+      );
       _isSending = true;
       _showApiKey = false; // Auto-collapse API key banner once active
     });
@@ -225,7 +229,9 @@ class _ChatScreenState extends State<ChatScreen> {
     _scrollToBottom();
 
     // 1. Create a throttled/delayed stream from the original raw controller stream
-    final throttledAiStream = _throttleStream(aiController.stream).asBroadcastStream();
+    final throttledAiStream = _throttleStream(
+      aiController.stream,
+    ).asBroadcastStream();
 
     // 2. Pipe the throttled stream directly into our Generative UI engine!
     widget.genUi.stream(
@@ -257,9 +263,11 @@ class _ChatScreenState extends State<ChatScreen> {
     HttpClient? client;
     try {
       client = HttpClient();
-      final request = await client.postUrl(Uri.parse(
-        'https://generativelanguage.googleapis.com/v1beta/openai/chat/completions',
-      ));
+      final request = await client.postUrl(
+        Uri.parse(
+          'https://generativelanguage.googleapis.com/v1beta/openai/chat/completions',
+        ),
+      );
       request.headers.set('Content-Type', 'application/json');
       request.headers.set('Authorization', 'Bearer $_apiKey');
 
@@ -268,20 +276,17 @@ class _ChatScreenState extends State<ChatScreen> {
       // Seed with our dynamic registry system prompt!
       history.add({
         'role': 'system',
-        'content': widget.genUi.registry.systemPromptFragment +
-            '\n\nCRITICAL: Always generate valid custom/core widgets when requested. If asked to recommend hotels or show profiles, leverage the specific custom widgets: `custom:user_profile` and `custom:hotel_card`.',
+        'content':
+            '${widget.genUi.registry.systemPromptFragment}\n\nCRITICAL: Always generate valid custom/core widgets when requested. If asked to recommend hotels or show profiles, leverage the specific custom widgets: `custom:user_profile` and `custom:hotel_card`.',
       });
 
       for (var i = 0; i < _messages.length - 1; i++) {
         final m = _messages[i];
-        history.add({
-          'role': m.sender,
-          'content': m.rawText,
-        });
+        history.add({'role': m.sender, 'content': m.rawText});
       }
 
       final payload = {
-        'model': 'gemini-3-flash-preview',
+        'model': 'gemma-4-26b-a4b-it',
         'messages': history,
         'stream': true,
       };
@@ -294,9 +299,8 @@ class _ChatScreenState extends State<ChatScreen> {
         throw Exception('API error (${response.statusCode}): $errorBody');
       }
 
-      await for (final line in response
-          .transform(utf8.decoder)
-          .transform(const LineSplitter())) {
+      await for (final line
+          in response.transform(utf8.decoder).transform(const LineSplitter())) {
         if (line.startsWith('data: ')) {
           final dataStr = line.substring(6).trim();
           if (dataStr == '[DONE]') break;
@@ -334,11 +338,16 @@ class _ChatScreenState extends State<ChatScreen> {
         AnimatedContainer(
           duration: const Duration(milliseconds: 300),
           height: _showApiKey ? 120 : 45,
-          color: Theme.of(context).colorScheme.primaryContainer.withOpacity(0.4),
+          color: Theme.of(
+            context,
+          ).colorScheme.primaryContainer.withOpacity(0.4),
           child: SingleChildScrollView(
             physics: const NeverScrollableScrollPhysics(),
             child: Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
+              padding: const EdgeInsets.symmetric(
+                horizontal: 16.0,
+                vertical: 8.0,
+              ),
               child: Column(
                 children: [
                   Row(
@@ -349,7 +358,9 @@ class _ChatScreenState extends State<ChatScreen> {
                         style: TextStyle(fontWeight: FontWeight.bold),
                       ),
                       IconButton(
-                        icon: Icon(_showApiKey ? Icons.expand_less : Icons.expand_more),
+                        icon: Icon(
+                          _showApiKey ? Icons.expand_less : Icons.expand_more,
+                        ),
                         onPressed: () {
                           setState(() {
                             _showApiKey = !_showApiKey;
@@ -367,7 +378,10 @@ class _ChatScreenState extends State<ChatScreen> {
                             decoration: const InputDecoration(
                               hintText: 'Enter your Gemini API Key...',
                               border: OutlineInputBorder(),
-                              contentPadding: EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                              contentPadding: EdgeInsets.symmetric(
+                                horizontal: 12,
+                                vertical: 8,
+                              ),
                             ),
                             onChanged: (val) {
                               setState(() {
@@ -464,7 +478,11 @@ class _ChatScreenState extends State<ChatScreen> {
                 const Spacer(),
                 const Text(
                   'Running at full API speed',
-                  style: TextStyle(fontSize: 11, color: Colors.grey, fontStyle: FontStyle.italic),
+                  style: TextStyle(
+                    fontSize: 11,
+                    color: Colors.grey,
+                    fontStyle: FontStyle.italic,
+                  ),
                 ),
               ],
             ],
@@ -483,21 +501,34 @@ class _ChatScreenState extends State<ChatScreen> {
                           Icon(
                             Icons.chat_bubble_outline,
                             size: 64,
-                            color: Theme.of(context).colorScheme.primary.withOpacity(0.5),
+                            color: Theme.of(
+                              context,
+                            ).colorScheme.primary.withOpacity(0.5),
                           ),
                           const SizedBox(height: 16),
                           const Text(
                             'Ask Gemini to display dynamic widgets!',
-                            style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+                            style: TextStyle(
+                              fontSize: 16,
+                              fontWeight: FontWeight.bold,
+                            ),
                           ),
                           const SizedBox(height: 8),
                           Text(
                             'E.g. "Create a profile for Vincent Sanicolas using blue theme"',
-                            style: TextStyle(color: Theme.of(context).colorScheme.onSurface.withOpacity(0.6)),
+                            style: TextStyle(
+                              color: Theme.of(
+                                context,
+                              ).colorScheme.onSurface.withOpacity(0.6),
+                            ),
                           ),
                           Text(
                             'or "Show me a nice hotel card for Paris"',
-                            style: TextStyle(color: Theme.of(context).colorScheme.onSurface.withOpacity(0.6)),
+                            style: TextStyle(
+                              color: Theme.of(
+                                context,
+                              ).colorScheme.onSurface.withOpacity(0.6),
+                            ),
                           ),
                         ],
                       ),
@@ -509,20 +540,27 @@ class _ChatScreenState extends State<ChatScreen> {
                       itemBuilder: (context, index) {
                         final msg = _messages[index];
                         final isUser = msg.sender == 'user';
-                        final dispText = isUser ? msg.rawText : (_showRawText ? msg.rawText : msg.cleanText);
+                        final dispText = isUser
+                            ? msg.rawText
+                            : (_showRawText ? msg.rawText : msg.cleanText);
 
                         return Align(
-                          alignment: isUser ? Alignment.centerRight : Alignment.centerLeft,
+                          alignment: isUser
+                              ? Alignment.centerRight
+                              : Alignment.centerLeft,
                           child: Container(
                             margin: const EdgeInsets.symmetric(vertical: 6.0),
                             constraints: BoxConstraints(
-                              maxWidth: MediaQuery.of(context).size.width * 0.75,
+                              maxWidth:
+                                  MediaQuery.of(context).size.width * 0.75,
                             ),
                             padding: const EdgeInsets.all(12.0),
                             decoration: BoxDecoration(
                               color: isUser
                                   ? Theme.of(context).colorScheme.primary
-                                  : Theme.of(context).colorScheme.surfaceContainerHighest,
+                                  : Theme.of(
+                                      context,
+                                    ).colorScheme.surfaceContainerHighest,
                               borderRadius: BorderRadius.only(
                                 topLeft: const Radius.circular(16),
                                 topRight: const Radius.circular(16),
@@ -539,7 +577,10 @@ class _ChatScreenState extends State<ChatScreen> {
                                     fontWeight: FontWeight.bold,
                                     fontSize: 11,
                                     color: isUser
-                                        ? Theme.of(context).colorScheme.onPrimary.withOpacity(0.7)
+                                        ? Theme.of(context)
+                                              .colorScheme
+                                              .onPrimary
+                                              .withOpacity(0.7)
                                         : Theme.of(context).colorScheme.primary,
                                   ),
                                 ),
@@ -549,14 +590,18 @@ class _ChatScreenState extends State<ChatScreen> {
                                   Text(
                                     dispText,
                                     style: TextStyle(
-                                      color: Theme.of(context).colorScheme.onPrimary,
+                                      color: Theme.of(
+                                        context,
+                                      ).colorScheme.onPrimary,
                                     ),
                                   )
                                 else if (_showRawText)
                                   Text(
                                     dispText.isEmpty ? 'Thinking...' : dispText,
                                     style: TextStyle(
-                                      color: Theme.of(context).colorScheme.onSurface,
+                                      color: Theme.of(
+                                        context,
+                                      ).colorScheme.onSurface,
                                       fontFamily: 'monospace',
                                       fontSize: 12,
                                     ),
@@ -566,7 +611,10 @@ class _ChatScreenState extends State<ChatScreen> {
                                     Text(
                                       'Thinking...',
                                       style: TextStyle(
-                                        color: Theme.of(context).colorScheme.onSurface.withOpacity(0.5),
+                                        color: Theme.of(context)
+                                            .colorScheme
+                                            .onSurface
+                                            .withOpacity(0.5),
                                         fontStyle: FontStyle.italic,
                                       ),
                                     )
@@ -608,8 +656,13 @@ class _ChatScreenState extends State<ChatScreen> {
                   controller: _textController,
                   decoration: const InputDecoration(
                     hintText: 'Ask anything, or request components...',
-                    border: OutlineInputBorder(borderRadius: BorderRadius.all(Radius.circular(24))),
-                    contentPadding: EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                    border: OutlineInputBorder(
+                      borderRadius: BorderRadius.all(Radius.circular(24)),
+                    ),
+                    contentPadding: EdgeInsets.symmetric(
+                      horizontal: 16,
+                      vertical: 8,
+                    ),
                   ),
                   onSubmitted: (_) => _sendMessage(),
                 ),
@@ -618,9 +671,15 @@ class _ChatScreenState extends State<ChatScreen> {
               // Segmented toggle container for parsed vs raw mode
               Container(
                 decoration: BoxDecoration(
-                  color: Theme.of(context).colorScheme.surfaceContainerHighest.withOpacity(0.5),
+                  color: Theme.of(
+                    context,
+                  ).colorScheme.surfaceContainerHighest.withOpacity(0.5),
                   borderRadius: BorderRadius.circular(24),
-                  border: Border.all(color: Theme.of(context).colorScheme.outline.withOpacity(0.2)),
+                  border: Border.all(
+                    color: Theme.of(
+                      context,
+                    ).colorScheme.outline.withOpacity(0.2),
+                  ),
                 ),
                 child: Row(
                   mainAxisSize: MainAxisSize.min,
@@ -629,7 +688,9 @@ class _ChatScreenState extends State<ChatScreen> {
                       tooltip: 'Show Parsed UI (Generative UI)',
                       icon: Icon(
                         Icons.dashboard_customize_outlined,
-                        color: !_showRawText ? Theme.of(context).colorScheme.primary : Colors.grey,
+                        color: !_showRawText
+                            ? Theme.of(context).colorScheme.primary
+                            : Colors.grey,
                       ),
                       onPressed: () {
                         setState(() {
@@ -641,7 +702,9 @@ class _ChatScreenState extends State<ChatScreen> {
                       tooltip: 'Show Raw LLM Stream',
                       icon: Icon(
                         Icons.code,
-                        color: _showRawText ? Theme.of(context).colorScheme.primary : Colors.grey,
+                        color: _showRawText
+                            ? Theme.of(context).colorScheme.primary
+                            : Colors.grey,
                       ),
                       onPressed: () {
                         setState(() {
@@ -657,22 +720,32 @@ class _ChatScreenState extends State<ChatScreen> {
               Container(
                 decoration: BoxDecoration(
                   color: _lockScrollToBottom
-                      ? Theme.of(context).colorScheme.primaryContainer.withOpacity(0.5)
-                      : Theme.of(context).colorScheme.surfaceContainerHighest.withOpacity(0.5),
+                      ? Theme.of(
+                          context,
+                        ).colorScheme.primaryContainer.withOpacity(0.5)
+                      : Theme.of(
+                          context,
+                        ).colorScheme.surfaceContainerHighest.withOpacity(0.5),
                   borderRadius: BorderRadius.circular(24),
                   border: Border.all(
                     color: _lockScrollToBottom
                         ? Theme.of(context).colorScheme.primary.withOpacity(0.3)
-                        : Theme.of(context).colorScheme.outline.withOpacity(0.2),
+                        : Theme.of(
+                            context,
+                          ).colorScheme.outline.withOpacity(0.2),
                   ),
                 ),
                 child: IconButton(
-                  tooltip: _lockScrollToBottom ? 'Scroll Lock Active' : 'Scroll Lock Disabled',
+                  tooltip: _lockScrollToBottom
+                      ? 'Scroll Lock Active'
+                      : 'Scroll Lock Disabled',
                   icon: Icon(
                     Icons.vertical_align_bottom,
                     color: _lockScrollToBottom
                         ? Theme.of(context).colorScheme.primary
-                        : Theme.of(context).colorScheme.onSurfaceVariant.withOpacity(0.4),
+                        : Theme.of(
+                            context,
+                          ).colorScheme.onSurfaceVariant.withOpacity(0.4),
                   ),
                   onPressed: () {
                     setState(() {

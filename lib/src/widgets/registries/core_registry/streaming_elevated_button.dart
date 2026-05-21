@@ -16,37 +16,18 @@ class StreamingElevatedButton extends StatefulWidget {
 }
 
 class _StreamingElevatedButtonState extends State<StreamingElevatedButton> {
-  late Future<String> _actionFuture;
-  late PropertyStream _childProp;
   bool _isPressed = false;
-
-  @override
-  void initState() {
-    super.initState();
-    _initProps();
-  }
-
-  @override
-  void didUpdateWidget(covariant StreamingElevatedButton oldWidget) {
-    super.didUpdateWidget(oldWidget);
-    if (!identical(widget.props, oldWidget.props)) {
-      _initProps();
-    }
-  }
-
-  void _initProps() {
-    final mapStream = widget.props.asMap;
-    _actionFuture = mapStream.getStringProperty("action").future;
-    _childProp = mapStream.getMapProperty("child");
-  }
 
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
+    final mapStream = widget.props.asMap;
+    final actionFuture = mapStream.getStringProperty("action").future;
+    final childProp = mapStream.getMapProperty("child");
 
     return StreamingEntrance(
       child: FutureBuilder<String>(
-        future: _actionFuture,
+        future: actionFuture,
         builder: (context, snapshot) {
           final action = snapshot.data;
           final isEnabled = snapshot.connectionState == ConnectionState.done && action != null;
@@ -117,7 +98,7 @@ class _StreamingElevatedButtonState extends State<StreamingElevatedButton> {
                         ),
                         const SizedBox(width: 8),
                       ],
-                      StreamingWidget(props: _childProp),
+                      StreamingWidget(props: childProp),
                     ],
                   ),
                 ),

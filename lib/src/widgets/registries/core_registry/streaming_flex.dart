@@ -3,44 +3,20 @@ import 'package:llm_json_stream/llm_json_stream.dart';
 import 'package:streaming_gen_ui/src/widgets/registries/core_registry/streaming_entrance.dart';
 import 'package:streaming_gen_ui/src/widgets/streaming_widget.dart';
 
-class StreamingFlex extends StatefulWidget {
+class StreamingFlex extends StatelessWidget {
   final PropertyStream props;
 
   const StreamingFlex({super.key, required this.props});
 
   @override
-  State<StreamingFlex> createState() => _StreamingFlexState();
-}
-
-class _StreamingFlexState extends State<StreamingFlex> {
-  late Stream<Map<String, dynamic>> _flexStream;
-  late ListPropertyStream<dynamic> _childrenProperty;
-
-  @override
-  void initState() {
-    super.initState();
-    _initStream();
-  }
-
-  @override
-  void didUpdateWidget(covariant StreamingFlex oldWidget) {
-    super.didUpdateWidget(oldWidget);
-    if (!identical(widget.props, oldWidget.props)) {
-      _initStream();
-    }
-  }
-
-  void _initStream() {
-    final mapStream = widget.props.asMap;
-    _flexStream = mapStream.stream;
-    _childrenProperty = mapStream.getListProperty("children");
-  }
-
-  @override
   Widget build(BuildContext context) {
+    final mapStream = props.asMap;
+    final flexStream = mapStream.stream;
+    final childrenProperty = mapStream.getListProperty("children");
+
     return StreamingEntrance(
       child: StreamBuilder<Map<String, dynamic>>(
-        stream: _flexStream,
+        stream: flexStream,
         builder: (context, snapshot) {
           final data = snapshot.data ?? const {};
 
@@ -50,7 +26,7 @@ class _StreamingFlexState extends State<StreamingFlex> {
           final crossAlign = _parseCrossAlign(data["crossAxisAlignment"] as String?);
 
           return StreamBuilder<List<dynamic>>(
-            stream: _childrenProperty.stream,
+            stream: childrenProperty.stream,
             builder: (context, childSnapshot) {
               final list = childSnapshot.data ?? const [];
 
@@ -59,7 +35,7 @@ class _StreamingFlexState extends State<StreamingFlex> {
                 childrenList.add(
                   StreamingEntrance(
                     child: StreamingWidget(
-                      props: _childrenProperty.getMapProperty('[$i]'),
+                      props: childrenProperty.getMapProperty('[$i]'),
                     ),
                   ),
                 );

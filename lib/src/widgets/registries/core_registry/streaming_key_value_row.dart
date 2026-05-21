@@ -3,56 +3,28 @@ import 'package:llm_json_stream/llm_json_stream.dart';
 import 'package:streaming_gen_ui/src/widgets/accumulating_string_stream_builder.dart';
 import 'package:streaming_gen_ui/src/widgets/registries/core_registry/streaming_entrance.dart';
 
-class StreamingKeyValueRow extends StatefulWidget {
+class StreamingKeyValueRow extends StatelessWidget {
   final PropertyStream props;
 
   const StreamingKeyValueRow({super.key, required this.props});
 
   @override
-  State<StreamingKeyValueRow> createState() => _StreamingKeyValueRowState();
-}
-
-class _StreamingKeyValueRowState extends State<StreamingKeyValueRow> {
-  late Stream<Map<String, dynamic>> _rowStream;
-  late Stream<String> _labelStream;
-  late Future<String> _labelFuture;
-  late Stream<String> _valueStream;
-  late Future<String> _valueFuture;
-
-  @override
-  void initState() {
-    super.initState();
-    _initStream();
-  }
-
-  @override
-  void didUpdateWidget(covariant StreamingKeyValueRow oldWidget) {
-    super.didUpdateWidget(oldWidget);
-    if (!identical(widget.props, oldWidget.props)) {
-      _initStream();
-    }
-  }
-
-  void _initStream() {
-    final mapStream = widget.props.asMap;
-    _rowStream = mapStream.stream;
-
-    final labelProp = mapStream.getStringProperty("label");
-    _labelStream = labelProp.stream;
-    _labelFuture = labelProp.future;
-
-    final valueProp = mapStream.getStringProperty("value");
-    _valueStream = valueProp.stream;
-    _valueFuture = valueProp.future;
-  }
-
-  @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
+    final mapStream = props.asMap;
+    final rowStream = mapStream.stream;
+
+    final labelProp = mapStream.getStringProperty("label");
+    final labelStream = labelProp.stream;
+    final labelFuture = labelProp.future;
+
+    final valueProp = mapStream.getStringProperty("value");
+    final valueStream = valueProp.stream;
+    final valueFuture = valueProp.future;
 
     return StreamingEntrance(
       child: StreamBuilder<Map<String, dynamic>>(
-        stream: _rowStream,
+        stream: rowStream,
         builder: (context, snapshot) {
           final data = snapshot.data ?? const {};
 
@@ -69,13 +41,13 @@ class _StreamingKeyValueRowState extends State<StreamingKeyValueRow> {
                 // Left Label
                 Expanded(
                   child: FutureBuilder<String>(
-                    future: _labelFuture,
+                    future: labelFuture,
                     builder: (context, labelSnap) {
                       final isDone = labelSnap.connectionState == ConnectionState.done && labelSnap.hasData;
                       final initialLabel = isDone ? labelSnap.data! : '';
 
                       return AccumulatingStringStreamBuilder(
-                        stream: _labelStream,
+                        stream: labelStream,
                         initialValue: initialLabel,
                         builder: (context, labelText) {
                           return Text(
@@ -97,13 +69,13 @@ class _StreamingKeyValueRowState extends State<StreamingKeyValueRow> {
 
                 // Right Value
                 FutureBuilder<String>(
-                  future: _valueFuture,
+                  future: valueFuture,
                   builder: (context, valueSnap) {
                     final isDone = valueSnap.connectionState == ConnectionState.done && valueSnap.hasData;
                     final initialValue = isDone ? valueSnap.data! : '';
 
                     return AccumulatingStringStreamBuilder(
-                      stream: _valueStream,
+                      stream: valueStream,
                       initialValue: initialValue,
                       builder: (context, valueText) {
                         return Text(

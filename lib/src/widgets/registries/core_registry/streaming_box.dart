@@ -2,44 +2,20 @@ import 'package:flutter/material.dart';
 import 'package:llm_json_stream/llm_json_stream.dart';
 import 'package:streaming_gen_ui/streaming_gen_ui.dart';
 
-class StreamingBox extends StatefulWidget {
+class StreamingBox extends StatelessWidget {
   final PropertyStream props;
 
   const StreamingBox({super.key, required this.props});
 
   @override
-  State<StreamingBox> createState() => _StreamingBoxState();
-}
-
-class _StreamingBoxState extends State<StreamingBox> {
-  late Stream<Map<String, dynamic>> _boxStream;
-  late PropertyStream _childProp;
-
-  @override
-  void initState() {
-    super.initState();
-    _initStream();
-  }
-
-  @override
-  void didUpdateWidget(covariant StreamingBox oldWidget) {
-    super.didUpdateWidget(oldWidget);
-    if (!identical(widget.props, oldWidget.props)) {
-      _initStream();
-    }
-  }
-
-  void _initStream() {
-    final mapStream = widget.props.asMap;
-    _boxStream = mapStream.stream;
-    _childProp = mapStream.getMapProperty("child");
-  }
-
-  @override
   Widget build(BuildContext context) {
+    final mapStream = props.asMap;
+    final boxStream = mapStream.stream;
+    final childProp = mapStream.getMapProperty("child");
+
     return StreamingEntrance(
       child: StreamBuilder<Map<String, dynamic>>(
-        stream: _boxStream,
+        stream: boxStream,
         builder: (context, snapshot) {
           final data = snapshot.data ?? const {};
 
@@ -68,7 +44,7 @@ class _StreamingBoxState extends State<StreamingBox> {
               alignment: Alignment.topLeft,
               child: Padding(
                 padding: padding ?? EdgeInsets.zero,
-                child: StreamingWidget(props: _childProp),
+                child: StreamingWidget(props: childProp),
               ),
             ),
           );
