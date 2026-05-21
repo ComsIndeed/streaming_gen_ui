@@ -20,8 +20,8 @@ class _PreviewPageState extends State<PreviewPage> {
   Map<String, TextEditingController> propertyControllers = {};
 
   // Stream & Engine instances
-  late final StreamingGenerativeUi _streamingGenUi;
-  late final StreamController<String> _streamController;
+  StreamingGenerativeUi? _streamingGenUi;
+  StreamController<String>? _streamController;
   StreamSubscription<String>? _streamSubscription;
 
   String _accumulatedText = "";
@@ -34,12 +34,7 @@ class _PreviewPageState extends State<PreviewPage> {
   void initState() {
     super.initState();
 
-    // 1. Setup engine and broadcast stream controller
-    _streamingGenUi = StreamingGenerativeUi(registry: Registries.all);
-    _streamController = StreamController<String>.broadcast();
-    _streamingGenUi.stream(_streamController.stream, viewId: 'main-view');
-
-    // 2. Decode properties & initialize input controllers
+    // Decode properties & initialize input controllers
     final jsonExampleDecoded = jsonDecode(
       widget.catalogItem.widgetDefinition.jsonExample,
     );
@@ -58,7 +53,7 @@ class _PreviewPageState extends State<PreviewPage> {
       }),
     );
 
-    // 3. Initiate first simulated stream
+    // Initiate first simulated stream
     _startStream();
   }
 
@@ -66,7 +61,7 @@ class _PreviewPageState extends State<PreviewPage> {
   void dispose() {
     _debounceTimer?.cancel();
     _streamSubscription?.cancel();
-    _streamController.close();
+    _streamController?.close();
     for (final controller in propertyControllers.values) {
       controller.dispose();
     }
@@ -82,10 +77,20 @@ class _PreviewPageState extends State<PreviewPage> {
 
   void _startStream() {
     _streamSubscription?.cancel();
+    _streamController?.close();
+
+    // Re-create a completely fresh engine slate and controller
+    final engine = StreamingGenerativeUi(registry: Registries.all);
+    final controller = StreamController<String>.broadcast();
+    engine.stream(controller.stream, viewId: 'main-view');
+
     setState(() {
+      _streamingGenUi = engine;
+      _streamController = controller;
       _accumulatedText = "";
       _isStreaming = true;
       _isPaused = false;
+      _viewKey = UniqueKey(); // Forces visual widget replacement
     });
 
     final sourceStream = streamTextInChunks(
@@ -97,8 +102,8 @@ class _PreviewPageState extends State<PreviewPage> {
 
     _streamSubscription = sourceStream.listen(
       (chunk) {
-        if (!_streamController.isClosed) {
-          _streamController.add(chunk);
+        if (!controller.isClosed) {
+          controller.add(chunk);
           if (mounted) {
             setState(() {
               _accumulatedText += chunk;
@@ -115,6 +120,7 @@ class _PreviewPageState extends State<PreviewPage> {
       },
     );
   }
+
 
   void _togglePlayPause() {
     if (_isStreaming) {
@@ -387,7 +393,9 @@ class _PreviewPageState extends State<PreviewPage> {
                     fit: BoxFit.contain,
                     child: KeyedSubtree(
                       key: _viewKey,
-                      child: _streamingGenUi.view('main-view'),
+                      child: _streamingGenUi != null
+                          ? _streamingGenUi!.view('main-view')
+                          : const SizedBox.shrink(),
                     ),
                   ),
                 ),

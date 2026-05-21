@@ -114,6 +114,8 @@ class _PropertyEditableState extends State<PropertyEditable> {
             _buildStepsListBuilder(value, theme)
           else if (value is List)
             _buildGenericListBuilder(value, theme)
+          else if (value is Map)
+            _buildMapBuilder(Map<String, dynamic>.from(value), theme)
           else
             _buildStandardStringField(theme),
         ],
@@ -122,6 +124,222 @@ class _PropertyEditableState extends State<PropertyEditable> {
   }
 
   // --- EDITOR UI BUILDERS ---
+
+  Widget _buildMapBuilder(Map<String, dynamic> map, ThemeData theme) {
+    final hasNamespace = map.containsKey("namespace");
+
+    if (hasNamespace) {
+      // 1. Nested Child Component Form Builder!
+      final namespace = map["namespace"] as String? ?? "core:text";
+
+      return Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Container(
+            padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+            decoration: BoxDecoration(
+              color: theme.colorScheme.primaryContainer,
+              borderRadius: BorderRadius.circular(12),
+            ),
+            child: Text(
+              "🧩 Nested: $namespace",
+              style: TextStyle(
+                fontSize: 11,
+                fontWeight: FontWeight.bold,
+                color: theme.colorScheme.onPrimaryContainer,
+              ),
+            ),
+          ),
+          const SizedBox(height: 12),
+          DropdownButtonFormField<String>(
+            value: ["core:text", "core:badge"].contains(namespace)
+                ? namespace
+                : "custom",
+            decoration: InputDecoration(
+              labelText: "Component Type",
+              isDense: true,
+              border: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(12),
+              ),
+            ),
+            items: const [
+              DropdownMenuItem(
+                value: "core:text",
+                child: Text("Text (core:text)"),
+              ),
+              DropdownMenuItem(
+                value: "core:badge",
+                child: Text("Badge (core:badge)"),
+              ),
+              DropdownMenuItem(
+                value: "custom",
+                child: Text("Custom Component (JSON)"),
+              ),
+            ],
+            onChanged: (val) {
+              if (val == "core:text") {
+                _updateValue({"namespace": "core:text", "content": "Hello!"});
+              } else if (val == "core:badge") {
+                _updateValue({
+                  "namespace": "core:badge",
+                  "label": "Active",
+                  "style": "success",
+                });
+              } else {
+                setState(() {
+                  _useRawJson = true; // Fallback to raw JSON editor
+                });
+              }
+            },
+          ),
+          const SizedBox(height: 12),
+          if (namespace == "core:text") ...[
+            TextField(
+              decoration: InputDecoration(
+                labelText: "Text Content",
+                isDense: true,
+                border: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(12),
+                ),
+              ),
+              controller: TextEditingController(
+                text: map["content"] as String? ?? "",
+              ),
+              onChanged: (text) {
+                map["content"] = text;
+                _updateValue(map);
+              },
+            ),
+          ] else if (namespace == "core:badge") ...[
+            TextField(
+              decoration: InputDecoration(
+                labelText: "Label",
+                isDense: true,
+                border: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(12),
+                ),
+              ),
+              controller: TextEditingController(
+                text: map["label"] as String? ?? "",
+              ),
+              onChanged: (text) {
+                map["label"] = text;
+                _updateValue(map);
+              },
+            ),
+            const SizedBox(height: 10),
+            DropdownButtonFormField<String>(
+              value: map["style"] as String? ?? "neutral",
+              decoration: InputDecoration(
+                labelText: "Style",
+                isDense: true,
+                border: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(12),
+                ),
+              ),
+              items: const [
+                DropdownMenuItem(value: "success", child: Text("Success")),
+                DropdownMenuItem(value: "warning", child: Text("Warning")),
+                DropdownMenuItem(value: "error", child: Text("Error")),
+                DropdownMenuItem(value: "info", child: Text("Info")),
+                DropdownMenuItem(value: "neutral", child: Text("Neutral")),
+              ],
+              onChanged: (val) {
+                if (val != null) {
+                  map["style"] = val;
+                  _updateValue(map);
+                }
+              },
+            ),
+          ],
+        ],
+      );
+    } else {
+      // 2. Generic Map Dictionary Builder!
+      final list = map.entries.toList();
+      return Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          ...list.asMap().entries.map((entry) {
+            final item = entry.value;
+            final key = item.key;
+            final val = item.value;
+
+            return Padding(
+              padding: const EdgeInsets.only(bottom: 8.0),
+              child: Row(
+                children: [
+                  Expanded(
+                    child: TextField(
+                      decoration: InputDecoration(
+                        isDense: true,
+                        labelText: "Key",
+                        border: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(12),
+                        ),
+                      ),
+                      controller: TextEditingController(text: key),
+                      onChanged: (newKey) {
+                        if (newKey.trim().isNotEmpty && newKey != key) {
+                          final newMap = <String, dynamic>{};
+                          for (final e in map.entries) {
+                            if (e.key == key) {
+                              newMap[newKey] = e.value;
+                            } else {
+                              newMap[e.key] = e.value;
+                            }
+                          }
+                          _updateValue(newMap);
+                        }
+                      },
+                    ),
+                  ),
+                  const SizedBox(width: 8),
+                  Expanded(
+                    child: TextField(
+                      decoration: InputDecoration(
+                        isDense: true,
+                        labelText: "Value",
+                        border: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(12),
+                        ),
+                      ),
+                      controller: TextEditingController(text: val.toString()),
+                      onChanged: (newVal) {
+                        map[key] = newVal;
+                        _updateValue(map);
+                      },
+                    ),
+                  ),
+                  IconButton(
+                    icon: Icon(
+                      Icons.delete_outline_rounded,
+                      color: theme.colorScheme.error,
+                    ),
+                    onPressed: () {
+                      map.remove(key);
+                      _updateValue(map);
+                    },
+                  ),
+                ],
+              ),
+            );
+          }),
+          const SizedBox(height: 8),
+          Center(
+            child: TextButton.icon(
+              icon: const Icon(Icons.add_circle_outline_rounded, size: 16),
+              label: const Text("Add Property"),
+              onPressed: () {
+                map["new_key_${map.length}"] = "";
+                _updateValue(map);
+              },
+            ),
+          ),
+        ],
+      );
+    }
+  }
 
   Widget _buildRawJsonField(ThemeData theme) {
     return TextField(
