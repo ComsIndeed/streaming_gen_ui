@@ -83,7 +83,10 @@ class _CatalogCardState extends State<CatalogCard> {
                     horizontal: 16,
                     vertical: 8,
                   ),
-                  child: Row(
+                  child: Wrap(
+                    crossAxisAlignment: WrapCrossAlignment.center,
+                    spacing: 4,
+                    runSpacing: 2,
                     children: [
                       Text(
                         widget.catalogItem.displayName,
@@ -93,7 +96,6 @@ class _CatalogCardState extends State<CatalogCard> {
                           color: theme.colorScheme.onSurface.withAlpha(235),
                         ),
                       ),
-                      const SizedBox(width: 4),
                       Text(
                         "(${widget.catalogItem.displayProvider})",
                         style: TextStyle(

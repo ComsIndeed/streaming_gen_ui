@@ -17,6 +17,21 @@ import 'package:streaming_gen_ui/src/widgets/registries/core_registry/streaming_
 import 'package:streaming_gen_ui/src/widgets/registries/core_registry/streaming_agent_stepper.dart';
 import 'package:streaming_gen_ui/src/widgets/registries/core_registry/streaming_metric.dart';
 import 'package:streaming_gen_ui/src/widgets/registries/core_registry/streaming_data_table.dart';
+import 'package:streaming_gen_ui/src/widgets/registries/core_registry/streaming_slider.dart';
+import 'package:streaming_gen_ui/src/widgets/registries/core_registry/streaming_progress_ring.dart';
+import 'package:streaming_gen_ui/src/widgets/registries/core_registry/streaming_alert.dart';
+import 'package:streaming_gen_ui/src/widgets/registries/core_registry/streaming_segmented_control.dart';
+import 'package:streaming_gen_ui/src/widgets/registries/core_registry/streaming_shimmer_button.dart';
+import 'package:streaming_gen_ui/src/widgets/registries/core_registry/streaming_stack_carousel.dart';
+import 'package:streaming_gen_ui/src/widgets/registries/core_registry/streaming_icon_button_row.dart';
+import 'package:streaming_gen_ui/src/widgets/registries/core_registry/streaming_destructive_action_button.dart';
+import 'package:streaming_gen_ui/src/widgets/registries/core_registry/streaming_expanding_accordion_carousel.dart';
+import 'package:streaming_gen_ui/src/widgets/registries/core_registry/streaming_split_screen_carousel.dart';
+import 'package:streaming_gen_ui/src/widgets/registries/core_registry/streaming_stepper_counter.dart';
+import 'package:streaming_gen_ui/src/widgets/registries/core_registry/streaming_timeline_stepper.dart';
+import 'package:streaming_gen_ui/src/widgets/registries/core_registry/streaming_stats_grid.dart';
+import 'package:streaming_gen_ui/src/widgets/registries/core_registry/streaming_log_streamer.dart';
+import 'package:streaming_gen_ui/src/widgets/registries/core_registry/streaming_voice_visualizer.dart';
 
 /// The default population database of all standard, built-in widget definitions.
 final Map<String, WidgetDefinition> coreRegistry = {
@@ -275,5 +290,175 @@ final Map<String, WidgetDefinition> coreRegistry = {
     },
     jsonExample:
         '{"namespace":"media:image","borderRadius":20.0,"height":240.0,"urls":["https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?w=800","https://images.unsplash.com/photo-1604871000636-074fa5117945?w=800"]}',
+  ),
+
+  "core:slider": WidgetDefinition(
+    builder: (context, props) => StreamingSlider(props: props),
+    description: "An interactive slider input that morphs its state when loaded.",
+    properties: {
+      "min": "Num (optional minimum value, default 0.0)",
+      "max": "Num (optional maximum value, default 100.0)",
+      "value": "Num (optional initial slider value)",
+      "label": "String (optional title label string)",
+      "action": "String (the action key triggered on submit)",
+    },
+    jsonExample:
+        '{"namespace":"core:slider","min":0,"max":100,"value":45,"label":"Volumetric Flow Rate","action":"slider_change"}',
+  ),
+
+  "core:progress_ring": WidgetDefinition(
+    builder: (context, props) => StreamingProgressRing(props: props),
+    description: "A premium circular progress ring displaying numeric percentage indicators.",
+    properties: {
+      "value": "Num (the progress percentage, e.g., 0.0 to 1.0 or 0 to 100)",
+      "size": "Num (optional circle diameter size, default 80)",
+      "strokeWidth": "Num (optional track thickness width, default 8)",
+      "color": "String (optional custom HEX progress color)",
+      "label": "String (optional text label displayed beside)",
+    },
+    jsonExample:
+        '{"namespace":"core:progress_ring","value":78,"size":80,"strokeWidth":8,"color":"#10B981","label":"Optimizing Memory..."}',
+  ),
+
+  "core:alert": WidgetDefinition(
+    builder: (context, props) => StreamingAlert(props: props),
+    description: "A premium status banner supporting success, warning, error, or info themes.",
+    properties: {
+      "title": "String (primary bold status heading)",
+      "description": "String (paragraph details text)",
+      "style": "String (success, warning, error, info)",
+      "action": "String (optional action key callback triggered on dismiss)",
+    },
+    jsonExample:
+        '{"namespace":"core:alert","title":"Deployment Succeeded","description":"The production server has completed all automated rollouts successfully.","style":"success","action":"dismiss_alert"}',
+  ),
+
+  "core:segmented_control": WidgetDefinition(
+    builder: (context, props) => StreamingSegmentedControl(props: props),
+    description: "A sliding choices tab capsule supporting dynamic multi-option selection.",
+    properties: {
+      "options": "List<String> (ordered list of choice tabs)",
+      "selected": "String (currently active/selected choice tab)",
+      "action": "String (the action key callback triggered on selection)",
+    },
+    jsonExample:
+        '{"namespace":"core:segmented_control","options":["Visual View","Log Code","Terminal"],"selected":"Visual View","action":"change_tab"}',
+  ),
+
+  "core:shimmer_button": WidgetDefinition(
+    builder: (context, props) => StreamingShimmerButton(props: props),
+    description: "A premium call-to-action button featuring a shiny sweeping linear gradient shimmer when active.",
+    properties: {
+      "child": "Component (a nested component, usually core:text)",
+      "action": "String (the callback action key)",
+    },
+    jsonExample:
+        '{"namespace":"core:shimmer_button","child":{"namespace":"core:text","content":"Activate Neural Model"},"action":"activate_model"}',
+  ),
+
+  "media:3d_stack_carousel": WidgetDefinition(
+    builder: (context, props) => StreamingStackCarousel(props: props),
+    description: "A premium 3D stacked card carousel with depth perspective scaling and horizontal swipe navigation.",
+    properties: {
+      "items": "List<Map> (each item has title, description, and optional color HEX)",
+    },
+    jsonExample:
+        '{"namespace":"media:3d_stack_carousel","items":[{"title":"Creative Assistant","description":"Generate creative story concepts, visuals, and dynamic character arcs instantly.","color":"#E0F2FE"},{"title":"Technical Analyzer","description":"Deep-dive codebase logic, run unit tests, and resolve security vulnerabilities.","color":"#F3E8FF"},{"title":"Financial Strategist","description":"Forecast business revenue models, track expenses, and chart growth trends.","color":"#ECFDF5"}]}',
+  ),
+
+  "core:icon_button_row": WidgetDefinition(
+    builder: (context, props) => StreamingIconButtonRow(props: props),
+    description: "A horizontal row toolbar of sequentially revealing tactile icon buttons.",
+    properties: {
+      "buttons": "List<Map> (each map has icon, label, and action key)",
+    },
+    jsonExample:
+        '{"namespace":"core:icon_button_row","buttons":[{"icon":"edit","label":"Edit Record","action":"edit_row"},{"icon":"share","label":"Share Flow","action":"share_row"},{"icon":"favorite","label":"Like Item","action":"like_row"}]}',
+  ),
+
+  "core:destructive_action_button": WidgetDefinition(
+    builder: (context, props) => StreamingDestructiveActionButton(props: props),
+    description: "A secure confirmation-hold operation button for sensitive destructive commands.",
+    properties: {
+      "label": "String (text label showing inside button)",
+      "action": "String (the command key triggered after holding 2 seconds)",
+    },
+    jsonExample:
+        '{"namespace":"core:destructive_action_button","label":"Destroy Master Cluster","action":"terminate_cluster"}',
+  ),
+
+  "media:expanding_accordion_carousel": WidgetDefinition(
+    builder: (context, props) => StreamingExpandingAccordionCarousel(props: props),
+    description: "A responsive side-by-side vertical accordion panel column slider.",
+    properties: {
+      "items": "List<Map> (each map has title, description, and optional color HEX)",
+    },
+    jsonExample:
+        '{"namespace":"media:expanding_accordion_carousel","items":[{"title":"Security Shield","description":"Enterprise grade automated guardrails.","color":"#FEF2F2"},{"title":"Performance Peak","description":"High-throughput asynchronous scaling.","color":"#EFF6FF"}]}',
+  ),
+
+  "media:split_screen_carousel": WidgetDefinition(
+    builder: (context, props) => StreamingSplitScreenCarousel(props: props),
+    description: "A dual-viewport card showing sliding images alongside synchronized text panels.",
+    properties: {
+      "slides": "List<Map> (each slide contains image, title, and description)",
+    },
+    jsonExample:
+        '{"namespace":"media:split_screen_carousel","slides":[{"image":"https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?w=800","title":"Neural Synapse","description":"Mapping multi-dimensional connections."},{"image":"https://images.unsplash.com/photo-1604871000636-074fa5117945?w=800","title":"Quantum Matrix","description":"Decoding superposition logic gates."}]}',
+  ),
+
+  "ui:stepper_counter": WidgetDefinition(
+    builder: (context, props) => StreamingStepperCounter(props: props),
+    description: "A capsule numeric selector containing minus and plus bounds controllers.",
+    properties: {
+      "label": "String (title caption label)",
+      "value": "Num (initial value)",
+      "min": "Num (minimum boundary limit)",
+      "max": "Num (maximum boundary limit)",
+      "action": "String (action key triggered on change)",
+    },
+    jsonExample:
+        '{"namespace":"ui:stepper_counter","label":"Server Allocations","value":3,"min":1,"max":10,"action":"change_servers"}',
+  ),
+
+  "ui:timeline_stepper": WidgetDefinition(
+    builder: (context, props) => StreamingTimelineStepper(props: props),
+    description: "A horizontal timeline milestones tracker indicating task progress.",
+    properties: {
+      "steps": "List<Map> (each step has label and status: complete, active, pending)",
+    },
+    jsonExample:
+        '{"namespace":"ui:timeline_stepper","steps":[{"label":"Init","status":"complete"},{"label":"Deploy","status":"active"},{"label":"Verify","status":"pending"}]}',
+  ),
+
+  "ui:stats_grid": WidgetDefinition(
+    builder: (context, props) => StreamingStatsGrid(props: props),
+    description: "A grid dashboard displaying rich analytics cards with micro-sparklines.",
+    properties: {
+      "metrics": "List<Map> (each metric has label, value, trend, and sparkline list)",
+    },
+    jsonExample:
+        '{"namespace":"ui:stats_grid","metrics":[{"label":"API Calls","value":"89.4k","trend":"+22.4% vs yesterday","sparkline":[12,24,19,30,45]},{"label":"Error Rate","value":"0.04%","trend":"-5.2% vs yesterday","sparkline":[8,6,7,4,2]}]}',
+  ),
+
+  "doc:log_streamer": WidgetDefinition(
+    builder: (context, props) => StreamingLogStreamer(props: props),
+    description: "A terminal console log viewer emulator with active blinking cursors.",
+    properties: {
+      "logs": "List<String> (ordered list of string terminal outputs)",
+    },
+    jsonExample:
+        '{"namespace":"doc:log_streamer","logs":["[SYSTEM] Initiating server sync...","[INFO] Establishing SSL handshake...","[SUCCESS] Sync sequence completed in 142ms."]}',
+  ),
+
+  "doc:voice_visualizer": WidgetDefinition(
+    builder: (context, props) => StreamingVoiceVisualizer(props: props),
+    description: "An animated voice audio waveform card expressing listening state.",
+    properties: {
+      "label": "String (listening status message)",
+      "active": "Bool (wave pulse trigger)",
+    },
+    jsonExample:
+        '{"namespace":"doc:voice_visualizer","label":"Analyzing voice patterns...","active":true}',
   ),
 };

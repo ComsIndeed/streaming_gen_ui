@@ -14,6 +14,8 @@ class Registries {
       "core:row": coreRegistry["core:row"]!,
       "core:container": coreRegistry["core:container"]!,
       "core:badge": coreRegistry["core:badge"]!,
+      "core:progress_ring": coreRegistry["core:progress_ring"]!,
+      "core:alert": coreRegistry["core:alert"]!,
     },
   );
 
@@ -22,6 +24,12 @@ class Registries {
     widgets: {
       "core:elevated_button": coreRegistry["core:elevated_button"]!,
       "core:textfield": coreRegistry["core:textfield"]!,
+      "core:slider": coreRegistry["core:slider"]!,
+      "core:segmented_control": coreRegistry["core:segmented_control"]!,
+      "core:shimmer_button": coreRegistry["core:shimmer_button"]!,
+      "core:icon_button_row": coreRegistry["core:icon_button_row"]!,
+      "core:destructive_action_button": coreRegistry["core:destructive_action_button"]!,
+      "ui:stepper_counter": coreRegistry["ui:stepper_counter"]!,
     },
   );
 
@@ -39,6 +47,8 @@ class Registries {
     widgets: {
       "doc:terminal": coreRegistry["doc:terminal"]!,
       "doc:agent_stepper": coreRegistry["doc:agent_stepper"]!,
+      "ui:timeline_stepper": coreRegistry["ui:timeline_stepper"]!,
+      "doc:log_streamer": coreRegistry["doc:log_streamer"]!,
     },
   );
 
@@ -47,6 +57,7 @@ class Registries {
     widgets: {
       "dash:metric": coreRegistry["dash:metric"]!,
       "dash:data_table": coreRegistry["dash:data_table"]!,
+      "ui:stats_grid": coreRegistry["ui:stats_grid"]!,
     },
   );
 
@@ -88,6 +99,13 @@ class Registries {
       WidgetRegistry(widgets: {"core:text": coreRegistry["core:text"]!});
 
   // Make this take any media types, actually. Audios, videos, images.
-  static WidgetRegistry get media =>
-      WidgetRegistry(widgets: {"media:image": coreRegistry["media:image"]!});
+  static WidgetRegistry get media => WidgetRegistry(
+    widgets: {
+      "media:image": coreRegistry["media:image"]!,
+      "media:3d_stack_carousel": coreRegistry["media:3d_stack_carousel"]!,
+      "media:expanding_accordion_carousel": coreRegistry["media:expanding_accordion_carousel"]!,
+      "media:split_screen_carousel": coreRegistry["media:split_screen_carousel"]!,
+      "doc:voice_visualizer": coreRegistry["doc:voice_visualizer"]!,
+    },
+  );
 }
