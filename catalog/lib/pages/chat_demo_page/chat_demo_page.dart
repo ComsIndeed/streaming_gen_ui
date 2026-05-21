@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:streaming_gen_ui/streaming_gen_ui.dart';
 import 'package:streaming_gen_ui_widget_catalog/pages/chat_demo_page/chat_demo_cubit.dart';
 import 'package:streaming_gen_ui_widget_catalog/widgets/graph_background.dart';
 
@@ -46,11 +45,15 @@ class ChatDemoPage extends StatelessWidget {
                                       children: const [
                                         TextSpan(
                                           text: "Streaming ",
-                                          style: TextStyle(fontWeight: FontWeight.bold),
+                                          style: TextStyle(
+                                            fontWeight: FontWeight.bold,
+                                          ),
                                         ),
                                         TextSpan(
                                           text: "Generative UI",
-                                          style: TextStyle(fontWeight: FontWeight.w300),
+                                          style: TextStyle(
+                                            fontWeight: FontWeight.w300,
+                                          ),
                                         ),
                                       ],
                                     ),
@@ -67,9 +70,7 @@ class ChatDemoPage extends StatelessWidget {
                               ),
                               const SizedBox(height: 24),
                               // Empty chat conversation space
-                              const Expanded(
-                                child: SizedBox.shrink(),
-                              ),
+                              const Expanded(child: SizedBox.shrink()),
                             ],
                           ),
                         ),
@@ -93,24 +94,29 @@ class ChatDemoPage extends StatelessWidget {
                               width: isCanvasExpanded ? 1.0 : 0.0,
                             ),
                           ),
-                          color: theme.colorScheme.surfaceContainerLow.withOpacity(0.95),
+                          color: theme.colorScheme.surfaceContainerLow
+                              .withOpacity(0.95),
                           shadows: isCanvasExpanded
                               ? [
                                   BoxShadow(
                                     color: Colors.black.withOpacity(0.1),
                                     blurRadius: 24,
                                     offset: const Offset(-8, 8),
-                                  )
+                                  ),
                                 ]
                               : null,
                         ),
-                        child: OverflowBox(
-                          alignment: Alignment.topRight,
-                          minWidth: sizes.width * 0.6,
-                          maxWidth: sizes.width * 0.6,
-                          minHeight: 0,
-                          maxHeight: double.infinity,
-                          child: _buildCanvasContent(context, theme),
+                        child: LayoutBuilder(
+                          builder: (context, constraints) {
+                            return OverflowBox(
+                              alignment: Alignment.topRight,
+                              minWidth: sizes.width * 0.6,
+                              maxWidth: sizes.width * 0.6,
+                              minHeight: constraints.maxHeight,
+                              maxHeight: constraints.maxHeight,
+                              child: _buildCanvasContent(context, theme),
+                            );
+                          },
                         ),
                       ),
                     ],
@@ -155,7 +161,11 @@ class ChatDemoPage extends StatelessWidget {
             children: [
               Row(
                 children: [
-                  Icon(Icons.dashboard_customize_rounded, color: theme.colorScheme.primary, size: 22),
+                  Icon(
+                    Icons.dashboard_customize_rounded,
+                    color: theme.colorScheme.primary,
+                    size: 22,
+                  ),
                   const SizedBox(width: 10),
                   const Text(
                     "Docker Deploy monitor",
@@ -166,7 +176,9 @@ class ChatDemoPage extends StatelessWidget {
               IconButton.filledTonal(
                 icon: const Icon(Icons.close_rounded, size: 20),
                 onPressed: () {
-                  context.read<ChatDemoCubit>().setCanvasMode(CanvasMode.hidden);
+                  context.read<ChatDemoCubit>().setCanvasMode(
+                    CanvasMode.hidden,
+                  );
                 },
               ),
             ],
@@ -174,7 +186,11 @@ class ChatDemoPage extends StatelessWidget {
           const SizedBox(height: 20),
           const Text(
             "LIVE CONNECTION METRIC",
-            style: TextStyle(fontSize: 11, fontWeight: FontWeight.bold, letterSpacing: 1.5),
+            style: TextStyle(
+              fontSize: 11,
+              fontWeight: FontWeight.bold,
+              letterSpacing: 1.5,
+            ),
           ),
           const SizedBox(height: 10),
           Row(
@@ -184,16 +200,28 @@ class ChatDemoPage extends StatelessWidget {
                   elevation: 0,
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(16),
-                    side: BorderSide(color: theme.colorScheme.outline.withOpacity(0.1)),
+                    side: BorderSide(
+                      color: theme.colorScheme.outline.withOpacity(0.1),
+                    ),
                   ),
                   child: Padding(
                     padding: const EdgeInsets.all(16.0),
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        const Text("CPU load", style: TextStyle(fontSize: 12, color: Colors.grey)),
+                        const Text(
+                          "CPU load",
+                          style: TextStyle(fontSize: 12, color: Colors.grey),
+                        ),
                         const SizedBox(height: 4),
-                        Text("12.4%", style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold, color: theme.colorScheme.primary)),
+                        Text(
+                          "12.4%",
+                          style: TextStyle(
+                            fontSize: 20,
+                            fontWeight: FontWeight.bold,
+                            color: theme.colorScheme.primary,
+                          ),
+                        ),
                       ],
                     ),
                   ),
@@ -205,16 +233,28 @@ class ChatDemoPage extends StatelessWidget {
                   elevation: 0,
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(16),
-                    side: BorderSide(color: theme.colorScheme.outline.withOpacity(0.1)),
+                    side: BorderSide(
+                      color: theme.colorScheme.outline.withOpacity(0.1),
+                    ),
                   ),
                   child: Padding(
                     padding: const EdgeInsets.all(16.0),
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        const Text("Memory", style: TextStyle(fontSize: 12, color: Colors.grey)),
+                        const Text(
+                          "Memory",
+                          style: TextStyle(fontSize: 12, color: Colors.grey),
+                        ),
                         const SizedBox(height: 4),
-                        const Text("512MB / 2GB", style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Colors.greenAccent)),
+                        const Text(
+                          "512MB / 2GB",
+                          style: TextStyle(
+                            fontSize: 18,
+                            fontWeight: FontWeight.bold,
+                            color: Colors.greenAccent,
+                          ),
+                        ),
                       ],
                     ),
                   ),
@@ -225,7 +265,11 @@ class ChatDemoPage extends StatelessWidget {
           const SizedBox(height: 24),
           const Text(
             "LIVE DEPLOYMENT CONTAINER TERMINAL LOGS",
-            style: TextStyle(fontSize: 11, fontWeight: FontWeight.bold, letterSpacing: 1.5),
+            style: TextStyle(
+              fontSize: 11,
+              fontWeight: FontWeight.bold,
+              letterSpacing: 1.5,
+            ),
           ),
           const SizedBox(height: 10),
           Expanded(
@@ -235,7 +279,9 @@ class ChatDemoPage extends StatelessWidget {
               decoration: BoxDecoration(
                 color: Colors.black.withOpacity(0.95),
                 borderRadius: BorderRadius.circular(20),
-                border: Border.all(color: theme.colorScheme.outline.withOpacity(0.1)),
+                border: Border.all(
+                  color: theme.colorScheme.outline.withOpacity(0.1),
+                ),
               ),
               child: const SingleChildScrollView(
                 physics: BouncingScrollPhysics(),
@@ -331,15 +377,16 @@ class _ChatConsoleInputState extends State<_ChatConsoleInput> {
       consoleScale = 1.03; // Scale up when focused
     }
     if (_isSendButtonPressed) {
-      consoleScale = 0.96; // Tactile mechanical shrink when send button is pressed
+      consoleScale =
+          0.96; // Tactile mechanical shrink when send button is pressed
     }
 
     // Interactive highlights & glow effects
     final borderColor = _isTextFieldFocused
         ? theme.colorScheme.primary.withOpacity(0.5)
         : (_isConsoleHovered
-            ? theme.colorScheme.primary.withOpacity(0.25)
-            : theme.colorScheme.outline.withOpacity(0.08));
+              ? theme.colorScheme.primary.withOpacity(0.25)
+              : theme.colorScheme.outline.withOpacity(0.08));
 
     final borderWidth = _isTextFieldFocused ? 1.5 : 1.0;
 
@@ -376,16 +423,16 @@ class _ChatConsoleInputState extends State<_ChatConsoleInput> {
           duration: const Duration(milliseconds: 200),
           curve: customSnap,
           width: widget.isCanvasExpanded
-              ? (widget.sizes.width * 0.4 - 32).clamp(100.0, 512.0 + (widget.isChatExpanded ? 64 : 0))
+              ? (widget.sizes.width * 0.4 - 32).clamp(
+                  100.0,
+                  512.0 + (widget.isChatExpanded ? 64 : 0),
+                )
               : 512.0 + (widget.isChatExpanded ? 64 : 0),
           height: widget.isChatExpanded ? 256.0 : 64.0,
           decoration: ShapeDecoration(
             shape: RoundedSuperellipseBorder(
               borderRadius: BorderRadius.circular(32),
-              side: BorderSide(
-                color: borderColor,
-                width: borderWidth,
-              ),
+              side: BorderSide(color: borderColor, width: borderWidth),
             ),
             color: theme.colorScheme.secondaryContainer,
             shadows: shadows,
@@ -396,7 +443,9 @@ class _ChatConsoleInputState extends State<_ChatConsoleInput> {
               crossAxisAlignment: CrossAxisAlignment.center,
               children: [
                 AnimatedAlign(
-                  alignment: widget.isChatExpanded ? Alignment.topLeft : Alignment.centerLeft,
+                  alignment: widget.isChatExpanded
+                      ? Alignment.topLeft
+                      : Alignment.centerLeft,
                   duration: Durations.short1,
                   child: IconButton(
                     onPressed: () {
@@ -426,19 +475,27 @@ class _ChatConsoleInputState extends State<_ChatConsoleInput> {
                             decoration: const InputDecoration(
                               hintText: 'Talk to AI',
                               border: InputBorder.none,
-                              contentPadding: EdgeInsets.symmetric(horizontal: 12, vertical: 12),
+                              contentPadding: EdgeInsets.symmetric(
+                                horizontal: 12,
+                                vertical: 12,
+                              ),
                             ),
                           ),
                   ),
                 ),
                 if (!widget.isChatExpanded)
                   Listener(
-                    onPointerDown: (_) => setState(() => _isSendButtonPressed = true),
-                    onPointerUp: (_) => setState(() => _isSendButtonPressed = false),
-                    onPointerCancel: (_) => setState(() => _isSendButtonPressed = false),
+                    onPointerDown: (_) =>
+                        setState(() => _isSendButtonPressed = true),
+                    onPointerUp: (_) =>
+                        setState(() => _isSendButtonPressed = false),
+                    onPointerCancel: (_) =>
+                        setState(() => _isSendButtonPressed = false),
                     child: MouseRegion(
-                      onEnter: (_) => setState(() => _isSendButtonHovered = true),
-                      onExit: (_) => setState(() => _isSendButtonHovered = false),
+                      onEnter: (_) =>
+                          setState(() => _isSendButtonHovered = true),
+                      onExit: (_) =>
+                          setState(() => _isSendButtonHovered = false),
                       cursor: SystemMouseCursors.click,
                       child: AnimatedScale(
                         scale: _isSendButtonHovered ? 1.15 : 1.0,
@@ -463,7 +520,9 @@ class _ChatConsoleInputState extends State<_ChatConsoleInput> {
   }
 
   Widget _buildExpandedDrawerInput(BuildContext context, ThemeData theme) {
-    final isCanvasExpanded = context.select((ChatDemoCubit c) => c.state.canvasMode != CanvasMode.hidden);
+    final isCanvasExpanded = context.select(
+      (ChatDemoCubit c) => c.state.canvasMode != CanvasMode.hidden,
+    );
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -472,7 +531,11 @@ class _ChatConsoleInputState extends State<_ChatConsoleInput> {
           padding: EdgeInsets.fromLTRB(12, 8, 12, 4),
           child: Text(
             "ATTACHMENT CONSOLE",
-            style: TextStyle(fontSize: 10, fontWeight: FontWeight.bold, letterSpacing: 1.2),
+            style: TextStyle(
+              fontSize: 10,
+              fontWeight: FontWeight.bold,
+              letterSpacing: 1.2,
+            ),
           ),
         ),
         Expanded(
@@ -485,13 +548,15 @@ class _ChatConsoleInputState extends State<_ChatConsoleInput> {
                 _buildDrawerPill(Icons.image_rounded, "Media", theme),
                 _buildDrawerPill(Icons.code_rounded, "Stream XML", theme),
                 _buildDrawerPill(
-                  isCanvasExpanded ? Icons.analytics_rounded : Icons.analytics_outlined,
+                  isCanvasExpanded
+                      ? Icons.analytics_rounded
+                      : Icons.analytics_outlined,
                   isCanvasExpanded ? "Close Monitor" : "Open Monitor",
                   theme,
                   onTap: () {
                     context.read<ChatDemoCubit>().setCanvasMode(
-                          isCanvasExpanded ? CanvasMode.hidden : CanvasMode.code,
-                        );
+                      isCanvasExpanded ? CanvasMode.hidden : CanvasMode.code,
+                    );
                   },
                 ),
               ],
@@ -502,7 +567,12 @@ class _ChatConsoleInputState extends State<_ChatConsoleInput> {
     );
   }
 
-  Widget _buildDrawerPill(IconData icon, String label, ThemeData theme, {VoidCallback? onTap}) {
+  Widget _buildDrawerPill(
+    IconData icon,
+    String label,
+    ThemeData theme, {
+    VoidCallback? onTap,
+  }) {
     return Material(
       color: Colors.transparent,
       child: InkWell(
@@ -519,7 +589,13 @@ class _ChatConsoleInputState extends State<_ChatConsoleInput> {
             children: [
               Icon(icon, size: 16, color: theme.colorScheme.primary),
               const SizedBox(width: 6),
-              Text(label, style: const TextStyle(fontSize: 11, fontWeight: FontWeight.bold)),
+              Text(
+                label,
+                style: const TextStyle(
+                  fontSize: 11,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
             ],
           ),
         ),
@@ -527,4 +603,3 @@ class _ChatConsoleInputState extends State<_ChatConsoleInput> {
     );
   }
 }
-
