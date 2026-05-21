@@ -263,9 +263,17 @@ final Map<String, WidgetDefinition> coreRegistry = {
 
   "media:image": WidgetDefinition(
     builder: (context, props) => StreamingImage(props: props),
-    description: "An image widget that can display images from URLs online.",
-    properties: {"url": "String (URL to an image source)"},
+    description:
+        "A universal media player and swipable image carousel widget supporting single images, multiple images, and smooth pagination indicators.",
+    properties: {
+      "url": "String (optional single network image source URL)",
+      "urls": "List<String> (optional list of swipable image URLs)",
+      "fit": "String (cover, contain, fill, etc.)",
+      "borderRadius": "Num (corner border radius, default 16)",
+      "width": "Num (optional width)",
+      "height": "Num (optional height, default 200)",
+    },
     jsonExample:
-        r'{"namespace": "media:image","https://www.example.com/images/cat.png"}',
+        '{"namespace":"media:image","borderRadius":20.0,"height":240.0,"urls":["https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?w=800","https://images.unsplash.com/photo-1604871000636-074fa5117945?w=800"]}',
   ),
 };
