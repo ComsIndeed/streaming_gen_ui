@@ -1,8 +1,15 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:streaming_gen_ui_widget_catalog/homepage.dart';
+import 'package:streaming_gen_ui_widget_catalog/pages/chat_demo_page/chat_demo_cubit.dart';
 
 void main() {
-  runApp(const MainApp());
+  runApp(
+    MultiBlocProvider(
+      providers: [BlocProvider(create: (_) => ChatDemoCubit())],
+      child: const MainApp(),
+    ),
+  );
 }
 
 class MainApp extends StatelessWidget {
