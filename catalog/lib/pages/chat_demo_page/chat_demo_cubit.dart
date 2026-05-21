@@ -8,15 +8,9 @@ class ChatDemoState {
   final TextBoxMode textBoxMode;
   final CanvasMode canvasMode;
 
-  const ChatDemoState({
-    required this.textBoxMode,
-    required this.canvasMode,
-  });
+  const ChatDemoState({required this.textBoxMode, required this.canvasMode});
 
-  ChatDemoState copyWith({
-    TextBoxMode? textBoxMode,
-    CanvasMode? canvasMode,
-  }) {
+  ChatDemoState copyWith({TextBoxMode? textBoxMode, CanvasMode? canvasMode}) {
     return ChatDemoState(
       textBoxMode: textBoxMode ?? this.textBoxMode,
       canvasMode: canvasMode ?? this.canvasMode,
@@ -26,10 +20,12 @@ class ChatDemoState {
 
 class ChatDemoCubit extends Cubit<ChatDemoState> {
   ChatDemoCubit()
-      : super(const ChatDemoState(
+    : super(
+        const ChatDemoState(
           textBoxMode: TextBoxMode.textfield,
-          canvasMode: CanvasMode.code,
-        ));
+          canvasMode: CanvasMode.hidden,
+        ),
+      );
 
   void setTextBoxMode(TextBoxMode mode) {
     emit(state.copyWith(textBoxMode: mode));

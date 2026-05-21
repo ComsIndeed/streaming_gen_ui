@@ -17,7 +17,7 @@ class _HomepageState extends State<Homepage> {
   @override
   void initState() {
     super.initState();
-    pageController = PageController();
+    pageController = PageController(initialPage: 1);
     pageController.addListener(() {
       if (mounted && pageController.hasClients) {
         setState(() {
@@ -82,7 +82,9 @@ class _HomepageState extends State<Homepage> {
                           color: theme.colorScheme.primary.withOpacity(0.85),
                           shadows: [
                             BoxShadow(
-                              color: theme.colorScheme.primary.withOpacity(0.12),
+                              color: theme.colorScheme.primary.withOpacity(
+                                0.12,
+                              ),
                               blurRadius: 4,
                               offset: const Offset(0, 2),
                             ),
@@ -113,7 +115,8 @@ class _HomepageState extends State<Homepage> {
                                   fontSize: 12,
                                   color: pageOffset < 0.5
                                       ? theme.colorScheme.onPrimary
-                                      : theme.colorScheme.onSurfaceVariant.withOpacity(0.8),
+                                      : theme.colorScheme.onSurfaceVariant
+                                            .withOpacity(0.8),
                                 ),
                               ),
                             ),
@@ -137,7 +140,8 @@ class _HomepageState extends State<Homepage> {
                                   fontSize: 12,
                                   color: pageOffset >= 0.5
                                       ? theme.colorScheme.onPrimary
-                                      : theme.colorScheme.onSurfaceVariant.withOpacity(0.8),
+                                      : theme.colorScheme.onSurfaceVariant
+                                            .withOpacity(0.8),
                                 ),
                               ),
                             ),
