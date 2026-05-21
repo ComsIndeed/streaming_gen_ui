@@ -34,9 +34,11 @@ class _CatalogPageState extends State<CatalogPage> {
 
     // Perform live query filtering
     final filteredItems = allItems.where((item) {
-      final matchesSearch = item.displayName.toLowerCase().contains(searchQuery.toLowerCase()) || 
-                            item.namespace.toLowerCase().contains(searchQuery.toLowerCase());
-      final matchesCategory = selectedCategory == null || item.displayProvider == selectedCategory;
+      final matchesSearch =
+          item.displayName.toLowerCase().contains(searchQuery.toLowerCase()) ||
+          item.namespace.toLowerCase().contains(searchQuery.toLowerCase());
+      final matchesCategory =
+          selectedCategory == null || item.displayProvider == selectedCategory;
       return matchesSearch && matchesCategory;
     }).toList();
 
@@ -76,7 +78,9 @@ class _CatalogPageState extends State<CatalogPage> {
                       style: TextStyle(
                         fontSize: 18,
                         fontWeight: FontWeight.bold,
-                        color: theme.colorScheme.onSurfaceVariant.withOpacity(0.7),
+                        color: theme.colorScheme.onSurfaceVariant.withOpacity(
+                          0.7,
+                        ),
                         letterSpacing: 2.0,
                       ),
                     ),
@@ -120,14 +124,16 @@ class _CatalogPageState extends State<CatalogPage> {
                             Icon(
                               Icons.search_off_rounded,
                               size: 48,
-                              color: theme.colorScheme.onSurfaceVariant.withOpacity(0.4),
+                              color: theme.colorScheme.onSurfaceVariant
+                                  .withOpacity(0.4),
                             ),
                             const SizedBox(height: 16),
                             Text(
                               "No widgets found matching your criteria",
                               style: TextStyle(
                                 fontSize: 16,
-                                color: theme.colorScheme.onSurfaceVariant.withOpacity(0.6),
+                                color: theme.colorScheme.onSurfaceVariant
+                                    .withOpacity(0.6),
                               ),
                             ),
                           ],
@@ -135,12 +141,14 @@ class _CatalogPageState extends State<CatalogPage> {
                       ),
                     )
                   : SliverGrid.builder(
-                      gridDelegate: const SliverGridDelegateWithMaxCrossAxisExtent(
-                        maxCrossAxisExtent: 220,
-                        mainAxisExtent: 240,
-                        crossAxisSpacing: 16,
-                        mainAxisSpacing: 16,
-                      ),
+                      gridDelegate:
+                          const SliverGridDelegateWithMaxCrossAxisExtent(
+                            maxCrossAxisExtent: 320,
+                            mainAxisExtent: 340,
+                            crossAxisSpacing: 16,
+                            mainAxisSpacing: 16,
+                            childAspectRatio: 1,
+                          ),
                       itemCount: filteredItems.length,
                       itemBuilder: (context, index) {
                         final item = filteredItems[index];
@@ -153,13 +161,10 @@ class _CatalogPageState extends State<CatalogPage> {
             ),
 
             // Safe bottom padding for scroll space
-            const SliverToBoxAdapter(
-              child: SizedBox(height: 80),
-            ),
+            const SliverToBoxAdapter(child: SizedBox(height: 80)),
           ],
         ),
       ),
     );
   }
 }
-
