@@ -116,8 +116,22 @@ class ViewState with ChangeNotifier {
 
   Widget? _cachedWidget;
 
-  Widget get widget {
-    _cachedWidget ??= StreamingUiProvider(
+  Widget get widget => buildWidget();
+
+  Widget buildWidget({
+    Widget Function(BuildContext context, String text)? textBlockBuilder,
+  }) {
+    if (textBlockBuilder == null) {
+      _cachedWidget ??= _createWidget(null);
+      return _cachedWidget!;
+    }
+    return _createWidget(textBlockBuilder);
+  }
+
+  Widget _createWidget(
+    Widget Function(BuildContext context, String text)? textBlockBuilder,
+  ) {
+    return StreamingUiProvider(
       registry: widgetRegistry,
       showInternalErrors: showInternalErrors,
       errorBuilder: errorBuilder,
@@ -130,13 +144,12 @@ class ViewState with ChangeNotifier {
             children: _blocks.map((block) {
               return KeyedSubtree(
                 key: ObjectKey(block),
-                child: block.build(context),
+                child: block.build(context, textBlockBuilder: textBlockBuilder),
               );
             }).toList(),
           );
         },
       ),
     );
-    return _cachedWidget!;
   }
 }

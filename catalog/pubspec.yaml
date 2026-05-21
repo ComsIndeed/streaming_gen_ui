@@ -14,6 +14,7 @@ dependencies:
   dartantic_ai: ^3.4.0
   streaming_gen_ui:
     path: "../"
+  gpt_markdown: ^1.1.7
 
 dev_dependencies:
   flutter_test:

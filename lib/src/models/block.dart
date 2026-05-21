@@ -85,17 +85,26 @@ sealed class Block {
     _controller.close();
   }
 
-  Widget build(BuildContext context);
+  Widget build(
+    BuildContext context, {
+    Widget Function(BuildContext context, String text)? textBlockBuilder,
+  });
 }
 
 class TextBlock extends Block {
   TextBlock({required super.registry});
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(
+    BuildContext context, {
+    Widget Function(BuildContext context, String text)? textBlockBuilder,
+  }) {
     return AccumulatingStringStreamBuilder(
       stream: stream,
       builder: (context, accumulated) {
+        if (textBlockBuilder != null) {
+          return textBlockBuilder(context, accumulated);
+        }
         return Text(accumulated);
       },
     );
@@ -123,7 +132,10 @@ class WidgetBlock extends Block {
   }
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(
+    BuildContext context, {
+    Widget Function(BuildContext context, String text)? textBlockBuilder,
+  }) {
     return FutureBuilder<String>(
       future: _nameFuture,
       builder: (context, snapshot) {

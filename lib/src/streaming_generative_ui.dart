@@ -73,8 +73,12 @@ class StreamingGenerativeUi with ChangeNotifier {
       stream(Stream.value(raw), viewId: viewId);
 
   // Output
-  Widget view(String viewId) =>
-      _views[viewId]?.widget ?? const SizedBox.shrink();
+  Widget view(
+    String viewId, {
+    Widget Function(BuildContext context, String text)? textBlockBuilder,
+  }) =>
+      _views[viewId]?.buildWidget(textBlockBuilder: textBlockBuilder) ??
+      const SizedBox.shrink();
 
   void disposeView(String viewId) => _views.remove(viewId);
 }

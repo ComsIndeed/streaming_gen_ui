@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:gpt_markdown/gpt_markdown.dart';
 import 'package:streaming_gen_ui_widget_catalog/pages/chat_demo_page/chat_demo_cubit.dart';
 import 'package:streaming_gen_ui_widget_catalog/widgets/graph_background.dart';
 
@@ -38,7 +39,11 @@ class ChatDemoPage extends StatelessWidget {
                                   children: [
                                     _buildErrorBanner(context, theme, state),
                                     Expanded(
-                                      child: _buildMessageList(context, theme, state),
+                                      child: _buildMessageList(
+                                        context,
+                                        theme,
+                                        state,
+                                      ),
                                     ),
                                   ],
                                 ),
@@ -120,7 +125,11 @@ class ChatDemoPage extends StatelessWidget {
   }
 
   /// Renders a critical configuration warning or runtime API error banner
-  Widget _buildErrorBanner(BuildContext context, ThemeData theme, ChatDemoState state) {
+  Widget _buildErrorBanner(
+    BuildContext context,
+    ThemeData theme,
+    ChatDemoState state,
+  ) {
     if (state.errorMessage == null) return const SizedBox.shrink();
 
     return Padding(
@@ -131,9 +140,7 @@ class ChatDemoPage extends StatelessWidget {
         decoration: BoxDecoration(
           color: theme.colorScheme.errorContainer,
           borderRadius: BorderRadius.circular(16),
-          border: Border.all(
-            color: theme.colorScheme.error.withOpacity(0.3),
-          ),
+          border: Border.all(color: theme.colorScheme.error.withOpacity(0.3)),
         ),
         child: Row(
           children: [
@@ -161,7 +168,11 @@ class ChatDemoPage extends StatelessWidget {
   }
 
   /// Renders the scrollable centered list of all chat bubbles
-  Widget _buildMessageList(BuildContext context, ThemeData theme, ChatDemoState state) {
+  Widget _buildMessageList(
+    BuildContext context,
+    ThemeData theme,
+    ChatDemoState state,
+  ) {
     return Center(
       child: Container(
         constraints: const BoxConstraints(maxWidth: 720),
@@ -170,7 +181,12 @@ class ChatDemoPage extends StatelessWidget {
           child: ListView.builder(
             reverse: true,
             itemCount: state.messages.length,
-            padding: const EdgeInsets.only(top: 16, bottom: 140, left: 16, right: 16),
+            padding: const EdgeInsets.only(
+              top: 16,
+              bottom: 140,
+              left: 16,
+              right: 16,
+            ),
             physics: const BouncingScrollPhysics(),
             itemBuilder: (context, index) {
               final message = state.messages[state.messages.length - 1 - index];
@@ -185,7 +201,11 @@ class ChatDemoPage extends StatelessWidget {
   }
 
   /// Renders the user text bubble aligned to the right
-  Widget _buildUserMessageBubble(BuildContext context, ThemeData theme, DemoMessage message) {
+  Widget _buildUserMessageBubble(
+    BuildContext context,
+    ThemeData theme,
+    DemoMessage message,
+  ) {
     return Align(
       alignment: Alignment.centerRight,
       child: Container(
@@ -207,7 +227,11 @@ class ChatDemoPage extends StatelessWidget {
   }
 
   /// Renders the model UI/Text bubble aligned to the left, integrated with StreamingGenerativeUi
-  Widget _buildModelMessageBubble(BuildContext context, ThemeData theme, DemoMessage message) {
+  Widget _buildModelMessageBubble(
+    BuildContext context,
+    ThemeData theme,
+    DemoMessage message,
+  ) {
     final cubit = context.read<ChatDemoCubit>();
     return Align(
       alignment: Alignment.centerLeft,
@@ -224,7 +248,10 @@ class ChatDemoPage extends StatelessWidget {
         child: ListenableBuilder(
           listenable: cubit.generativeUi,
           builder: (context, _) {
-            return cubit.generativeUi.view(message.id);
+            return cubit.generativeUi.view(
+              message.id,
+              textBlockBuilder: (context, text) => GptMarkdown(text),
+            );
           },
         ),
       ),
@@ -232,7 +259,12 @@ class ChatDemoPage extends StatelessWidget {
   }
 
   /// Renders the bento canvas panel that dynamically expands/shrinks
-  Widget _buildCanvasPanel(BuildContext context, ThemeData theme, ChatDemoState state, Size sizes) {
+  Widget _buildCanvasPanel(
+    BuildContext context,
+    ThemeData theme,
+    ChatDemoState state,
+    Size sizes,
+  ) {
     final isCanvasExpanded = state.canvasMode != CanvasMode.hidden;
     return AnimatedContainer(
       duration: const Duration(milliseconds: 400),
