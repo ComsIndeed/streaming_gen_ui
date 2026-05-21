@@ -4,13 +4,38 @@ enum TextBoxMode { textfield, media, view }
 
 enum CanvasMode { hidden, code, document, ui }
 
-class ChatDemoCubit extends Cubit<ChatDemoEvent> {
-  TextBoxMode textBoxMode = .textfield;
-  CanvasMode canvasMode = .code;
+class ChatDemoState {
+  final TextBoxMode textBoxMode;
+  final CanvasMode canvasMode;
 
-  ChatDemoCubit() : super(InitialChatDemoEvent());
+  const ChatDemoState({
+    required this.textBoxMode,
+    required this.canvasMode,
+  });
+
+  ChatDemoState copyWith({
+    TextBoxMode? textBoxMode,
+    CanvasMode? canvasMode,
+  }) {
+    return ChatDemoState(
+      textBoxMode: textBoxMode ?? this.textBoxMode,
+      canvasMode: canvasMode ?? this.canvasMode,
+    );
+  }
 }
 
-abstract class ChatDemoEvent {}
+class ChatDemoCubit extends Cubit<ChatDemoState> {
+  ChatDemoCubit()
+      : super(const ChatDemoState(
+          textBoxMode: TextBoxMode.textfield,
+          canvasMode: CanvasMode.code,
+        ));
 
-class InitialChatDemoEvent extends ChatDemoEvent {}
+  void setTextBoxMode(TextBoxMode mode) {
+    emit(state.copyWith(textBoxMode: mode));
+  }
+
+  void setCanvasMode(CanvasMode mode) {
+    emit(state.copyWith(canvasMode: mode));
+  }
+}

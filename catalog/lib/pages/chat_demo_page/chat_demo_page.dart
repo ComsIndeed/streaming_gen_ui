@@ -1,272 +1,212 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:streaming_gen_ui/streaming_gen_ui.dart';
+import 'package:streaming_gen_ui_widget_catalog/pages/chat_demo_page/chat_demo_cubit.dart';
 import 'package:streaming_gen_ui_widget_catalog/widgets/graph_background.dart';
 
-class ChatDemoPage extends StatefulWidget {
+class ChatDemoPage extends StatelessWidget {
   const ChatDemoPage({super.key});
 
   @override
-  State<ChatDemoPage> createState() => _ChatDemoPageState();
-}
-
-class _ChatDemoPageState extends State<ChatDemoPage> {
-  bool isChatExpanded = false;
-  bool isCanvasExpanded = false;
-  final TextEditingController _chatController = TextEditingController();
-
-  @override
-  void dispose() {
-    _chatController.dispose();
-    super.dispose();
-  }
-
-  @override
   Widget build(BuildContext context) {
-    final sizes = MediaQuery.sizeOf(context);
     final theme = Theme.of(context);
-    final isMobile = sizes.width < 768;
+    final sizes = MediaQuery.sizeOf(context);
 
-    return Scaffold(
-      body: GraphBackground(
-        child: SafeArea(
-          child: Stack(
-            children: [
-              // Horizontal Split View
-              Row(
+    return BlocBuilder<ChatDemoCubit, ChatDemoState>(
+      builder: (context, state) {
+        final isChatExpanded = state.textBoxMode != TextBoxMode.textfield;
+        final isCanvasExpanded = state.canvasMode != CanvasMode.hidden;
+
+        return Scaffold(
+          body: GraphBackground(
+            child: SafeArea(
+              child: Stack(
                 children: [
-                  // 1. LEFT PANEL: Chat conversation space
-                  Expanded(
-                    child: Padding(
-                      padding: const EdgeInsets.fromLTRB(16, 16, 16, 96),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          // Header Pill
-                          Column(
+                  // Horizontal Split View
+                  Row(
+                    children: [
+                      // 1. LEFT PANEL: Chat conversation space
+                      Expanded(
+                        child: Padding(
+                          padding: const EdgeInsets.fromLTRB(16, 16, 16, 96),
+                          child: Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
-                              RichText(
-                                text: TextSpan(
-                                  style: TextStyle(
-                                    fontSize: 24,
-                                    letterSpacing: -0.5,
-                                    color: theme.colorScheme.onSurface,
+                              // Header Pill
+                              Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  RichText(
+                                    text: TextSpan(
+                                      style: TextStyle(
+                                        fontSize: 24,
+                                        letterSpacing: -0.5,
+                                        color: theme.colorScheme.onSurface,
+                                      ),
+                                      children: const [
+                                        TextSpan(
+                                          text: "Streaming ",
+                                          style: TextStyle(fontWeight: FontWeight.bold),
+                                        ),
+                                        TextSpan(
+                                          text: "Generative UI",
+                                          style: TextStyle(fontWeight: FontWeight.w300),
+                                        ),
+                                      ],
+                                    ),
                                   ),
-                                  children: const [
-                                    TextSpan(
-                                      text: "Streaming ",
-                                      style: TextStyle(fontWeight: FontWeight.bold),
+                                  Text(
+                                    "Chat Demo",
+                                    style: TextStyle(
+                                      fontSize: 14,
+                                      fontWeight: FontWeight.bold,
+                                      color: theme.colorScheme.primary,
                                     ),
-                                    TextSpan(
-                                      text: "Generative UI",
-                                      style: TextStyle(fontWeight: FontWeight.w300),
-                                    ),
-                                  ],
-                                ),
+                                  ),
+                                ],
                               ),
-                              Text(
-                                "Chat Demo",
-                                style: TextStyle(
-                                  fontSize: 14,
-                                  fontWeight: FontWeight.bold,
-                                  color: theme.colorScheme.primary,
-                                ),
+                              const SizedBox(height: 24),
+                              // Empty chat conversation space
+                              const Expanded(
+                                child: SizedBox.shrink(),
                               ),
                             ],
                           ),
-                          const SizedBox(height: 24),
-
-                          // Static Chat Bubbles
-                          Expanded(
-                            child: ListView(
-                              physics: const BouncingScrollPhysics(),
-                              children: [
-                                _buildMessageBubble(
-                                  text: "Hello! How can I deploy a Node.js container with pnpm?",
-                                  isUser: true,
-                                  theme: theme,
-                                  maxWidth: sizes.width * 0.5,
-                                ),
-                                _buildMessageBubble(
-                                  text: "I can help with that. You can view the live monitor panel by tapping 'Open Monitor' in the attachment console below.",
-                                  isUser: false,
-                                  theme: theme,
-                                  maxWidth: sizes.width * 0.5,
-                                ),
-                              ],
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-                  ),
-
-                  // 2. RIGHT PANEL: Floating Bento Canvas panel
-                  AnimatedContainer(
-                    duration: const Duration(milliseconds: 400),
-                    curve: Curves.easeInOutCubicEmphasized,
-                    width: isCanvasExpanded ? (isMobile ? sizes.width : sizes.width * 0.6) : 0,
-                    height: double.infinity,
-                    margin: isCanvasExpanded
-                        ? const EdgeInsets.fromLTRB(0, 16, 16, 16)
-                        : EdgeInsets.zero,
-                    clipBehavior: Clip.antiAlias,
-                    decoration: ShapeDecoration(
-                      shape: RoundedSuperellipseBorder(
-                        borderRadius: BorderRadius.circular(24),
-                        side: BorderSide(
-                          color: theme.colorScheme.outline.withOpacity(0.1),
-                          width: isCanvasExpanded ? 1.0 : 0.0,
                         ),
                       ),
-                      color: theme.colorScheme.surfaceContainerLow.withOpacity(0.95),
-                      shadows: isCanvasExpanded
-                          ? [
-                              BoxShadow(
-                                color: Colors.black.withOpacity(0.1),
-                                blurRadius: 24,
-                                offset: const Offset(-8, 8),
-                              )
-                            ]
-                          : null,
-                    ),
-                    child: OverflowBox(
-                      alignment: Alignment.topRight,
-                      minWidth: isMobile ? sizes.width : sizes.width * 0.6,
-                      maxWidth: isMobile ? sizes.width : sizes.width * 0.6,
-                      minHeight: 0,
-                      maxHeight: double.infinity,
-                      child: _buildCanvasContent(theme),
+
+                      // 2. RIGHT PANEL: Floating Bento Canvas panel
+                      AnimatedContainer(
+                        duration: const Duration(milliseconds: 400),
+                        curve: Curves.easeInOutCubicEmphasized,
+                        width: isCanvasExpanded ? sizes.width * 0.6 : 0,
+                        height: double.infinity,
+                        margin: isCanvasExpanded
+                            ? const EdgeInsets.fromLTRB(0, 16, 16, 16)
+                            : EdgeInsets.zero,
+                        clipBehavior: Clip.antiAlias,
+                        decoration: ShapeDecoration(
+                          shape: RoundedSuperellipseBorder(
+                            borderRadius: BorderRadius.circular(24),
+                            side: BorderSide(
+                              color: theme.colorScheme.outline.withOpacity(0.1),
+                              width: isCanvasExpanded ? 1.0 : 0.0,
+                            ),
+                          ),
+                          color: theme.colorScheme.surfaceContainerLow.withOpacity(0.95),
+                          shadows: isCanvasExpanded
+                              ? [
+                                  BoxShadow(
+                                    color: Colors.black.withOpacity(0.1),
+                                    blurRadius: 24,
+                                    offset: const Offset(-8, 8),
+                                  )
+                                ]
+                              : null,
+                        ),
+                        child: OverflowBox(
+                          alignment: Alignment.topRight,
+                          minWidth: sizes.width * 0.6,
+                          maxWidth: sizes.width * 0.6,
+                          minHeight: 0,
+                          maxHeight: double.infinity,
+                          child: _buildCanvasContent(context, theme),
+                        ),
+                      ),
+                    ],
+                  ),
+
+                  // 3. User's exact custom animated chat textfield console
+                  AnimatedAlign(
+                    duration: Durations.short4,
+                    curve: Curves.easeInOut,
+                    alignment: Alignment.bottomCenter,
+                    child: AnimatedPadding(
+                      duration: Durations.short4,
+                      padding: EdgeInsets.only(
+                        bottom: isChatExpanded ? 16.0 : 28.0,
+                        right: isCanvasExpanded ? sizes.width * 0.6 : 0,
+                      ),
+                      curve: Curves.easeOut,
+                      child: AnimatedContainer(
+                        width: isCanvasExpanded
+                            ? (sizes.width * 0.4 - 32).clamp(100.0, 512.0 + (isChatExpanded ? 64 : 0))
+                            : 512.0 + (isChatExpanded ? 64 : 0),
+                        height: isChatExpanded ? 256.0 : 64.0,
+                        decoration: ShapeDecoration(
+                          shape: RoundedSuperellipseBorder(
+                            borderRadius: BorderRadius.circular(32),
+                          ),
+                          color: theme.colorScheme.secondaryContainer,
+                        ),
+                        duration: Durations.medium2,
+                        curve: Curves.easeOutBack,
+                        child: Padding(
+                          padding: const EdgeInsets.all(8.0),
+                          child: Row(
+                            crossAxisAlignment: CrossAxisAlignment.center,
+                            children: [
+                              AnimatedAlign(
+                                alignment: isChatExpanded ? Alignment.topLeft : Alignment.centerLeft,
+                                duration: Durations.short1,
+                                child: IconButton(
+                                  onPressed: () {
+                                    final cubit = context.read<ChatDemoCubit>();
+                                    cubit.setTextBoxMode(
+                                      isChatExpanded
+                                          ? TextBoxMode.textfield
+                                          : TextBoxMode.media,
+                                    );
+                                  },
+                                  icon: AnimatedSwitcher(
+                                    duration: Durations.short4,
+                                    child: isChatExpanded
+                                        ? const Icon(Icons.close, key: ValueKey('close'))
+                                        : const Icon(Icons.add, key: ValueKey('add')),
+                                  ),
+                                ),
+                              ),
+                              Expanded(
+                                child: AnimatedSwitcher(
+                                  duration: Durations.short4,
+                                  child: isChatExpanded
+                                      ? _buildExpandedDrawerInput(context, theme)
+                                      : const TextField(
+                                          textAlignVertical: TextAlignVertical.center,
+                                          decoration: InputDecoration(
+                                            hintText: 'Talk to AI',
+                                            border: InputBorder.none,
+                                            contentPadding: EdgeInsets.symmetric(horizontal: 12, vertical: 12),
+                                          ),
+                                        ),
+                                ),
+                              ),
+                              if (!isChatExpanded)
+                                IconButton.filled(
+                                  onPressed: () {},
+                                  icon: Icon(
+                                    Icons.arrow_upward,
+                                    color: theme.colorScheme.onPrimary,
+                                  ),
+                                ),
+                            ],
+                          ),
+                        ),
+                      ),
                     ),
                   ),
                 ],
               ),
-
-              // 3. User's exact custom animated chat textfield console
-              AnimatedAlign(
-                duration: Durations.short4,
-                curve: Curves.easeInOut,
-                alignment: Alignment.bottomCenter,
-                child: AnimatedPadding(
-                  duration: Durations.short4,
-                  padding: EdgeInsets.only(
-                    bottom: isChatExpanded ? 16.0 : 28.0,
-                    right: isCanvasExpanded && !isMobile ? sizes.width * 0.6 : 0,
-                  ),
-                  curve: Curves.easeOut,
-                  child: AnimatedContainer(
-                    width: isCanvasExpanded
-                        ? (sizes.width * 0.4 - 32).clamp(100.0, 512.0 + (isChatExpanded ? 64 : 0))
-                        : 512.0 + (isChatExpanded ? 64 : 0),
-                    height: isChatExpanded ? 256.0 : 64.0,
-                    decoration: ShapeDecoration(
-                      shape: RoundedSuperellipseBorder(
-                        borderRadius: BorderRadius.circular(32),
-                      ),
-                      color: theme.colorScheme.secondaryContainer,
-                    ),
-                    duration: Durations.medium2,
-                    curve: Curves.easeOutBack,
-                    child: Padding(
-                      padding: const EdgeInsets.all(8.0),
-                      child: Row(
-                        crossAxisAlignment: CrossAxisAlignment.center,
-                        children: [
-                          AnimatedAlign(
-                            alignment: isChatExpanded ? Alignment.topLeft : Alignment.centerLeft,
-                            duration: Durations.short1,
-                            child: IconButton(
-                              onPressed: () => setState(() => isChatExpanded = !isChatExpanded),
-                              icon: AnimatedSwitcher(
-                                duration: Durations.short4,
-                                child: isChatExpanded
-                                    ? const Icon(Icons.close, key: ValueKey('close'))
-                                    : const Icon(Icons.add, key: ValueKey('add')),
-                              ),
-                            ),
-                          ),
-                          Expanded(
-                            child: AnimatedSwitcher(
-                              duration: Durations.short4,
-                              child: isChatExpanded
-                                  ? _buildExpandedDrawerInput(theme)
-                                  : TextField(
-                                      controller: _chatController,
-                                      textAlignVertical: TextAlignVertical.center,
-                                      decoration: const InputDecoration(
-                                        hintText: 'Talk to AI',
-                                        border: InputBorder.none,
-                                        contentPadding: EdgeInsets.symmetric(horizontal: 12, vertical: 12),
-                                      ),
-                                    ),
-                            ),
-                          ),
-                          if (!isChatExpanded)
-                            IconButton.filled(
-                              onPressed: () {},
-                              icon: Icon(
-                                Icons.arrow_upward,
-                                color: theme.colorScheme.onPrimary,
-                              ),
-                            ),
-                        ],
-                      ),
-                    ),
-                  ),
-                ),
-              ),
-            ],
+            ),
           ),
-        ),
-      ),
+        );
+      },
     );
   }
 
-  Widget _buildMessageBubble({
-    required String text,
-    required bool isUser,
-    required ThemeData theme,
-    required double maxWidth,
-  }) {
-    return Align(
-      alignment: isUser ? Alignment.centerRight : Alignment.centerLeft,
-      child: Container(
-        margin: const EdgeInsets.only(bottom: 12),
-        constraints: BoxConstraints(maxWidth: maxWidth),
-        child: Container(
-          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-          decoration: BoxDecoration(
-            color: isUser
-                ? theme.colorScheme.primary
-                : theme.colorScheme.surfaceContainerHigh.withOpacity(0.9),
-            borderRadius: BorderRadius.only(
-              topLeft: const Radius.circular(20),
-              topRight: const Radius.circular(20),
-              bottomLeft: Radius.circular(isUser ? 20 : 4),
-              bottomRight: Radius.circular(isUser ? 4 : 20),
-            ),
-            border: isUser
-                ? null
-                : Border.all(
-                    color: theme.colorScheme.outline.withOpacity(0.08),
-                  ),
-          ),
-          child: Text(
-            text,
-            style: TextStyle(
-              fontSize: 14,
-              height: 1.3,
-              color: isUser
-                  ? theme.colorScheme.onPrimary
-                  : theme.colorScheme.onSurface,
-            ),
-          ),
-        ),
-      ),
-    );
-  }
+  Widget _buildExpandedDrawerInput(BuildContext context, ThemeData theme) {
+    final isCanvasExpanded = context.select((ChatDemoCubit c) => c.state.canvasMode != CanvasMode.hidden);
 
-  Widget _buildExpandedDrawerInput(ThemeData theme) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -291,9 +231,9 @@ class _ChatDemoPageState extends State<ChatDemoPage> {
                   isCanvasExpanded ? "Close Monitor" : "Open Monitor",
                   theme,
                   onTap: () {
-                    setState(() {
-                      isCanvasExpanded = !isCanvasExpanded;
-                    });
+                    context.read<ChatDemoCubit>().setCanvasMode(
+                          isCanvasExpanded ? CanvasMode.hidden : CanvasMode.code,
+                        );
                   },
                 ),
               ],
@@ -329,7 +269,7 @@ class _ChatDemoPageState extends State<ChatDemoPage> {
     );
   }
 
-  Widget _buildCanvasContent(ThemeData theme) {
+  Widget _buildCanvasContent(BuildContext context, ThemeData theme) {
     return Padding(
       padding: const EdgeInsets.all(24.0),
       child: Column(
@@ -351,9 +291,7 @@ class _ChatDemoPageState extends State<ChatDemoPage> {
               IconButton.filledTonal(
                 icon: const Icon(Icons.close_rounded, size: 20),
                 onPressed: () {
-                  setState(() {
-                    isCanvasExpanded = false;
-                  });
+                  context.read<ChatDemoCubit>().setCanvasMode(CanvasMode.hidden);
                 },
               ),
             ],
