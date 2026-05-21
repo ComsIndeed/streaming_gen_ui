@@ -43,6 +43,7 @@ class _HomepageState extends State<Homepage> {
           // The Page view content
           Positioned.fill(
             child: PageView(
+              physics: const NeverScrollableScrollPhysics(),
               controller: pageController,
               children: const [CatalogPage(), ChatDemoPage()],
             ),
