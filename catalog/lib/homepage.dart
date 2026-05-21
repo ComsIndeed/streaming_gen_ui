@@ -48,45 +48,43 @@ class _HomepageState extends State<Homepage> {
             ),
           ),
 
-          // Floating sliding navigation bar
+          // Compact Floating Top Right Tab Navigation bar
           Align(
-            alignment: Alignment.topCenter,
+            alignment: Alignment.topRight,
             child: SafeArea(
               child: Container(
-                margin: const EdgeInsets.only(top: 16),
+                margin: const EdgeInsets.only(top: 16, right: 16),
                 padding: const EdgeInsets.all(4),
                 decoration: ShapeDecoration(
                   shape: RoundedSuperellipseBorder(
-                    borderRadius: BorderRadius.circular(24),
+                    borderRadius: BorderRadius.circular(20),
                     side: BorderSide(
-                      color: theme.colorScheme.outline.withOpacity(0.12),
+                      color: theme.colorScheme.outline.withOpacity(0.06),
                     ),
                   ),
                   color: theme.colorScheme.surfaceContainerHighest.withOpacity(
-                    0.5,
+                    0.2,
                   ),
                 ),
                 child: Stack(
                   children: [
-                    // Background capsule sliding pill
+                    // Background capsule sliding pill (Width 100)
                     Positioned(
-                      left: pageOffset * 140.0,
+                      left: pageOffset * 100.0,
                       top: 0,
                       bottom: 0,
                       child: Container(
-                        width: 140,
+                        width: 100,
                         decoration: ShapeDecoration(
                           shape: RoundedSuperellipseBorder(
-                            borderRadius: BorderRadius.circular(20),
+                            borderRadius: BorderRadius.circular(16),
                           ),
-                          color: theme.colorScheme.primary,
+                          color: theme.colorScheme.primary.withOpacity(0.85),
                           shadows: [
                             BoxShadow(
-                              color: theme.colorScheme.primary.withOpacity(
-                                0.25,
-                              ),
-                              blurRadius: 8,
-                              offset: const Offset(0, 3),
+                              color: theme.colorScheme.primary.withOpacity(0.12),
+                              blurRadius: 4,
+                              offset: const Offset(0, 2),
                             ),
                           ],
                         ),
@@ -98,10 +96,10 @@ class _HomepageState extends State<Homepage> {
                       mainAxisSize: MainAxisSize.min,
                       children: [
                         SizedBox(
-                          width: 140,
-                          height: 40,
+                          width: 100,
+                          height: 32,
                           child: InkWell(
-                            borderRadius: BorderRadius.circular(20),
+                            borderRadius: BorderRadius.circular(16),
                             onTap: () => pageController.animateToPage(
                               0,
                               duration: Durations.medium3,
@@ -109,23 +107,23 @@ class _HomepageState extends State<Homepage> {
                             ),
                             child: Center(
                               child: Text(
-                                "Widget Catalog",
+                                "Catalog",
                                 style: TextStyle(
                                   fontWeight: FontWeight.w600,
-                                  fontSize: 14,
+                                  fontSize: 12,
                                   color: pageOffset < 0.5
                                       ? theme.colorScheme.onPrimary
-                                      : theme.colorScheme.onSurfaceVariant,
+                                      : theme.colorScheme.onSurfaceVariant.withOpacity(0.8),
                                 ),
                               ),
                             ),
                           ),
                         ),
                         SizedBox(
-                          width: 140,
-                          height: 40,
+                          width: 100,
+                          height: 32,
                           child: InkWell(
-                            borderRadius: BorderRadius.circular(20),
+                            borderRadius: BorderRadius.circular(16),
                             onTap: () => pageController.animateToPage(
                               1,
                               duration: Durations.medium3,
@@ -136,10 +134,10 @@ class _HomepageState extends State<Homepage> {
                                 "Chat Demo",
                                 style: TextStyle(
                                   fontWeight: FontWeight.w600,
-                                  fontSize: 14,
+                                  fontSize: 12,
                                   color: pageOffset >= 0.5
                                       ? theme.colorScheme.onPrimary
-                                      : theme.colorScheme.onSurfaceVariant,
+                                      : theme.colorScheme.onSurfaceVariant.withOpacity(0.8),
                                 ),
                               ),
                             ),

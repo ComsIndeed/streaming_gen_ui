@@ -12,139 +12,81 @@ class ChatDemoPage extends StatefulWidget {
 }
 
 class _ChatDemoPageState extends State<ChatDemoPage> {
+  bool isChatExpanded = false;
   bool isCanvasExpanded = false;
+  
   final List<Map<String, dynamic>> _messages = [];
   final TextEditingController _chatController = TextEditingController();
   final ScrollController _scrollController = ScrollController();
 
-  // Engine instances for chat streams
-  late final StreamingGenerativeUi _agentStreamEngine;
-  late final StreamingGenerativeUi _metricStreamEngine;
-  late final StreamingGenerativeUi _carouselStreamEngine;
-
-  final StreamController<String> _agentStreamController =
-      StreamController<String>.broadcast();
-  final StreamController<String> _metricStreamController =
-      StreamController<String>.broadcast();
-  final StreamController<String> _carouselStreamController =
-      StreamController<String>.broadcast();
+  // Engine and controllers for live streamed AI bubble widgets
+  late final StreamingGenerativeUi _bubbleStreamEngine;
+  final StreamController<String> _bubbleStreamController = StreamController<String>.broadcast();
+  bool _isBubbleStreaming = false;
 
   @override
   void initState() {
     super.initState();
-
-    // Initialize streaming engines for bubbles
-    _agentStreamEngine = StreamingGenerativeUi(registry: Registries.all);
-    _metricStreamEngine = StreamingGenerativeUi(registry: Registries.all);
-    _carouselStreamEngine = StreamingGenerativeUi(registry: Registries.all);
-
-    _agentStreamEngine.stream(
-      _agentStreamController.stream,
-      viewId: 'bubble-agent',
-    );
-    _metricStreamEngine.stream(
-      _metricStreamController.stream,
-      viewId: 'bubble-metric',
-    );
-    _carouselStreamEngine.stream(
-      _carouselStreamController.stream,
-      viewId: 'bubble-carousel',
-    );
-
-    // Load initial greeting and play simulated generative UI streams
-    _loadInitialConversation();
+    _bubbleStreamEngine = StreamingGenerativeUi(registry: Registries.all);
+    _bubbleStreamEngine.stream(_bubbleStreamController.stream, viewId: 'ai-bubble-widget');
   }
 
   @override
   void dispose() {
-    _agentStreamController.close();
-    _metricStreamController.close();
-    _carouselStreamController.close();
+    _bubbleStreamController.close();
     _chatController.dispose();
     _scrollController.dispose();
     super.dispose();
-  }
-
-  void _loadInitialConversation() {
-    _messages.addAll([
-      {
-        "sender": "user",
-        "text":
-            "Hello AI! Can you plan a production server deployment and show me our core marketing performance stats?",
-        "widgetType": null,
-      },
-      {
-        "sender": "ai",
-        "text":
-            "Certainly! I've scheduled our backend deployment agent. Here is the real-time reasoning timeline:",
-        "widgetType": "agent",
-      },
-      {
-        "sender": "ai",
-        "text":
-            "Additionally, here is a quick snapshot of our active analytics stats and marketing banner concepts:",
-        "widgetType": "stats",
-      },
-    ]);
-
-    // Trigger mock streams after a small build layout gap
-    Timer(const Duration(milliseconds: 600), () {
-      _startSimulatedStreams();
-    });
-  }
-
-  void _startSimulatedStreams() {
-    // 1. Stream the Agent Timeline Stepper
-    final agentText =
-        '<interface>{"namespace":"doc:agent_stepper","steps":[{"title":"Initialize Node Server","status":"completed","duration":"80ms"},{"title":"Fetch Git repository","status":"completed","duration":"210ms"},{"title":"Running Docker Container","status":"running","duration":""},{"title":"Health Check Probes","status":"pending","duration":""}]}</interface>';
-    streamTextInChunks(
-      text: agentText,
-      chunkSize: 5,
-      interval: const Duration(milliseconds: 60),
-    ).listen((c) => _agentStreamController.add(c));
-
-    // 2. Stream the Metric Data
-    final metricText =
-        '<interface>{"namespace":"dash:metric","label":"Acquisition Rate","value":"+34.2%","trend":"2.4k new clicks","trendDirection":"up"}</interface>';
-    streamTextInChunks(
-      text: metricText,
-      chunkSize: 6,
-      interval: const Duration(milliseconds: 80),
-    ).listen((c) => _metricStreamController.add(c));
-
-    // 3. Stream the dynamic Image Carousel
-    final carouselText =
-        '<interface>{"namespace":"media:image","height":160.0,"borderRadius":16.0,"urls":["https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?w=600","https://images.unsplash.com/photo-1604871000636-074fa5117945?w=600"]}</interface>';
-    streamTextInChunks(
-      text: carouselText,
-      chunkSize: 8,
-      interval: const Duration(milliseconds: 90),
-    ).listen((c) => _carouselStreamController.add(c));
   }
 
   void _sendMessage() {
     final query = _chatController.text.trim();
     if (query.isEmpty) return;
 
+    // 1. Add User query
     setState(() {
-      _messages.add({"sender": "user", "text": query, "widgetType": null});
+      _messages.add({
+        "sender": "user",
+        "text": query,
+        "widgetType": null,
+      });
       _chatController.clear();
+      isChatExpanded = false; // Collapse text area back with spring animation on send
     });
 
     _scrollToBottom();
 
-    // AI thinking delay
-    Timer(const Duration(seconds: 1), () {
+    // 2. AI response stream after a brief typing thinking gap
+    Timer(const Duration(milliseconds: 800), () {
       setState(() {
         _messages.add({
           "sender": "ai",
-          "text":
-              "I've processed your query. Let's expand our visual timeline on the side Canvas Panel for detail diagnostics!",
-          "widgetType": null,
+          "text": "Initiated backend docker node server deployment logs. I have automatically opened the diagnostic monitor panel on the right side for you:",
+          "widgetType": "agent",
         });
-        isCanvasExpanded = true; // Auto expand layout shifter for rich content!
+        isCanvasExpanded = true; // Slide open the 60% Canvas panel!
       });
+      
       _scrollToBottom();
+
+      // 3. Stream the interactive Agent stepper widget inside the chat bubble
+      final stepperText = '<interface>{"namespace":"doc:agent_stepper","steps":[{"title":"Initialize Node Container","status":"completed","duration":"70ms"},{"title":"Pull Docker Repository","status":"completed","duration":"190ms"},{"title":"Deploy Production Host","status":"running","duration":""},{"title":"Expose Ports & Run Probe","status":"pending","duration":""}]}</interface>';
+      
+      _isBubbleStreaming = true;
+      streamTextInChunks(
+        text: stepperText,
+        chunkSize: 6,
+        interval: const Duration(milliseconds: 80),
+      ).listen(
+        (chunk) {
+          _bubbleStreamController.add(chunk);
+        },
+        onDone: () {
+          setState(() {
+            _isBubbleStreaming = false;
+          });
+        },
+      );
     });
   }
 
@@ -153,7 +95,7 @@ class _ChatDemoPageState extends State<ChatDemoPage> {
       if (_scrollController.hasClients) {
         _scrollController.animateTo(
           _scrollController.position.maxScrollExtent,
-          duration: const Duration(milliseconds: 300),
+          duration: const Duration(milliseconds: 400),
           curve: Curves.easeOutCubic,
         );
       }
@@ -171,296 +113,261 @@ class _ChatDemoPageState extends State<ChatDemoPage> {
         child: SafeArea(
           child: Stack(
             children: [
-              // Main Split Row (Left: Chat Feed Panel, Right: Collapsible side Canvas Panel)
+              // Horizontal Split View
               Row(
                 children: [
-                  // 1. LEFT PANEL: Chat conversation feed
+                  // 1. LEFT PANEL: Chat conversation space
                   Expanded(
                     child: Padding(
-                      padding: const EdgeInsets.fromLTRB(20, 64, 20, 96),
+                      padding: const EdgeInsets.fromLTRB(16, 16, 16, 96),
                       child: Column(
                         children: [
-                          // Custom Header
+                          // Header Pill
                           Row(
                             mainAxisAlignment: MainAxisAlignment.spaceBetween,
                             children: [
                               Column(
                                 crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [
-                                  Text(
-                                    "AI Chat Room",
-                                    style: TextStyle(
-                                      fontSize: 24,
-                                      fontWeight: FontWeight.bold,
-                                      color: theme.colorScheme.onSurface,
-                                    ),
-                                  ),
-                                  Text(
-                                    "Conversational Generative UI",
-                                    style: TextStyle(
-                                      fontSize: 12,
-                                      color: theme.colorScheme.onSurfaceVariant
-                                          .withOpacity(0.7),
-                                    ),
-                                  ),
-                                ],
-                              ),
-                              // Floating Layout Shifter toggle pill
-                              Container(
-                                decoration: ShapeDecoration(
-                                  shape: RoundedSuperellipseBorder(
-                                    borderRadius: BorderRadius.circular(20),
-                                    side: BorderSide(
-                                      color: theme.colorScheme.outline
-                                          .withOpacity(0.12),
-                                    ),
-                                  ),
-                                  color: theme
-                                      .colorScheme
-                                      .surfaceContainerHighest
-                                      .withOpacity(0.5),
-                                ),
-                                child: InkWell(
-                                  borderRadius: BorderRadius.circular(20),
-                                  onTap: () {
-                                    setState(() {
-                                      isCanvasExpanded = !isCanvasExpanded;
-                                    });
-                                  },
-                                  child: Padding(
-                                    padding: const EdgeInsets.symmetric(
-                                      horizontal: 14,
-                                      vertical: 8,
-                                    ),
-                                    child: Row(
-                                      mainAxisSize: MainAxisSize.min,
+                                  RichText(
+                                    text: TextSpan(
+                                      style: TextStyle(
+                                        fontSize: 24,
+                                        letterSpacing: -0.5,
+                                        color: theme.colorScheme.onSurface,
+                                      ),
                                       children: [
-                                        Icon(
-                                          isCanvasExpanded
-                                              ? Icons.chevron_right_rounded
-                                              : Icons.chevron_left_rounded,
-                                          size: 18,
+                                        const TextSpan(
+                                          text: "Streaming ",
+                                          style: TextStyle(fontWeight: FontWeight.bold),
                                         ),
-                                        const SizedBox(width: 4),
-                                        Text(
-                                          isCanvasExpanded
-                                              ? "Close Canvas"
-                                              : "Open Canvas",
-                                          style: const TextStyle(
-                                            fontSize: 12,
-                                            fontWeight: FontWeight.w600,
-                                          ),
+                                        const TextSpan(
+                                          text: "Generative UI",
+                                          style: TextStyle(fontWeight: FontWeight.w300),
                                         ),
                                       ],
                                     ),
                                   ),
-                                ),
+                                  Text(
+                                    "Chat Demo",
+                                    style: TextStyle(
+                                      fontSize: 14,
+                                      fontWeight: FontWeight.bold,
+                                      color: theme.colorScheme.primary,
+                                    ),
+                                  ),
+                                ],
                               ),
                             ],
                           ),
                           const SizedBox(height: 16),
 
-                          // Chat bubble feed list
+                          // Scrollable Bubbles list
                           Expanded(
-                            child: ListView.builder(
-                              controller: _scrollController,
-                              physics: const BouncingScrollPhysics(),
-                              itemCount: _messages.length,
-                              itemBuilder: (context, index) {
-                                final message = _messages[index];
-                                final isUser = message["sender"] == "user";
-                                final widgetType = message["widgetType"];
+                            child: _messages.isEmpty
+                                ? _buildEmptyPrompt(theme)
+                                : ListView.builder(
+                                    controller: _scrollController,
+                                    physics: const BouncingScrollPhysics(),
+                                    itemCount: _messages.length,
+                                    itemBuilder: (context, index) {
+                                      final message = _messages[index];
+                                      final isUser = message["sender"] == "user";
+                                      final widgetType = message["widgetType"];
 
-                                return Align(
-                                  alignment: isUser
-                                      ? Alignment.centerRight
-                                      : Alignment.centerLeft,
-                                  child: Container(
-                                    margin: const EdgeInsets.only(bottom: 12),
-                                    constraints: BoxConstraints(
-                                      maxWidth: sizes.width * 0.7,
-                                    ),
-                                    child: Column(
-                                      crossAxisAlignment: isUser
-                                          ? CrossAxisAlignment.end
-                                          : CrossAxisAlignment.start,
-                                      children: [
-                                        // Text Bubble
-                                        Container(
-                                          padding: const EdgeInsets.symmetric(
-                                            horizontal: 16,
-                                            vertical: 12,
-                                          ),
-                                          decoration: BoxDecoration(
-                                            color: isUser
-                                                ? theme.colorScheme.primary
-                                                : theme
-                                                      .colorScheme
-                                                      .surfaceContainerHigh
-                                                      .withOpacity(0.9),
-                                            borderRadius: BorderRadius.only(
-                                              topLeft: const Radius.circular(
-                                                20,
-                                              ),
-                                              topRight: const Radius.circular(
-                                                20,
-                                              ),
-                                              bottomLeft: Radius.circular(
-                                                isUser ? 20 : 4,
-                                              ),
-                                              bottomRight: Radius.circular(
-                                                isUser ? 4 : 20,
-                                              ),
-                                            ),
-                                            border: isUser
-                                                ? null
-                                                : Border.all(
-                                                    color: theme
-                                                        .colorScheme
-                                                        .outline
-                                                        .withOpacity(0.08),
+                                      return Align(
+                                        alignment: isUser ? Alignment.centerRight : Alignment.centerLeft,
+                                        child: Container(
+                                          margin: const EdgeInsets.only(bottom: 12),
+                                          constraints: BoxConstraints(maxWidth: sizes.width * 0.5),
+                                          child: Column(
+                                            crossAxisAlignment:
+                                                isUser ? CrossAxisAlignment.end : CrossAxisAlignment.start,
+                                            children: [
+                                              // Text bubble container
+                                              Container(
+                                                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                                                decoration: BoxDecoration(
+                                                  color: isUser
+                                                      ? theme.colorScheme.primary
+                                                      : theme.colorScheme.surfaceContainerHigh.withOpacity(0.9),
+                                                  borderRadius: BorderRadius.only(
+                                                    topLeft: const Radius.circular(20),
+                                                    topRight: const Radius.circular(20),
+                                                    bottomLeft: Radius.circular(isUser ? 20 : 4),
+                                                    bottomRight: Radius.circular(isUser ? 4 : 20),
                                                   ),
-                                          ),
-                                          child: Text(
-                                            message["text"] as String,
-                                            style: TextStyle(
-                                              fontSize: 14,
-                                              height: 1.3,
-                                              color: isUser
-                                                  ? theme.colorScheme.onPrimary
-                                                  : theme.colorScheme.onSurface,
-                                            ),
-                                          ),
-                                        ),
-
-                                        // Renders dynamic, live streaming widget inside chat bubbles
-                                        if (widgetType != null)
-                                          Padding(
-                                            padding: const EdgeInsets.only(
-                                              top: 8.0,
-                                              bottom: 4.0,
-                                            ),
-                                            child: ClipRRect(
-                                              borderRadius:
-                                                  BorderRadius.circular(16),
-                                              child: SizedBox(
-                                                width: 320,
-                                                child: Card(
-                                                  elevation: 2,
-                                                  margin: EdgeInsets.zero,
-                                                  child: Padding(
-                                                    padding:
-                                                        const EdgeInsets.all(
-                                                          8.0,
+                                                  border: isUser
+                                                      ? null
+                                                      : Border.all(
+                                                          color: theme.colorScheme.outline.withOpacity(0.08),
                                                         ),
-                                                    child: _buildBubbleWidget(
-                                                      widgetType,
-                                                    ),
+                                                ),
+                                                child: Text(
+                                                  message["text"] as String,
+                                                  style: TextStyle(
+                                                    fontSize: 14,
+                                                    height: 1.3,
+                                                    color: isUser
+                                                        ? theme.colorScheme.onPrimary
+                                                        : theme.colorScheme.onSurface,
                                                   ),
                                                 ),
                                               ),
-                                            ),
+
+                                              // Stream Generative UI inside Chat bubble
+                                              if (widgetType != null)
+                                                Padding(
+                                                  padding: const EdgeInsets.only(top: 8.0),
+                                                  child: Container(
+                                                    width: 320,
+                                                    decoration: ShapeDecoration(
+                                                      shape: RoundedSuperellipseBorder(
+                                                        borderRadius: BorderRadius.circular(16),
+                                                      ),
+                                                      shadows: [
+                                                        BoxShadow(
+                                                          color: Colors.black.withOpacity(0.05),
+                                                          blurRadius: 8,
+                                                          offset: const Offset(0, 4),
+                                                        ),
+                                                      ],
+                                                    ),
+                                                    child: Card(
+                                                      margin: EdgeInsets.zero,
+                                                      shape: RoundedSuperellipseBorder(
+                                                        borderRadius: BorderRadius.circular(16),
+                                                      ),
+                                                      child: Padding(
+                                                        padding: const EdgeInsets.all(10.0),
+                                                        child: _bubbleStreamEngine.view('ai-bubble-widget'),
+                                                      ),
+                                                    ),
+                                                  ),
+                                                ),
+                                            ],
                                           ),
-                                      ],
-                                    ),
+                                        ),
+                                      );
+                                    },
                                   ),
-                                );
-                              },
-                            ),
                           ),
                         ],
                       ),
                     ),
                   ),
 
-                  // 2. RIGHT PANEL: Sliding canvas container layout shifter
+                  // 2. RIGHT PANEL: Floating 60% Bento Canvas panel (Slides & Shifts the left panel)
                   AnimatedContainer(
-                    duration: const Duration(milliseconds: 350),
+                    duration: const Duration(milliseconds: 400),
                     curve: Curves.easeInOutCubicEmphasized,
-                    width: isCanvasExpanded
-                        ? (isMobile ? sizes.width : 380.0)
-                        : 0.0,
+                    width: isCanvasExpanded ? (isMobile ? sizes.width : sizes.width * 0.6) : 0,
                     height: double.infinity,
-                    decoration: BoxDecoration(
-                      color: theme.colorScheme.surfaceContainerLow.withOpacity(
-                        0.95,
-                      ),
-                      border: Border(
-                        left: BorderSide(
-                          color: theme.colorScheme.outline.withOpacity(0.12),
+                    margin: isCanvasExpanded
+                        ? const EdgeInsets.fromLTRB(0, 16, 16, 16)
+                        : EdgeInsets.zero,
+                    clipBehavior: Clip.antiAlias,
+                    decoration: ShapeDecoration(
+                      shape: RoundedSuperellipseBorder(
+                        borderRadius: BorderRadius.circular(24),
+                        side: BorderSide(
+                          color: theme.colorScheme.outline.withOpacity(0.1),
                           width: isCanvasExpanded ? 1.0 : 0.0,
                         ),
                       ),
-                      boxShadow: isCanvasExpanded
+                      color: theme.colorScheme.surfaceContainerLow.withOpacity(0.95),
+                      shadows: isCanvasExpanded
                           ? [
                               BoxShadow(
-                                color: Colors.black.withOpacity(0.06),
-                                blurRadius: 20,
-                                offset: const Offset(-8, 0),
-                              ),
+                                color: Colors.black.withOpacity(0.1),
+                                blurRadius: 24,
+                                offset: const Offset(-8, 8),
+                              )
                             ]
                           : null,
                     ),
-                    clipBehavior: Clip.antiAlias,
-                    child: isCanvasExpanded
-                        ? _buildCanvasPanel(theme)
-                        : const SizedBox.shrink(),
+                    child: OverflowBox(
+                      alignment: Alignment.topRight,
+                      minWidth: isMobile ? sizes.width : sizes.width * 0.6,
+                      maxWidth: isMobile ? sizes.width : sizes.width * 0.6,
+                      minHeight: 0,
+                      maxHeight: double.infinity,
+                      child: _buildCanvasContent(theme),
+                    ),
                   ),
                 ],
               ),
 
-              // Chat text input bar docked at bottom left
-              Align(
-                alignment: Alignment.bottomLeft,
-                child: Container(
-                  width: isCanvasExpanded && !isMobile
-                      ? sizes.width - 380.0
-                      : sizes.width,
-                  padding: const EdgeInsets.fromLTRB(20, 0, 20, 24),
-                  child: Container(
+              // 3. User's exact custom animated chat textfield console
+              AnimatedAlign(
+                duration: Durations.short4,
+                curve: Curves.easeInOut,
+                alignment: .bottomCenter,
+                child: AnimatedPadding(
+                  duration: Durations.short4,
+                  // Keep bounds aligned depending on expanded drawer side panel
+                  padding: EdgeInsets.only(
+                    bottom: isChatExpanded ? 16.0 : 28.0,
+                    right: isCanvasExpanded && !isMobile ? sizes.width * 0.6 : 0,
+                  ),
+                  curve: Curves.easeOut,
+                  child: AnimatedContainer(
+                    // Scales responsively to fit inside the compressed left panel
+                    width: isCanvasExpanded
+                        ? (sizes.width * 0.4 - 32).clamp(100.0, 512.0 + (isChatExpanded ? 64 : 0))
+                        : 512.0 + (isChatExpanded ? 64 : 0),
+                    height: isChatExpanded ? 256.0 : 64.0,
                     decoration: ShapeDecoration(
                       shape: RoundedSuperellipseBorder(
-                        borderRadius: BorderRadius.circular(28),
+                        borderRadius: BorderRadius.circular(32),
                       ),
-                      color: theme.colorScheme.surfaceContainerHighest
-                          .withOpacity(0.8),
-                      shadows: [
-                        BoxShadow(
-                          color: Colors.black.withOpacity(0.05),
-                          blurRadius: 10,
-                          offset: const Offset(0, 4),
-                        ),
-                      ],
+                      color: theme.colorScheme.secondaryContainer,
                     ),
+                    duration: Durations.medium2,
+                    curve: Curves.easeOutBack,
                     child: Padding(
-                      padding: const EdgeInsets.symmetric(
-                        horizontal: 16.0,
-                        vertical: 4.0,
-                      ),
+                      padding: const EdgeInsets.all(8.0),
                       child: Row(
+                        crossAxisAlignment: CrossAxisAlignment.center,
                         children: [
-                          Expanded(
-                            child: TextField(
-                              controller: _chatController,
-                              decoration: const InputDecoration(
-                                hintText: 'Message AI...',
-                                border: InputBorder.none,
-                                contentPadding: EdgeInsets.symmetric(
-                                  vertical: 12,
-                                ),
+                          AnimatedAlign(
+                            alignment: isChatExpanded ? Alignment.topLeft : Alignment.centerLeft,
+                            duration: Durations.short1,
+                            child: IconButton(
+                              onPressed: () => setState(() => isChatExpanded = !isChatExpanded),
+                              icon: AnimatedSwitcher(
+                                duration: Durations.short4,
+                                child: isChatExpanded
+                                    ? const Icon(Icons.close, key: ValueKey('close'))
+                                    : const Icon(Icons.add, key: ValueKey('add')),
                               ),
-                              style: const TextStyle(fontSize: 14),
-                              onSubmitted: (_) => _sendMessage(),
                             ),
                           ),
-                          IconButton.filled(
-                            onPressed: _sendMessage,
-                            icon: Icon(
-                              Icons.send_rounded,
-                              size: 16,
-                              color: theme.colorScheme.onPrimary,
+                          Expanded(
+                            child: AnimatedSwitcher(
+                              duration: Durations.short4,
+                              child: isChatExpanded
+                                  ? _buildExpandedDrawerInput(theme)
+                                  : TextField(
+                                      controller: _chatController,
+                                      textAlignVertical: TextAlignVertical.center,
+                                      decoration: const InputDecoration(
+                                        hintText: 'Talk to AI',
+                                        border: InputBorder.none,
+                                        contentPadding: EdgeInsets.symmetric(horizontal: 12, vertical: 12),
+                                      ),
+                                      onSubmitted: (_) => _sendMessage(),
+                                    ),
                             ),
                           ),
+                          if (!isChatExpanded)
+                            IconButton.filled(
+                              onPressed: _sendMessage,
+                              icon: Icon(
+                                Icons.arrow_upward,
+                                color: theme.colorScheme.onPrimary,
+                              ),
+                            ),
                         ],
                       ),
                     ),
@@ -474,48 +381,196 @@ class _ChatDemoPageState extends State<ChatDemoPage> {
     );
   }
 
-  // Visual selector matching the bubble stream controllers
-  Widget _buildBubbleWidget(String type) {
-    if (type == "agent") {
-      return _agentStreamEngine.view('bubble-agent');
-    } else if (type == "stats") {
-      return Column(
-        children: [
-          _metricStreamEngine.view('bubble-metric'),
-          const SizedBox(height: 8),
-          _carouselStreamEngine.view('bubble-carousel'),
-        ],
-      );
-    }
-    return const SizedBox.shrink();
+  // Visual prompt for clean startup
+  Widget _buildEmptyPrompt(ThemeData theme) {
+    final prompts = const [
+      {"text": "Deploy production node server container"},
+      {"text": "Query marketing analytics metric dashboard"},
+      {"text": "Show concept gradient image carousel"},
+    ];
+
+    return Center(
+      child: Container(
+        constraints: const BoxConstraints(maxWidth: 420),
+        padding: const EdgeInsets.symmetric(horizontal: 24),
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Container(
+              padding: const EdgeInsets.all(16),
+              decoration: BoxDecoration(
+                color: theme.colorScheme.primaryContainer.withOpacity(0.25),
+                shape: BoxShape.circle,
+              ),
+              child: Icon(
+                Icons.chat_bubble_outline_rounded,
+                color: theme.colorScheme.primary,
+                size: 32,
+              ),
+            ),
+            const SizedBox(height: 20),
+            Text(
+              "Let's try her out!",
+              style: TextStyle(
+                fontSize: 20,
+                fontWeight: FontWeight.bold,
+                color: theme.colorScheme.onSurface,
+                letterSpacing: -0.5,
+              ),
+            ),
+            const SizedBox(height: 6),
+            Text(
+              "Send a prompt to stream dynamic widgets in conversation, or select one of the quick starters below:",
+              textAlign: TextAlign.center,
+              style: TextStyle(
+                fontSize: 13,
+                color: theme.colorScheme.onSurfaceVariant.withOpacity(0.7),
+                height: 1.3,
+              ),
+            ),
+            const SizedBox(height: 24),
+            ...prompts.map((p) {
+              return Padding(
+                padding: const EdgeInsets.only(bottom: 8.0),
+                child: Material(
+                  color: theme.colorScheme.surfaceContainerHigh.withOpacity(0.4),
+                  borderRadius: BorderRadius.circular(16),
+                  child: InkWell(
+                    borderRadius: BorderRadius.circular(16),
+                    onTap: () {
+                      _chatController.text = p["text"]!;
+                      _sendMessage(); // Submit instantly!
+                    },
+                    child: Container(
+                      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                      decoration: BoxDecoration(
+                        borderRadius: BorderRadius.circular(16),
+                        border: Border.all(
+                          color: theme.colorScheme.outline.withOpacity(0.08),
+                        ),
+                      ),
+                      child: Row(
+                        children: [
+                          Icon(
+                            Icons.chat_bubble_outline_rounded,
+                            size: 16,
+                            color: theme.colorScheme.primary.withOpacity(0.8),
+                          ),
+                          const SizedBox(width: 12),
+                          Expanded(
+                            child: Text(
+                              p["text"]!,
+                              style: TextStyle(
+                                fontSize: 13,
+                                fontWeight: FontWeight.w600,
+                                color: theme.colorScheme.onSurface,
+                              ),
+                            ),
+                          ),
+                          Icon(
+                            Icons.arrow_forward_rounded,
+                            size: 14,
+                            color: theme.colorScheme.onSurfaceVariant.withOpacity(0.4),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
+                ),
+              );
+            }).toList(),
+          ],
+        ),
+      ),
+    );
   }
 
-  // Sliding Drawer rich document sheet console view
-  Widget _buildCanvasPanel(ThemeData theme) {
+  // Expanded panel input contents
+  Widget _buildExpandedDrawerInput(ThemeData theme) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        const Padding(
+          padding: EdgeInsets.fromLTRB(12, 8, 12, 4),
+          child: Text(
+            "ATTACHMENT CONSOLE",
+            style: TextStyle(fontSize: 10, fontWeight: FontWeight.bold, letterSpacing: 1.2),
+          ),
+        ),
+        Expanded(
+          child: Padding(
+            padding: const EdgeInsets.all(8.0),
+            child: Wrap(
+              spacing: 8,
+              runSpacing: 8,
+              children: [
+                _buildDrawerPill(Icons.image_rounded, "Media", theme),
+                _buildDrawerPill(Icons.code_rounded, "Stream XML", theme),
+                _buildDrawerPill(
+                  isCanvasExpanded ? Icons.analytics_rounded : Icons.analytics_outlined,
+                  isCanvasExpanded ? "Close Monitor" : "Open Monitor",
+                  theme,
+                  onTap: () {
+                    setState(() {
+                      isCanvasExpanded = !isCanvasExpanded;
+                    });
+                  },
+                ),
+              ],
+            ),
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildDrawerPill(IconData icon, String label, ThemeData theme, {VoidCallback? onTap}) {
+    return Material(
+      color: Colors.transparent,
+      child: InkWell(
+        borderRadius: BorderRadius.circular(16),
+        onTap: onTap,
+        child: Container(
+          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+          decoration: BoxDecoration(
+            color: theme.colorScheme.surfaceContainerHighest.withOpacity(0.5),
+            borderRadius: BorderRadius.circular(16),
+          ),
+          child: Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Icon(icon, size: 16, color: theme.colorScheme.primary),
+              const SizedBox(width: 6),
+              Text(label, style: const TextStyle(fontSize: 11, fontWeight: FontWeight.bold)),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  // 60% Floating Bento canvas card contents
+  Widget _buildCanvasContent(ThemeData theme) {
     return Padding(
-      padding: const EdgeInsets.all(20.0),
+      padding: const EdgeInsets.all(24.0),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          // Drawer Header
+          // Header
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               Row(
                 children: [
-                  Icon(
-                    Icons.analytics_rounded,
-                    color: theme.colorScheme.primary,
-                    size: 20,
-                  ),
-                  const SizedBox(width: 8),
+                  Icon(Icons.dashboard_customize_rounded, color: theme.colorScheme.primary, size: 22),
+                  const SizedBox(width: 10),
                   const Text(
-                    "Canvas Console",
-                    style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
+                    "Docker Deploy monitor",
+                    style: TextStyle(fontWeight: FontWeight.bold, fontSize: 18),
                   ),
                 ],
               ),
-              IconButton(
+              IconButton.filledTonal(
                 icon: const Icon(Icons.close_rounded, size: 20),
                 onPressed: () {
                   setState(() {
@@ -525,105 +580,100 @@ class _ChatDemoPageState extends State<ChatDemoPage> {
               ),
             ],
           ),
-          const SizedBox(height: 16),
+          const SizedBox(height: 20),
 
-          // Diagnostics Cards
+          // Diagnostic cards
           const Text(
-            "SYSTEM DIAGNOSTICS",
-            style: TextStyle(
-              fontSize: 11,
-              fontWeight: FontWeight.bold,
-              letterSpacing: 1.5,
-            ),
+            "LIVE CONNECTION METRIC",
+            style: TextStyle(fontSize: 11, fontWeight: FontWeight.bold, letterSpacing: 1.5),
           ),
-          const SizedBox(height: 8),
-
-          Card(
-            elevation: 0,
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(16),
-              side: BorderSide(
-                color: theme.colorScheme.outline.withOpacity(0.12),
-              ),
-            ),
-            child: Padding(
-              padding: const EdgeInsets.all(12.0),
-              child: Row(
-                children: [
-                  Container(
-                    width: 36,
-                    height: 36,
-                    decoration: BoxDecoration(
-                      color: Colors.greenAccent.withOpacity(0.15),
-                      shape: BoxShape.circle,
-                    ),
-                    child: const Icon(
-                      Icons.check_circle_rounded,
-                      color: Colors.greenAccent,
-                      size: 20,
+          const SizedBox(height: 10),
+          Row(
+            children: [
+              Expanded(
+                child: Card(
+                  elevation: 0,
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(16),
+                    side: BorderSide(color: theme.colorScheme.outline.withOpacity(0.1)),
+                  ),
+                  child: Padding(
+                    padding: const EdgeInsets.all(16.0),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        const Text("CPU load", style: TextStyle(fontSize: 12, color: Colors.grey)),
+                        const SizedBox(height: 4),
+                        Text("12.4%", style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold, color: theme.colorScheme.primary)),
+                      ],
                     ),
                   ),
-                  const SizedBox(width: 12),
-                  const Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        "Production Node",
-                        style: TextStyle(
-                          fontWeight: FontWeight.bold,
-                          fontSize: 13,
-                        ),
-                      ),
-                      Text(
-                        "Online - 99.98% SLA",
-                        style: TextStyle(fontSize: 11, color: Colors.grey),
-                      ),
-                    ],
-                  ),
-                ],
+                ),
               ),
-            ),
+              const SizedBox(width: 12),
+              Expanded(
+                child: Card(
+                  elevation: 0,
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(16),
+                    side: BorderSide(color: theme.colorScheme.outline.withOpacity(0.1)),
+                  ),
+                  child: Padding(
+                    padding: const EdgeInsets.all(16.0),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        const Text("Memory", style: TextStyle(fontSize: 12, color: Colors.grey)),
+                        const SizedBox(height: 4),
+                        const Text("512MB / 2GB", style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Colors.greenAccent)),
+                      ],
+                    ),
+                  ),
+                ),
+              ),
+            ],
           ),
-          const SizedBox(height: 16),
+          const SizedBox(height: 24),
 
-          // Code logs console
+          // Running logs terminal block
           const Text(
-            "DEPLOYMENT TERMINAL LOGS",
-            style: TextStyle(
-              fontSize: 11,
-              fontWeight: FontWeight.bold,
-              letterSpacing: 1.5,
-            ),
+            "LIVE DEPLOYMENT CONTAINER TERMINAL LOGS",
+            style: TextStyle(fontSize: 11, fontWeight: FontWeight.bold, letterSpacing: 1.5),
           ),
-          const SizedBox(height: 8),
-
+          const SizedBox(height: 10),
           Expanded(
             child: Container(
               width: double.infinity,
-              padding: const EdgeInsets.all(12),
+              padding: const EdgeInsets.all(16),
               decoration: BoxDecoration(
-                color: Colors.black.withOpacity(0.9),
-                borderRadius: BorderRadius.circular(16),
-                border: Border.all(
-                  color: theme.colorScheme.outline.withOpacity(0.12),
-                ),
+                color: Colors.black.withOpacity(0.95),
+                borderRadius: BorderRadius.circular(20),
+                border: Border.all(color: theme.colorScheme.outline.withOpacity(0.1)),
               ),
               child: const SingleChildScrollView(
                 physics: BouncingScrollPhysics(),
                 child: Text(
-                  "\$ docker run -d -p 80:80 backend_agent\n"
-                  "--> pulling layers [OK]\n"
-                  "--> mounting filesystem [OK]\n"
-                  "--> exposing server ports [OK]\n"
-                  "--> logs: server running at http://localhost:80\n"
-                  "--> diagnostic: latency 18ms\n"
-                  "--> streaming socket initialized...\n"
-                  "--> listening on port 80...\n"
-                  "\$ _",
+                  "\$ npm install -g pnpm\n"
+                  "--> added 4 packages [OK]\n"
+                  "\$ pnpm build\n"
+                  "--> compiling source scripts...\n"
+                  "--> tree shaking components...\n"
+                  "--> assets saved under dist/ [OK]\n"
+                  "\$ docker build -t server-node .\n"
+                  "--> Layer 1/4: FROM node:20-alpine [OK]\n"
+                  "--> Layer 2/4: COPY dist/ dist/ [OK]\n"
+                  "--> Layer 3/4: EXPOSE 8080 [OK]\n"
+                  "--> Layer 4/4: CMD pnpm dev [OK]\n"
+                  "--> tag: server-node:latest successfully compiled!\n"
+                  "\$ docker run -p 8080:8080 server-node\n"
+                  "--> running deployment hooks...\n"
+                  "--> metrics listener connected.\n"
+                  "--> status: host online at http://192.168.1.144:8080\n"
+                  "--> _",
                   style: TextStyle(
                     fontFamily: 'monospace',
                     fontSize: 12,
-                    color: Colors.lightGreenAccent,
+                    color: Colors.greenAccent,
                     height: 1.4,
                   ),
                 ),
