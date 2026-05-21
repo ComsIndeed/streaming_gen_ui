@@ -31,140 +31,14 @@ class ChatDemoPage extends StatelessWidget {
                           child: Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
-                              // Header Pill
-                              Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  RichText(
-                                    text: TextSpan(
-                                      style: TextStyle(
-                                        fontSize: 24,
-                                        letterSpacing: -0.5,
-                                        color: theme.colorScheme.onSurface,
-                                      ),
-                                      children: const [
-                                        TextSpan(
-                                          text: "Streaming ",
-                                          style: TextStyle(
-                                            fontWeight: FontWeight.bold,
-                                          ),
-                                        ),
-                                        TextSpan(
-                                          text: "Generative UI",
-                                          style: TextStyle(
-                                            fontWeight: FontWeight.w300,
-                                          ),
-                                        ),
-                                      ],
-                                    ),
-                                  ),
-                                  Text(
-                                    "Chat Demo",
-                                    style: TextStyle(
-                                      fontSize: 14,
-                                      fontWeight: FontWeight.bold,
-                                      color: theme.colorScheme.primary,
-                                    ),
-                                  ),
-                                ],
-                              ),
+                              _buildHeader(context, theme),
                               const SizedBox(height: 24),
-                              // Scrollable Chat Message Space
                               Expanded(
                                 child: Column(
                                   children: [
-                                    if (state.errorMessage != null)
-                                      Padding(
-                                        padding: const EdgeInsets.only(bottom: 16),
-                                        child: Container(
-                                          width: double.infinity,
-                                          padding: const EdgeInsets.all(16),
-                                          decoration: BoxDecoration(
-                                            color: theme.colorScheme.errorContainer,
-                                            borderRadius: BorderRadius.circular(16),
-                                            border: Border.all(
-                                              color: theme.colorScheme.error.withOpacity(0.3),
-                                            ),
-                                          ),
-                                          child: Row(
-                                            children: [
-                                              Icon(Icons.warning_amber_rounded, color: theme.colorScheme.error),
-                                              const SizedBox(width: 12),
-                                              Expanded(
-                                                child: Text(
-                                                  state.errorMessage!,
-                                                  style: TextStyle(
-                                                    color: theme.colorScheme.onErrorContainer,
-                                                    fontSize: 13,
-                                                    fontWeight: FontWeight.w500,
-                                                  ),
-                                                ),
-                                              ),
-                                              IconButton(
-                                                icon: const Icon(Icons.close, size: 18),
-                                                color: theme.colorScheme.onErrorContainer,
-                                                onPressed: () => context.read<ChatDemoCubit>().clearError(),
-                                              ),
-                                            ],
-                                          ),
-                                        ),
-                                      ),
+                                    _buildErrorBanner(context, theme, state),
                                     Expanded(
-                                      child: Center(
-                                        child: Container(
-                                          constraints: const BoxConstraints(maxWidth: 720),
-                                          child: ListView.builder(
-                                            itemCount: state.messages.length,
-                                            padding: const EdgeInsets.only(bottom: 140, left: 16, right: 16),
-                                            physics: const BouncingScrollPhysics(),
-                                            itemBuilder: (context, index) {
-                                              final message = state.messages[index];
-                                              if (message.isUser) {
-                                                return Align(
-                                                  alignment: Alignment.centerRight,
-                                                  child: Container(
-                                                    margin: const EdgeInsets.symmetric(vertical: 4),
-                                                    padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
-                                                    decoration: BoxDecoration(
-                                                      color: theme.colorScheme.primaryContainer,
-                                                      borderRadius: BorderRadius.circular(16),
-                                                    ),
-                                                    child: Text(
-                                                      message.text,
-                                                      style: TextStyle(
-                                                        color: theme.colorScheme.onPrimaryContainer,
-                                                        fontSize: 14,
-                                                      ),
-                                                    ),
-                                                  ),
-                                                );
-                                              } else {
-                                                final cubit = context.read<ChatDemoCubit>();
-                                                return Align(
-                                                  alignment: Alignment.centerLeft,
-                                                  child: Container(
-                                                    margin: const EdgeInsets.symmetric(vertical: 8),
-                                                    padding: const EdgeInsets.all(12),
-                                                    decoration: BoxDecoration(
-                                                      color: theme.colorScheme.surfaceContainerLow,
-                                                      borderRadius: BorderRadius.circular(16),
-                                                      border: Border.all(
-                                                        color: theme.colorScheme.outline.withOpacity(0.08),
-                                                      ),
-                                                    ),
-                                                    child: ListenableBuilder(
-                                                      listenable: cubit.generativeUi,
-                                                      builder: (context, _) {
-                                                        return cubit.generativeUi.view(message.id);
-                                                      },
-                                                    ),
-                                                  ),
-                                                );
-                                              }
-                                            },
-                                          ),
-                                        ),
-                                      ),
+                                      child: _buildMessageList(context, theme, state),
                                     ),
                                   ],
                                 ),
@@ -175,48 +49,7 @@ class ChatDemoPage extends StatelessWidget {
                       ),
 
                       // 2. RIGHT PANEL: Floating Bento Canvas panel
-                      AnimatedContainer(
-                        duration: const Duration(milliseconds: 400),
-                        curve: Curves.easeInOutCubicEmphasized,
-                        width: isCanvasExpanded ? sizes.width * 0.6 : 0,
-                        height: double.infinity,
-                        margin: isCanvasExpanded
-                            ? const EdgeInsets.fromLTRB(0, 16, 16, 16)
-                            : EdgeInsets.zero,
-                        clipBehavior: Clip.antiAlias,
-                        decoration: ShapeDecoration(
-                          shape: RoundedSuperellipseBorder(
-                            borderRadius: BorderRadius.circular(24),
-                            side: BorderSide(
-                              color: theme.colorScheme.outline.withOpacity(0.1),
-                              width: isCanvasExpanded ? 1.0 : 0.0,
-                            ),
-                          ),
-                          color: theme.colorScheme.surfaceContainerLow
-                              .withOpacity(0.95),
-                          shadows: isCanvasExpanded
-                              ? [
-                                  BoxShadow(
-                                    color: Colors.black.withOpacity(0.1),
-                                    blurRadius: 24,
-                                    offset: const Offset(-8, 8),
-                                  ),
-                                ]
-                              : null,
-                        ),
-                        child: LayoutBuilder(
-                          builder: (context, constraints) {
-                            return OverflowBox(
-                              alignment: Alignment.topRight,
-                              minWidth: sizes.width * 0.6,
-                              maxWidth: sizes.width * 0.6,
-                              minHeight: constraints.maxHeight,
-                              maxHeight: constraints.maxHeight,
-                              child: _buildCanvasContent(context, theme),
-                            );
-                          },
-                        ),
-                      ),
+                      _buildCanvasPanel(context, theme, state, sizes),
                     ],
                   ),
 
@@ -245,6 +78,198 @@ class ChatDemoPage extends StatelessWidget {
           ),
         );
       },
+    );
+  }
+
+  // --- Sub-widgets & UI Helpers ---
+
+  /// Renders the page title header
+  Widget _buildHeader(BuildContext context, ThemeData theme) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        RichText(
+          text: TextSpan(
+            style: TextStyle(
+              fontSize: 24,
+              letterSpacing: -0.5,
+              color: theme.colorScheme.onSurface,
+            ),
+            children: const [
+              TextSpan(
+                text: "Streaming ",
+                style: TextStyle(fontWeight: FontWeight.bold),
+              ),
+              TextSpan(
+                text: "Generative UI",
+                style: TextStyle(fontWeight: FontWeight.w300),
+              ),
+            ],
+          ),
+        ),
+        Text(
+          "Chat Demo",
+          style: TextStyle(
+            fontSize: 14,
+            fontWeight: FontWeight.bold,
+            color: theme.colorScheme.primary,
+          ),
+        ),
+      ],
+    );
+  }
+
+  /// Renders a critical configuration warning or runtime API error banner
+  Widget _buildErrorBanner(BuildContext context, ThemeData theme, ChatDemoState state) {
+    if (state.errorMessage == null) return const SizedBox.shrink();
+
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 16),
+      child: Container(
+        width: double.infinity,
+        padding: const EdgeInsets.all(16),
+        decoration: BoxDecoration(
+          color: theme.colorScheme.errorContainer,
+          borderRadius: BorderRadius.circular(16),
+          border: Border.all(
+            color: theme.colorScheme.error.withOpacity(0.3),
+          ),
+        ),
+        child: Row(
+          children: [
+            Icon(Icons.warning_amber_rounded, color: theme.colorScheme.error),
+            const SizedBox(width: 12),
+            Expanded(
+              child: Text(
+                state.errorMessage!,
+                style: TextStyle(
+                  color: theme.colorScheme.onErrorContainer,
+                  fontSize: 13,
+                  fontWeight: FontWeight.w500,
+                ),
+              ),
+            ),
+            IconButton(
+              icon: const Icon(Icons.close, size: 18),
+              color: theme.colorScheme.onErrorContainer,
+              onPressed: () => context.read<ChatDemoCubit>().clearError(),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  /// Renders the scrollable centered list of all chat bubbles
+  Widget _buildMessageList(BuildContext context, ThemeData theme, ChatDemoState state) {
+    return Center(
+      child: Container(
+        constraints: const BoxConstraints(maxWidth: 720),
+        child: ListView.builder(
+          itemCount: state.messages.length,
+          padding: const EdgeInsets.only(bottom: 140, left: 16, right: 16),
+          physics: const BouncingScrollPhysics(),
+          itemBuilder: (context, index) {
+            final message = state.messages[index];
+            return message.isUser
+                ? _buildUserMessageBubble(context, theme, message)
+                : _buildModelMessageBubble(context, theme, message);
+          },
+        ),
+      ),
+    );
+  }
+
+  /// Renders the user text bubble aligned to the right
+  Widget _buildUserMessageBubble(BuildContext context, ThemeData theme, DemoMessage message) {
+    return Align(
+      alignment: Alignment.centerRight,
+      child: Container(
+        margin: const EdgeInsets.symmetric(vertical: 4),
+        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+        decoration: BoxDecoration(
+          color: theme.colorScheme.primaryContainer,
+          borderRadius: BorderRadius.circular(16),
+        ),
+        child: Text(
+          message.text,
+          style: TextStyle(
+            color: theme.colorScheme.onPrimaryContainer,
+            fontSize: 14,
+          ),
+        ),
+      ),
+    );
+  }
+
+  /// Renders the model UI/Text bubble aligned to the left, integrated with StreamingGenerativeUi
+  Widget _buildModelMessageBubble(BuildContext context, ThemeData theme, DemoMessage message) {
+    final cubit = context.read<ChatDemoCubit>();
+    return Align(
+      alignment: Alignment.centerLeft,
+      child: Container(
+        margin: const EdgeInsets.symmetric(vertical: 8),
+        padding: const EdgeInsets.all(12),
+        decoration: BoxDecoration(
+          color: theme.colorScheme.surfaceContainerLow,
+          borderRadius: BorderRadius.circular(16),
+          border: Border.all(
+            color: theme.colorScheme.outline.withOpacity(0.08),
+          ),
+        ),
+        child: ListenableBuilder(
+          listenable: cubit.generativeUi,
+          builder: (context, _) {
+            return cubit.generativeUi.view(message.id);
+          },
+        ),
+      ),
+    );
+  }
+
+  /// Renders the bento canvas panel that dynamically expands/shrinks
+  Widget _buildCanvasPanel(BuildContext context, ThemeData theme, ChatDemoState state, Size sizes) {
+    final isCanvasExpanded = state.canvasMode != CanvasMode.hidden;
+    return AnimatedContainer(
+      duration: const Duration(milliseconds: 400),
+      curve: Curves.easeInOutCubicEmphasized,
+      width: isCanvasExpanded ? sizes.width * 0.6 : 0,
+      height: double.infinity,
+      margin: isCanvasExpanded
+          ? const EdgeInsets.fromLTRB(0, 16, 16, 16)
+          : EdgeInsets.zero,
+      clipBehavior: Clip.antiAlias,
+      decoration: ShapeDecoration(
+        shape: RoundedSuperellipseBorder(
+          borderRadius: BorderRadius.circular(24),
+          side: BorderSide(
+            color: theme.colorScheme.outline.withOpacity(0.1),
+            width: isCanvasExpanded ? 1.0 : 0.0,
+          ),
+        ),
+        color: theme.colorScheme.surfaceContainerLow.withOpacity(0.95),
+        shadows: isCanvasExpanded
+            ? [
+                BoxShadow(
+                  color: Colors.black.withOpacity(0.1),
+                  blurRadius: 24,
+                  offset: const Offset(-8, 8),
+                ),
+              ]
+            : null,
+      ),
+      child: LayoutBuilder(
+        builder: (context, constraints) {
+          return OverflowBox(
+            alignment: Alignment.topRight,
+            minWidth: sizes.width * 0.6,
+            maxWidth: sizes.width * 0.6,
+            minHeight: constraints.maxHeight,
+            maxHeight: constraints.maxHeight,
+            child: _buildCanvasContent(context, theme),
+          );
+        },
+      ),
     );
   }
 
