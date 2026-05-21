@@ -165,16 +165,20 @@ class ChatDemoPage extends StatelessWidget {
     return Center(
       child: Container(
         constraints: const BoxConstraints(maxWidth: 720),
-        child: ListView.builder(
-          itemCount: state.messages.length,
-          padding: const EdgeInsets.only(bottom: 140, left: 16, right: 16),
-          physics: const BouncingScrollPhysics(),
-          itemBuilder: (context, index) {
-            final message = state.messages[index];
-            return message.isUser
-                ? _buildUserMessageBubble(context, theme, message)
-                : _buildModelMessageBubble(context, theme, message);
-          },
+        child: ScrollConfiguration(
+          behavior: ScrollConfiguration.of(context).copyWith(scrollbars: false),
+          child: ListView.builder(
+            reverse: true,
+            itemCount: state.messages.length,
+            padding: const EdgeInsets.only(top: 16, bottom: 140, left: 16, right: 16),
+            physics: const BouncingScrollPhysics(),
+            itemBuilder: (context, index) {
+              final message = state.messages[state.messages.length - 1 - index];
+              return message.isUser
+                  ? _buildUserMessageBubble(context, theme, message)
+                  : _buildModelMessageBubble(context, theme, message);
+            },
+          ),
         ),
       ),
     );
