@@ -143,7 +143,11 @@ class _CatalogPageState extends State<CatalogPage> {
                       ),
                       itemCount: filteredItems.length,
                       itemBuilder: (context, index) {
-                        return CatalogCard(catalogItem: filteredItems[index]);
+                        final item = filteredItems[index];
+                        return CatalogCard(
+                          key: ValueKey(item.namespace),
+                          catalogItem: item,
+                        );
                       },
                     ),
             ),
