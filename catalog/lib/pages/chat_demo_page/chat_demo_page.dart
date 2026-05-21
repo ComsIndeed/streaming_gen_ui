@@ -4,8 +4,30 @@ import 'package:gpt_markdown/gpt_markdown.dart';
 import 'package:streaming_gen_ui_widget_catalog/pages/chat_demo_page/chat_demo_cubit.dart';
 import 'package:streaming_gen_ui_widget_catalog/widgets/graph_background.dart';
 
-class ChatDemoPage extends StatelessWidget {
+class ChatDemoPage extends StatefulWidget {
   const ChatDemoPage({super.key});
+
+  @override
+  State<ChatDemoPage> createState() => _ChatDemoPageState();
+}
+
+class _ChatDemoPageState extends State<ChatDemoPage> {
+  late final TextEditingController _controller;
+  late final FocusNode _focusNode;
+
+  @override
+  void initState() {
+    super.initState();
+    _controller = TextEditingController();
+    _focusNode = FocusNode();
+  }
+
+  @override
+  void dispose() {
+    _controller.dispose();
+    _focusNode.dispose();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -43,6 +65,8 @@ class ChatDemoPage extends StatelessWidget {
                                         context,
                                         theme,
                                         state,
+                                        _controller,
+                                        _focusNode,
                                       ),
                                     ),
                                   ],
@@ -74,6 +98,8 @@ class ChatDemoPage extends StatelessWidget {
                         isChatExpanded: isChatExpanded,
                         isCanvasExpanded: isCanvasExpanded,
                         sizes: sizes,
+                        controller: _controller,
+                        focusNode: _focusNode,
                       ),
                     ),
                   ),
@@ -172,7 +198,12 @@ class ChatDemoPage extends StatelessWidget {
     BuildContext context,
     ThemeData theme,
     ChatDemoState state,
+    TextEditingController controller,
+    FocusNode focusNode,
   ) {
+    if (state.messages.isEmpty) {
+      return _buildEmptyState(context, theme, controller, focusNode);
+    }
     return Center(
       child: Container(
         constraints: const BoxConstraints(maxWidth: 720),
@@ -194,6 +225,122 @@ class ChatDemoPage extends StatelessWidget {
                   ? _buildUserMessageBubble(context, theme, message)
                   : _buildModelMessageBubble(context, theme, message);
             },
+          ),
+        ),
+      ),
+    );
+  }
+
+  /// Renders the empty state display with preset prompts
+  Widget _buildEmptyState(
+    BuildContext context,
+    ThemeData theme,
+    TextEditingController controller,
+    FocusNode focusNode,
+  ) {
+    return Center(
+      child: Container(
+        constraints: const BoxConstraints(maxWidth: 600),
+        child: SingleChildScrollView(
+          physics: const BouncingScrollPhysics(),
+          padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 32),
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            crossAxisAlignment: CrossAxisAlignment.center,
+            children: [
+              // Try her out! Badge
+              Container(
+                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                decoration: BoxDecoration(
+                  color: theme.colorScheme.primary.withOpacity(0.08),
+                  borderRadius: BorderRadius.circular(20),
+                  border: Border.all(
+                    color: theme.colorScheme.primary.withOpacity(0.2),
+                  ),
+                ),
+                child: Text(
+                  "Try her out!",
+                  style: TextStyle(
+                    fontSize: 13,
+                    fontWeight: FontWeight.bold,
+                    letterSpacing: 1.0,
+                    color: theme.colorScheme.primary,
+                  ),
+                ),
+              ),
+              const SizedBox(height: 24),
+              // Headline
+              Text(
+                "Streaming Generative UI",
+                textAlign: TextAlign.center,
+                style: TextStyle(
+                  fontSize: 32,
+                  fontWeight: FontWeight.bold,
+                  letterSpacing: -1.0,
+                  color: theme.colorScheme.onSurface,
+                ),
+              ),
+              const SizedBox(height: 12),
+              // Subtitle
+              Text(
+                "Interact with real-time UI components rendered directly from the LLM stream. Choose a preset prompt below to begin.",
+                textAlign: TextAlign.center,
+                style: TextStyle(
+                  fontSize: 14,
+                  height: 1.5,
+                  color: theme.colorScheme.onSurfaceVariant.withOpacity(0.7),
+                ),
+              ),
+              const SizedBox(height: 48),
+              // Preset Grid
+              LayoutBuilder(
+                builder: (context, constraints) {
+                  final isNarrow = constraints.maxWidth < 450;
+                  return GridView.count(
+                    shrinkWrap: true,
+                    physics: const NeverScrollableScrollPhysics(),
+                    crossAxisCount: isNarrow ? 1 : 2,
+                    crossAxisSpacing: 16,
+                    mainAxisSpacing: 16,
+                    childAspectRatio: isNarrow ? 2.5 : 2.0,
+                    children: [
+                      _PresetPromptCard(
+                        title: "Show off",
+                        prompt: "What makes you so cool?",
+                        onTap: () {
+                          controller.text = "What makes you so cool?";
+                          focusNode.requestFocus();
+                        },
+                      ),
+                      _PresetPromptCard(
+                        title: "Weather check",
+                        prompt: "Give me a quick forecast, is it t-shirt weather?",
+                        onTap: () {
+                          controller.text = "Give me a quick forecast, is it t-shirt weather?";
+                          focusNode.requestFocus();
+                        },
+                      ),
+                      _PresetPromptCard(
+                        title: "Sun chaser",
+                        prompt: "When is the next Summer Solstice? I need some sun.",
+                        onTap: () {
+                          controller.text = "When is the next Summer Solstice? I need some sun.";
+                          focusNode.requestFocus();
+                        },
+                      ),
+                      _PresetPromptCard(
+                        title: "Interactive demo",
+                        prompt: "Show me what you've got! Demo all your widgets.",
+                        onTap: () {
+                          controller.text = "Show me what you've got! Demo all your widgets.";
+                          focusNode.requestFocus();
+                        },
+                      ),
+                    ],
+                  );
+                },
+              ),
+            ],
           ),
         ),
       ),
@@ -482,11 +629,15 @@ class _ChatConsoleInput extends StatefulWidget {
   final bool isChatExpanded;
   final bool isCanvasExpanded;
   final Size sizes;
+  final TextEditingController controller;
+  final FocusNode focusNode;
 
   const _ChatConsoleInput({
     required this.isChatExpanded,
     required this.isCanvasExpanded,
     required this.sizes,
+    required this.controller,
+    required this.focusNode,
   });
 
   @override
@@ -500,15 +651,10 @@ class _ChatConsoleInputState extends State<_ChatConsoleInput> {
   bool _isConsoleHovered = false;
   bool _isAnimatingChatExpansion = false;
 
-  late final FocusNode _focusNode;
-  late final TextEditingController _controller;
-
   @override
   void initState() {
     super.initState();
-    _controller = TextEditingController();
-    _focusNode = FocusNode();
-    _focusNode.addListener(_handleFocusChange);
+    widget.focusNode.addListener(_handleFocusChange);
   }
 
   @override
@@ -517,29 +663,31 @@ class _ChatConsoleInputState extends State<_ChatConsoleInput> {
     if (widget.isChatExpanded != oldWidget.isChatExpanded) {
       _isAnimatingChatExpansion = true;
     }
+    if (widget.focusNode != oldWidget.focusNode) {
+      oldWidget.focusNode.removeListener(_handleFocusChange);
+      widget.focusNode.addListener(_handleFocusChange);
+    }
   }
 
   @override
   void dispose() {
-    _controller.dispose();
-    _focusNode.removeListener(_handleFocusChange);
-    _focusNode.dispose();
+    widget.focusNode.removeListener(_handleFocusChange);
     super.dispose();
   }
 
   void _handleFocusChange() {
-    if (_focusNode.hasFocus != _isTextFieldFocused) {
+    if (widget.focusNode.hasFocus != _isTextFieldFocused) {
       setState(() {
-        _isTextFieldFocused = _focusNode.hasFocus;
+        _isTextFieldFocused = widget.focusNode.hasFocus;
       });
     }
   }
 
   void _submit() {
-    final text = _controller.text.trim();
+    final text = widget.controller.text.trim();
     if (text.isNotEmpty) {
       context.read<ChatDemoCubit>().sendMessage(text);
-      _controller.clear();
+      widget.controller.clear();
     }
   }
 
@@ -659,8 +807,8 @@ class _ChatConsoleInputState extends State<_ChatConsoleInput> {
                       child: widget.isChatExpanded
                           ? _buildExpandedDrawerInput(context, theme)
                           : TextField(
-                              controller: _controller,
-                              focusNode: _focusNode,
+                              controller: widget.controller,
+                              focusNode: widget.focusNode,
                               onSubmitted: (_) => _submit(),
                               textAlignVertical: TextAlignVertical.center,
                               decoration: const InputDecoration(
@@ -684,9 +832,9 @@ class _ChatConsoleInputState extends State<_ChatConsoleInput> {
                           setState(() => _isSendButtonPressed = false),
                       child: MouseRegion(
                         onEnter: (_) =>
-                            setState(() => _isSendButtonHovered = true),
+                          setState(() => _isSendButtonHovered = true),
                         onExit: (_) =>
-                            setState(() => _isSendButtonHovered = false),
+                          setState(() => _isSendButtonHovered = false),
                         cursor: SystemMouseCursors.click,
                         child: AnimatedScale(
                           scale: _isSendButtonHovered ? 1.15 : 1.0,
@@ -786,6 +934,83 @@ class _ChatConsoleInputState extends State<_ChatConsoleInput> {
                 style: const TextStyle(
                   fontSize: 11,
                   fontWeight: FontWeight.bold,
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+class _PresetPromptCard extends StatefulWidget {
+  final String title;
+  final String prompt;
+  final VoidCallback onTap;
+
+  const _PresetPromptCard({
+    required this.title,
+    required this.prompt,
+    required this.onTap,
+  });
+
+  @override
+  State<_PresetPromptCard> createState() => _PresetPromptCardState();
+}
+
+class _PresetPromptCardState extends State<_PresetPromptCard> {
+  bool _isHovered = false;
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    return MouseRegion(
+      onEnter: (_) => setState(() => _isHovered = true),
+      onExit: (_) => setState(() => _isHovered = false),
+      cursor: SystemMouseCursors.click,
+      child: GestureDetector(
+        onTap: widget.onTap,
+        child: AnimatedContainer(
+          duration: const Duration(milliseconds: 200),
+          padding: const EdgeInsets.all(16),
+          decoration: BoxDecoration(
+            color: _isHovered
+                ? theme.colorScheme.primary.withOpacity(0.04)
+                : theme.colorScheme.surfaceContainerLow.withOpacity(0.6),
+            borderRadius: BorderRadius.circular(16),
+            border: Border.all(
+              color: _isHovered
+                  ? theme.colorScheme.primary.withOpacity(0.3)
+                  : theme.colorScheme.outline.withOpacity(0.08),
+              width: 1.0,
+            ),
+          ),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Text(
+                widget.title,
+                style: TextStyle(
+                  fontSize: 13,
+                  fontWeight: FontWeight.bold,
+                  color: _isHovered
+                      ? theme.colorScheme.primary
+                      : theme.colorScheme.onSurface,
+                ),
+              ),
+              const SizedBox(height: 6),
+              Expanded(
+                child: Text(
+                  widget.prompt,
+                  style: TextStyle(
+                    fontSize: 12,
+                    color: theme.colorScheme.onSurfaceVariant.withOpacity(0.8),
+                    height: 1.3,
+                  ),
+                  maxLines: 2,
+                  overflow: TextOverflow.ellipsis,
                 ),
               ),
             ],
