@@ -221,9 +221,13 @@ class _ChatDemoPageState extends State<ChatDemoPage> {
             physics: const BouncingScrollPhysics(),
             itemBuilder: (context, index) {
               final message = state.messages[state.messages.length - 1 - index];
-              return message.isUser
-                  ? _buildUserMessageBubble(context, theme, message)
-                  : _buildModelMessageBubble(context, theme, message);
+              return Builder(
+                builder: (context) {
+                  return message.isUser
+                      ? _buildUserMessageBubble(context, theme, message)
+                      : _buildModelMessageBubble(context, theme, message);
+                },
+              );
             },
           ),
         ),
