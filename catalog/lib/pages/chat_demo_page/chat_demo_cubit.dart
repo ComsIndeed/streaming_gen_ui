@@ -84,15 +84,17 @@ class ChatDemoCubit extends Cubit<ChatDemoState> {
         ),
       ) {
     _history.add(
-      ChatMessage.system('''
+      ChatMessage.system(systemPrompt),
+    );
+  }
+
+  String get systemPrompt => '''
 You are a helpful AI Assistant demonstrating your ability to show UI components in your chat.
 
 Help the user with their requests. Use widgets when you can.
 
 ${generativeUi.registry.systemPromptFragment}
-'''),
-    );
-  }
+''';
 
   void setTextBoxMode(TextBoxMode mode) {
     emit(state.copyWith(textBoxMode: mode));
@@ -104,6 +106,21 @@ ${generativeUi.registry.systemPromptFragment}
 
   void clearError() {
     emit(state.copyWithClearedError());
+  }
+
+  void clearChat() {
+    _history.clear();
+    _history.add(
+      ChatMessage.system(systemPrompt),
+    );
+    emit(
+      const ChatDemoState(
+        textBoxMode: TextBoxMode.textfield,
+        canvasMode: CanvasMode.hidden,
+        messages: [],
+        isThinking: false,
+      ),
+    );
   }
 
   Future<void> sendMessage(String text) async {

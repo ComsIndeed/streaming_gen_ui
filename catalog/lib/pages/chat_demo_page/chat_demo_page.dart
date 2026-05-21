@@ -860,43 +860,75 @@ class _ChatConsoleInputState extends State<_ChatConsoleInput> {
   }
 
   Widget _buildExpandedDrawerInput(BuildContext context, ThemeData theme) {
-    final isCanvasExpanded = context.select(
-      (ChatDemoCubit c) => c.state.canvasMode != CanvasMode.hidden,
-    );
-
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        const Padding(
-          padding: EdgeInsets.fromLTRB(12, 8, 12, 4),
-          child: Text(
-            "ATTACHMENT CONSOLE",
-            style: TextStyle(
-              fontSize: 10,
-              fontWeight: FontWeight.bold,
-              letterSpacing: 1.2,
-            ),
+        Padding(
+          padding: const EdgeInsets.fromLTRB(12, 8, 12, 8),
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Text(
+                "CONSOLE UTILITIES",
+                style: TextStyle(
+                  fontSize: 10,
+                  fontWeight: FontWeight.bold,
+                  letterSpacing: 1.5,
+                  color: theme.colorScheme.primary,
+                ),
+              ),
+              Container(
+                width: 6,
+                height: 6,
+                decoration: BoxDecoration(
+                  shape: BoxShape.circle,
+                  color: theme.colorScheme.primary,
+                ),
+              ),
+            ],
           ),
         ),
+        const Divider(height: 1, thickness: 0.5, indent: 12, endIndent: 12),
+        const SizedBox(height: 16),
         Expanded(
           child: Padding(
-            padding: const EdgeInsets.all(8.0),
-            child: Wrap(
-              spacing: 8,
-              runSpacing: 8,
+            padding: const EdgeInsets.symmetric(horizontal: 12),
+            child: GridView.count(
+              crossAxisCount: 3,
+              crossAxisSpacing: 12,
+              mainAxisSpacing: 12,
+              childAspectRatio: 1.8,
+              physics: const NeverScrollableScrollPhysics(),
               children: [
-                _buildDrawerPill(Icons.image_rounded, "Media", theme),
-                _buildDrawerPill(Icons.code_rounded, "Stream XML", theme),
-                _buildDrawerPill(
-                  isCanvasExpanded
-                      ? Icons.analytics_rounded
-                      : Icons.analytics_outlined,
-                  isCanvasExpanded ? "Close Monitor" : "Open Monitor",
-                  theme,
+                _buildConsoleUtilityCard(
+                  icon: Icons.delete_sweep_rounded,
+                  title: "Clear Chat",
+                  subtitle: "Reset discussion",
+                  theme: theme,
+                  isAction: true,
                   onTap: () {
-                    context.read<ChatDemoCubit>().setCanvasMode(
-                      isCanvasExpanded ? CanvasMode.hidden : CanvasMode.code,
-                    );
+                    context.read<ChatDemoCubit>().clearChat();
+                  },
+                ),
+                _buildConsoleUtilityCard(
+                  icon: Icons.code_rounded,
+                  title: "Raw Response",
+                  subtitle: "Toggle raw text",
+                  theme: theme,
+                  isToggle: true,
+                  isActive: false,
+                  onTap: () {
+                    // Non-functional as requested
+                  },
+                ),
+                _buildConsoleUtilityCard(
+                  icon: Icons.terminal_rounded,
+                  title: "System Prompt",
+                  subtitle: "View instructions",
+                  theme: theme,
+                  isAction: true,
+                  onTap: () {
+                    _showSystemPromptModal(context, theme);
                   },
                 ),
               ],
@@ -907,34 +939,241 @@ class _ChatConsoleInputState extends State<_ChatConsoleInput> {
     );
   }
 
-  Widget _buildDrawerPill(
-    IconData icon,
-    String label,
-    ThemeData theme, {
-    VoidCallback? onTap,
+  Widget _buildConsoleUtilityCard({
+    required IconData icon,
+    required String title,
+    required String subtitle,
+    required ThemeData theme,
+    bool isAction = false,
+    bool isToggle = false,
+    bool isActive = false,
+    required VoidCallback onTap,
   }) {
-    return Material(
-      color: Colors.transparent,
-      child: InkWell(
-        borderRadius: BorderRadius.circular(16),
-        onTap: onTap,
-        child: Container(
-          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+    return _ConsoleUtilityCard(
+      icon: icon,
+      title: title,
+      subtitle: subtitle,
+      isAction: isAction,
+      isToggle: isToggle,
+      isActive: isActive,
+      onTap: onTap,
+    );
+  }
+
+  void _showSystemPromptModal(BuildContext context, ThemeData theme) {
+    final cubit = context.read<ChatDemoCubit>();
+    showModalBottomSheet(
+      context: context,
+      backgroundColor: Colors.transparent,
+      isScrollControlled: true,
+      builder: (context) {
+        return Container(
+          height: MediaQuery.sizeOf(context).height * 0.75,
           decoration: BoxDecoration(
-            color: theme.colorScheme.surfaceContainerHighest.withOpacity(0.5),
-            borderRadius: BorderRadius.circular(16),
+            color: theme.colorScheme.surfaceContainerLow,
+            borderRadius: const BorderRadius.vertical(top: Radius.circular(28)),
+            border: Border.all(
+              color: theme.colorScheme.outline.withOpacity(0.1),
+            ),
           ),
-          child: Row(
-            mainAxisSize: MainAxisSize.min,
+          child: Column(
             children: [
-              Icon(icon, size: 16, color: theme.colorScheme.primary),
-              const SizedBox(width: 6),
-              Text(
-                label,
-                style: const TextStyle(
-                  fontSize: 11,
-                  fontWeight: FontWeight.bold,
+              // Bottom sheet handle & header
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Row(
+                      children: [
+                        Icon(
+                          Icons.terminal_rounded,
+                          color: theme.colorScheme.primary,
+                          size: 22,
+                        ),
+                        const SizedBox(width: 10),
+                        const Text(
+                          "System Instructions",
+                          style: TextStyle(
+                            fontWeight: FontWeight.bold,
+                            fontSize: 18,
+                          ),
+                        ),
+                      ],
+                    ),
+                    IconButton.filledTonal(
+                      icon: const Icon(Icons.close_rounded, size: 20),
+                      onPressed: () => Navigator.pop(context),
+                    ),
+                  ],
                 ),
+              ),
+              const Divider(height: 1),
+              // Entire scrollable prompt content
+              Expanded(
+                child: SingleChildScrollView(
+                  physics: const BouncingScrollPhysics(),
+                  padding: const EdgeInsets.all(24.0),
+                  child: Container(
+                    width: double.infinity,
+                    padding: const EdgeInsets.all(16),
+                    decoration: BoxDecoration(
+                      color: Colors.black.withOpacity(0.04),
+                      borderRadius: BorderRadius.circular(16),
+                      border: Border.all(
+                        color: theme.colorScheme.outline.withOpacity(0.08),
+                      ),
+                    ),
+                    child: SelectableText(
+                      cubit.systemPrompt,
+                      style: TextStyle(
+                        fontFamily: 'monospace',
+                        fontSize: 12,
+                        height: 1.5,
+                        color: theme.colorScheme.onSurfaceVariant,
+                      ),
+                    ),
+                  ),
+                ),
+              ),
+            ],
+          ),
+        );
+      },
+    );
+  }
+}
+
+class _ConsoleUtilityCard extends StatefulWidget {
+  final IconData icon;
+  final String title;
+  final String subtitle;
+  final bool isAction;
+  final bool isToggle;
+  final bool isActive;
+  final VoidCallback onTap;
+
+  const _ConsoleUtilityCard({
+    required this.icon,
+    required this.title,
+    required this.subtitle,
+    required this.isAction,
+    required this.isToggle,
+    required this.isActive,
+    required this.onTap,
+  });
+
+  @override
+  State<_ConsoleUtilityCard> createState() => _ConsoleUtilityCardState();
+}
+
+class _ConsoleUtilityCardState extends State<_ConsoleUtilityCard> {
+  bool _isHovered = false;
+  late bool _toggleState;
+
+  @override
+  void initState() {
+    super.initState();
+    _toggleState = widget.isActive;
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final cardColor = widget.isToggle && _toggleState
+        ? theme.colorScheme.primary.withOpacity(0.08)
+        : (_isHovered
+            ? theme.colorScheme.surfaceContainerHighest.withOpacity(0.8)
+            : theme.colorScheme.surfaceContainerHighest.withOpacity(0.3));
+
+    final borderColor = widget.isToggle && _toggleState
+        ? theme.colorScheme.primary.withOpacity(0.4)
+        : (_isHovered
+            ? theme.colorScheme.primary.withOpacity(0.2)
+            : theme.colorScheme.outline.withOpacity(0.08));
+
+    return MouseRegion(
+      onEnter: (_) => setState(() => _isHovered = true),
+      onExit: (_) => setState(() => _isHovered = false),
+      cursor: SystemMouseCursors.click,
+      child: GestureDetector(
+        onTap: () {
+          if (widget.isToggle) {
+            setState(() {
+              _toggleState = !_toggleState;
+            });
+          }
+          widget.onTap();
+        },
+        child: AnimatedContainer(
+          duration: const Duration(milliseconds: 150),
+          padding: const EdgeInsets.all(12),
+          decoration: BoxDecoration(
+            color: cardColor,
+            borderRadius: BorderRadius.circular(16),
+            border: Border.all(color: borderColor, width: 1.0),
+          ),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Icon(
+                    widget.icon,
+                    size: 20,
+                    color: widget.isToggle && _toggleState
+                        ? theme.colorScheme.primary
+                        : theme.colorScheme.onSurfaceVariant,
+                  ),
+                  if (widget.isToggle)
+                    AnimatedContainer(
+                      duration: const Duration(milliseconds: 150),
+                      width: 32,
+                      height: 18,
+                      padding: const EdgeInsets.all(2),
+                      decoration: BoxDecoration(
+                        borderRadius: BorderRadius.circular(9),
+                        color: _toggleState
+                            ? theme.colorScheme.primary
+                            : theme.colorScheme.outline.withOpacity(0.3),
+                      ),
+                      child: AnimatedAlign(
+                        duration: const Duration(milliseconds: 150),
+                        alignment: _toggleState
+                            ? Alignment.centerRight
+                            : Alignment.centerLeft,
+                        child: Container(
+                          width: 14,
+                          height: 14,
+                          decoration: const BoxDecoration(
+                            shape: BoxShape.circle,
+                            color: Colors.white,
+                          ),
+                        ),
+                      ),
+                    ),
+                ],
+              ),
+              const Spacer(),
+              Text(
+                widget.title,
+                style: TextStyle(
+                  fontSize: 12,
+                  fontWeight: FontWeight.bold,
+                  color: theme.colorScheme.onSurface,
+                ),
+              ),
+              const SizedBox(height: 2),
+              Text(
+                widget.subtitle,
+                style: TextStyle(
+                  fontSize: 9,
+                  color: theme.colorScheme.onSurfaceVariant.withOpacity(0.6),
+                ),
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
               ),
             ],
           ),
