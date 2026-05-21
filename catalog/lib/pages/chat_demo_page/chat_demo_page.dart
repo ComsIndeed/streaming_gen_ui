@@ -250,7 +250,10 @@ class _ChatDemoPageState extends State<ChatDemoPage> {
             children: [
               // Try her out! Badge
               Container(
-                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 16,
+                  vertical: 8,
+                ),
                 decoration: BoxDecoration(
                   color: theme.colorScheme.primary.withOpacity(0.08),
                   borderRadius: BorderRadius.circular(20),
@@ -314,25 +317,31 @@ class _ChatDemoPageState extends State<ChatDemoPage> {
                       ),
                       _PresetPromptCard(
                         title: "Weather check",
-                        prompt: "Give me a quick forecast, is it t-shirt weather?",
+                        prompt:
+                            "Give me a quick forecast, is it t-shirt weather?",
                         onTap: () {
-                          controller.text = "Give me a quick forecast, is it t-shirt weather?";
+                          controller.text =
+                              "Give me a quick forecast, is it t-shirt weather?";
                           focusNode.requestFocus();
                         },
                       ),
                       _PresetPromptCard(
                         title: "Sun chaser",
-                        prompt: "When is the next Summer Solstice? I need some sun.",
+                        prompt:
+                            "When is the next Summer Solstice? I need some sun.",
                         onTap: () {
-                          controller.text = "When is the next Summer Solstice? I need some sun.";
+                          controller.text =
+                              "When is the next Summer Solstice? I need some sun.";
                           focusNode.requestFocus();
                         },
                       ),
                       _PresetPromptCard(
                         title: "Interactive demo",
-                        prompt: "Show me what you've got! Demo all your widgets.",
+                        prompt:
+                            "Show me what you've got! Demo all your widgets.",
                         onTap: () {
-                          controller.text = "Show me what you've got! Demo all your widgets.";
+                          controller.text =
+                              "Show me what you've got! Demo all your widgets.";
                           focusNode.requestFocus();
                         },
                       ),
@@ -380,7 +389,9 @@ class _ChatDemoPageState extends State<ChatDemoPage> {
     DemoMessage message,
   ) {
     final cubit = context.read<ChatDemoCubit>();
-    final showRaw = context.select((ChatDemoCubit c) => c.state.showRawResponse);
+    final showRaw = context.select(
+      (ChatDemoCubit c) => c.state.showRawResponse,
+    );
 
     return Align(
       alignment: Alignment.centerLeft,
@@ -388,7 +399,9 @@ class _ChatDemoPageState extends State<ChatDemoPage> {
         margin: const EdgeInsets.symmetric(vertical: 8),
         padding: const EdgeInsets.all(12),
         decoration: BoxDecoration(
-          color: showRaw ? Colors.black.withOpacity(0.9) : theme.colorScheme.surfaceContainerLow,
+          color: showRaw
+              ? Colors.black.withOpacity(0.9)
+              : theme.colorScheme.surfaceContainerLow,
           borderRadius: BorderRadius.circular(16),
           border: Border.all(
             color: theme.colorScheme.outline.withOpacity(0.08),
@@ -848,9 +861,9 @@ class _ChatConsoleInputState extends State<_ChatConsoleInput> {
                           setState(() => _isSendButtonPressed = false),
                       child: MouseRegion(
                         onEnter: (_) =>
-                          setState(() => _isSendButtonHovered = true),
+                            setState(() => _isSendButtonHovered = true),
                         onExit: (_) =>
-                          setState(() => _isSendButtonHovered = false),
+                            setState(() => _isSendButtonHovered = false),
                         cursor: SystemMouseCursors.click,
                         child: AnimatedScale(
                           scale: _isSendButtonHovered ? 1.15 : 1.0,
@@ -876,7 +889,9 @@ class _ChatConsoleInputState extends State<_ChatConsoleInput> {
   }
 
   Widget _buildExpandedDrawerInput(BuildContext context, ThemeData theme) {
-    final showRaw = context.select((ChatDemoCubit c) => c.state.showRawResponse);
+    final showRaw = context.select(
+      (ChatDemoCubit c) => c.state.showRawResponse,
+    );
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -933,6 +948,7 @@ class _ChatConsoleInputState extends State<_ChatConsoleInput> {
                   theme: theme,
                   isToggle: true,
                   isActive: false,
+                  isEnabled: false,
                   onTap: () {
                     // Disabled
                   },
@@ -966,6 +982,7 @@ class _ChatConsoleInputState extends State<_ChatConsoleInput> {
     bool isAction = false,
     bool isToggle = false,
     bool isActive = false,
+    bool isEnabled = true,
     required VoidCallback onTap,
   }) {
     return _ConsoleUtilityCard(
@@ -975,6 +992,7 @@ class _ChatConsoleInputState extends State<_ChatConsoleInput> {
       isAction: isAction,
       isToggle: isToggle,
       isActive: isActive,
+      isEnabled: isEnabled,
       onTap: onTap,
     );
   }
@@ -999,7 +1017,10 @@ class _ChatConsoleInputState extends State<_ChatConsoleInput> {
             children: [
               // Bottom sheet handle & header
               Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 20,
+                  vertical: 16,
+                ),
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
@@ -1070,6 +1091,7 @@ class _ConsoleUtilityCard extends StatefulWidget {
   final bool isAction;
   final bool isToggle;
   final bool isActive;
+  final bool isEnabled;
   final VoidCallback onTap;
 
   const _ConsoleUtilityCard({
@@ -1079,6 +1101,7 @@ class _ConsoleUtilityCard extends StatefulWidget {
     required this.isAction,
     required this.isToggle,
     required this.isActive,
+    required this.isEnabled,
     required this.onTap,
   });
 
@@ -1109,100 +1132,108 @@ class _ConsoleUtilityCardState extends State<_ConsoleUtilityCard> {
     final theme = Theme.of(context);
     final cardColor = widget.isToggle && _toggleState
         ? theme.colorScheme.primary.withOpacity(0.08)
-        : (_isHovered
-            ? theme.colorScheme.surfaceContainerHighest.withOpacity(0.8)
-            : theme.colorScheme.surfaceContainerHighest.withOpacity(0.3));
+        : (_isHovered && widget.isEnabled
+              ? theme.colorScheme.surfaceContainerHighest.withOpacity(0.8)
+              : theme.colorScheme.surfaceContainerHighest.withOpacity(0.3));
 
     final borderColor = widget.isToggle && _toggleState
         ? theme.colorScheme.primary.withOpacity(0.4)
-        : (_isHovered
-            ? theme.colorScheme.primary.withOpacity(0.2)
-            : theme.colorScheme.outline.withOpacity(0.08));
+        : (_isHovered && widget.isEnabled
+              ? theme.colorScheme.primary.withOpacity(0.2)
+              : theme.colorScheme.outline.withOpacity(0.08));
 
-    return MouseRegion(
-      onEnter: (_) => setState(() => _isHovered = true),
-      onExit: (_) => setState(() => _isHovered = false),
-      cursor: SystemMouseCursors.click,
-      child: GestureDetector(
-        onTap: () {
-          if (widget.isToggle) {
-            setState(() {
-              _toggleState = !_toggleState;
-            });
-          }
-          widget.onTap();
+    return Opacity(
+      opacity: widget.isEnabled ? 1.0 : 0.4,
+      child: MouseRegion(
+        onEnter: (_) {
+          if (widget.isEnabled) setState(() => _isHovered = true);
         },
-        child: AnimatedContainer(
-          duration: const Duration(milliseconds: 150),
-          padding: const EdgeInsets.all(12),
-          decoration: BoxDecoration(
-            color: cardColor,
-            borderRadius: BorderRadius.circular(16),
-            border: Border.all(color: borderColor, width: 1.0),
-          ),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  Icon(
-                    widget.icon,
-                    size: 20,
-                    color: widget.isToggle && _toggleState
-                        ? theme.colorScheme.primary
-                        : theme.colorScheme.onSurfaceVariant,
-                  ),
-                  if (widget.isToggle)
-                    AnimatedContainer(
-                      duration: const Duration(milliseconds: 150),
-                      width: 32,
-                      height: 18,
-                      padding: const EdgeInsets.all(2),
-                      decoration: BoxDecoration(
-                        borderRadius: BorderRadius.circular(9),
-                        color: _toggleState
-                            ? theme.colorScheme.primary
-                            : theme.colorScheme.outline.withOpacity(0.3),
-                      ),
-                      child: AnimatedAlign(
+        onExit: (_) {
+          if (widget.isEnabled) setState(() => _isHovered = false);
+        },
+        cursor: widget.isEnabled ? SystemMouseCursors.click : SystemMouseCursors.basic,
+        child: GestureDetector(
+          onTap: () {
+            if (!widget.isEnabled) return;
+            if (widget.isToggle) {
+              setState(() {
+                _toggleState = !_toggleState;
+              });
+            }
+            widget.onTap();
+          },
+          child: AnimatedContainer(
+            duration: const Duration(milliseconds: 150),
+            padding: const EdgeInsets.all(12),
+            decoration: BoxDecoration(
+              color: cardColor,
+              borderRadius: BorderRadius.circular(16),
+              border: Border.all(color: borderColor, width: 1.0),
+            ),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Icon(
+                      widget.icon,
+                      size: 20,
+                      color: widget.isToggle && _toggleState
+                          ? theme.colorScheme.primary
+                          : theme.colorScheme.onSurfaceVariant,
+                    ),
+                    if (widget.isToggle)
+                      AnimatedContainer(
                         duration: const Duration(milliseconds: 150),
-                        alignment: _toggleState
-                            ? Alignment.centerRight
-                            : Alignment.centerLeft,
-                        child: Container(
-                          width: 14,
-                          height: 14,
-                          decoration: const BoxDecoration(
-                            shape: BoxShape.circle,
-                            color: Colors.white,
+                        width: 32,
+                        height: 18,
+                        padding: const EdgeInsets.all(2),
+                        decoration: BoxDecoration(
+                          borderRadius: BorderRadius.circular(9),
+                          color: _toggleState
+                              ? theme.colorScheme.primary
+                              : theme.colorScheme.outline.withOpacity(0.3),
+                        ),
+                        child: AnimatedAlign(
+                          duration: const Duration(milliseconds: 150),
+                          alignment: _toggleState
+                              ? Alignment.centerRight
+                              : Alignment.centerLeft,
+                          child: Container(
+                            width: 14,
+                            height: 14,
+                            decoration: const BoxDecoration(
+                              shape: BoxShape.circle,
+                              color: Colors.white,
+                            ),
                           ),
                         ),
                       ),
-                    ),
-                ],
-              ),
-              const Spacer(),
-              Text(
-                widget.title,
-                style: TextStyle(
-                  fontSize: 12,
-                  fontWeight: FontWeight.bold,
-                  color: theme.colorScheme.onSurface,
+                  ],
                 ),
-              ),
-              const SizedBox(height: 2),
-              Text(
-                widget.subtitle,
-                style: TextStyle(
-                  fontSize: 9,
-                  color: theme.colorScheme.onSurfaceVariant.withOpacity(0.6),
+                const Spacer(),
+                Text(
+                  widget.title,
+                  style: TextStyle(
+                    fontSize: 12,
+                    fontWeight: FontWeight.bold,
+                    color: theme.colorScheme.onSurface,
+                  ),
                 ),
-                maxLines: 1,
-                overflow: TextOverflow.ellipsis,
-              ),
-            ],
+                const SizedBox(height: 2),
+                Text(
+                  widget.subtitle,
+                  style: TextStyle(
+                    fontSize: 9,
+                    color: theme.colorScheme.onSurfaceVariant.withOpacity(0.6),
+                  ),
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                ),
+              ],
+            ),
           ),
         ),
       ),
