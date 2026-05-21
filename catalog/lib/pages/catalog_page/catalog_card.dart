@@ -55,7 +55,10 @@ class _CatalogCardState extends State<CatalogCard> {
                 child: Padding(
                   padding: const EdgeInsets.fromLTRB(8, 8, 8, 36),
                   child: FittedBox(
-                    child: _streamingGenUi.view('main-view'),
+                    child: ConstrainedBox(
+                      constraints: const BoxConstraints(maxWidth: 300),
+                      child: _streamingGenUi.view('main-view'),
+                    ),
                   ),
                 ),
               ),

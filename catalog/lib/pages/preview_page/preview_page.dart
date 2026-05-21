@@ -394,7 +394,10 @@ class _PreviewPageState extends State<PreviewPage> {
                     child: KeyedSubtree(
                       key: _viewKey,
                       child: _streamingGenUi != null
-                          ? _streamingGenUi!.view('main-view')
+                          ? ConstrainedBox(
+                              constraints: const BoxConstraints(maxWidth: 360),
+                              child: _streamingGenUi!.view('main-view'),
+                            )
                           : const SizedBox.shrink(),
                     ),
                   ),
