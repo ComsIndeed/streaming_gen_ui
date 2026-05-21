@@ -24,13 +24,13 @@ class _StreamingDataTableState extends State<StreamingDataTable> {
     _initStream();
   }
 
-  @override
-  void didUpdateWidget(covariant StreamingDataTable oldWidget) {
-    super.didUpdateWidget(oldWidget);
-    if (!identical(widget.props, oldWidget.props)) {
-      _initStream();
-    }
-  }
+  // @override
+  // void didUpdateWidget(covariant StreamingDataTable oldWidget) {
+  //   super.didUpdateWidget(oldWidget);
+  //   if (!identical(widget.props, oldWidget.props)) {
+  //     _initStream();
+  //   }
+  // }
 
   void _initStream() {
     final mapStream = widget.props.asMap;
@@ -72,7 +72,9 @@ class _StreamingDataTableState extends State<StreamingDataTable> {
               FutureBuilder<String>(
                 future: _titleFuture,
                 builder: (context, titleSnap) {
-                  final isDone = titleSnap.connectionState == ConnectionState.done && titleSnap.hasData;
+                  final isDone =
+                      titleSnap.connectionState == ConnectionState.done &&
+                      titleSnap.hasData;
                   final initialTitle = isDone ? titleSnap.data! : '';
 
                   return AccumulatingStringStreamBuilder(
@@ -133,8 +135,10 @@ class _StreamingDataTableState extends State<StreamingDataTable> {
                             );
                           }).toList(),
                           rows: rowsList.map((row) {
-                            final List<dynamic> cellsList = row is List<dynamic> ? row : const [];
-                            
+                            final List<dynamic> cellsList = row is List<dynamic>
+                                ? row
+                                : const [];
+
                             // Map existing cells, handling null or partial values
                             final dataCells = cellsList.map((cell) {
                               return DataCell(
@@ -155,7 +159,10 @@ class _StreamingDataTableState extends State<StreamingDataTable> {
 
                             // Truncate cells if there are somehow more cells than columns
                             if (dataCells.length > colsList.length) {
-                              dataCells.removeRange(colsList.length, dataCells.length);
+                              dataCells.removeRange(
+                                colsList.length,
+                                dataCells.length,
+                              );
                             }
 
                             return DataRow(cells: dataCells);
