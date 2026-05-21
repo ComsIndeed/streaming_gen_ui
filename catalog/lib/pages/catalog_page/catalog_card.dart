@@ -17,19 +17,34 @@ class CatalogCard extends StatefulWidget {
 
 class _CatalogCardState extends State<CatalogCard> {
   late final StreamingGenerativeUi _streamingGenUi;
-  late final Stream<String> _stream;
+  bool _disposed = false;
 
   @override
   void initState() {
     super.initState();
     _streamingGenUi = StreamingGenerativeUi(registry: Registries.all);
-    _stream = streamTextInChunks(
-      text: "<interface>${widget.catalogItem.widgetDefinition.jsonExample}</interface>",
-      chunkSize: 4,
-      interval: const Duration(milliseconds: 100),
-      chunkSizeImmediatelyEmit: '<interface>{"namespace":"  core:'.length,
-    );
-    _streamingGenUi.stream(_stream, viewId: 'main-view');
+    _startLoop();
+  }
+
+  Future<void> _startLoop() async {
+    while (!_disposed) {
+      final stream = streamTextInChunks(
+        text:
+            "<interface>${widget.catalogItem.widgetDefinition.jsonExample}</interface>",
+        chunkSize: 4,
+        interval: const Duration(milliseconds: 100),
+        chunkSizeImmediatelyEmit: '<interface>{"namespace":"  core:'.length,
+      );
+      await _streamingGenUi.stream(stream, viewId: 'main-view');
+      if (_disposed) break;
+      await Future.delayed(const Duration(milliseconds: 3000));
+    }
+  }
+
+  @override
+  void dispose() {
+    _disposed = true;
+    super.dispose();
   }
 
   @override
@@ -57,7 +72,11 @@ class _CatalogCardState extends State<CatalogCard> {
                   child: FittedBox(
                     child: ConstrainedBox(
                       constraints: const BoxConstraints(maxWidth: 300),
-                      child: _streamingGenUi.view('main-view'),
+                      child: ListenableBuilder(
+                        listenable: _streamingGenUi,
+                        builder: (context, _) =>
+                            _streamingGenUi.view('main-view'),
+                      ),
                     ),
                   ),
                 ),
@@ -68,10 +87,7 @@ class _CatalogCardState extends State<CatalogCard> {
                     gradient: LinearGradient(
                       transform: const GradientRotation(pi * 1.5),
                       stops: const [0.0, 0.3],
-                      colors: [
-                        Colors.black.withAlpha(90),
-                        Colors.transparent,
-                      ],
+                      colors: [Colors.black.withAlpha(90), Colors.transparent],
                     ),
                   ),
                 ),
@@ -114,4 +130,3 @@ class _CatalogCardState extends State<CatalogCard> {
     );
   }
 }
-
