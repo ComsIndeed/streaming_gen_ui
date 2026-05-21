@@ -24,13 +24,13 @@ class _StreamingDataTableState extends State<StreamingDataTable> {
     _initStream();
   }
 
-  // @override
-  // void didUpdateWidget(covariant StreamingDataTable oldWidget) {
-  //   super.didUpdateWidget(oldWidget);
-  //   if (!identical(widget.props, oldWidget.props)) {
-  //     _initStream();
-  //   }
-  // }
+  @override
+  void didUpdateWidget(covariant StreamingDataTable oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (!identical(widget.props, oldWidget.props)) {
+      _initStream();
+    }
+  }
 
   void _initStream() {
     final mapStream = widget.props.asMap;
