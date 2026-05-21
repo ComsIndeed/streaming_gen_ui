@@ -128,70 +128,10 @@ class ChatDemoPage extends StatelessWidget {
                         right: isCanvasExpanded ? sizes.width * 0.6 : 0,
                       ),
                       curve: Curves.easeOut,
-                      child: AnimatedContainer(
-                        width: isCanvasExpanded
-                            ? (sizes.width * 0.4 - 32).clamp(100.0, 512.0 + (isChatExpanded ? 64 : 0))
-                            : 512.0 + (isChatExpanded ? 64 : 0),
-                        height: isChatExpanded ? 256.0 : 64.0,
-                        decoration: ShapeDecoration(
-                          shape: RoundedSuperellipseBorder(
-                            borderRadius: BorderRadius.circular(32),
-                          ),
-                          color: theme.colorScheme.secondaryContainer,
-                        ),
-                        duration: Durations.medium2,
-                        curve: Curves.easeOutBack,
-                        child: Padding(
-                          padding: const EdgeInsets.all(8.0),
-                          child: Row(
-                            crossAxisAlignment: CrossAxisAlignment.center,
-                            children: [
-                              AnimatedAlign(
-                                alignment: isChatExpanded ? Alignment.topLeft : Alignment.centerLeft,
-                                duration: Durations.short1,
-                                child: IconButton(
-                                  onPressed: () {
-                                    final cubit = context.read<ChatDemoCubit>();
-                                    cubit.setTextBoxMode(
-                                      isChatExpanded
-                                          ? TextBoxMode.textfield
-                                          : TextBoxMode.media,
-                                    );
-                                  },
-                                  icon: AnimatedSwitcher(
-                                    duration: Durations.short4,
-                                    child: isChatExpanded
-                                        ? const Icon(Icons.close, key: ValueKey('close'))
-                                        : const Icon(Icons.add, key: ValueKey('add')),
-                                  ),
-                                ),
-                              ),
-                              Expanded(
-                                child: AnimatedSwitcher(
-                                  duration: Durations.short4,
-                                  child: isChatExpanded
-                                      ? _buildExpandedDrawerInput(context, theme)
-                                      : const TextField(
-                                          textAlignVertical: TextAlignVertical.center,
-                                          decoration: InputDecoration(
-                                            hintText: 'Talk to AI',
-                                            border: InputBorder.none,
-                                            contentPadding: EdgeInsets.symmetric(horizontal: 12, vertical: 12),
-                                          ),
-                                        ),
-                                ),
-                              ),
-                              if (!isChatExpanded)
-                                IconButton.filled(
-                                  onPressed: () {},
-                                  icon: Icon(
-                                    Icons.arrow_upward,
-                                    color: theme.colorScheme.onPrimary,
-                                  ),
-                                ),
-                            ],
-                          ),
-                        ),
+                      child: _ChatConsoleInput(
+                        isChatExpanded: isChatExpanded,
+                        isCanvasExpanded: isCanvasExpanded,
+                        sizes: sizes,
                       ),
                     ),
                   ),
@@ -201,71 +141,6 @@ class ChatDemoPage extends StatelessWidget {
           ),
         );
       },
-    );
-  }
-
-  Widget _buildExpandedDrawerInput(BuildContext context, ThemeData theme) {
-    final isCanvasExpanded = context.select((ChatDemoCubit c) => c.state.canvasMode != CanvasMode.hidden);
-
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        const Padding(
-          padding: EdgeInsets.fromLTRB(12, 8, 12, 4),
-          child: Text(
-            "ATTACHMENT CONSOLE",
-            style: TextStyle(fontSize: 10, fontWeight: FontWeight.bold, letterSpacing: 1.2),
-          ),
-        ),
-        Expanded(
-          child: Padding(
-            padding: const EdgeInsets.all(8.0),
-            child: Wrap(
-              spacing: 8,
-              runSpacing: 8,
-              children: [
-                _buildDrawerPill(Icons.image_rounded, "Media", theme),
-                _buildDrawerPill(Icons.code_rounded, "Stream XML", theme),
-                _buildDrawerPill(
-                  isCanvasExpanded ? Icons.analytics_rounded : Icons.analytics_outlined,
-                  isCanvasExpanded ? "Close Monitor" : "Open Monitor",
-                  theme,
-                  onTap: () {
-                    context.read<ChatDemoCubit>().setCanvasMode(
-                          isCanvasExpanded ? CanvasMode.hidden : CanvasMode.code,
-                        );
-                  },
-                ),
-              ],
-            ),
-          ),
-        ),
-      ],
-    );
-  }
-
-  Widget _buildDrawerPill(IconData icon, String label, ThemeData theme, {VoidCallback? onTap}) {
-    return Material(
-      color: Colors.transparent,
-      child: InkWell(
-        borderRadius: BorderRadius.circular(16),
-        onTap: onTap,
-        child: Container(
-          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-          decoration: BoxDecoration(
-            color: theme.colorScheme.surfaceContainerHighest.withOpacity(0.5),
-            borderRadius: BorderRadius.circular(16),
-          ),
-          child: Row(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              Icon(icon, size: 16, color: theme.colorScheme.primary),
-              const SizedBox(width: 6),
-              Text(label, style: const TextStyle(fontSize: 11, fontWeight: FontWeight.bold)),
-            ],
-          ),
-        ),
-      ),
     );
   }
 
@@ -397,3 +272,259 @@ class ChatDemoPage extends StatelessWidget {
     );
   }
 }
+
+class _ChatConsoleInput extends StatefulWidget {
+  final bool isChatExpanded;
+  final bool isCanvasExpanded;
+  final Size sizes;
+
+  const _ChatConsoleInput({
+    required this.isChatExpanded,
+    required this.isCanvasExpanded,
+    required this.sizes,
+  });
+
+  @override
+  State<_ChatConsoleInput> createState() => _ChatConsoleInputState();
+}
+
+class _ChatConsoleInputState extends State<_ChatConsoleInput> {
+  bool _isTextFieldFocused = false;
+  bool _isSendButtonPressed = false;
+  bool _isSendButtonHovered = false;
+  bool _isConsoleHovered = false;
+
+  late final FocusNode _focusNode;
+
+  @override
+  void initState() {
+    super.initState();
+    _focusNode = FocusNode();
+    _focusNode.addListener(_handleFocusChange);
+  }
+
+  @override
+  void dispose() {
+    _focusNode.removeListener(_handleFocusChange);
+    _focusNode.dispose();
+    super.dispose();
+  }
+
+  void _handleFocusChange() {
+    if (_focusNode.hasFocus != _isTextFieldFocused) {
+      setState(() {
+        _isTextFieldFocused = _focusNode.hasFocus;
+      });
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+
+    // Snappy custom curve for high-fidelity mechanical keyboard feeling
+    const customSnap = Cubic(0.2, 0.8, 0.2, 1.0);
+
+    // Calculate interactive scale
+    double consoleScale = 1.0;
+    if (_isTextFieldFocused) {
+      consoleScale = 1.03; // Scale up when focused
+    }
+    if (_isSendButtonPressed) {
+      consoleScale = 0.96; // Tactile mechanical shrink when send button is pressed
+    }
+
+    // Interactive highlights & glow effects
+    final borderColor = _isTextFieldFocused
+        ? theme.colorScheme.primary.withOpacity(0.5)
+        : (_isConsoleHovered
+            ? theme.colorScheme.primary.withOpacity(0.25)
+            : theme.colorScheme.outline.withOpacity(0.08));
+
+    final borderWidth = _isTextFieldFocused ? 1.5 : 1.0;
+
+    final List<BoxShadow> shadows = [
+      BoxShadow(
+        color: Colors.black.withOpacity(0.08),
+        blurRadius: 16,
+        offset: const Offset(0, 4),
+      ),
+      if (_isTextFieldFocused)
+        BoxShadow(
+          color: theme.colorScheme.primary.withOpacity(0.12),
+          blurRadius: 24,
+          spreadRadius: 2,
+          offset: const Offset(0, 0),
+        )
+      else if (_isConsoleHovered)
+        BoxShadow(
+          color: theme.colorScheme.primary.withOpacity(0.04),
+          blurRadius: 16,
+          spreadRadius: 1,
+          offset: const Offset(0, 2),
+        ),
+    ];
+
+    return MouseRegion(
+      onEnter: (_) => setState(() => _isConsoleHovered = true),
+      onExit: (_) => setState(() => _isConsoleHovered = false),
+      child: AnimatedScale(
+        scale: consoleScale,
+        duration: const Duration(milliseconds: 200),
+        curve: customSnap,
+        child: AnimatedContainer(
+          duration: const Duration(milliseconds: 200),
+          curve: customSnap,
+          width: widget.isCanvasExpanded
+              ? (widget.sizes.width * 0.4 - 32).clamp(100.0, 512.0 + (widget.isChatExpanded ? 64 : 0))
+              : 512.0 + (widget.isChatExpanded ? 64 : 0),
+          height: widget.isChatExpanded ? 256.0 : 64.0,
+          decoration: ShapeDecoration(
+            shape: RoundedSuperellipseBorder(
+              borderRadius: BorderRadius.circular(32),
+              side: BorderSide(
+                color: borderColor,
+                width: borderWidth,
+              ),
+            ),
+            color: theme.colorScheme.secondaryContainer,
+            shadows: shadows,
+          ),
+          child: Padding(
+            padding: const EdgeInsets.all(8.0),
+            child: Row(
+              crossAxisAlignment: CrossAxisAlignment.center,
+              children: [
+                AnimatedAlign(
+                  alignment: widget.isChatExpanded ? Alignment.topLeft : Alignment.centerLeft,
+                  duration: Durations.short1,
+                  child: IconButton(
+                    onPressed: () {
+                      final cubit = context.read<ChatDemoCubit>();
+                      cubit.setTextBoxMode(
+                        widget.isChatExpanded
+                            ? TextBoxMode.textfield
+                            : TextBoxMode.media,
+                      );
+                    },
+                    icon: AnimatedSwitcher(
+                      duration: Durations.short4,
+                      child: widget.isChatExpanded
+                          ? const Icon(Icons.close, key: ValueKey('close'))
+                          : const Icon(Icons.add, key: ValueKey('add')),
+                    ),
+                  ),
+                ),
+                Expanded(
+                  child: AnimatedSwitcher(
+                    duration: Durations.short4,
+                    child: widget.isChatExpanded
+                        ? _buildExpandedDrawerInput(context, theme)
+                        : TextField(
+                            focusNode: _focusNode,
+                            textAlignVertical: TextAlignVertical.center,
+                            decoration: const InputDecoration(
+                              hintText: 'Talk to AI',
+                              border: InputBorder.none,
+                              contentPadding: EdgeInsets.symmetric(horizontal: 12, vertical: 12),
+                            ),
+                          ),
+                  ),
+                ),
+                if (!widget.isChatExpanded)
+                  Listener(
+                    onPointerDown: (_) => setState(() => _isSendButtonPressed = true),
+                    onPointerUp: (_) => setState(() => _isSendButtonPressed = false),
+                    onPointerCancel: (_) => setState(() => _isSendButtonPressed = false),
+                    child: MouseRegion(
+                      onEnter: (_) => setState(() => _isSendButtonHovered = true),
+                      onExit: (_) => setState(() => _isSendButtonHovered = false),
+                      cursor: SystemMouseCursors.click,
+                      child: AnimatedScale(
+                        scale: _isSendButtonHovered ? 1.15 : 1.0,
+                        duration: const Duration(milliseconds: 150),
+                        curve: Curves.easeOutBack,
+                        child: IconButton.filled(
+                          onPressed: () {},
+                          icon: Icon(
+                            Icons.arrow_upward,
+                            color: theme.colorScheme.onPrimary,
+                          ),
+                        ),
+                      ),
+                    ),
+                  ),
+              ],
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildExpandedDrawerInput(BuildContext context, ThemeData theme) {
+    final isCanvasExpanded = context.select((ChatDemoCubit c) => c.state.canvasMode != CanvasMode.hidden);
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        const Padding(
+          padding: EdgeInsets.fromLTRB(12, 8, 12, 4),
+          child: Text(
+            "ATTACHMENT CONSOLE",
+            style: TextStyle(fontSize: 10, fontWeight: FontWeight.bold, letterSpacing: 1.2),
+          ),
+        ),
+        Expanded(
+          child: Padding(
+            padding: const EdgeInsets.all(8.0),
+            child: Wrap(
+              spacing: 8,
+              runSpacing: 8,
+              children: [
+                _buildDrawerPill(Icons.image_rounded, "Media", theme),
+                _buildDrawerPill(Icons.code_rounded, "Stream XML", theme),
+                _buildDrawerPill(
+                  isCanvasExpanded ? Icons.analytics_rounded : Icons.analytics_outlined,
+                  isCanvasExpanded ? "Close Monitor" : "Open Monitor",
+                  theme,
+                  onTap: () {
+                    context.read<ChatDemoCubit>().setCanvasMode(
+                          isCanvasExpanded ? CanvasMode.hidden : CanvasMode.code,
+                        );
+                  },
+                ),
+              ],
+            ),
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildDrawerPill(IconData icon, String label, ThemeData theme, {VoidCallback? onTap}) {
+    return Material(
+      color: Colors.transparent,
+      child: InkWell(
+        borderRadius: BorderRadius.circular(16),
+        onTap: onTap,
+        child: Container(
+          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+          decoration: BoxDecoration(
+            color: theme.colorScheme.surfaceContainerHighest.withOpacity(0.5),
+            borderRadius: BorderRadius.circular(16),
+          ),
+          child: Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Icon(icon, size: 16, color: theme.colorScheme.primary),
+              const SizedBox(width: 6),
+              Text(label, style: const TextStyle(fontSize: 11, fontWeight: FontWeight.bold)),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+}
+
