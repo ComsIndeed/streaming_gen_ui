@@ -12,18 +12,10 @@ class DemoMessage {
   final bool isUser;
   final String text;
 
-  DemoMessage({
-    required this.id,
-    required this.isUser,
-    required this.text,
-  });
+  DemoMessage({required this.id, required this.isUser, required this.text});
 
   DemoMessage copyWith({String? text}) {
-    return DemoMessage(
-      id: id,
-      isUser: isUser,
-      text: text ?? this.text,
-    );
+    return DemoMessage(id: id, isUser: isUser, text: text ?? this.text);
   }
 }
 
@@ -90,7 +82,17 @@ class ChatDemoCubit extends Cubit<ChatDemoState> {
           messages: [],
           isThinking: false,
         ),
-      );
+      ) {
+    _history.add(
+      ChatMessage.system('''
+You are a helpful AI Assistant demonstrating your ability to show UI components in your chat.
+
+Help the user with their requests. Use widgets when you can.
+
+${generativeUi.registry.systemPromptFragment}
+'''),
+    );
+  }
 
   void setTextBoxMode(TextBoxMode mode) {
     emit(state.copyWith(textBoxMode: mode));
@@ -109,40 +111,29 @@ class ChatDemoCubit extends Cubit<ChatDemoState> {
 
     // 1. Add user message to UI state and internal history
     final userMsgId = 'user-${DateTime.now().millisecondsSinceEpoch}';
-    final userMsg = DemoMessage(
-      id: userMsgId,
-      isUser: true,
-      text: text,
-    );
+    final userMsg = DemoMessage(id: userMsgId, isUser: true, text: text);
     _history.add(ChatMessage.user(text));
 
-    emit(state.copyWithClearedError(
-      messages: [...state.messages, userMsg],
-      isThinking: true,
-    ));
+    emit(
+      state.copyWithClearedError(
+        messages: [...state.messages, userMsg],
+        isThinking: true,
+      ),
+    );
 
     // 2. Instantiate Agent Service (checks API key)
     try {
       _agentService ??= ChatAgentService.create();
     } catch (e) {
-      emit(state.copyWith(
-        errorMessage: e.toString(),
-        isThinking: false,
-      ));
+      emit(state.copyWith(errorMessage: e.toString(), isThinking: false));
       return;
     }
 
     // 3. Setup streaming assistant message representation
     final aiMsgId = 'ai-${DateTime.now().millisecondsSinceEpoch}';
-    final aiMsg = DemoMessage(
-      id: aiMsgId,
-      isUser: false,
-      text: '',
-    );
+    final aiMsg = DemoMessage(id: aiMsgId, isUser: false, text: '');
 
-    emit(state.copyWithClearedError(
-      messages: [...state.messages, aiMsg],
-    ));
+    emit(state.copyWithClearedError(messages: [...state.messages, aiMsg]));
 
     try {
       final textStream = _agentService!.streamResponse(text, _history);
@@ -162,17 +153,21 @@ class ChatDemoCubit extends Cubit<ChatDemoState> {
             return m;
           }).toList();
 
-          emit(state.copyWithClearedError(
-            messages: updatedMessages,
-            isThinking: false,
-          ));
+          emit(
+            state.copyWithClearedError(
+              messages: updatedMessages,
+              isThinking: false,
+            ),
+          );
         },
       );
     } catch (e) {
-      emit(state.copyWith(
-        errorMessage: 'Streaming error: ${e.toString()}',
-        isThinking: false,
-      ));
+      emit(
+        state.copyWith(
+          errorMessage: 'Streaming error: ${e.toString()}',
+          isThinking: false,
+        ),
+      );
     }
   }
 }
