@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:llm_json_stream/llm_json_stream.dart';
 import 'package:streaming_gen_ui/src/widgets/registries/core_registry/streaming_entrance.dart';
+import 'package:streaming_gen_ui/src/widgets/streaming_widget.dart';
+import 'package:streaming_gen_ui/src/models/generative_ui_config.dart';
 
 /// A premium stacked card carousel. Cards are stacked behind one another in 3D depth perspective.
 /// Swiping moves the top card to the back of the stack.
@@ -94,7 +96,16 @@ class _StreamingStackCarouselState extends State<StreamingStackCarousel> {
                         final title = item["title"] as String? ?? "";
                         final desc = item["description"] as String? ?? "";
                         final colorHex = item["color"] as String?;
-                        final cardColor = _parseColor(colorHex) ?? theme.colorScheme.surfaceContainerLow;
+                        final exactColor = (item["exactColor"] as bool?) ?? (data["exactColor"] as bool?) ?? false;
+                        final provider = StreamingUiProvider.maybeOf(context);
+                        final rawCardColor = _parseColor(colorHex) ?? theme.colorScheme.surfaceContainerLow;
+                        final cardColor = adjustColorForTheme(
+                          context,
+                          rawCardColor,
+                          isBackground: true,
+                          exactColor: exactColor,
+                          config: provider?.config,
+                        );
 
                         return AnimatedPositioned(
                           key: ValueKey(index),

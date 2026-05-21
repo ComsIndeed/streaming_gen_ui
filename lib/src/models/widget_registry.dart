@@ -80,6 +80,11 @@ All conversational text must be written outside the tags.
 You have access to the following component namespace identifiers and their schemas:
 
 $catalog
+
+### 3. Visual & Styling Consistency (Theme Adaptability)
+To guarantee optimal readability and visual harmony (e.g. avoiding bright blinding colors on dark mode or unreadable low contrast text), the host application automatically adjusts/tints dynamic color parameters (like background colors, borders, and icon colors) to match the active system brightness (dark/light theme).
+* This applies to widgets utilizing colors, including `media:expanding_accordion_carousel`, `media:3d_stack_carousel`, `core:bento_card`, `core:list_tile`, `core:progress_ring`, `ui:stepper_counter`, `core:alert`, etc.
+* **If you explicitly need the absolute, exact color to render exactly as specified** without background darkening or text lightening adjustments, set `"exactColor": true` (optional boolean) in the widget's properties.
 '''.trim();
   }
 }

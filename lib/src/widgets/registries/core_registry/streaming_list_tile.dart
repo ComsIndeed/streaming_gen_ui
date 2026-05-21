@@ -3,6 +3,7 @@ import 'package:llm_json_stream/llm_json_stream.dart';
 import 'package:streaming_gen_ui/src/widgets/accumulating_string_stream_builder.dart';
 import 'package:streaming_gen_ui/src/widgets/registries/core_registry/streaming_entrance.dart';
 import 'package:streaming_gen_ui/src/widgets/streaming_widget.dart';
+import 'package:streaming_gen_ui/src/models/generative_ui_config.dart';
 
 class StreamingListTile extends StatelessWidget {
   final PropertyStream props;
@@ -33,7 +34,16 @@ class StreamingListTile extends StatelessWidget {
 
           final iconName = data["iconName"] as String?;
           final iconColorHex = data["iconColor"] as String?;
-          final iconColor = _parseColor(iconColorHex) ?? theme.colorScheme.primary;
+          final exactColor = data["exactColor"] as bool? ?? false;
+          final provider = StreamingUiProvider.maybeOf(context);
+          final rawIconColor = _parseColor(iconColorHex) ?? theme.colorScheme.primary;
+          final iconColor = adjustColorForTheme(
+            context,
+            rawIconColor,
+            isBackground: false,
+            exactColor: exactColor,
+            config: provider?.config,
+          );
           final iconData = _resolveIcon(iconName);
 
           return AnimatedContainer(

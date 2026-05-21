@@ -1,6 +1,7 @@
 export 'src/streaming_generative_ui.dart';
 export 'src/models/widget_registry.dart';
 export 'src/models/view_state.dart';
+export 'src/models/generative_ui_config.dart';
 export 'src/widgets/accumulating_string_stream_builder.dart';
 export 'src/widgets/registries/core_registry/streaming_text.dart';
 export 'src/widgets/registries/core_registry/streaming_entrance.dart';

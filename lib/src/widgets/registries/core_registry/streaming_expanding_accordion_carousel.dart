@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:llm_json_stream/llm_json_stream.dart';
 import 'package:streaming_gen_ui/src/widgets/registries/core_registry/streaming_entrance.dart';
+import 'package:streaming_gen_ui/src/widgets/streaming_widget.dart';
+import 'package:streaming_gen_ui/src/models/generative_ui_config.dart';
 
 /// A set of vertical panels side-by-side. Tapping a panel expands its width smoothly, compressing the others.
 class StreamingExpandingAccordionCarousel extends StatefulWidget {
@@ -57,7 +59,16 @@ class _StreamingExpandingAccordionCarouselState extends State<StreamingExpanding
                 final title = item["title"] as String? ?? "";
                 final desc = item["description"] as String? ?? "";
                 final colorHex = item["color"] as String?;
-                final bg = _parseColor(colorHex) ?? theme.colorScheme.surfaceContainerHigh;
+                final exactColor = (item["exactColor"] as bool?) ?? (data["exactColor"] as bool?) ?? false;
+                final provider = StreamingUiProvider.maybeOf(context);
+                final rawBg = _parseColor(colorHex) ?? theme.colorScheme.surfaceContainerHigh;
+                final bg = adjustColorForTheme(
+                  context,
+                  rawBg,
+                  isBackground: true,
+                  exactColor: exactColor,
+                  config: provider?.config,
+                );
 
                 final isExpanded = _expandedIndex == index;
 

@@ -5,6 +5,8 @@ import 'package:streaming_gen_ui/src/models/widget_registry.dart';
 import 'package:streaming_gen_ui/src/widgets/streaming_widget.dart';
 import 'package:streaming_gen_ui/src/widgets/streaming_error_widget.dart';
 
+import 'package:streaming_gen_ui/src/models/generative_ui_config.dart';
+
 const bool _verboseLog = false;
 
 void _debugLog(String msg) {
@@ -21,12 +23,14 @@ class ViewState with ChangeNotifier {
   final WidgetRegistry widgetRegistry;
   final bool showInternalErrors;
   final GenerativeUiErrorBuilder? errorBuilder;
+  final GenerativeUiConfig config;
 
   ViewState({
     required Stream<String> stream,
     required this.widgetRegistry,
     this.showInternalErrors = true,
     this.errorBuilder,
+    this.config = const GenerativeUiConfig(),
   }) {
     _debugLog('ViewState initialized.');
     ensureGlobalErrorBuilderInitialized();
@@ -136,6 +140,7 @@ class ViewState with ChangeNotifier {
       registry: widgetRegistry,
       showInternalErrors: showInternalErrors,
       errorBuilder: errorBuilder,
+      config: config,
       child: AnimatedBuilder(
         animation: this,
         builder: (context, _) {

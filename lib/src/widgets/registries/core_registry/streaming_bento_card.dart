@@ -3,6 +3,7 @@ import 'package:llm_json_stream/llm_json_stream.dart';
 import 'package:streaming_gen_ui/src/widgets/accumulating_string_stream_builder.dart';
 import 'package:streaming_gen_ui/src/widgets/registries/core_registry/streaming_entrance.dart';
 import 'package:streaming_gen_ui/src/widgets/streaming_widget.dart';
+import 'package:streaming_gen_ui/src/models/generative_ui_config.dart';
 
 class StreamingBentoCard extends StatelessWidget {
   final PropertyStream props;
@@ -33,7 +34,16 @@ class StreamingBentoCard extends StatelessWidget {
           final data = snapshot.data ?? const {};
 
           final themeColorHex = data["themeColor"] as String?;
-          final themeColor = _parseColor(themeColorHex) ?? theme.colorScheme.primary;
+          final exactColor = data["exactColor"] as bool? ?? false;
+          final provider = StreamingUiProvider.maybeOf(context);
+          final rawThemeColor = _parseColor(themeColorHex) ?? theme.colorScheme.primary;
+          final themeColor = adjustColorForTheme(
+            context,
+            rawThemeColor,
+            isBackground: false,
+            exactColor: exactColor,
+            config: provider?.config,
+          );
 
           return AnimatedContainer(
             duration: const Duration(milliseconds: 300),

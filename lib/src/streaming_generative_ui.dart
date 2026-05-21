@@ -2,6 +2,7 @@ import 'package:flutter/widgets.dart';
 import 'package:llm_tag_parser/llm_tag_parser.dart';
 import 'package:streaming_gen_ui/src/models/view_state.dart';
 import 'package:streaming_gen_ui/src/models/widget_registry.dart';
+import 'package:streaming_gen_ui/src/models/generative_ui_config.dart';
 import 'package:streaming_gen_ui/src/widgets/streaming_error_widget.dart';
 
 class StreamingGenerativeUi with ChangeNotifier {
@@ -9,11 +10,13 @@ class StreamingGenerativeUi with ChangeNotifier {
   final Map<String, ViewState> _views = {};
   final bool showInternalErrors;
   final GenerativeUiErrorBuilder? errorBuilder;
+  final GenerativeUiConfig config;
 
   StreamingGenerativeUi({
     required this.registry,
     this.showInternalErrors = false,
     this.errorBuilder,
+    this.config = const GenerativeUiConfig(),
   });
 
   // Input
@@ -31,6 +34,7 @@ class StreamingGenerativeUi with ChangeNotifier {
         widgetRegistry: registry,
         showInternalErrors: showInternalErrors,
         errorBuilder: errorBuilder,
+        config: config,
       );
       _views[viewId] = viewState;
       notifyListeners();

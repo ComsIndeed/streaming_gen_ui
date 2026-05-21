@@ -3,17 +3,21 @@ import 'package:llm_json_stream/llm_json_stream.dart';
 import 'package:streaming_gen_ui/src/models/widget_registry.dart';
 import 'package:streaming_gen_ui/src/widgets/streaming_error_widget.dart';
 
+import 'package:streaming_gen_ui/src/models/generative_ui_config.dart';
+
 /// Hosts the active [WidgetRegistry] in the widget tree.
 class StreamingUiProvider extends InheritedWidget {
   final WidgetRegistry registry;
   final bool showInternalErrors;
   final GenerativeUiErrorBuilder? errorBuilder;
+  final GenerativeUiConfig config;
 
   const StreamingUiProvider({
     super.key,
     required this.registry,
     required this.showInternalErrors,
     this.errorBuilder,
+    this.config = const GenerativeUiConfig(),
     required super.child,
   });
 
@@ -34,7 +38,8 @@ class StreamingUiProvider extends InheritedWidget {
   bool updateShouldNotify(StreamingUiProvider oldWidget) =>
       registry != oldWidget.registry || 
       showInternalErrors != oldWidget.showInternalErrors ||
-      errorBuilder != oldWidget.errorBuilder;
+      errorBuilder != oldWidget.errorBuilder ||
+      config != oldWidget.config;
 }
 
 /// A reactive widget that dynamically resolves and displays a nested widget
