@@ -105,14 +105,24 @@ class _StreamingWidgetState extends State<StreamingWidget> {
           );
         }
 
+        final propsString = widget.props.toString();
+        pushBuildTrace(name, propsString);
         try {
           return widgetDefinition.builder(context, widget.props);
         } catch (e, stack) {
+          logGenUiError(
+            namespace: name,
+            error: e.toString(),
+            properties: propsString,
+            stack: stack,
+          );
           return StreamingErrorWidget(
             error: 'Rendering Error ($name): $e\n$stack',
             showInternalErrors: showInternalErrors,
             customBuilder: errorBuilder,
           );
+        } finally {
+          popBuildTrace();
         }
       },
     );

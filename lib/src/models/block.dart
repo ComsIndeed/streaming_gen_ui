@@ -162,14 +162,24 @@ class WidgetBlock extends Block {
           );
         }
 
+        final propsString = rootProps.toString();
+        pushBuildTrace(name, propsString);
         try {
           return widgetDefinition.builder(context, rootProps);
         } catch (e, stack) {
+          logGenUiError(
+            namespace: name,
+            error: e.toString(),
+            properties: propsString,
+            stack: stack,
+          );
           return StreamingErrorWidget(
             error: 'Rendering Error ($name): $e\n$stack',
             showInternalErrors: showInternalErrors,
             customBuilder: errorBuilder,
           );
+        } finally {
+          popBuildTrace();
         }
       },
     );

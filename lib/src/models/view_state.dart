@@ -29,6 +29,7 @@ class ViewState with ChangeNotifier {
     this.errorBuilder,
   }) {
     _debugLog('ViewState initialized.');
+    ensureGlobalErrorBuilderInitialized();
     seperateStream(stream);
   }
 
