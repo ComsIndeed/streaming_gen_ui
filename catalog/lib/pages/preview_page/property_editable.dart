@@ -1,39 +1,473 @@
 import 'dart:convert';
-
 import 'package:flutter/material.dart';
+import 'package:streaming_gen_ui/streaming_gen_ui.dart';
 import 'package:streaming_gen_ui_widget_catalog/core/models/widget_catalog_item.dart';
 
 class PropertyEditable extends StatefulWidget {
+  final WidgetCatalogItem catalogItem;
+  final String propertyKey;
+  final TextEditingController controller;
+
   const PropertyEditable({
     super.key,
     required this.catalogItem,
     required this.propertyKey,
     required this.controller,
   });
-  final WidgetCatalogItem catalogItem;
-  final String propertyKey;
-  final TextEditingController controller;
 
   @override
   State<PropertyEditable> createState() => _PropertyEditableState();
 }
 
 class _PropertyEditableState extends State<PropertyEditable> {
+  bool _useRawJson = false;
+
+  Object? get decodedValue {
+    try {
+      return jsonDecode(widget.controller.text);
+    } catch (_) {
+      return widget.controller.text;
+    }
+  }
+
+  void _updateValue(Object? value) {
+    widget.controller.text = jsonEncode(value);
+  }
+
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final propertyDesc = widget.catalogItem.widgetDefinition.properties[widget.propertyKey] ?? "";
+    final value = decodedValue;
+
+    // Detect if this is a color property
+    final isColorKey = widget.propertyKey.toLowerCase().contains("color");
+
+    return Container(
+      margin: const EdgeInsets.only(bottom: 20),
+      padding: const EdgeInsets.all(16),
+      decoration: ShapeDecoration(
+        shape: RoundedSuperellipseBorder(
+          borderRadius: BorderRadius.circular(16),
+          side: BorderSide(
+            color: theme.colorScheme.outline.withOpacity(0.08),
+          ),
+        ),
+        color: theme.colorScheme.surfaceContainerLow.withOpacity(0.4),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          // Header / Toggle Row
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    widget.propertyKey,
+                    style: TextStyle(
+                      fontWeight: FontWeight.bold,
+                      fontSize: 15,
+                      color: theme.colorScheme.onSurface,
+                    ),
+                  ),
+                  const SizedBox(height: 2),
+                  Text(
+                    propertyDesc,
+                    style: TextStyle(
+                      fontSize: 12,
+                      color: theme.colorScheme.onSurfaceVariant.withOpacity(0.7),
+                    ),
+                  ),
+                ],
+              ),
+              // Raw JSON toggle for lists / maps
+              if (value is List || value is Map)
+                IconButton(
+                  tooltip: _useRawJson ? "Visual Form" : "Raw JSON Editor",
+                  icon: Icon(
+                    _useRawJson ? Icons.visibility_rounded : Icons.code_rounded,
+                    size: 18,
+                  ),
+                  onPressed: () {
+                    setState(() {
+                      _useRawJson = !_useRawJson;
+                    });
+                  },
+                ),
+            ],
+          ),
+          const SizedBox(height: 12),
+
+          // Render appropriate rich field
+          if (_useRawJson)
+            _buildRawJsonField(theme)
+          else if (isColorKey)
+            _buildColorSelector(value as String? ?? "#6366F1", theme)
+          else if (value is bool)
+            _buildSwitchToggle(value, theme)
+          else if (value is num)
+            _buildSlider(value, theme)
+          else if (widget.propertyKey == "steps" && value is List)
+            _buildStepsListBuilder(value, theme)
+          else if (value is List)
+            _buildGenericListBuilder(value, theme)
+          else
+            _buildStandardStringField(theme),
+        ],
+      ),
+    );
+  }
+
+  // --- EDITOR UI BUILDERS ---
+
+  Widget _buildRawJsonField(ThemeData theme) {
+    return TextField(
+      controller: widget.controller,
+      maxLines: null,
+      keyboardType: TextInputType.multiline,
+      style: const TextStyle(fontFamily: 'monospace', fontSize: 13),
+      decoration: InputDecoration(
+        border: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(12),
+          borderSide: BorderSide(color: theme.colorScheme.outline.withOpacity(0.2)),
+        ),
+        filled: true,
+        fillColor: theme.colorScheme.surfaceContainerHighest.withOpacity(0.2),
+        contentPadding: const EdgeInsets.all(12),
+      ),
+    );
+  }
+
+  Widget _buildColorSelector(String currentColor, ThemeData theme) {
+    final swatches = const [
+      "#6366F1", // Indigo
+      "#8B5CF6", // Purple
+      "#EC4899", // Pink
+      "#EF4444", // Red
+      "#10B981", // Emerald
+      "#F59E0B", // Amber
+      "#0F172A", // Dark Slate
+      "#FFFFFF", // White
+    ];
+
     return Column(
-      crossAxisAlignment: .start,
+      crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text(widget.propertyKey, style: TextStyle(fontWeight: .bold)),
-        Text(
-          widget.catalogItem.widgetDefinition.properties[widget.propertyKey]!,
+        Row(
+          children: swatches.map((hex) {
+            final isSelected = currentColor.toLowerCase() == hex.toLowerCase();
+            final isWhite = hex == "#FFFFFF";
+            return Padding(
+              padding: const EdgeInsets.only(right: 8.0),
+              child: GestureDetector(
+                onTap: () => _updateValue(hex),
+                child: AnimatedContainer(
+                  duration: const Duration(milliseconds: 200),
+                  width: 28,
+                  height: 28,
+                  decoration: BoxDecoration(
+                    color: Color(int.parse(hex.replaceFirst('#', '0xff'))),
+                    shape: BoxShape.circle,
+                    border: Border.all(
+                      color: isSelected
+                          ? theme.colorScheme.primary
+                          : isWhite
+                              ? theme.colorScheme.outline.withOpacity(0.2)
+                              : Colors.transparent,
+                      width: isSelected ? 3.0 : 1.0,
+                    ),
+                    boxShadow: [
+                      BoxShadow(
+                        color: Colors.black.withOpacity(0.08),
+                        blurRadius: 4,
+                        offset: const Offset(0, 2),
+                      ),
+                    ],
+                  ),
+                  child: isSelected
+                      ? Icon(
+                          Icons.check_rounded,
+                          size: 14,
+                          color: isWhite ? Colors.black : Colors.white,
+                        )
+                      : null,
+                ),
+              ),
+            );
+          }).toList(),
         ),
-        SizedBox(height: 8),
+        const SizedBox(height: 8),
         TextField(
-          decoration: InputDecoration(border: OutlineInputBorder()),
           controller: widget.controller,
+          decoration: InputDecoration(
+            prefixIcon: const Icon(Icons.palette_rounded, size: 16),
+            hintText: "#HEX Color",
+            isDense: true,
+            border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
+            contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+          ),
+          onChanged: (text) {
+            // Keep text controller as raw text if custom input is type written
+          },
         ),
-        SizedBox(height: 20),
+      ],
+    );
+  }
+
+  Widget _buildSwitchToggle(bool val, ThemeData theme) {
+    return SwitchListTile(
+      value: val,
+      title: const Text("Enable Mode", style: TextStyle(fontSize: 14)),
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+      tileColor: theme.colorScheme.surfaceContainerHighest.withOpacity(0.15),
+      contentPadding: const EdgeInsets.symmetric(horizontal: 16),
+      onChanged: (newVal) => _updateValue(newVal),
+    );
+  }
+
+  Widget _buildSlider(num val, ThemeData theme) {
+    double min = 0.0;
+    double max = 100.0;
+    int divisions = 10;
+
+    final key = widget.propertyKey.toLowerCase();
+    if (key.contains("radius")) {
+      max = 32.0;
+      divisions = 32;
+    } else if (key.contains("height")) {
+      min = 50.0;
+      max = 500.0;
+      divisions = 45;
+    } else if (key.contains("width")) {
+      min = 50.0;
+      max = 500.0;
+      divisions = 45;
+    } else if (key.contains("gap")) {
+      max = 40.0;
+      divisions = 20;
+    }
+
+    final double clampedVal = val.toDouble().clamp(min, max);
+
+    return Column(
+      children: [
+        Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            Text(
+              clampedVal.toStringAsFixed(1),
+              style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 13),
+            ),
+            Row(
+              children: [
+                IconButton(
+                  icon: const Icon(Icons.remove_circle_outline_rounded, size: 18),
+                  onPressed: () {
+                    final newVal = (clampedVal - (max - min) / divisions).clamp(min, max);
+                    _updateValue(newVal);
+                  },
+                ),
+                IconButton(
+                  icon: const Icon(Icons.add_circle_outline_rounded, size: 18),
+                  onPressed: () {
+                    final newVal = (clampedVal + (max - min) / divisions).clamp(min, max);
+                    _updateValue(newVal);
+                  },
+                ),
+              ],
+            ),
+          ],
+        ),
+        Slider(
+          value: clampedVal,
+          min: min,
+          max: max,
+          divisions: divisions,
+          label: clampedVal.toStringAsFixed(1),
+          onChanged: (newVal) => _updateValue(newVal),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildStandardStringField(ThemeData theme) {
+    // Check if raw value is stored as JSON string or raw text
+    String displayText = widget.controller.text;
+    try {
+      final decoded = jsonDecode(widget.controller.text);
+      if (decoded is String) displayText = decoded;
+    } catch (_) {}
+
+    return TextField(
+      decoration: InputDecoration(
+        isDense: true,
+        border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
+        contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+      ),
+      controller: TextEditingController(text: displayText),
+      onChanged: (text) => _updateValue(text),
+    );
+  }
+
+  // --- SPECIALIZED LIST STEP Timeline BUILDER (Agent Stepper) ---
+
+  Widget _buildStepsListBuilder(List steps, ThemeData theme) {
+    final List<Map<String, dynamic>> stepsList =
+        steps.map((e) => Map<String, dynamic>.from(e as Map)).toList();
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        ...stepsList.asMap().entries.map((entry) {
+          final index = entry.key;
+          final step = entry.value;
+
+          final title = step["title"] as String? ?? "";
+          final status = step["status"] as String? ?? "pending";
+          final duration = step["duration"] as String? ?? "";
+
+          return Card(
+            margin: const EdgeInsets.only(bottom: 8),
+            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+            child: Padding(
+              padding: const EdgeInsets.all(8.0),
+              child: Row(
+                children: [
+                  Expanded(
+                    child: Column(
+                      children: [
+                        TextField(
+                          decoration: const InputDecoration(
+                            isDense: true,
+                            hintText: "Step Title",
+                            border: InputBorder.none,
+                          ),
+                          controller: TextEditingController(text: title),
+                          onChanged: (val) {
+                            stepsList[index]["title"] = val;
+                            _updateValue(stepsList);
+                          },
+                        ),
+                        Row(
+                          children: [
+                            DropdownButton<String>(
+                              value: status,
+                              isDense: true,
+                              items: const [
+                                DropdownMenuItem(value: "completed", child: Text("Completed")),
+                                DropdownMenuItem(value: "running", child: Text("Running")),
+                                DropdownMenuItem(value: "failed", child: Text("Failed")),
+                                DropdownMenuItem(value: "pending", child: Text("Pending")),
+                              ],
+                              onChanged: (val) {
+                                if (val != null) {
+                                  stepsList[index]["status"] = val;
+                                  _updateValue(stepsList);
+                                }
+                              },
+                            ),
+                            const SizedBox(width: 8),
+                            Expanded(
+                              child: TextField(
+                                decoration: const InputDecoration(
+                                  isDense: true,
+                                  hintText: "Duration (e.g. 140ms)",
+                                  border: InputBorder.none,
+                                ),
+                                controller: TextEditingController(text: duration),
+                                onChanged: (val) {
+                                  stepsList[index]["duration"] = val;
+                                  _updateValue(stepsList);
+                                },
+                              ),
+                            ),
+                          ],
+                        ),
+                      ],
+                    ),
+                  ),
+                  IconButton(
+                    icon: Icon(Icons.delete_outline_rounded, color: theme.colorScheme.error),
+                    onPressed: () {
+                      stepsList.removeAt(index);
+                      _updateValue(stepsList);
+                    },
+                  ),
+                ],
+              ),
+            ),
+          );
+        }),
+        const SizedBox(height: 8),
+        Center(
+          child: FilledButton.icon(
+            icon: const Icon(Icons.add_rounded, size: 16),
+            label: const Text("Add Timeline Step"),
+            onPressed: () {
+              stepsList.add({"title": "New step", "status": "pending", "duration": ""});
+              _updateValue(stepsList);
+            },
+          ),
+        ),
+      ],
+    );
+  }
+
+  // --- DYNAMIC STRING ARRAY BUILDER ---
+
+  Widget _buildGenericListBuilder(List list, ThemeData theme) {
+    final List<String> stringList = list.map((e) => e.toString()).toList();
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        ...stringList.asMap().entries.map((entry) {
+          final index = entry.key;
+          final item = entry.value;
+
+          return Padding(
+            padding: const EdgeInsets.only(bottom: 8.0),
+            child: Row(
+              children: [
+                Expanded(
+                  child: TextField(
+                    decoration: InputDecoration(
+                      isDense: true,
+                      border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
+                      contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                    ),
+                    controller: TextEditingController(text: item),
+                    onChanged: (val) {
+                      stringList[index] = val;
+                      _updateValue(stringList);
+                    },
+                  ),
+                ),
+                IconButton(
+                  icon: Icon(Icons.remove_circle_outline_rounded, color: theme.colorScheme.error),
+                  onPressed: () {
+                    stringList.removeAt(index);
+                    _updateValue(stringList);
+                  },
+                ),
+              ],
+            ),
+          );
+        }),
+        const SizedBox(height: 8),
+        Center(
+          child: TextButton.icon(
+            icon: const Icon(Icons.add_circle_outline_rounded, size: 16),
+            label: const Text("Add Item"),
+            onPressed: () {
+              stringList.add("New item");
+              _updateValue(stringList);
+            },
+          ),
+        ),
       ],
     );
   }
