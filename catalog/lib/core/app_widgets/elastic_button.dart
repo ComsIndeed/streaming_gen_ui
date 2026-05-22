@@ -7,6 +7,7 @@ class ElasticButton extends StatefulWidget {
   final bool isFlat;
   final Color? backgroundColor;
   final Color? foregroundColor;
+  final double sizeFactor;
 
   const ElasticButton({
     super.key,
@@ -16,6 +17,7 @@ class ElasticButton extends StatefulWidget {
     this.isFlat = false,
     this.backgroundColor,
     this.foregroundColor,
+    this.sizeFactor = 1.0,
   });
 
   @override
@@ -38,9 +40,17 @@ class _ElasticButtonState extends State<ElasticButton> {
         : 1.0;
 
     // Fat (tall) vs Flat (flat) layouts - fat is default
-    final double height = widget.isFlat ? 34.0 : 44.0;
-    final double horizontalPadding = widget.isFlat ? 16.0 : 20.0;
-    final double fontSize = widget.isFlat ? 11.5 : 12.5;
+    final double baseHeight = widget.isFlat ? 34.0 : 44.0;
+    final double baseHorizontalPadding = widget.isFlat ? 16.0 : 20.0;
+    final double baseFontSize = widget.isFlat ? 11.5 : 12.5;
+    final double baseIconSize = 16.0;
+    final double baseSpacing = 8.0;
+
+    final double height = baseHeight * widget.sizeFactor;
+    final double horizontalPadding = baseHorizontalPadding * widget.sizeFactor;
+    final double fontSize = baseFontSize * widget.sizeFactor;
+    final double iconSize = baseIconSize * widget.sizeFactor;
+    final double spacing = baseSpacing * widget.sizeFactor;
 
     final bg = widget.backgroundColor ?? theme.colorScheme.primary;
     final fg = widget.foregroundColor ?? theme.colorScheme.onPrimary;
@@ -71,8 +81,8 @@ class _ElasticButtonState extends State<ElasticButton> {
               boxShadow: [
                 BoxShadow(
                   color: bg.withOpacity(_isHovered ? 0.24 : 0.12),
-                  blurRadius: _isHovered ? 12 : 6,
-                  offset: Offset(0, _isHovered ? 4 : 2),
+                  blurRadius: (_isHovered ? 12 : 6) * widget.sizeFactor,
+                  offset: Offset(0, (_isHovered ? 4 : 2) * widget.sizeFactor),
                 ),
               ],
             ),
@@ -81,10 +91,10 @@ class _ElasticButtonState extends State<ElasticButton> {
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
                 IconTheme(
-                  data: IconThemeData(color: fg, size: 16),
+                  data: IconThemeData(color: fg, size: iconSize),
                   child: widget.icon,
                 ),
-                const SizedBox(width: 8),
+                SizedBox(width: spacing),
                 DefaultTextStyle(
                   style: TextStyle(
                     color: fg,
