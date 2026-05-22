@@ -20,7 +20,7 @@ class ChatAgentService {
       );
     }
 
-    final provider = OpenAIProvider(
+    final provider = DeduplicatedOpenAIProvider(
       apiKey: apiKey,
       baseUrl: Uri.parse('https://api.deepseek.com/v1'),
     );
@@ -198,5 +198,103 @@ class ChatAgentService {
       return Platform.environment['DEEPSEEK_API_KEY'];
     }
     return null;
+  }
+}
+
+class DeduplicatedOpenAIChatModel extends OpenAIChatModel {
+  DeduplicatedOpenAIChatModel({
+    required super.name,
+    super.apiKey,
+    super.tools,
+    super.temperature,
+    super.defaultOptions,
+    super.organization,
+    super.baseUrl,
+    super.headers,
+    super.client,
+  });
+
+  @override
+  Stream<ChatResult<ChatMessage>> sendStream(
+    List<ChatMessage> messages, {
+    OpenAIChatOptions? options,
+    Schema? outputSchema,
+  }) {
+    return super.sendStream(messages, options: options, outputSchema: outputSchema).map((chunk) {
+      if (chunk.messages.isNotEmpty && chunk.output.parts.isNotEmpty) {
+        final completeMessage = chunk.messages.first;
+        final hasToolCalls = completeMessage.parts.any((part) => part is ToolPart);
+        if (hasToolCalls) {
+          // Clear the text parts in output to prevent the orchestrator from streaming the accumulated text again.
+          final emptyOutput = ChatMessage(
+            role: ChatMessageRole.model,
+            parts: const [],
+          );
+          return ChatResult<ChatMessage>(
+            id: chunk.id,
+            output: emptyOutput,
+            messages: chunk.messages,
+            finishReason: chunk.finishReason,
+            metadata: chunk.metadata,
+            usage: chunk.usage,
+          );
+        }
+      }
+      return chunk;
+    });
+  }
+}
+
+class DeduplicatedOpenAIProvider extends OpenAIProvider {
+  DeduplicatedOpenAIProvider({
+    super.apiKey,
+    super.name = 'openai',
+    super.displayName = 'OpenAI',
+    super.defaultModelNames = const {
+      ModelKind.chat: 'gpt-4o',
+      ModelKind.embeddings: 'text-embedding-3-small',
+    },
+    super.baseUrl,
+    super.apiKeyName = 'OPENAI_API_KEY',
+    super.aliases,
+    super.headers,
+  });
+
+  @override
+  ChatModel<OpenAIChatOptions> createChatModel({
+    String? name,
+    List<Tool>? tools,
+    double? temperature,
+    bool enableThinking = false,
+    OpenAIChatOptions? options,
+  }) {
+    validateApiKeyPresence();
+    final modelName = name ?? defaultModelNames[ModelKind.chat]!;
+
+    return DeduplicatedOpenAIChatModel(
+      name: modelName,
+      tools: tools,
+      temperature: temperature,
+      apiKey: apiKey,
+      baseUrl: baseUrl,
+      headers: headers,
+      defaultOptions: OpenAIChatOptions(
+        temperature: temperature ?? options?.temperature,
+        topP: options?.topP,
+        n: options?.n,
+        maxTokens: options?.maxTokens,
+        presencePenalty: options?.presencePenalty,
+        frequencyPenalty: options?.frequencyPenalty,
+        logitBias: options?.logitBias,
+        stop: options?.stop,
+        user: options?.user,
+        responseFormat: options?.responseFormat,
+        seed: options?.seed,
+        parallelToolCalls: options?.parallelToolCalls,
+        streamOptions:
+            options?.streamOptions ?? const StreamOptions(includeUsage: true),
+        serviceTier: options?.serviceTier,
+      ),
+    );
   }
 }
