@@ -97,12 +97,14 @@ class StreamingGenerativeUi with ChangeNotifier {
 
   ViewState _getOrCreateViewState(String viewId) {
     if (!_views.containsKey(viewId)) {
-      _views[viewId] = ViewState(
+      final viewState = ViewState(
         widgetRegistry: registry,
         showInternalErrors: showInternalErrors,
         errorBuilder: errorBuilder,
         config: config,
       );
+      viewState.addListener(notifyListeners);
+      _views[viewId] = viewState;
       notifyListeners();
     }
     return _views[viewId]!;
@@ -206,6 +208,9 @@ class StreamingGenerativeUi with ChangeNotifier {
   void restore({required String viewId, required String raw}) =>
       stream(Stream.value(raw), viewId: viewId);
 
+  /// Checks if the given view contains any content blocks.
+  bool hasContent(String viewId) => _views[viewId]?.hasContent ?? false;
+
   // Output
   Widget view(
     String viewId, {
@@ -219,7 +224,8 @@ class StreamingGenerativeUi with ChangeNotifier {
   }
 
   void disposeView(String viewId) {
-    _views.remove(viewId);
+    final view = _views.remove(viewId);
+    view?.removeListener(notifyListeners);
     notifyListeners();
   }
 }

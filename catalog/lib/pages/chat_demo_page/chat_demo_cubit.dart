@@ -75,6 +75,9 @@ class ChatDemoState {
 class ChatDemoCubit extends Cubit<ChatDemoState> {
   final StreamingGenerativeUi generativeUi = StreamingGenerativeUi(
     registry: Registries.all,
+    customViewIds: const {
+      'canvas-ui': 'Renders a dedicated full-screen dynamic mini app, interactive dashboard, or tool requested by the user.',
+    },
   );
 
   final List<ChatMessage> _history = [];
@@ -90,6 +93,18 @@ class ChatDemoCubit extends Cubit<ChatDemoState> {
         ),
       ) {
     _history.add(ChatMessage.system(systemPrompt));
+    generativeUi.addListener(_onGenerativeUiChanged);
+  }
+
+  bool _hasOpenedCanvasThisStream = false;
+
+  void _onGenerativeUiChanged() {
+    if (!_hasOpenedCanvasThisStream &&
+        generativeUi.hasContent('canvas-ui') &&
+        state.canvasMode != CanvasMode.ui) {
+      _hasOpenedCanvasThisStream = true;
+      emit(state.copyWith(canvasMode: CanvasMode.ui));
+    }
   }
 
   String get systemPrompt =>
@@ -98,7 +113,7 @@ You are a helpful AI Assistant demonstrating your ability to show UI components 
 
 Help the user with their requests. Use widgets when you can.
 
-${generativeUi.registry.systemPromptFragment}
+${generativeUi.systemPrompt}
 
 ## WIDGET SELECTION & MAPPING:
 1. Weather ('get_weather' tool success):
@@ -156,6 +171,7 @@ ${generativeUi.registry.systemPromptFragment}
   void clearChat() {
     _history.clear();
     _history.add(ChatMessage.system(systemPrompt));
+    generativeUi.disposeView('canvas-ui');
     emit(
       const ChatDemoState(
         textBoxMode: TextBoxMode.textfield,
@@ -168,6 +184,8 @@ ${generativeUi.registry.systemPromptFragment}
 
   Future<void> sendMessage(String text) async {
     if (text.trim().isEmpty) return;
+
+    _hasOpenedCanvasThisStream = false;
 
     // 1. Add user message to UI state and internal history
     final userMsgId = 'user-${DateTime.now().millisecondsSinceEpoch}';
@@ -245,5 +263,11 @@ ${generativeUi.registry.systemPromptFragment}
         ),
       );
     }
+  }
+
+  @override
+  Future<void> close() {
+    generativeUi.removeListener(_onGenerativeUiChanged);
+    return super.close();
   }
 }

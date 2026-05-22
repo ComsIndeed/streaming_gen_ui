@@ -20,6 +20,7 @@ void _debugLog(String msg) {
 /// Holds the column of widgets that will be displayed in the UI
 class ViewState with ChangeNotifier {
   final List<Block> _blocks = [];
+  bool get hasContent => _blocks.isNotEmpty;
   final WidgetRegistry widgetRegistry;
   final bool showInternalErrors;
   final GenerativeUiErrorBuilder? errorBuilder;

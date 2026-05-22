@@ -313,40 +313,34 @@ class _ChatDemoPageState extends State<ChatDemoPage> {
                     childAspectRatio: isNarrow ? 2.5 : 2.0,
                     children: [
                       _PresetPromptCard(
-                        title: "Show off",
-                        prompt: "What makes you so cool?",
+                        title: "Weather Check",
+                        prompt: "Check the weather in Paris. Is it warm?",
                         onTap: () {
-                          controller.text = "What makes you so cool?";
+                          controller.text = "Check the weather in Paris. Is it warm?";
                           focusNode.requestFocus();
                         },
                       ),
                       _PresetPromptCard(
-                        title: "Weather check",
-                        prompt:
-                            "Give me a quick forecast, is it t-shirt weather?",
+                        title: "Crypto Price",
+                        prompt: "What is the current price and 24h trend of Bitcoin?",
                         onTap: () {
-                          controller.text =
-                              "Give me a quick forecast, is it t-shirt weather?";
+                          controller.text = "What is the current price and 24h trend of Bitcoin?";
                           focusNode.requestFocus();
                         },
                       ),
                       _PresetPromptCard(
-                        title: "Sun chaser",
-                        prompt:
-                            "When is the next Summer Solstice? I need some sun.",
+                        title: "Search Catalog",
+                        prompt: "Search for some high-quality laptops and show me the catalog.",
                         onTap: () {
-                          controller.text =
-                              "When is the next Summer Solstice? I need some sun.";
+                          controller.text = "Search for some high-quality laptops and show me the catalog.";
                           focusNode.requestFocus();
                         },
                       ),
                       _PresetPromptCard(
-                        title: "Interactive demo",
-                        prompt:
-                            "Show me what you've got! Demo all your widgets.",
+                        title: "Canvas Mini-App",
+                        prompt: "Build a beautiful interactive dashboard in canvas-ui containing a CPU load card and a live deploy log terminal.",
                         onTap: () {
-                          controller.text =
-                              "Show me what you've got! Demo all your widgets.";
+                          controller.text = "Build a beautiful interactive dashboard in canvas-ui containing a CPU load card and a live deploy log terminal.";
                           focusNode.requestFocus();
                         },
                       ),
@@ -491,6 +485,7 @@ class _ChatDemoPageState extends State<ChatDemoPage> {
   }
 
   Widget _buildCanvasContent(BuildContext context, ThemeData theme) {
+    final cubit = context.read<ChatDemoCubit>();
     return Padding(
       padding: const EdgeInsets.all(24.0),
       child: Column(
@@ -508,7 +503,7 @@ class _ChatDemoPageState extends State<ChatDemoPage> {
                   ),
                   const SizedBox(width: 10),
                   const Text(
-                    "Docker Deploy monitor",
+                    "Canvas Preview",
                     style: TextStyle(fontWeight: FontWeight.bold, fontSize: 18),
                   ),
                 ],
@@ -524,132 +519,17 @@ class _ChatDemoPageState extends State<ChatDemoPage> {
             ],
           ),
           const SizedBox(height: 20),
-          const Text(
-            "LIVE CONNECTION METRIC",
-            style: TextStyle(
-              fontSize: 11,
-              fontWeight: FontWeight.bold,
-              letterSpacing: 1.5,
-            ),
-          ),
-          const SizedBox(height: 10),
-          Row(
-            children: [
-              Expanded(
-                child: Card(
-                  elevation: 0,
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(16),
-                    side: BorderSide(
-                      color: theme.colorScheme.outline.withOpacity(0.1),
-                    ),
-                  ),
-                  child: Padding(
-                    padding: const EdgeInsets.all(16.0),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        const Text(
-                          "CPU load",
-                          style: TextStyle(fontSize: 12, color: Colors.grey),
-                        ),
-                        const SizedBox(height: 4),
-                        Text(
-                          "12.4%",
-                          style: TextStyle(
-                            fontSize: 20,
-                            fontWeight: FontWeight.bold,
-                            color: theme.colorScheme.primary,
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                ),
-              ),
-              const SizedBox(width: 12),
-              Expanded(
-                child: Card(
-                  elevation: 0,
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(16),
-                    side: BorderSide(
-                      color: theme.colorScheme.outline.withOpacity(0.1),
-                    ),
-                  ),
-                  child: Padding(
-                    padding: const EdgeInsets.all(16.0),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        const Text(
-                          "Memory",
-                          style: TextStyle(fontSize: 12, color: Colors.grey),
-                        ),
-                        const SizedBox(height: 4),
-                        const Text(
-                          "512MB / 2GB",
-                          style: TextStyle(
-                            fontSize: 18,
-                            fontWeight: FontWeight.bold,
-                            color: Colors.greenAccent,
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                ),
-              ),
-            ],
-          ),
-          const SizedBox(height: 24),
-          const Text(
-            "LIVE DEPLOYMENT CONTAINER TERMINAL LOGS",
-            style: TextStyle(
-              fontSize: 11,
-              fontWeight: FontWeight.bold,
-              letterSpacing: 1.5,
-            ),
-          ),
-          const SizedBox(height: 10),
           Expanded(
-            child: Container(
-              width: double.infinity,
-              padding: const EdgeInsets.all(16),
-              decoration: BoxDecoration(
-                color: Colors.black.withOpacity(0.95),
-                borderRadius: BorderRadius.circular(20),
-                border: Border.all(
-                  color: theme.colorScheme.outline.withOpacity(0.1),
-                ),
-              ),
-              child: const SingleChildScrollView(
-                physics: BouncingScrollPhysics(),
-                child: Text(
-                  "\$ npm install -g pnpm\n"
-                  "--> added 4 packages [OK]\n"
-                  "\$ pnpm build\n"
-                  "--> compiling source scripts...\n"
-                  "--> tree shaking components...\n"
-                  "--> assets saved under dist/ [OK]\n"
-                  "\$ docker build -t server-node .\n"
-                  "--> Layer 1/4: FROM node:20-alpine [OK]\n"
-                  "--> Layer 2/4: COPY dist/ dist/ [OK]\n"
-                  "--> Layer 3/4: EXPOSE 8080 [OK]\n"
-                  "--> Layer 4/4: CMD pnpm dev [OK]\n"
-                  "--> tag: server-node:latest successfully compiled!\n"
-                  "\$ docker run -p 8080:8080 server-node\n"
-                  "--> running deployment hooks...\n"
-                  "--> metrics listener connected.\n"
-                  "--> status: host online at http://192.168.1.144:8080\n"
-                  "--> _",
-                  style: TextStyle(
-                    fontFamily: 'monospace',
-                    fontSize: 12,
-                    color: Colors.greenAccent,
-                    height: 1.4,
-                  ),
-                ),
+            child: SingleChildScrollView(
+              physics: const BouncingScrollPhysics(),
+              child: ListenableBuilder(
+                listenable: cubit.generativeUi,
+                builder: (context, _) {
+                  return cubit.generativeUi.view(
+                    'canvas-ui',
+                    textBlockBuilder: (context, text) => GptMarkdown(text),
+                  );
+                },
               ),
             ),
           ),
