@@ -10,7 +10,7 @@ class ChatAgentService {
   ChatAgentService._(this._agent);
 
   /// Factory constructor to create and configure the Agent.
-  /// Throws an ArgumentError if the DeepSeek API Key is missing.
+  /// Throws an ArgumentError if the API Key is missing.
   factory ChatAgentService.create({String modelName = 'deepseek-v4-flash'}) {
     const proxyUrl = String.fromEnvironment('NETLIFY_PROXY_URL');
     final String apiKey;
@@ -20,15 +20,19 @@ class ChatAgentService {
       apiKey = 'proxy-placeholder';
       baseUrl = Uri.parse(proxyUrl);
     } else {
-      final key = _getApiKey();
+      final key = _getApiKey(modelName);
+      final isLlama = modelName.contains('llama') || modelName.contains('groq');
+      final String keyName = isLlama ? 'GROQ_API_KEY' : 'DEEPSEEK_API_KEY';
       if (key == null || key.isEmpty) {
         throw ArgumentError(
-          'Missing DEEPSEEK_API_KEY environment variable or NETLIFY_PROXY_URL. '
-          'Please define it via Platform environment or --dart-define=DEEPSEEK_API_KEY=your_key.',
+          'Missing $keyName environment variable or NETLIFY_PROXY_URL. '
+          'Please define it via Platform environment or --dart-define=$keyName=your_key.',
         );
       }
       apiKey = key;
-      baseUrl = Uri.parse('https://api.deepseek.com/v1');
+      baseUrl = isLlama
+          ? Uri.parse('https://api.groq.com/openai/v1')
+          : Uri.parse('https://api.deepseek.com/v1');
     }
 
     final provider = DeduplicatedOpenAIProvider(
@@ -202,11 +206,17 @@ class ChatAgentService {
         .map((chunk) => chunk.output);
   }
 
-  static String? _getApiKey() {
-    const envKey = String.fromEnvironment('DEEPSEEK_API_KEY');
+  static String? _getApiKey(String modelName) {
+    final isLlama = modelName.contains('llama') || modelName.contains('groq');
+    final String keyName = isLlama ? 'GROQ_API_KEY' : 'DEEPSEEK_API_KEY';
+
+    final envKey = isLlama
+        ? const String.fromEnvironment('GROQ_API_KEY')
+        : const String.fromEnvironment('DEEPSEEK_API_KEY');
     if (envKey.isNotEmpty) return envKey;
+
     if (!kIsWeb) {
-      return Platform.environment['DEEPSEEK_API_KEY'];
+      return Platform.environment[keyName];
     }
     return null;
   }
