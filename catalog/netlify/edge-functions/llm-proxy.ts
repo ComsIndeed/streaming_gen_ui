@@ -1,6 +1,118 @@
 import { Context } from "https://edge.netlify.com";
 
+// CORS Origin helper
+function isAllowedOrigin(origin: string): boolean {
+  if (!origin) return false;
+  if (origin === "https://streaming.vincentsanicolas.me") return true;
+  if (origin.startsWith("http://localhost") || origin.startsWith("http://127.0.0.1")) {
+    return true;
+  }
+  return false;
+}
+
+// In-memory rate limiting map and settings
+const rateLimitMap = new Map<string, { count: number; resetTime: number }>();
+const RATE_LIMIT_COUNT = 15; // Max 15 requests per minute
+const RATE_LIMIT_WINDOW_MS = 60 * 1000; // 1 minute
+
+function cleanRateLimitMap() {
+  const now = Date.now();
+  for (const [key, value] of rateLimitMap.entries()) {
+    if (now > value.resetTime) {
+      rateLimitMap.delete(key);
+    }
+  }
+}
+
+function handleRateLimit(ip: string) {
+  cleanRateLimitMap();
+  const now = Date.now();
+  const data = rateLimitMap.get(ip);
+
+  if (!data || now > data.resetTime) {
+    const resetTime = now + RATE_LIMIT_WINDOW_MS;
+    rateLimitMap.set(ip, { count: 1, resetTime });
+    return {
+      allowed: true,
+      remaining: RATE_LIMIT_COUNT - 1,
+      reset: Math.ceil(RATE_LIMIT_WINDOW_MS / 1000),
+    };
+  }
+
+  if (data.count >= RATE_LIMIT_COUNT) {
+    return {
+      allowed: false,
+      remaining: 0,
+      reset: Math.ceil((data.resetTime - now) / 1000),
+    };
+  }
+
+  data.count++;
+  return {
+    allowed: true,
+    remaining: RATE_LIMIT_COUNT - data.count,
+    reset: Math.ceil((data.resetTime - now) / 1000),
+  };
+}
+
 export default async (request: Request, context: Context) => {
+  const requestOrigin = request.headers.get("origin") || "";
+  const isOriginAllowed = isAllowedOrigin(requestOrigin);
+
+  // 1. Enforce origin security for browsers
+  if (requestOrigin && !isOriginAllowed) {
+    return new Response(
+      JSON.stringify({ error: "Unauthorized origin. Access denied." }),
+      {
+        status: 403,
+        headers: {
+          "Content-Type": "application/json",
+        },
+      }
+    );
+  }
+
+  // 2. Setup CORS headers
+  const corsOrigin = isOriginAllowed ? requestOrigin : "https://streaming.vincentsanicolas.me";
+  const corsHeaders = {
+    "Access-Control-Allow-Origin": corsOrigin,
+    "Access-Control-Allow-Methods": "POST, OPTIONS",
+    "Access-Control-Allow-Headers": "Content-Type, Authorization",
+  };
+
+  // 3. Handle OPTIONS preflight request
+  if (request.method === "OPTIONS") {
+    return new Response(null, {
+      status: 204,
+      headers: corsHeaders,
+    });
+  }
+
+  // 4. Rate Limiting check
+  const ip = context.ip || request.headers.get("x-nf-client-connection-ip") || "unknown";
+  const limitResult = handleRateLimit(ip);
+
+  const rateLimitHeaders = {
+    "X-RateLimit-Limit": String(RATE_LIMIT_COUNT),
+    "X-RateLimit-Remaining": String(limitResult.remaining),
+    "X-RateLimit-Reset": String(limitResult.reset),
+  };
+
+  if (!limitResult.allowed) {
+    return new Response(
+      JSON.stringify({ error: "Too many requests. Please try again in a minute." }),
+      {
+        status: 429,
+        headers: {
+          "Content-Type": "application/json",
+          "Retry-After": String(limitResult.reset),
+          ...corsHeaders,
+          ...rateLimitHeaders,
+        },
+      }
+    );
+  }
+
   const apiKey = Deno.env.get("DEEPSEEK_API_KEY");
   const discordWebhookUrl = Deno.env.get("DISCORD_WEBHOOK_URL");
 
@@ -11,7 +123,11 @@ export default async (request: Request, context: Context) => {
       }),
       {
         status: 500,
-        headers: { "Content-Type": "application/json" },
+        headers: {
+          "Content-Type": "application/json",
+          ...corsHeaders,
+          ...rateLimitHeaders,
+        },
       },
     );
   }
@@ -30,7 +146,16 @@ export default async (request: Request, context: Context) => {
   });
 
   if (!llmResponse.ok) {
-    return llmResponse;
+    const errorBody = await llmResponse.text();
+    return new Response(errorBody, {
+      status: llmResponse.status,
+      statusText: llmResponse.statusText,
+      headers: {
+        "Content-Type": "application/json",
+        ...corsHeaders,
+        ...rateLimitHeaders,
+      },
+    });
   }
 
   // Stream interceptor to extract usage metadata without blocking response
@@ -74,6 +199,8 @@ export default async (request: Request, context: Context) => {
       "Content-Type": "text/event-stream; charset=utf-8",
       "Cache-Control": "no-cache",
       "Connection": "keep-alive",
+      ...corsHeaders,
+      ...rateLimitHeaders,
     },
   });
 };
