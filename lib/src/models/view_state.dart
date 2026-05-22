@@ -26,7 +26,7 @@ class ViewState with ChangeNotifier {
   final GenerativeUiConfig config;
 
   ViewState({
-    required Stream<String> stream,
+    Stream<String>? stream,
     required this.widgetRegistry,
     this.showInternalErrors = true,
     this.errorBuilder,
@@ -34,7 +34,27 @@ class ViewState with ChangeNotifier {
   }) {
     _debugLog('ViewState initialized.');
     ensureGlobalErrorBuilderInitialized();
-    seperateStream(stream);
+    if (stream != null) {
+      seperateStream(stream);
+    }
+  }
+
+  /// Manually appends a chunk of conversational text to this view state.
+  void addTextChunk(String chunk) {
+    _addTextBlock(chunk);
+  }
+
+  /// Manually appends a chunk of widget JSON definition to this view state.
+  void addWidgetChunk(String chunk) {
+    _addWidgetBlock(chunk);
+  }
+
+  /// Closes the active block, completing its internal streams.
+  void closeActiveBlock() {
+    if (_blocks.isNotEmpty) {
+      _debugLog('closeActiveBlock: closing block ${_blocks.last.runtimeType}');
+      _blocks.last.close();
+    }
   }
 
   void seperateStream(Stream<String> stream) {
