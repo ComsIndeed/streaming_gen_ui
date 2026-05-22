@@ -100,37 +100,41 @@ Help the user with their requests. Use widgets when you can.
 
 ${generativeUi.registry.systemPromptFragment}
 
-CRITICAL RULES FOR DYNAMIC WIDGET SELECTION:
-1. When the user asks about weather, and the 'get_weather' tool runs successfully:
-   - You MUST stream a "weather:forecast_card" widget.
-   - Map the fields correctly:
-     * "cityName": The name of the city requested (e.g. "Paris" or "Manila").
-     * "temperature": Map the current_weather's temperature formatted (e.g., "${r'${current_weather["temperature"]}'}°C").
-     * "condition": A short string summarizing weather condition based on the weathercode or description (e.g., "sunny", "rainy", "cloudy", "snowy").
-     * "humidity": Format and output humidity if available, or leave empty if not provided.
-     * "windSpeed": Format windspeed (e.g. "${r'${current_weather["windspeed"]}'} km/h").
-     * "forecast": Provide a 3-day projection mapped from the daily fields. Each daily forecast map in the list must contain "day" (e.g., "Mon", "Tue"), "temp" (e.g. "24°C"), and "condition" (e.g. "sunny", "rainy").
+## WIDGET SELECTION & MAPPING:
+1. Weather ('get_weather' tool success):
+   - Stream "weather:forecast_card".
+   - Map:
+     * "cityName": Requested city name.
+     * "temperature": "${r'${current_weather["temperature"]}'}°C".
+     * "condition": Short weather summary (sunny/rainy/cloudy/snowy).
+     * "humidity": Format or omit.
+     * "windSpeed": "${r'${current_weather["windspeed"]}'} km/h".
+     * "forecast": 3-day list. Map items: {"day": "Mon", "temp": "24°C", "condition": "sunny"}.
      
-2. When the user searches for products, and the 'search_products' tool runs successfully:
-   - You MUST stream one or more "ecommerce:product_card" widgets (wrapped in a vertical "core:column" or standard layout if showing multiple).
-   - Map the fields from the tool's returned products:
-     * "title": The product's title (e.g. "iPhone 15").
-     * "description": A concise summary of the item description.
-     * "price": Format price cleanly (e.g., "\$${r'${product["price"]}'}").
-     * "imageUrl": Provide the primary product thumbnail or image URL.
-     * "rating": Float value between 1.0 and 5.0 indicating user rating.
-     * "action": Map to a unique callback action key like "buy_product_${r'${product["id"]}'}".
-3. When the user asks about cryptocurrency prices or tickers, and the 'get_crypto_price' tool runs successfully:
-   - You MUST stream a "crypto:price_card" widget.
-   - Map the fields returned directly by the tool:
-     * "symbol": The uppercase coin symbol (e.g. "BTC", "ETH").
-     * "name": The capitalized full name of the coin (e.g. "Bitcoin", "Solana").
-     * "price": The pre-formatted price (e.g. "\$63,245.20").
-     * "change24h": The pre-formatted 24h percentage change (e.g. "+2.51%" or "-1.42%").
-     * "isPositive": The boolean indicating if the trend is up.
-     * "high24h": The pre-formatted 24h high price.
-     * "low24h": The pre-formatted 24h low price.
-     * "sparkline": The array of floating point numbers representing the price trend.
+2. Products ('search_products' tool success):
+   - Stream "ecommerce:product_card" (wrap in "core:column" if multiple).
+   - Map:
+     * "title": Product title.
+     * "description": Short summary.
+     * "price": "\$${r'${product["price"]}'}".
+     * "imageUrl": Primary image URL.
+     * "rating": Float (1.0 to 5.0).
+     * "action": "buy_product_${r'${product["id"]}'}".
+
+3. Crypto ('get_crypto_price' tool success):
+   - Stream "crypto:price_card".
+   - Map:
+     * "symbol": Uppercase symbol (e.g. BTC).
+     * "name": Capitalized name (e.g. Bitcoin).
+     * "price": Formatted price.
+     * "change24h": Formatted change (e.g. +2.51%).
+     * "isPositive": Trend boolean.
+     * "high24h": Formatted high.
+     * "low24h": Formatted low.
+     * "sparkline": Trend float list.
+ 
+## IMPORTANT:
+- For the above stated WIDGET SELECTION & MAPPING, you must stream the mentioned widget if available.
 ''';
 
   void setTextBoxMode(TextBoxMode mode) {
