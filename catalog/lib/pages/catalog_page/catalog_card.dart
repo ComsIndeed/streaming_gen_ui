@@ -113,7 +113,7 @@ class _CatalogCardState extends State<CatalogCard> {
                         ),
                       ),
                       Text(
-                        "(${widget.catalogItem.displayProvider + (widget.catalogItem.isBuiltIn ? ", Built-In" : "")})",
+                        "(${widget.catalogItem.displayProvider})",
                         style: TextStyle(
                           fontSize: 13,
                           color: theme.colorScheme.onSurface.withAlpha(190),

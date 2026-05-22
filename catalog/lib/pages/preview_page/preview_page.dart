@@ -12,6 +12,7 @@ import 'package:streaming_gen_ui_widget_catalog/core/utilities/web_downloader.da
 import 'package:streaming_gen_ui_widget_catalog/core/widget_sources.g.dart';
 import 'package:streaming_gen_ui_widget_catalog/pages/preview_page/property_editable.dart';
 import 'package:streaming_gen_ui_widget_catalog/widgets/graph_background.dart';
+import 'package:http/http.dart' as http;
 
 class PreviewPage extends StatefulWidget {
   final WidgetCatalogItem catalogItem;
@@ -42,6 +43,7 @@ class _PreviewPageState extends State<PreviewPage> {
   bool _isCodeExpanded = false;
   bool _isPropertiesExpanded = false;
   int _currentLeftPanelPage = 0;
+  String _latestVersion = "0.1.0";
 
   @override
   void initState() {
@@ -68,6 +70,24 @@ class _PreviewPageState extends State<PreviewPage> {
 
     // Initiate first simulated stream
     _startStream();
+    _fetchLatestVersion();
+  }
+
+  Future<void> _fetchLatestVersion() async {
+    try {
+      final response = await http.get(Uri.parse('https://pub.dev/api/packages/streaming_gen_ui'));
+      if (response.statusCode == 200) {
+        final decoded = jsonDecode(response.body);
+        final version = decoded['latest']['version'] as String;
+        if (mounted) {
+          setState(() {
+            _latestVersion = version;
+          });
+        }
+      }
+    } catch (_) {
+      // Keep fallback
+    }
   }
 
   @override
@@ -688,6 +708,7 @@ class _PreviewPageState extends State<PreviewPage> {
     final className = widgetClassName;
     final name = widget.catalogItem.namespace.split(':').last;
     final filename = 'streaming_$name.dart';
+    final isBuiltIn = widget.catalogItem.isBuiltIn;
 
     return Column(
       key: const ValueKey('integration-page'),
@@ -704,7 +725,9 @@ class _PreviewPageState extends State<PreviewPage> {
         ),
         const SizedBox(height: 6),
         Text(
-          "Follow these steps to import and use the generated streaming component.",
+          isBuiltIn
+              ? "This widget is built into streaming_gen_ui. No extra files needed."
+              : "Follow these steps to import and use the generated streaming component.",
           style: TextStyle(
             fontSize: 13,
             color: theme.colorScheme.onSurfaceVariant.withOpacity(0.85),
@@ -712,7 +735,7 @@ class _PreviewPageState extends State<PreviewPage> {
         ),
         const SizedBox(height: 24),
 
-        // Step 1
+        // Step 1 — same for both paths
         Text(
           "1. pubspec.yaml Setup",
           style: TextStyle(
@@ -723,7 +746,7 @@ class _PreviewPageState extends State<PreviewPage> {
         ),
         const SizedBox(height: 4),
         Text(
-          "Add the git repository to your dependencies list.",
+          "Add the package to your dependencies list.",
           style: TextStyle(
             fontSize: 12,
             color: theme.colorScheme.onSurfaceVariant.withOpacity(0.8),
@@ -733,14 +756,14 @@ class _PreviewPageState extends State<PreviewPage> {
         _buildPremiumCodeBlock(
           fileName: "pubspec.yaml",
           code:
-              "dependencies:\n  streaming_gen_ui:\n    git:\n      url: https://github.com/ComsIndeed/streaming-gen-ui.git",
+              "dependencies:\n  streaming_gen_ui: ^$_latestVersion",
           theme: theme,
           onCopy: () async {
             final messenger = ScaffoldMessenger.of(context);
             await Clipboard.setData(
-              const ClipboardData(
+              ClipboardData(
                 text:
-                    "dependencies:\n  streaming_gen_ui:\n    git:\n      url: https://github.com/ComsIndeed/streaming-gen-ui.git",
+                    "dependencies:\n  streaming_gen_ui: ^$_latestVersion",
               ),
             );
             messenger.showSnackBar(
@@ -753,112 +776,233 @@ class _PreviewPageState extends State<PreviewPage> {
         ),
         const SizedBox(height: 28),
 
-        // Step 2
-        Text(
-          "2. Self-Registration Setup",
-          style: TextStyle(
-            fontSize: 16,
-            fontWeight: FontWeight.bold,
-            color: theme.colorScheme.onSurface,
-          ),
-        ),
-        const SizedBox(height: 4),
-        Text(
-          "Map the custom namespace in your local WidgetRegistry list.",
-          style: TextStyle(
-            fontSize: 12,
-            color: theme.colorScheme.onSurfaceVariant.withOpacity(0.8),
-          ),
-        ),
-        const SizedBox(height: 12),
-        _buildPremiumCodeBlock(
-          fileName: "registration.dart",
-          code: "'${widget.catalogItem.namespace}': $className.definition,",
-          theme: theme,
-          onCopy: () async {
-            final messenger = ScaffoldMessenger.of(context);
-            await Clipboard.setData(
-              ClipboardData(
-                text:
-                    "'${widget.catalogItem.namespace}': $className.definition,",
-              ),
-            );
-            messenger.showSnackBar(
-              const SnackBar(
-                content: Text("Registration snippet copied!"),
-                behavior: SnackBarBehavior.floating,
-              ),
-            );
-          },
-        ),
-        const SizedBox(height: 28),
+        if (isBuiltIn) ...[
+          // ── Built-In Path ──────────────────────────────────────
 
-        // Step 3
-        Text(
-          "3. Standalone Widget File",
-          style: TextStyle(
-            fontSize: 16,
-            fontWeight: FontWeight.bold,
-            color: theme.colorScheme.onSurface,
-          ),
-        ),
-        const SizedBox(height: 4),
-        Text(
-          "Add this standalone widget file to your project codebase.",
-          style: TextStyle(
-            fontSize: 12,
-            color: theme.colorScheme.onSurfaceVariant.withOpacity(0.8),
-          ),
-        ),
-        const SizedBox(height: 12),
-        _buildPremiumCodeBlock(
-          fileName: filename,
-          code: widgetSourceCode,
-          theme: theme,
-          isExpandable: true,
-          onCopy: () async {
-            final messenger = ScaffoldMessenger.of(context);
-            await Clipboard.setData(ClipboardData(text: widgetSourceCode));
-            messenger.showSnackBar(
-              const SnackBar(
-                content: Text("Full source code copied to clipboard!"),
-                behavior: SnackBarBehavior.floating,
-              ),
-            );
-          },
-        ),
-        const SizedBox(height: 16),
-        Row(
-          children: [
-            Expanded(
-              child: OutlinedButton.icon(
-                onPressed: () async {
-                  final messenger = ScaffoldMessenger.of(context);
-                  await Clipboard.setData(
-                    ClipboardData(text: widgetSourceCode),
-                  );
-                  messenger.showSnackBar(
-                    const SnackBar(
-                      content: Text("Full source code copied!"),
-                      behavior: SnackBarBehavior.floating,
-                    ),
-                  );
-                },
-                icon: const Icon(Icons.copy_all_rounded),
-                label: const Text("Copy Full Code"),
-              ),
+          // Step 2: Register
+          Text(
+            "2. Register the Widget",
+            style: TextStyle(
+              fontSize: 16,
+              fontWeight: FontWeight.bold,
+              color: theme.colorScheme.onSurface,
             ),
-            const SizedBox(width: 12),
-            Expanded(
-              child: FilledButton.icon(
-                onPressed: _downloadWidgetSource,
-                icon: const Icon(Icons.download_rounded),
-                label: Text(kIsWeb ? "Download Dart File" : "Save to Project"),
-              ),
+          ),
+          const SizedBox(height: 4),
+          Text(
+            "Use the + operator on Registries.all, filtered to only the widget you need.",
+            style: TextStyle(
+              fontSize: 12,
+              color: theme.colorScheme.onSurfaceVariant.withOpacity(0.8),
             ),
-          ],
-        ),
-        const SizedBox(height: 32),
+          ),
+          const SizedBox(height: 12),
+          _buildPremiumCodeBlock(
+            fileName: "registration.dart",
+            code: "import 'package:streaming_gen_ui/streaming_gen_ui.dart';\n\n"
+                "final myRegistry = WidgetRegistry()\n"
+                "  + Registries.all.only('${widget.catalogItem.namespace}');",
+            theme: theme,
+            onCopy: () async {
+              final messenger = ScaffoldMessenger.of(context);
+              final snippet =
+                  "import 'package:streaming_gen_ui/streaming_gen_ui.dart';\n\n"
+                  "final myRegistry = WidgetRegistry()\n"
+                  "  + Registries.all.only('${widget.catalogItem.namespace}');";
+              await Clipboard.setData(ClipboardData(text: snippet));
+              messenger.showSnackBar(
+                const SnackBar(
+                  content: Text("Registration snippet copied!"),
+                  behavior: SnackBarBehavior.floating,
+                ),
+              );
+            },
+          ),
+          const SizedBox(height: 28),
+
+          // Step 3: Pipe & Display
+          Text(
+            "3. Pipe & Display",
+            style: TextStyle(
+              fontSize: 16,
+              fontWeight: FontWeight.bold,
+              color: theme.colorScheme.onSurface,
+            ),
+          ),
+          const SizedBox(height: 4),
+          Text(
+            "Pass the system prompt fragment to your LLM, pipe the response stream "
+            "into .stream(), then place .view() anywhere in your build method.",
+            style: TextStyle(
+              fontSize: 12,
+              color: theme.colorScheme.onSurfaceVariant.withOpacity(0.8),
+            ),
+          ),
+          const SizedBox(height: 12),
+          _buildPremiumCodeBlock(
+            fileName: "usage.dart",
+            code: "final genUi = StreamingGenerativeUi(registry: myRegistry);\n\n"
+                "// Inject the prompt fragment into your LLM system prompt\n"
+                "final systemPrompt = genUi.systemPrompt;\n\n"
+                "// Pipe the LLM response stream in\n"
+                "await genUi.stream(\n"
+                "  llmStream,\n"
+                "  viewId: 'message-42',\n"
+                "  onComplete: (raw) => db.save(raw),\n"
+                ");",
+            theme: theme,
+            onCopy: () async {
+              final messenger = ScaffoldMessenger.of(context);
+              const snippet =
+                  "final genUi = StreamingGenerativeUi(registry: myRegistry);\n\n"
+                  "// Inject the prompt fragment into your LLM system prompt\n"
+                  "final systemPrompt = genUi.systemPrompt;\n\n"
+                  "// Pipe the LLM response stream in\n"
+                  "await genUi.stream(\n"
+                  "  llmStream,\n"
+                  "  viewId: 'message-42',\n"
+                  "  onComplete: (raw) => db.save(raw),\n"
+                  ");";
+              await Clipboard.setData(const ClipboardData(text: snippet));
+              messenger.showSnackBar(
+                const SnackBar(
+                  content: Text("Stream setup snippet copied!"),
+                  behavior: SnackBarBehavior.floating,
+                ),
+              );
+            },
+          ),
+          const SizedBox(height: 16),
+          _buildPremiumCodeBlock(
+            fileName: "build.dart",
+            code: "// Somewhere in your build() method:\n"
+                "genUi.view('message-42')",
+            theme: theme,
+            onCopy: () async {
+              final messenger = ScaffoldMessenger.of(context);
+              const snippet =
+                  "// Somewhere in your build() method:\n"
+                  "genUi.view('message-42')";
+              await Clipboard.setData(const ClipboardData(text: snippet));
+              messenger.showSnackBar(
+                const SnackBar(
+                  content: Text("View snippet copied!"),
+                  behavior: SnackBarBehavior.floating,
+                ),
+              );
+            },
+          ),
+          const SizedBox(height: 32),
+        ] else ...[
+          // ── Importable Path ────────────────────────────────────
+
+          // Step 2
+          Text(
+            "2. Self-Registration Setup",
+            style: TextStyle(
+              fontSize: 16,
+              fontWeight: FontWeight.bold,
+              color: theme.colorScheme.onSurface,
+            ),
+          ),
+          const SizedBox(height: 4),
+          Text(
+            "Map the custom namespace in your local WidgetRegistry list.",
+            style: TextStyle(
+              fontSize: 12,
+              color: theme.colorScheme.onSurfaceVariant.withOpacity(0.8),
+            ),
+          ),
+          const SizedBox(height: 12),
+          _buildPremiumCodeBlock(
+            fileName: "registration.dart",
+            code: "'${widget.catalogItem.namespace}': $className.definition,",
+            theme: theme,
+            onCopy: () async {
+              final messenger = ScaffoldMessenger.of(context);
+              await Clipboard.setData(
+                ClipboardData(
+                  text:
+                      "'${widget.catalogItem.namespace}': $className.definition,",
+                ),
+              );
+              messenger.showSnackBar(
+                const SnackBar(
+                  content: Text("Registration snippet copied!"),
+                  behavior: SnackBarBehavior.floating,
+                ),
+              );
+            },
+          ),
+          const SizedBox(height: 28),
+
+          // Step 3
+          Text(
+            "3. Standalone Widget File",
+            style: TextStyle(
+              fontSize: 16,
+              fontWeight: FontWeight.bold,
+              color: theme.colorScheme.onSurface,
+            ),
+          ),
+          const SizedBox(height: 4),
+          Text(
+            "Add this standalone widget file to your project codebase.",
+            style: TextStyle(
+              fontSize: 12,
+              color: theme.colorScheme.onSurfaceVariant.withOpacity(0.8),
+            ),
+          ),
+          const SizedBox(height: 12),
+          _buildPremiumCodeBlock(
+            fileName: filename,
+            code: widgetSourceCode,
+            theme: theme,
+            isExpandable: true,
+            onCopy: () async {
+              final messenger = ScaffoldMessenger.of(context);
+              await Clipboard.setData(ClipboardData(text: widgetSourceCode));
+              messenger.showSnackBar(
+                const SnackBar(
+                  content: Text("Full source code copied to clipboard!"),
+                  behavior: SnackBarBehavior.floating,
+                ),
+              );
+            },
+          ),
+          const SizedBox(height: 16),
+          Row(
+            children: [
+              Expanded(
+                child: OutlinedButton.icon(
+                  onPressed: () async {
+                    final messenger = ScaffoldMessenger.of(context);
+                    await Clipboard.setData(
+                      ClipboardData(text: widgetSourceCode),
+                    );
+                    messenger.showSnackBar(
+                      const SnackBar(
+                        content: Text("Full source code copied!"),
+                        behavior: SnackBarBehavior.floating,
+                      ),
+                    );
+                  },
+                  icon: const Icon(Icons.copy_all_rounded),
+                  label: const Text("Copy Full Code"),
+                ),
+              ),
+              const SizedBox(width: 12),
+              Expanded(
+                child: FilledButton.icon(
+                  onPressed: _downloadWidgetSource,
+                  icon: const Icon(Icons.download_rounded),
+                  label: Text(kIsWeb ? "Download Dart File" : "Save to Project"),
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 32),
+        ],
       ],
     );
   }
