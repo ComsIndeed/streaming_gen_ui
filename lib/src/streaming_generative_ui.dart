@@ -112,8 +112,10 @@ class StreamingGenerativeUi with ChangeNotifier {
     final broadcastStream = stream.asBroadcastStream();
 
     final defaultViewId = viewId;
+    final Set<String> clearedViews = {};
     if (defaultViewId != null) {
-      _getOrCreateViewState(defaultViewId);
+      clearedViews.add(defaultViewId);
+      _getOrCreateViewState(defaultViewId).clear();
     }
 
     String activeViewId = defaultViewId ?? '';
@@ -138,7 +140,11 @@ class StreamingGenerativeUi with ChangeNotifier {
         .listen((targetId) {
       activeViewId = targetId ?? defaultViewId ?? '';
       if (activeViewId.isNotEmpty) {
-        _getOrCreateViewState(activeViewId);
+        final viewState = _getOrCreateViewState(activeViewId);
+        if (!clearedViews.contains(activeViewId)) {
+          clearedViews.add(activeViewId);
+          viewState.clear();
+        }
       }
     });
 

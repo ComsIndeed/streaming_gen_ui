@@ -57,6 +57,14 @@ class ViewState with ChangeNotifier {
     }
   }
 
+  /// Clears all blocks and resets the view state.
+  void clear() {
+    closeActiveBlock();
+    _blocks.clear();
+    _cachedWidget = null;
+    notifyListeners();
+  }
+
   void seperateStream(Stream<String> stream) {
     _debugLog('seperateStream: setting up LlmTagParser...');
     final parser = LlmTagParser(
