@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 
 /// A custom builder function that allows developers to customize the look of
@@ -276,12 +277,19 @@ void ensureGlobalErrorBuilderInitialized() {
   ErrorWidget.builder = (FlutterErrorDetails details) {
     final detailsString = details.toString();
     final isGenUi =
-        detailsString.contains('StreamingWidget') ||
+        detailsString.contains('StreamingWidgetWrapper') ||
         detailsString.contains('WidgetBlock') ||
+        detailsString.contains('StreamingUiProvider') ||
         activeBuildNamespace != 'Unknown';
 
     if (isGenUi) {
-      final namespace = activeBuildNamespace;
+      var namespace = activeBuildNamespace;
+      if (namespace == 'Unknown') {
+        final match = RegExp('StreamingWidgetWrapper\\(namespace:\\s*["\']?([^"\'\\s)]+)').firstMatch(detailsString);
+        if (match != null) {
+          namespace = match.group(1)!;
+        }
+      }
       final properties = activeBuildProperties;
 
       // Log the exception in the console, self-identifying the failing widget
@@ -342,5 +350,29 @@ class HazardStripesPainter extends CustomPainter {
     return color1 != oldDelegate.color1 ||
         color2 != oldDelegate.color2 ||
         stripeWidth != oldDelegate.stripeWidth;
+  }
+}
+
+/// A wrapper widget that wraps a parsed streaming widget to trace its build lifecycle
+/// and intercept exceptions during layout or paint phases using Flutter's ErrorWidget.builder.
+class StreamingWidgetWrapper extends StatelessWidget {
+  final String namespace;
+  final Widget child;
+
+  const StreamingWidgetWrapper({
+    super.key,
+    required this.namespace,
+    required this.child,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return child;
+  }
+
+  @override
+  void debugFillProperties(DiagnosticPropertiesBuilder properties) {
+    super.debugFillProperties(properties);
+    properties.add(StringProperty('namespace', namespace));
   }
 }
