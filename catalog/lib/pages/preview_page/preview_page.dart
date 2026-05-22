@@ -1,9 +1,14 @@
 import 'dart:async';
 import 'dart:convert';
+import 'dart:io';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:streaming_gen_ui/streaming_gen_ui.dart';
 import 'package:streaming_gen_ui_widget_catalog/core/models/widget_catalog_item.dart';
 import 'package:streaming_gen_ui_widget_catalog/core/utilities/stream_text_in_chunks.dart';
+import 'package:streaming_gen_ui_widget_catalog/core/utilities/web_downloader.dart';
+import 'package:streaming_gen_ui_widget_catalog/core/widget_sources.g.dart';
 import 'package:streaming_gen_ui_widget_catalog/pages/preview_page/property_editable.dart';
 import 'package:streaming_gen_ui_widget_catalog/widgets/graph_background.dart';
 
@@ -29,6 +34,12 @@ class _PreviewPageState extends State<PreviewPage> {
   bool _isPaused = false;
   UniqueKey _viewKey = UniqueKey();
   Timer? _debounceTimer;
+
+  // Sandbox Adjustment and Tab states
+  int _chunkSize = 4;
+  int _intervalMs = 150;
+  bool _isCodeExpanded = false;
+  int _currentLeftPanelPage = 0;
 
   @override
   void initState() {
@@ -95,8 +106,8 @@ class _PreviewPageState extends State<PreviewPage> {
 
     final sourceStream = streamTextInChunks(
       text: "<interface>$updatedExample</interface>",
-      chunkSize: 4,
-      interval: const Duration(milliseconds: 150),
+      chunkSize: _chunkSize,
+      interval: Duration(milliseconds: _intervalMs),
       chunkSizeImmediatelyEmit: '<interface>{"namespace":"  core:'.length,
     );
 
@@ -120,7 +131,6 @@ class _PreviewPageState extends State<PreviewPage> {
       },
     );
   }
-
 
   void _togglePlayPause() {
     if (_isStreaming) {
@@ -173,14 +183,97 @@ class _PreviewPageState extends State<PreviewPage> {
     }
   }
 
+  String get widgetSourceCode {
+    final parts = widget.catalogItem.namespace.split(':');
+    if (parts.length < 2) return '';
+    final name = parts[1];
+    final filename = 'streaming_$name.dart';
+    final base64Source = widgetSources[filename];
+    if (base64Source == null) return '// Source code not found for this widget';
+    try {
+      return utf8.decode(base64.decode(base64Source));
+    } catch (e) {
+      return '// Error decoding source code: $e';
+    }
+  }
+
+  String get widgetClassName {
+    final parts = widget.catalogItem.namespace.split(':');
+    if (parts.length < 2) return 'StreamingWidget';
+    final name = parts[1];
+    // Convert snake_case to PascalCase
+    final pascalName = name
+        .split('_')
+        .map((word) {
+          if (word.isEmpty) return '';
+          return word[0].toUpperCase() + word.substring(1);
+        })
+        .join('');
+    return 'Streaming$pascalName';
+  }
+
+  void _downloadWidgetSource() async {
+    final name = widget.catalogItem.namespace.split(':').last;
+    final filename = 'streaming_$name.dart';
+    final sourceCode = widgetSourceCode;
+    final messenger = ScaffoldMessenger.of(context);
+
+    if (kIsWeb) {
+      try {
+        downloadFileWeb(sourceCode, filename);
+        messenger.showSnackBar(
+          const SnackBar(
+            content: Text("Download triggered in new tab!"),
+            behavior: SnackBarBehavior.floating,
+          ),
+        );
+      } catch (e) {
+        await Clipboard.setData(ClipboardData(text: sourceCode));
+        messenger.showSnackBar(
+          const SnackBar(
+            content: Text("Couldn't auto-download. Code copied to clipboard!"),
+            behavior: SnackBarBehavior.floating,
+          ),
+        );
+      }
+    } else {
+      // Desktop / Local file writing
+      try {
+        final Directory customWidgetsDir = Directory('lib/widgets/custom');
+        if (!customWidgetsDir.existsSync()) {
+          customWidgetsDir.createSync(recursive: true);
+        }
+        final File outputFile = File('lib/widgets/custom/$filename');
+        outputFile.writeAsStringSync(sourceCode);
+
+        messenger.showSnackBar(
+          SnackBar(
+            content: Text("Saved locally to: ${outputFile.path}!"),
+            backgroundColor: Colors.green.shade800,
+            behavior: SnackBarBehavior.floating,
+          ),
+        );
+      } catch (e) {
+        await Clipboard.setData(ClipboardData(text: sourceCode));
+        messenger.showSnackBar(
+          SnackBar(
+            content: Text("Saved code to clipboard: $e"),
+            behavior: SnackBarBehavior.floating,
+          ),
+        );
+      }
+    }
+  }
+
   // Pure custom Regex syntax highlighters for console view
   TextSpan _buildHighlightedCode(String code, ThemeData theme) {
     final spans = <TextSpan>[];
 
-    // Regular expression matching: XML tags, JSON keys, string values, numeric/booleans, and punctuation
+    // Regular expression matching XML, JSON and Dart styles
     final regExp = RegExp(
-      r'(<\/?[a-zA-Z0-9_:]+>)|("([a-zA-Z0-9_:]+)")\s*:|("([^"]*)")|(\b\d+(\.\d+)?\b)|(\b(true|false|null)\b)|([{}[\],:])',
+      r'(<\/?[a-zA-Z0-9_:]+>)|("([a-zA-Z0-9_:]+)")\s*:|("([^"]*)")|(\b\d+(\.\d+)?\b)|(\b(true|false|null)\b)|(\b(class|extends|implements|override|import|final|const|return|super|dynamic|Map|String|Widget|void|int|double|bool|get|static|Text|Container|Column|Row|SizedBox|Card|Padding|InkWell|BuildContext|statelesswidget|statefulwidget)\b)|([{}[\],:])',
       multiLine: true,
+      caseSensitive: false,
     );
 
     int lastMatchIndex = 0;
@@ -193,7 +286,7 @@ class _PreviewPageState extends State<PreviewPage> {
       final matchText = match.group(0)!;
 
       if (match.group(1) != null) {
-        // XML Tags like <interface>
+        // XML Tags
         spans.add(
           TextSpan(
             text: matchText,
@@ -204,37 +297,57 @@ class _PreviewPageState extends State<PreviewPage> {
           ),
         );
       } else if (match.group(2) != null) {
-        // JSON keys like "namespace":
+        // JSON Keys
         spans.add(
           TextSpan(
-            text: matchText,
+            text: match.group(2)!,
             style: TextStyle(
               color: theme.colorScheme.secondary,
               fontWeight: FontWeight.w600,
             ),
           ),
         );
+        spans.add(const TextSpan(text: " :"));
       } else if (match.group(4) != null) {
-        // JSON String values
+        // Strings
         spans.add(
           TextSpan(
             text: matchText,
-            style: TextStyle(color: Colors.amber.shade700),
+            style: TextStyle(color: theme.colorScheme.tertiary),
           ),
         );
-      } else if (match.group(6) != null || match.group(8) != null) {
-        // Numbers, Booleans, Null
+      } else if (match.group(6) != null) {
+        // Numbers
+        spans.add(
+          TextSpan(
+            text: matchText,
+            style: const TextStyle(color: Colors.orangeAccent),
+          ),
+        );
+      } else if (match.group(8) != null) {
+        // Booleans
+        spans.add(
+          TextSpan(
+            text: matchText,
+            style: const TextStyle(
+              color: Colors.redAccent,
+              fontWeight: FontWeight.bold,
+            ),
+          ),
+        );
+      } else if (match.group(10) != null) {
+        // Dart keywords / classes
         spans.add(
           TextSpan(
             text: matchText,
             style: TextStyle(
-              color: Colors.lightBlueAccent,
+              color: theme.colorScheme.primary.withRed(180),
               fontWeight: FontWeight.bold,
             ),
           ),
         );
       } else {
-        // Formatting brackets and commas
+        // Punctuations
         spans.add(
           TextSpan(
             text: matchText,
@@ -262,13 +375,475 @@ class _PreviewPageState extends State<PreviewPage> {
     );
   }
 
+  Widget _buildSandboxPage(ThemeData theme) {
+    return Column(
+      key: const ValueKey('sandbox-page'),
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        // Properties Heading
+        Text(
+          "Properties Editor",
+          style: TextStyle(
+            fontSize: 18,
+            fontWeight: FontWeight.bold,
+            color: theme.colorScheme.onSurfaceVariant.withOpacity(0.8),
+            letterSpacing: 0.5,
+          ),
+        ),
+        const SizedBox(height: 12),
+
+        // Dynamic Interactive Forms
+        ...widget.catalogItem.widgetDefinition.properties.keys.map((key) {
+          return PropertyEditable(
+            controller: propertyControllers[key]!,
+            propertyKey: key,
+            catalogItem: widget.catalogItem,
+          );
+        }),
+        const SizedBox(height: 24),
+
+        // Realtime Streaming syntax terminal
+        Text(
+          "Generative UI Stream Console",
+          style: TextStyle(
+            fontSize: 18,
+            fontWeight: FontWeight.bold,
+            color: theme.colorScheme.onSurfaceVariant.withOpacity(0.8),
+            letterSpacing: 0.5,
+          ),
+        ),
+        const SizedBox(height: 8),
+        Card(
+          elevation: 0,
+          color: theme.colorScheme.surfaceContainer,
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(16),
+            side: BorderSide(
+              color: theme.colorScheme.outline.withOpacity(0.12),
+            ),
+          ),
+          child: Padding(
+            padding: const EdgeInsets.all(16.0),
+            child: ConstrainedBox(
+              constraints: const BoxConstraints(
+                minWidth: double.infinity,
+                minHeight: 110,
+                maxHeight: 220,
+              ),
+              child: SingleChildScrollView(
+                child: RichText(
+                  text: _buildHighlightedCode(
+                    _accumulatedText.isEmpty
+                        ? "<interface>$updatedExample</interface>"
+                        : _accumulatedText,
+                    theme,
+                  ),
+                ),
+              ),
+            ),
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildPremiumCodeBlock({
+    required String fileName,
+    required String code,
+    required ThemeData theme,
+    required VoidCallback onCopy,
+    bool isExpandable = false,
+  }) {
+    final codeBlockBg = theme.colorScheme.surfaceContainer;
+    final headerBg = theme.colorScheme.surfaceContainerHigh;
+    final borderCol = theme.colorScheme.outline.withOpacity(0.12);
+
+    final codeBlockWidget = Container(
+      decoration: BoxDecoration(
+        color: codeBlockBg,
+        borderRadius: const BorderRadius.only(
+          bottomLeft: Radius.circular(16),
+          bottomRight: Radius.circular(16),
+        ),
+        border: Border.all(color: borderCol),
+      ),
+      width: double.infinity,
+      child: Stack(
+        children: [
+          ConstrainedBox(
+            constraints: BoxConstraints(
+              maxHeight: (isExpandable && !_isCodeExpanded)
+                  ? 220.0
+                  : double.infinity,
+            ),
+            child: SingleChildScrollView(
+              physics: (isExpandable && !_isCodeExpanded)
+                  ? const NeverScrollableScrollPhysics()
+                  : const ClampingScrollPhysics(),
+              padding: EdgeInsets.fromLTRB(
+                16,
+                16,
+                16,
+                (isExpandable && !_isCodeExpanded) ? 48.0 : 16.0,
+              ),
+              child: SelectionArea(
+                child: RichText(text: _buildHighlightedCode(code, theme)),
+              ),
+            ),
+          ),
+          if (isExpandable && !_isCodeExpanded)
+            Positioned(
+              left: 0,
+              right: 0,
+              bottom: 0,
+              height: 90,
+              child: Container(
+                decoration: BoxDecoration(
+                  gradient: LinearGradient(
+                    begin: Alignment.topCenter,
+                    end: Alignment.bottomCenter,
+                    colors: [
+                      codeBlockBg.withOpacity(0.0),
+                      codeBlockBg.withOpacity(0.85),
+                      codeBlockBg,
+                    ],
+                  ),
+                ),
+                child: Align(
+                  alignment: Alignment.bottomCenter,
+                  child: Padding(
+                    padding: const EdgeInsets.only(bottom: 4.0),
+                    child: TextButton.icon(
+                      onPressed: () {
+                        setState(() {
+                          _isCodeExpanded = true;
+                        });
+                      },
+                      style: TextButton.styleFrom(
+                        foregroundColor: theme.colorScheme.primary,
+                        backgroundColor: theme.colorScheme.surfaceContainerHigh,
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 16,
+                          vertical: 8,
+                        ),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(18),
+                          side: BorderSide(
+                            color: theme.colorScheme.outline.withOpacity(0.12),
+                          ),
+                        ),
+                        elevation: 1,
+                      ),
+                      icon: const Icon(
+                        Icons.keyboard_arrow_down_rounded,
+                        size: 16,
+                      ),
+                      label: const Text(
+                        "See Full Code",
+                        style: TextStyle(
+                          fontWeight: FontWeight.bold,
+                          fontSize: 11,
+                        ),
+                      ),
+                    ),
+                  ),
+                ),
+              ),
+            ),
+          if (isExpandable && _isCodeExpanded)
+            Positioned(
+              right: 16,
+              bottom: 12,
+              child: Opacity(
+                opacity: 0.85,
+                child: TextButton.icon(
+                  onPressed: () {
+                    setState(() {
+                      _isCodeExpanded = false;
+                    });
+                  },
+                  style: TextButton.styleFrom(
+                    foregroundColor: theme.colorScheme.primary,
+                    backgroundColor: theme.colorScheme.surfaceContainerHigh,
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 12,
+                      vertical: 6,
+                    ),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(14),
+                      side: BorderSide(
+                        color: theme.colorScheme.outline.withOpacity(0.12),
+                      ),
+                    ),
+                  ),
+                  icon: const Icon(Icons.keyboard_arrow_up_rounded, size: 14),
+                  label: const Text(
+                    "Collapse",
+                    style: TextStyle(fontWeight: FontWeight.bold, fontSize: 10),
+                  ),
+                ),
+              ),
+            ),
+        ],
+      ),
+    );
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Container(
+          decoration: BoxDecoration(
+            color: headerBg,
+            borderRadius: const BorderRadius.only(
+              topLeft: Radius.circular(16),
+              topRight: Radius.circular(16),
+            ),
+            border: Border(
+              top: BorderSide(color: borderCol),
+              left: BorderSide(color: borderCol),
+              right: BorderSide(color: borderCol),
+            ),
+          ),
+          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 6),
+          width: double.infinity,
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Row(
+                children: [
+                  Icon(
+                    fileName.endsWith('.yaml')
+                        ? Icons.description_rounded
+                        : Icons.code_rounded,
+                    size: 14,
+                    color: theme.colorScheme.onSurfaceVariant.withOpacity(0.7),
+                  ),
+                  const SizedBox(width: 8),
+                  Text(
+                    fileName,
+                    style: TextStyle(
+                      fontFamily: 'monospace',
+                      fontSize: 12,
+                      fontWeight: FontWeight.w600,
+                      color: theme.colorScheme.onSurfaceVariant.withOpacity(
+                        0.9,
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+              SizedBox(
+                height: 28,
+                child: TextButton.icon(
+                  style: TextButton.styleFrom(
+                    padding: const EdgeInsets.symmetric(horizontal: 10),
+                    foregroundColor: theme.colorScheme.primary,
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(8),
+                    ),
+                  ),
+                  onPressed: onCopy,
+                  icon: const Icon(Icons.copy_rounded, size: 13),
+                  label: const Text(
+                    "Copy",
+                    style: TextStyle(fontSize: 11, fontWeight: FontWeight.bold),
+                  ),
+                ),
+              ),
+            ],
+          ),
+        ),
+        codeBlockWidget,
+      ],
+    );
+  }
+
+  Widget _buildIntegrationPage(ThemeData theme) {
+    final className = widgetClassName;
+    final name = widget.catalogItem.namespace.split(':').last;
+    final filename = 'streaming_$name.dart';
+
+    return Column(
+      key: const ValueKey('integration-page'),
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(
+          "Import Widget",
+          style: TextStyle(
+            fontSize: 22,
+            fontWeight: FontWeight.bold,
+            color: theme.colorScheme.onSurface,
+            letterSpacing: -0.5,
+          ),
+        ),
+        const SizedBox(height: 6),
+        Text(
+          "Follow these steps to import and use the generated streaming component.",
+          style: TextStyle(
+            fontSize: 13,
+            color: theme.colorScheme.onSurfaceVariant.withOpacity(0.85),
+          ),
+        ),
+        const SizedBox(height: 24),
+
+        // Step 1
+        Text(
+          "1. pubspec.yaml Setup",
+          style: TextStyle(
+            fontSize: 16,
+            fontWeight: FontWeight.bold,
+            color: theme.colorScheme.onSurface,
+          ),
+        ),
+        const SizedBox(height: 4),
+        Text(
+          "Add the git repository to your dependencies list.",
+          style: TextStyle(
+            fontSize: 12,
+            color: theme.colorScheme.onSurfaceVariant.withOpacity(0.8),
+          ),
+        ),
+        const SizedBox(height: 12),
+        _buildPremiumCodeBlock(
+          fileName: "pubspec.yaml",
+          code:
+              "dependencies:\n  streaming_gen_ui:\n    git:\n      url: https://github.com/ComsIndeed/streaming-gen-ui.git",
+          theme: theme,
+          onCopy: () async {
+            final messenger = ScaffoldMessenger.of(context);
+            await Clipboard.setData(
+              const ClipboardData(
+                text:
+                    "dependencies:\n  streaming_gen_ui:\n    git:\n      url: https://github.com/ComsIndeed/streaming-gen-ui.git",
+              ),
+            );
+            messenger.showSnackBar(
+              const SnackBar(
+                content: Text("pubspec.yaml dependency snippet copied!"),
+                behavior: SnackBarBehavior.floating,
+              ),
+            );
+          },
+        ),
+        const SizedBox(height: 28),
+
+        // Step 2
+        Text(
+          "2. Self-Registration Setup",
+          style: TextStyle(
+            fontSize: 16,
+            fontWeight: FontWeight.bold,
+            color: theme.colorScheme.onSurface,
+          ),
+        ),
+        const SizedBox(height: 4),
+        Text(
+          "Map the custom namespace in your local WidgetRegistry list.",
+          style: TextStyle(
+            fontSize: 12,
+            color: theme.colorScheme.onSurfaceVariant.withOpacity(0.8),
+          ),
+        ),
+        const SizedBox(height: 12),
+        _buildPremiumCodeBlock(
+          fileName: "registration.dart",
+          code: "'${widget.catalogItem.namespace}': $className.definition,",
+          theme: theme,
+          onCopy: () async {
+            final messenger = ScaffoldMessenger.of(context);
+            await Clipboard.setData(
+              ClipboardData(
+                text:
+                    "'${widget.catalogItem.namespace}': $className.definition,",
+              ),
+            );
+            messenger.showSnackBar(
+              const SnackBar(
+                content: Text("Registration snippet copied!"),
+                behavior: SnackBarBehavior.floating,
+              ),
+            );
+          },
+        ),
+        const SizedBox(height: 28),
+
+        // Step 3
+        Text(
+          "3. Standalone Widget File",
+          style: TextStyle(
+            fontSize: 16,
+            fontWeight: FontWeight.bold,
+            color: theme.colorScheme.onSurface,
+          ),
+        ),
+        const SizedBox(height: 4),
+        Text(
+          "Add this standalone widget file to your project codebase.",
+          style: TextStyle(
+            fontSize: 12,
+            color: theme.colorScheme.onSurfaceVariant.withOpacity(0.8),
+          ),
+        ),
+        const SizedBox(height: 12),
+        _buildPremiumCodeBlock(
+          fileName: filename,
+          code: widgetSourceCode,
+          theme: theme,
+          isExpandable: true,
+          onCopy: () async {
+            final messenger = ScaffoldMessenger.of(context);
+            await Clipboard.setData(ClipboardData(text: widgetSourceCode));
+            messenger.showSnackBar(
+              const SnackBar(
+                content: Text("Full source code copied to clipboard!"),
+                behavior: SnackBarBehavior.floating,
+              ),
+            );
+          },
+        ),
+        const SizedBox(height: 16),
+        Row(
+          children: [
+            Expanded(
+              child: OutlinedButton.icon(
+                onPressed: () async {
+                  final messenger = ScaffoldMessenger.of(context);
+                  await Clipboard.setData(
+                    ClipboardData(text: widgetSourceCode),
+                  );
+                  messenger.showSnackBar(
+                    const SnackBar(
+                      content: Text("Full source code copied!"),
+                      behavior: SnackBarBehavior.floating,
+                    ),
+                  );
+                },
+                icon: const Icon(Icons.copy_all_rounded),
+                label: const Text("Copy Full Code"),
+              ),
+            ),
+            const SizedBox(width: 12),
+            Expanded(
+              child: FilledButton.icon(
+                onPressed: _downloadWidgetSource,
+                icon: const Icon(Icons.download_rounded),
+                label: Text(kIsWeb ? "Download Dart File" : "Save to Project"),
+              ),
+            ),
+          ],
+        ),
+        const SizedBox(height: 32),
+      ],
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final sizes = MediaQuery.sizeOf(context);
     final isMobile = sizes.width < 768;
 
-    final Widget leftPanel = Column(
+    final Widget header = Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         // Back Button
@@ -305,72 +880,37 @@ class _PreviewPageState extends State<PreviewPage> {
           ),
         ),
         const SizedBox(height: 24),
-
-        // Properties Heading
-        Text(
-          "Properties Editor",
-          style: TextStyle(
-            fontSize: 18,
-            fontWeight: FontWeight.bold,
-            color: theme.colorScheme.onSurfaceVariant.withOpacity(0.8),
-            letterSpacing: 0.5,
-          ),
-        ),
-        const SizedBox(height: 12),
-
-        // Dynamic Interactive Forms
-        ...widget.catalogItem.widgetDefinition.properties.keys.map((key) {
-          return PropertyEditable(
-            controller: propertyControllers[key]!,
-            propertyKey: key,
-            catalogItem: widget.catalogItem,
-          );
-        }),
-        const SizedBox(height: 24),
-
-        // Realtime Streaming syntax terminal
-        Text(
-          "Generative UI Stream Console",
-          style: TextStyle(
-            fontSize: 18,
-            fontWeight: FontWeight.bold,
-            color: theme.colorScheme.onSurfaceVariant.withOpacity(0.8),
-            letterSpacing: 0.5,
-          ),
-        ),
-        const SizedBox(height: 8),
-        Card(
-          elevation: 0,
-          color: theme.colorScheme.surfaceContainerHighest.withOpacity(0.2),
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(16),
-            side: BorderSide(
-              color: theme.colorScheme.outline.withOpacity(0.12),
-            ),
-          ),
-          child: Padding(
-            padding: const EdgeInsets.all(16.0),
-            child: ConstrainedBox(
-              constraints: const BoxConstraints(
-                minWidth: double.infinity,
-                minHeight: 180,
-                maxHeight: 300,
-              ),
-              child: SingleChildScrollView(
-                child: RichText(
-                  text: _buildHighlightedCode(
-                    _accumulatedText.isEmpty
-                        ? "<interface>$updatedExample</interface>"
-                        : _accumulatedText,
-                    theme,
-                  ),
-                ),
-              ),
-            ),
-          ),
-        ),
       ],
     );
+
+    final Widget leftPanel = isMobile
+        ? Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              header,
+              AnimatedSwitcher(
+                duration: const Duration(milliseconds: 250),
+                child: _currentLeftPanelPage == 0
+                    ? _buildSandboxPage(theme)
+                    : _buildIntegrationPage(theme),
+              ),
+            ],
+          )
+        : SingleChildScrollView(
+            padding: const EdgeInsets.only(right: 16),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                header,
+                AnimatedSwitcher(
+                  duration: const Duration(milliseconds: 250),
+                  child: _currentLeftPanelPage == 0
+                      ? _buildSandboxPage(theme)
+                      : _buildIntegrationPage(theme),
+                ),
+              ],
+            ),
+          );
 
     final Widget rightPanel = Hero(
       tag: 'catalog-card-${widget.catalogItem.namespace}',
@@ -404,76 +944,298 @@ class _PreviewPageState extends State<PreviewPage> {
                 ),
               ),
 
-              // 2. Playback Floating Control Bar (Emil Kowalski style player controls)
+              // 2. Playback Floating Control Bar & Tab Switcher Side-by-Side
               Positioned(
                 bottom: 24,
                 left: 24,
                 right: 24,
                 child: Align(
                   alignment: Alignment.bottomCenter,
-                  child: Container(
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: 16,
-                      vertical: 10,
-                    ),
-                    decoration: ShapeDecoration(
-                      shape: RoundedSuperellipseBorder(
-                        borderRadius: BorderRadius.circular(24),
-                      ),
-                      color: theme.colorScheme.surfaceContainerHighest
-                          .withOpacity(0.85),
-                      shadows: [
-                        BoxShadow(
-                          color: Colors.black.withOpacity(0.08),
-                          blurRadius: 16,
-                          offset: const Offset(0, 8),
-                        ),
-                      ],
-                    ),
+                  child: SingleChildScrollView(
+                    scrollDirection: Axis.horizontal,
                     child: Row(
                       mainAxisSize: MainAxisSize.min,
                       children: [
-                        // Live indicator
-                        const BreathingDot(),
-                        const SizedBox(width: 8),
-                        Text(
-                          _isStreaming
-                              ? (_isPaused ? "PAUSED" : "STREAMING")
-                              : "COMPLETED",
-                          style: TextStyle(
-                            fontSize: 11,
-                            fontWeight: FontWeight.bold,
-                            letterSpacing: 1.0,
-                            color: theme.colorScheme.onSurfaceVariant,
+                        // Pill 1: Streaming Controls Pill
+                        Container(
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 16,
+                            vertical: 8,
+                          ),
+                          decoration: ShapeDecoration(
+                            shape: RoundedSuperellipseBorder(
+                              borderRadius: BorderRadius.circular(24),
+                            ),
+                            color: theme.colorScheme.surfaceContainerHighest
+                                .withOpacity(0.85),
+                            shadows: [
+                              BoxShadow(
+                                color: Colors.black.withOpacity(0.08),
+                                blurRadius: 16,
+                                offset: const Offset(0, 8),
+                              ),
+                            ],
+                          ),
+                          child: Row(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              // Live indicator
+                              const BreathingDot(),
+                              const SizedBox(width: 8),
+                              Text(
+                                _isStreaming
+                                    ? (_isPaused ? "PAUSED" : "STREAMING")
+                                    : "COMPLETED",
+                                style: TextStyle(
+                                  fontSize: 11,
+                                  fontWeight: FontWeight.bold,
+                                  letterSpacing: 1.0,
+                                  color: theme.colorScheme.onSurfaceVariant,
+                                ),
+                              ),
+                              const SizedBox(width: 12),
+                              Container(
+                                width: 1,
+                                height: 18,
+                                color: theme.colorScheme.outline.withOpacity(
+                                  0.2,
+                                ),
+                              ),
+                              const SizedBox(width: 4),
+
+                              // Chunk size adjuster
+                              IconButton(
+                                visualDensity: VisualDensity.compact,
+                                icon: const Icon(
+                                  Icons.remove_rounded,
+                                  size: 16,
+                                ),
+                                tooltip: "Decrease Chunk Size",
+                                onPressed: () {
+                                  if (_chunkSize > 1) {
+                                    setState(() {
+                                      _chunkSize--;
+                                    });
+                                    _resetStream();
+                                  }
+                                },
+                              ),
+                              Text(
+                                "${_chunkSize}ch",
+                                style: const TextStyle(
+                                  fontSize: 11,
+                                  fontWeight: FontWeight.bold,
+                                  fontFamily: 'monospace',
+                                ),
+                              ),
+                              IconButton(
+                                visualDensity: VisualDensity.compact,
+                                icon: const Icon(Icons.add_rounded, size: 16),
+                                tooltip: "Increase Chunk Size",
+                                onPressed: () {
+                                  if (_chunkSize < 50) {
+                                    setState(() {
+                                      _chunkSize++;
+                                    });
+                                    _resetStream();
+                                  }
+                                },
+                              ),
+                              const SizedBox(width: 4),
+                              Container(
+                                width: 1,
+                                height: 18,
+                                color: theme.colorScheme.outline.withOpacity(
+                                  0.2,
+                                ),
+                              ),
+                              const SizedBox(width: 4),
+
+                              // Interval Speed Adjuster
+                              IconButton(
+                                visualDensity: VisualDensity.compact,
+                                icon: const Icon(
+                                  Icons.remove_rounded,
+                                  size: 16,
+                                ),
+                                tooltip: "Speed Up Stream (Reduce Interval)",
+                                onPressed: () {
+                                  if (_intervalMs > 50) {
+                                    setState(() {
+                                      _intervalMs -= 50;
+                                    });
+                                    _resetStream();
+                                  }
+                                },
+                              ),
+                              Text(
+                                "${_intervalMs}ms",
+                                style: const TextStyle(
+                                  fontSize: 11,
+                                  fontWeight: FontWeight.bold,
+                                  fontFamily: 'monospace',
+                                ),
+                              ),
+                              IconButton(
+                                visualDensity: VisualDensity.compact,
+                                icon: const Icon(Icons.add_rounded, size: 16),
+                                tooltip: "Slow Down Stream (Increase Interval)",
+                                onPressed: () {
+                                  if (_intervalMs < 2000) {
+                                    setState(() {
+                                      _intervalMs += 50;
+                                    });
+                                    _resetStream();
+                                  }
+                                },
+                              ),
+                              const SizedBox(width: 4),
+                              Container(
+                                width: 1,
+                                height: 18,
+                                color: theme.colorScheme.outline.withOpacity(
+                                  0.2,
+                                ),
+                              ),
+                              const SizedBox(width: 6),
+
+                              // Pause / Play Button
+                              IconButton(
+                                visualDensity: VisualDensity.compact,
+                                tooltip: _isPaused
+                                    ? "Resume Streaming"
+                                    : "Pause Streaming",
+                                icon: Icon(
+                                  _isPaused
+                                      ? Icons.play_arrow_rounded
+                                      : Icons.pause_rounded,
+                                  size: 18,
+                                ),
+                                onPressed: _togglePlayPause,
+                              ),
+
+                              // Restart Button
+                              IconButton(
+                                visualDensity: VisualDensity.compact,
+                                tooltip: "Restart Stream",
+                                icon: const Icon(
+                                  Icons.replay_rounded,
+                                  size: 18,
+                                ),
+                                onPressed: _resetStream,
+                              ),
+                            ],
                           ),
                         ),
                         const SizedBox(width: 16),
+
+                        // Pill 2: Tab Switching Toggle Pill
                         Container(
-                          width: 1,
-                          height: 20,
-                          color: theme.colorScheme.outline.withOpacity(0.2),
-                        ),
-                        const SizedBox(width: 8),
-
-                        // Pause / Play Button
-                        IconButton(
-                          tooltip: _isPaused
-                              ? "Resume Streaming"
-                              : "Pause Streaming",
-                          icon: Icon(
-                            _isPaused
-                                ? Icons.play_arrow_rounded
-                                : Icons.pause_rounded,
-                            size: 20,
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 4,
+                            vertical: 4,
                           ),
-                          onPressed: _togglePlayPause,
-                        ),
-
-                        // Restart Button
-                        IconButton(
-                          tooltip: "Restart Stream",
-                          icon: const Icon(Icons.replay_rounded, size: 20),
-                          onPressed: _resetStream,
+                          decoration: ShapeDecoration(
+                            shape: RoundedSuperellipseBorder(
+                              borderRadius: BorderRadius.circular(24),
+                            ),
+                            color: theme.colorScheme.surfaceContainerHighest
+                                .withOpacity(0.85),
+                            shadows: [
+                              BoxShadow(
+                                color: Colors.black.withOpacity(0.08),
+                                blurRadius: 16,
+                                offset: const Offset(0, 8),
+                              ),
+                            ],
+                          ),
+                          child: AnimatedSwitcher(
+                            duration: const Duration(milliseconds: 300),
+                            transitionBuilder: (child, animation) {
+                              return FadeTransition(
+                                opacity: animation,
+                                child: ScaleTransition(
+                                  scale: animation,
+                                  child: child,
+                                ),
+                              );
+                            },
+                            child: _currentLeftPanelPage == 0
+                                ? SizedBox(
+                                    key: const ValueKey('btn-integrate'),
+                                    height: 38,
+                                    child: FilledButton.icon(
+                                      style: FilledButton.styleFrom(
+                                        shape: RoundedSuperellipseBorder(
+                                          borderRadius: BorderRadius.circular(
+                                            20,
+                                          ),
+                                        ),
+                                        backgroundColor:
+                                            theme.colorScheme.primary,
+                                        foregroundColor:
+                                            theme.colorScheme.onPrimary,
+                                        padding: const EdgeInsets.symmetric(
+                                          horizontal: 16,
+                                        ),
+                                      ),
+                                      onPressed: () {
+                                        setState(() {
+                                          _currentLeftPanelPage = 1;
+                                        });
+                                      },
+                                      icon: const Icon(
+                                        Icons.download_rounded,
+                                        size: 16,
+                                      ),
+                                      label: const Text(
+                                        "Import Widget",
+                                        style: TextStyle(
+                                          fontSize: 12,
+                                          fontWeight: FontWeight.bold,
+                                        ),
+                                      ),
+                                    ),
+                                  )
+                                : SizedBox(
+                                    key: const ValueKey('btn-sandbox'),
+                                    height: 38,
+                                    child: TextButton.icon(
+                                      style: TextButton.styleFrom(
+                                        shape: RoundedSuperellipseBorder(
+                                          borderRadius: BorderRadius.circular(
+                                            20,
+                                          ),
+                                        ),
+                                        foregroundColor:
+                                            theme.colorScheme.onSurfaceVariant,
+                                        padding: const EdgeInsets.symmetric(
+                                          horizontal: 16,
+                                        ),
+                                        backgroundColor: theme
+                                            .colorScheme
+                                            .surfaceContainerHighest
+                                            .withOpacity(0.5),
+                                      ),
+                                      onPressed: () {
+                                        setState(() {
+                                          _currentLeftPanelPage = 0;
+                                        });
+                                      },
+                                      icon: const Icon(
+                                        Icons.tune_rounded,
+                                        size: 16,
+                                      ),
+                                      label: const Text(
+                                        "Configure Widget",
+                                        style: TextStyle(
+                                          fontSize: 12,
+                                          fontWeight: FontWeight.bold,
+                                        ),
+                                      ),
+                                    ),
+                                  ),
+                          ),
                         ),
                       ],
                     ),
@@ -504,13 +1266,10 @@ class _PreviewPageState extends State<PreviewPage> {
                   padding: const EdgeInsets.all(24.0),
                   child: Row(
                     children: [
-                      // Properties forms on the left
+                      // Properties page view on the left
                       Expanded(
                         flex: 4,
-                        child: SingleChildScrollView(
-                          padding: const EdgeInsets.only(right: 16),
-                          child: leftPanel,
-                        ),
+                        child: SizedBox.expand(child: leftPanel),
                       ),
                       const SizedBox(width: 24),
                       // Interactive live rendering sandbox on the right

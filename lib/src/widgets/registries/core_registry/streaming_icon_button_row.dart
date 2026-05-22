@@ -45,7 +45,10 @@ class _StreamingIconButtonRowState extends State<StreamingIconButtonRow> {
         builder: (context, snapshot) {
           final data = snapshot.data ?? const {};
           final rawButtons = data["buttons"] as List<dynamic>? ?? const [];
-          final buttons = rawButtons.map((e) => Map<String, dynamic>.from(e as Map)).toList();
+          final buttons = rawButtons
+              .where((e) => e is Map)
+              .map((e) => Map<String, dynamic>.from(e as Map))
+              .toList();
 
           if (buttons.isEmpty) return const SizedBox.shrink();
 

@@ -49,7 +49,10 @@ class _StreamingStackCarouselState extends State<StreamingStackCarousel> {
           final data = snapshot.data ?? const {};
 
           final rawItems = data["items"] as List<dynamic>? ?? const [];
-          final items = rawItems.map((e) => Map<String, dynamic>.from(e as Map)).toList();
+          final items = rawItems
+              .where((e) => e is Map)
+              .map((e) => Map<String, dynamic>.from(e as Map))
+              .toList();
 
           if (items.isEmpty) {
             return Container(

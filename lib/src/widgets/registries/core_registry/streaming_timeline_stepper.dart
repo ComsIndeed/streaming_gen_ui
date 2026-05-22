@@ -44,7 +44,10 @@ class _StreamingTimelineStepperState extends State<StreamingTimelineStepper> {
         builder: (context, snapshot) {
           final data = snapshot.data ?? const {};
           final rawSteps = data["steps"] as List<dynamic>? ?? const [];
-          final steps = rawSteps.map((e) => Map<String, dynamic>.from(e as Map)).toList();
+          final steps = rawSteps
+              .where((e) => e is Map)
+              .map((e) => Map<String, dynamic>.from(e as Map))
+              .toList();
 
           if (steps.isEmpty) return const SizedBox.shrink();
 

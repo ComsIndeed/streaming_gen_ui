@@ -45,7 +45,10 @@ class _StreamingStatsGridState extends State<StreamingStatsGrid> {
         builder: (context, snapshot) {
           final data = snapshot.data ?? const {};
           final rawMetrics = data["metrics"] as List<dynamic>? ?? const [];
-          final metrics = rawMetrics.map((e) => Map<String, dynamic>.from(e as Map)).toList();
+          final metrics = rawMetrics
+              .where((e) => e is Map)
+              .map((e) => Map<String, dynamic>.from(e as Map))
+              .toList();
 
           if (metrics.isEmpty) return const SizedBox.shrink();
 
@@ -67,7 +70,10 @@ class _StreamingStatsGridState extends State<StreamingStatsGrid> {
               final trendUp = trend.startsWith('+') || trend.toLowerCase().contains('up');
 
               final rawSparkline = metric["sparkline"] as List<dynamic>? ?? const [];
-              final sparkline = rawSparkline.map((e) => (e as num).toDouble()).toList();
+              final sparkline = rawSparkline
+                  .where((e) => e is num)
+                  .map((e) => (e as num).toDouble())
+                  .toList();
 
               return Container(
                 padding: const EdgeInsets.all(14),

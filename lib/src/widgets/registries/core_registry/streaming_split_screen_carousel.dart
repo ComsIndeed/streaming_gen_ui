@@ -54,7 +54,10 @@ class _StreamingSplitScreenCarouselState extends State<StreamingSplitScreenCarou
         builder: (context, snapshot) {
           final data = snapshot.data ?? const {};
           final rawSlides = data["slides"] as List<dynamic>? ?? const [];
-          final slides = rawSlides.map((e) => Map<String, dynamic>.from(e as Map)).toList();
+          final slides = rawSlides
+              .where((e) => e is Map)
+              .map((e) => Map<String, dynamic>.from(e as Map))
+              .toList();
 
           if (slides.isEmpty) return const SizedBox.shrink();
 
