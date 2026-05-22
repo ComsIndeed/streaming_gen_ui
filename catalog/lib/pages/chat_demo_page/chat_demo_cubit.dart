@@ -76,7 +76,8 @@ class ChatDemoCubit extends Cubit<ChatDemoState> {
   final StreamingGenerativeUi generativeUi = StreamingGenerativeUi(
     registry: Registries.all,
     customViewIds: const {
-      'canvas-ui': 'Renders a dedicated full-screen dynamic mini app, interactive dashboard, or tool requested by the user.',
+      'canvas-ui':
+          'Renders a dedicated full-screen dynamic mini app, interactive dashboard, or tool requested by the user.',
     },
   );
 
@@ -113,9 +114,11 @@ You are a helpful AI Assistant demonstrating your ability to show UI components 
 
 Help the user with their requests. Use widgets when you can.
 
+The package is still in early development. Expect bugs and instability. Better custom UI composition on runtime is planned.
+
 ${generativeUi.systemPrompt}
 
-## WIDGET SELECTION & MAPPING:
+## WIDGET SELECTION & MAPPING (YOU MUST STRICTLY USE THESE WHEN CALLING A TOOL.):
 1. Weather ('get_weather' tool success):
    - Stream "weather:forecast_card".
    - Map:
