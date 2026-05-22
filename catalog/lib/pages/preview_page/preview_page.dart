@@ -6,6 +6,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:streaming_gen_ui/streaming_gen_ui.dart';
 import 'package:streaming_gen_ui_widget_catalog/core/app_widgets/elastic_button.dart';
+import 'package:streaming_gen_ui_widget_catalog/core/app_widgets/elastic_wrapper.dart';
 import 'package:streaming_gen_ui_widget_catalog/core/models/widget_catalog_item.dart';
 import 'package:streaming_gen_ui_widget_catalog/core/utilities/stream_text_in_chunks.dart';
 import 'package:streaming_gen_ui_widget_catalog/core/utilities/web_downloader.dart';
@@ -75,7 +76,9 @@ class _PreviewPageState extends State<PreviewPage> {
 
   Future<void> _fetchLatestVersion() async {
     try {
-      final response = await http.get(Uri.parse('https://pub.dev/api/packages/streaming_gen_ui'));
+      final response = await http.get(
+        Uri.parse('https://pub.dev/api/packages/streaming_gen_ui'),
+      );
       if (response.statusCode == 200) {
         final decoded = jsonDecode(response.body);
         final version = decoded['latest']['version'] as String;
@@ -755,15 +758,13 @@ class _PreviewPageState extends State<PreviewPage> {
         const SizedBox(height: 12),
         _buildPremiumCodeBlock(
           fileName: "pubspec.yaml",
-          code:
-              "dependencies:\n  streaming_gen_ui: ^$_latestVersion",
+          code: "dependencies:\n  streaming_gen_ui: ^$_latestVersion",
           theme: theme,
           onCopy: () async {
             final messenger = ScaffoldMessenger.of(context);
             await Clipboard.setData(
               ClipboardData(
-                text:
-                    "dependencies:\n  streaming_gen_ui: ^$_latestVersion",
+                text: "dependencies:\n  streaming_gen_ui: ^$_latestVersion",
               ),
             );
             messenger.showSnackBar(
@@ -799,7 +800,8 @@ class _PreviewPageState extends State<PreviewPage> {
           const SizedBox(height: 12),
           _buildPremiumCodeBlock(
             fileName: "registration.dart",
-            code: "import 'package:streaming_gen_ui/streaming_gen_ui.dart';\n\n"
+            code:
+                "import 'package:streaming_gen_ui/streaming_gen_ui.dart';\n\n"
                 "final myRegistry = WidgetRegistry()\n"
                 "  + Registries.all.only('${widget.catalogItem.namespace}');",
             theme: theme,
@@ -841,7 +843,8 @@ class _PreviewPageState extends State<PreviewPage> {
           const SizedBox(height: 12),
           _buildPremiumCodeBlock(
             fileName: "usage.dart",
-            code: "final genUi = StreamingGenerativeUi(registry: myRegistry);\n\n"
+            code:
+                "final genUi = StreamingGenerativeUi(registry: myRegistry);\n\n"
                 "// Inject the prompt fragment into your LLM system prompt\n"
                 "final systemPrompt = genUi.systemPrompt;\n\n"
                 "// Pipe the LLM response stream in\n"
@@ -875,7 +878,8 @@ class _PreviewPageState extends State<PreviewPage> {
           const SizedBox(height: 16),
           _buildPremiumCodeBlock(
             fileName: "build.dart",
-            code: "// Somewhere in your build() method:\n"
+            code:
+                "// Somewhere in your build() method:\n"
                 "genUi.view('message-42')",
             theme: theme,
             onCopy: () async {
@@ -996,7 +1000,9 @@ class _PreviewPageState extends State<PreviewPage> {
                 child: FilledButton.icon(
                   onPressed: _downloadWidgetSource,
                   icon: const Icon(Icons.download_rounded),
-                  label: Text(kIsWeb ? "Download Dart File" : "Save to Project"),
+                  label: Text(
+                    kIsWeb ? "Download Dart File" : "Save to Project",
+                  ),
                 ),
               ),
             ],
@@ -1127,174 +1133,177 @@ class _PreviewPageState extends State<PreviewPage> {
                       mainAxisSize: MainAxisSize.min,
                       children: [
                         // Pill 1: Streaming Controls Pill
-                        Container(
-                          padding: const EdgeInsets.symmetric(
-                            horizontal: 16,
-                            vertical: 8,
-                          ),
-                          decoration: ShapeDecoration(
-                            shape: RoundedSuperellipseBorder(
-                              borderRadius: BorderRadius.circular(24),
+                        ElasticWrapper(
+                          child: Container(
+                            padding: const EdgeInsets.symmetric(
+                              horizontal: 16,
+                              vertical: 8,
                             ),
-                            color: theme.colorScheme.surfaceContainerHighest
-                                .withOpacity(0.85),
-                            shadows: [
-                              BoxShadow(
-                                color: Colors.black.withOpacity(0.08),
-                                blurRadius: 16,
-                                offset: const Offset(0, 8),
+                            decoration: ShapeDecoration(
+                              shape: RoundedSuperellipseBorder(
+                                borderRadius: BorderRadius.circular(24),
                               ),
-                            ],
-                          ),
-                          child: Row(
-                            mainAxisSize: MainAxisSize.min,
-                            children: [
-                              // Live indicator
-                              const BreathingDot(),
-                              const SizedBox(width: 8),
-                              Text(
-                                _isStreaming
-                                    ? (_isPaused ? "PAUSED" : "STREAMING")
-                                    : "COMPLETED",
-                                style: TextStyle(
-                                  fontSize: 11,
-                                  fontWeight: FontWeight.bold,
-                                  letterSpacing: 1.0,
-                                  color: theme.colorScheme.onSurfaceVariant,
+                              color: theme.colorScheme.surfaceContainerHighest
+                                  .withOpacity(0.85),
+                              shadows: [
+                                BoxShadow(
+                                  color: Colors.black.withOpacity(0.08),
+                                  blurRadius: 16,
+                                  offset: const Offset(0, 8),
                                 ),
-                              ),
-                              const SizedBox(width: 12),
-                              Container(
-                                width: 1,
-                                height: 18,
-                                color: theme.colorScheme.outline.withOpacity(
-                                  0.2,
+                              ],
+                            ),
+                            child: Row(
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                // Live indicator
+                                const BreathingDot(),
+                                const SizedBox(width: 8),
+                                Text(
+                                  _isStreaming
+                                      ? (_isPaused ? "PAUSED" : "STREAMING")
+                                      : "COMPLETED",
+                                  style: TextStyle(
+                                    fontSize: 11,
+                                    fontWeight: FontWeight.bold,
+                                    letterSpacing: 1.0,
+                                    color: theme.colorScheme.onSurfaceVariant,
+                                  ),
                                 ),
-                              ),
-                              const SizedBox(width: 4),
+                                const SizedBox(width: 12),
+                                Container(
+                                  width: 1,
+                                  height: 18,
+                                  color: theme.colorScheme.outline.withOpacity(
+                                    0.2,
+                                  ),
+                                ),
+                                const SizedBox(width: 4),
 
-                              // Chunk size adjuster
-                              IconButton(
-                                visualDensity: VisualDensity.compact,
-                                icon: const Icon(
-                                  Icons.remove_rounded,
-                                  size: 16,
+                                // Chunk size adjuster
+                                IconButton(
+                                  visualDensity: VisualDensity.compact,
+                                  icon: const Icon(
+                                    Icons.remove_rounded,
+                                    size: 16,
+                                  ),
+                                  tooltip: "Decrease Chunk Size",
+                                  onPressed: () {
+                                    if (_chunkSize > 1) {
+                                      setState(() {
+                                        _chunkSize--;
+                                      });
+                                      _resetStream();
+                                    }
+                                  },
                                 ),
-                                tooltip: "Decrease Chunk Size",
-                                onPressed: () {
-                                  if (_chunkSize > 1) {
-                                    setState(() {
-                                      _chunkSize--;
-                                    });
-                                    _resetStream();
-                                  }
-                                },
-                              ),
-                              Text(
-                                "${_chunkSize}ch",
-                                style: const TextStyle(
-                                  fontSize: 11,
-                                  fontWeight: FontWeight.bold,
-                                  fontFamily: 'monospace',
+                                Text(
+                                  "$_chunkSize",
+                                  style: const TextStyle(
+                                    fontSize: 11,
+                                    fontWeight: FontWeight.bold,
+                                    fontFamily: 'monospace',
+                                  ),
                                 ),
-                              ),
-                              IconButton(
-                                visualDensity: VisualDensity.compact,
-                                icon: const Icon(Icons.add_rounded, size: 16),
-                                tooltip: "Increase Chunk Size",
-                                onPressed: () {
-                                  if (_chunkSize < 50) {
-                                    setState(() {
-                                      _chunkSize++;
-                                    });
-                                    _resetStream();
-                                  }
-                                },
-                              ),
-                              const SizedBox(width: 4),
-                              Container(
-                                width: 1,
-                                height: 18,
-                                color: theme.colorScheme.outline.withOpacity(
-                                  0.2,
+                                IconButton(
+                                  visualDensity: VisualDensity.compact,
+                                  icon: const Icon(Icons.add_rounded, size: 16),
+                                  tooltip: "Increase Chunk Size",
+                                  onPressed: () {
+                                    if (_chunkSize < 50) {
+                                      setState(() {
+                                        _chunkSize++;
+                                      });
+                                      _resetStream();
+                                    }
+                                  },
                                 ),
-                              ),
-                              const SizedBox(width: 4),
+                                const SizedBox(width: 4),
+                                Container(
+                                  width: 1,
+                                  height: 18,
+                                  color: theme.colorScheme.outline.withOpacity(
+                                    0.2,
+                                  ),
+                                ),
+                                const SizedBox(width: 4),
 
-                              // Interval Speed Adjuster
-                              IconButton(
-                                visualDensity: VisualDensity.compact,
-                                icon: const Icon(
-                                  Icons.remove_rounded,
-                                  size: 16,
+                                // Interval Speed Adjuster
+                                IconButton(
+                                  visualDensity: VisualDensity.compact,
+                                  icon: const Icon(
+                                    Icons.remove_rounded,
+                                    size: 16,
+                                  ),
+                                  tooltip: "Speed Up Stream (Reduce Interval)",
+                                  onPressed: () {
+                                    if (_intervalMs > 50) {
+                                      setState(() {
+                                        _intervalMs -= 50;
+                                      });
+                                      _resetStream();
+                                    }
+                                  },
                                 ),
-                                tooltip: "Speed Up Stream (Reduce Interval)",
-                                onPressed: () {
-                                  if (_intervalMs > 50) {
-                                    setState(() {
-                                      _intervalMs -= 50;
-                                    });
-                                    _resetStream();
-                                  }
-                                },
-                              ),
-                              Text(
-                                "${_intervalMs}ms",
-                                style: const TextStyle(
-                                  fontSize: 11,
-                                  fontWeight: FontWeight.bold,
-                                  fontFamily: 'monospace',
+                                Text(
+                                  "${_intervalMs}ms",
+                                  style: const TextStyle(
+                                    fontSize: 11,
+                                    fontWeight: FontWeight.bold,
+                                    fontFamily: 'monospace',
+                                  ),
                                 ),
-                              ),
-                              IconButton(
-                                visualDensity: VisualDensity.compact,
-                                icon: const Icon(Icons.add_rounded, size: 16),
-                                tooltip: "Slow Down Stream (Increase Interval)",
-                                onPressed: () {
-                                  if (_intervalMs < 2000) {
-                                    setState(() {
-                                      _intervalMs += 50;
-                                    });
-                                    _resetStream();
-                                  }
-                                },
-                              ),
-                              const SizedBox(width: 4),
-                              Container(
-                                width: 1,
-                                height: 18,
-                                color: theme.colorScheme.outline.withOpacity(
-                                  0.2,
+                                IconButton(
+                                  visualDensity: VisualDensity.compact,
+                                  icon: const Icon(Icons.add_rounded, size: 16),
+                                  tooltip:
+                                      "Slow Down Stream (Increase Interval)",
+                                  onPressed: () {
+                                    if (_intervalMs < 2000) {
+                                      setState(() {
+                                        _intervalMs += 50;
+                                      });
+                                      _resetStream();
+                                    }
+                                  },
                                 ),
-                              ),
-                              const SizedBox(width: 6),
+                                const SizedBox(width: 4),
+                                Container(
+                                  width: 1,
+                                  height: 18,
+                                  color: theme.colorScheme.outline.withOpacity(
+                                    0.2,
+                                  ),
+                                ),
+                                const SizedBox(width: 6),
 
-                              // Pause / Play Button
-                              IconButton(
-                                visualDensity: VisualDensity.compact,
-                                tooltip: _isPaused
-                                    ? "Resume Streaming"
-                                    : "Pause Streaming",
-                                icon: Icon(
-                                  _isPaused
-                                      ? Icons.play_arrow_rounded
-                                      : Icons.pause_rounded,
-                                  size: 18,
+                                // Pause / Play Button
+                                IconButton(
+                                  visualDensity: VisualDensity.compact,
+                                  tooltip: _isPaused
+                                      ? "Resume Streaming"
+                                      : "Pause Streaming",
+                                  icon: Icon(
+                                    _isPaused
+                                        ? Icons.play_arrow_rounded
+                                        : Icons.pause_rounded,
+                                    size: 18,
+                                  ),
+                                  onPressed: _togglePlayPause,
                                 ),
-                                onPressed: _togglePlayPause,
-                              ),
 
-                              // Restart Button
-                              IconButton(
-                                visualDensity: VisualDensity.compact,
-                                tooltip: "Restart Stream",
-                                icon: const Icon(
-                                  Icons.replay_rounded,
-                                  size: 18,
+                                // Restart Button
+                                IconButton(
+                                  visualDensity: VisualDensity.compact,
+                                  tooltip: "Restart Stream",
+                                  icon: const Icon(
+                                    Icons.replay_rounded,
+                                    size: 18,
+                                  ),
+                                  onPressed: _resetStream,
                                 ),
-                                onPressed: _resetStream,
-                              ),
-                            ],
+                              ],
+                            ),
                           ),
                         ),
                         const SizedBox(width: 16),
@@ -1312,6 +1321,7 @@ class _PreviewPageState extends State<PreviewPage> {
                             },
                             child: _currentLeftPanelPage == 0
                                 ? ElasticButton(
+                                    sizeFactor: 1.2,
                                     key: const ValueKey('btn-integrate'),
                                     onPressed: () {
                                       setState(() {

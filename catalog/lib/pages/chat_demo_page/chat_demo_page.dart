@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:gpt_markdown/gpt_markdown.dart';
+import 'package:streaming_gen_ui_widget_catalog/core/app_widgets/elastic_wrapper.dart';
 import 'package:streaming_gen_ui_widget_catalog/pages/chat_demo_page/chat_demo_cubit.dart';
 import 'package:streaming_gen_ui_widget_catalog/widgets/graph_background.dart';
 
@@ -1269,55 +1270,59 @@ class _PresetPromptCardState extends State<_PresetPromptCard> {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-    return MouseRegion(
-      onEnter: (_) => setState(() => _isHovered = true),
-      onExit: (_) => setState(() => _isHovered = false),
-      cursor: SystemMouseCursors.click,
-      child: GestureDetector(
-        onTap: widget.onTap,
-        child: AnimatedContainer(
-          duration: const Duration(milliseconds: 200),
-          padding: const EdgeInsets.all(16),
-          decoration: BoxDecoration(
-            color: _isHovered
-                ? theme.colorScheme.primary.withOpacity(0.04)
-                : theme.colorScheme.surfaceContainerLow.withOpacity(0.6),
-            borderRadius: BorderRadius.circular(16),
-            border: Border.all(
+    return ElasticWrapper(
+      child: MouseRegion(
+        onEnter: (_) => setState(() => _isHovered = true),
+        onExit: (_) => setState(() => _isHovered = false),
+        cursor: SystemMouseCursors.click,
+        child: GestureDetector(
+          onTap: widget.onTap,
+          child: AnimatedContainer(
+            duration: const Duration(milliseconds: 200),
+            padding: const EdgeInsets.all(16),
+            decoration: BoxDecoration(
               color: _isHovered
-                  ? theme.colorScheme.primary.withOpacity(0.3)
-                  : theme.colorScheme.outline.withOpacity(0.08),
-              width: 1.0,
+                  ? theme.colorScheme.primary.withOpacity(0.04)
+                  : theme.colorScheme.surfaceContainerLow.withOpacity(0.6),
+              borderRadius: BorderRadius.circular(16),
+              border: Border.all(
+                color: _isHovered
+                    ? theme.colorScheme.primary.withOpacity(0.3)
+                    : theme.colorScheme.outline.withOpacity(0.08),
+                width: 1.0,
+              ),
             ),
-          ),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              Text(
-                widget.title,
-                style: TextStyle(
-                  fontSize: 13,
-                  fontWeight: FontWeight.bold,
-                  color: _isHovered
-                      ? theme.colorScheme.primary
-                      : theme.colorScheme.onSurface,
-                ),
-              ),
-              const SizedBox(height: 6),
-              Expanded(
-                child: Text(
-                  widget.prompt,
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Text(
+                  widget.title,
                   style: TextStyle(
-                    fontSize: 12,
-                    color: theme.colorScheme.onSurfaceVariant.withOpacity(0.8),
-                    height: 1.3,
+                    fontSize: 13,
+                    fontWeight: FontWeight.bold,
+                    color: _isHovered
+                        ? theme.colorScheme.primary
+                        : theme.colorScheme.onSurface,
                   ),
-                  maxLines: 2,
-                  overflow: TextOverflow.ellipsis,
                 ),
-              ),
-            ],
+                const SizedBox(height: 6),
+                Expanded(
+                  child: Text(
+                    widget.prompt,
+                    style: TextStyle(
+                      fontSize: 12,
+                      color: theme.colorScheme.onSurfaceVariant.withOpacity(
+                        0.8,
+                      ),
+                      height: 1.3,
+                    ),
+                    maxLines: 2,
+                    overflow: TextOverflow.ellipsis,
+                  ),
+                ),
+              ],
+            ),
           ),
         ),
       ),
