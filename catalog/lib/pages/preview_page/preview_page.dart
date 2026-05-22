@@ -5,6 +5,7 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:streaming_gen_ui/streaming_gen_ui.dart';
+import 'package:streaming_gen_ui_widget_catalog/core/app_widgets/elastic_button.dart';
 import 'package:streaming_gen_ui_widget_catalog/core/models/widget_catalog_item.dart';
 import 'package:streaming_gen_ui_widget_catalog/core/utilities/stream_text_in_chunks.dart';
 import 'package:streaming_gen_ui_widget_catalog/core/utilities/web_downloader.dart';
@@ -39,6 +40,7 @@ class _PreviewPageState extends State<PreviewPage> {
   int _chunkSize = 4;
   int _intervalMs = 150;
   bool _isCodeExpanded = false;
+  bool _isPropertiesExpanded = false;
   int _currentLeftPanelPage = 0;
 
   @override
@@ -380,26 +382,50 @@ class _PreviewPageState extends State<PreviewPage> {
       key: const ValueKey('sandbox-page'),
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        // Properties Heading
-        Text(
-          "Properties Editor",
-          style: TextStyle(
-            fontSize: 18,
-            fontWeight: FontWeight.bold,
-            color: theme.colorScheme.onSurfaceVariant.withOpacity(0.8),
-            letterSpacing: 0.5,
-          ),
+        // Collapsible Properties Header
+        _PropertiesHeaderToggle(
+          isExpanded: _isPropertiesExpanded,
+          fieldCount:
+              widget.catalogItem.widgetDefinition.properties.keys.length,
+          onTap: () {
+            setState(() {
+              _isPropertiesExpanded = !_isPropertiesExpanded;
+            });
+          },
         ),
-        const SizedBox(height: 12),
 
-        // Dynamic Interactive Forms
-        ...widget.catalogItem.widgetDefinition.properties.keys.map((key) {
-          return PropertyEditable(
-            controller: propertyControllers[key]!,
-            propertyKey: key,
-            catalogItem: widget.catalogItem,
-          );
-        }),
+        // Dynamic Interactive Forms (Collapsible list)
+        AnimatedSize(
+          duration: const Duration(milliseconds: 300),
+          curve: const Cubic(0.2, 0.8, 0.2, 1.0),
+          alignment: Alignment.topCenter,
+          clipBehavior: Clip.antiAlias,
+          child: _isPropertiesExpanded
+              ? Column(
+                  key: const ValueKey('properties-expanded-container'),
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    const SizedBox(height: 12),
+                    ...widget.catalogItem.widgetDefinition.properties.keys.map((
+                      key,
+                    ) {
+                      return Padding(
+                        padding: const EdgeInsets.only(bottom: 8.0),
+                        child: PropertyEditable(
+                          controller: propertyControllers[key]!,
+                          propertyKey: key,
+                          catalogItem: widget.catalogItem,
+                        ),
+                      );
+                    }),
+                  ],
+                )
+              : const SizedBox(
+                  key: ValueKey('properties-collapsed-container'),
+                  height: 0,
+                  width: double.infinity,
+                ),
+        ),
         const SizedBox(height: 24),
 
         // Realtime Streaming syntax terminal
@@ -1130,110 +1156,45 @@ class _PreviewPageState extends State<PreviewPage> {
                         const SizedBox(width: 16),
 
                         // Pill 2: Tab Switching Toggle Pill
-                        Container(
-                          padding: const EdgeInsets.symmetric(
-                            horizontal: 4,
-                            vertical: 4,
-                          ),
-                          decoration: ShapeDecoration(
-                            shape: RoundedSuperellipseBorder(
-                              borderRadius: BorderRadius.circular(24),
-                            ),
-                            color: theme.colorScheme.surfaceContainerHighest
-                                .withOpacity(0.85),
-                            shadows: [
-                              BoxShadow(
-                                color: Colors.black.withOpacity(0.08),
-                                blurRadius: 16,
-                                offset: const Offset(0, 8),
-                              ),
-                            ],
-                          ),
+                        AnimatedSize(
+                          duration: const Duration(milliseconds: 100),
                           child: AnimatedSwitcher(
-                            duration: const Duration(milliseconds: 300),
+                            duration: const Duration(milliseconds: 150),
                             transitionBuilder: (child, animation) {
                               return FadeTransition(
                                 opacity: animation,
-                                child: ScaleTransition(
-                                  scale: animation,
-                                  child: child,
-                                ),
+                                child: child,
                               );
                             },
                             child: _currentLeftPanelPage == 0
-                                ? SizedBox(
+                                ? ElasticButton(
                                     key: const ValueKey('btn-integrate'),
-                                    height: 38,
-                                    child: FilledButton.icon(
-                                      style: FilledButton.styleFrom(
-                                        shape: RoundedSuperellipseBorder(
-                                          borderRadius: BorderRadius.circular(
-                                            20,
-                                          ),
-                                        ),
-                                        backgroundColor:
-                                            theme.colorScheme.primary,
-                                        foregroundColor:
-                                            theme.colorScheme.onPrimary,
-                                        padding: const EdgeInsets.symmetric(
-                                          horizontal: 16,
-                                        ),
-                                      ),
-                                      onPressed: () {
-                                        setState(() {
-                                          _currentLeftPanelPage = 1;
-                                        });
-                                      },
-                                      icon: const Icon(
-                                        Icons.download_rounded,
-                                        size: 16,
-                                      ),
-                                      label: const Text(
-                                        "Import Widget",
-                                        style: TextStyle(
-                                          fontSize: 12,
-                                          fontWeight: FontWeight.bold,
-                                        ),
-                                      ),
-                                    ),
+                                    onPressed: () {
+                                      setState(() {
+                                        _currentLeftPanelPage = 1;
+                                      });
+                                    },
+                                    icon: const Icon(Icons.download_rounded),
+                                    label: const Text("Import Widget"),
+                                    backgroundColor: theme.colorScheme.primary,
+                                    foregroundColor:
+                                        theme.colorScheme.onPrimary,
                                   )
-                                : SizedBox(
+                                : ElasticButton(
                                     key: const ValueKey('btn-sandbox'),
-                                    height: 38,
-                                    child: TextButton.icon(
-                                      style: TextButton.styleFrom(
-                                        shape: RoundedSuperellipseBorder(
-                                          borderRadius: BorderRadius.circular(
-                                            20,
-                                          ),
-                                        ),
-                                        foregroundColor:
-                                            theme.colorScheme.onSurfaceVariant,
-                                        padding: const EdgeInsets.symmetric(
-                                          horizontal: 16,
-                                        ),
-                                        backgroundColor: theme
-                                            .colorScheme
-                                            .surfaceContainerHighest
-                                            .withOpacity(0.5),
-                                      ),
-                                      onPressed: () {
-                                        setState(() {
-                                          _currentLeftPanelPage = 0;
-                                        });
-                                      },
-                                      icon: const Icon(
-                                        Icons.tune_rounded,
-                                        size: 16,
-                                      ),
-                                      label: const Text(
-                                        "Configure Widget",
-                                        style: TextStyle(
-                                          fontSize: 12,
-                                          fontWeight: FontWeight.bold,
-                                        ),
-                                      ),
-                                    ),
+                                    onPressed: () {
+                                      setState(() {
+                                        _currentLeftPanelPage = 0;
+                                      });
+                                    },
+                                    icon: const Icon(Icons.tune_rounded),
+                                    label: const Text("Configure Widget"),
+                                    backgroundColor: theme
+                                        .colorScheme
+                                        .surfaceContainerHighest
+                                        .withOpacity(0.5),
+                                    foregroundColor:
+                                        theme.colorScheme.onSurfaceVariant,
                                   ),
                           ),
                         ),
@@ -1250,34 +1211,29 @@ class _PreviewPageState extends State<PreviewPage> {
 
     return Scaffold(
       body: GraphBackground(
-        child: SafeArea(
-          child: isMobile
-              ? SingleChildScrollView(
-                  padding: const EdgeInsets.all(24),
-                  child: Column(
-                    children: [
-                      SizedBox(height: 350, child: rightPanel),
-                      const SizedBox(height: 32),
-                      leftPanel,
-                    ],
-                  ),
-                )
-              : Padding(
-                  padding: const EdgeInsets.all(24.0),
-                  child: Row(
-                    children: [
-                      // Properties page view on the left
-                      Expanded(
-                        flex: 4,
-                        child: SizedBox.expand(child: leftPanel),
-                      ),
-                      const SizedBox(width: 24),
-                      // Interactive live rendering sandbox on the right
-                      Expanded(flex: 5, child: rightPanel),
-                    ],
-                  ),
+        child: isMobile
+            ? SingleChildScrollView(
+                padding: const EdgeInsets.all(24),
+                child: Column(
+                  children: [
+                    SizedBox(height: 350, child: rightPanel),
+                    const SizedBox(height: 32),
+                    leftPanel,
+                  ],
                 ),
-        ),
+              )
+            : Padding(
+                padding: const EdgeInsets.all(24.0),
+                child: Row(
+                  children: [
+                    // Properties page view on the left
+                    Expanded(flex: 4, child: SizedBox.expand(child: leftPanel)),
+                    const SizedBox(width: 24),
+                    // Interactive live rendering sandbox on the right
+                    Expanded(flex: 5, child: rightPanel),
+                  ],
+                ),
+              ),
       ),
     );
   }
@@ -1335,6 +1291,168 @@ class _BreathingDotState extends State<BreathingDot>
           ),
         );
       },
+    );
+  }
+}
+
+class _TactileWrapper extends StatefulWidget {
+  final Widget child;
+  final VoidCallback onTap;
+
+  const _TactileWrapper({required this.child, required this.onTap});
+
+  @override
+  State<_TactileWrapper> createState() => _TactileWrapperState();
+}
+
+class _TactileWrapperState extends State<_TactileWrapper> {
+  bool _isPressed = false;
+
+  @override
+  Widget build(BuildContext context) {
+    return GestureDetector(
+      onTapDown: (_) => setState(() => _isPressed = true),
+      onTapUp: (_) => setState(() => _isPressed = false),
+      onTapCancel: () => setState(() => _isPressed = false),
+      onTap: widget.onTap,
+      child: AnimatedScale(
+        scale: _isPressed ? 0.97 : 1.0,
+        duration: const Duration(milliseconds: 100),
+        curve: Curves.easeOut,
+        child: widget.child,
+      ),
+    );
+  }
+}
+
+class _PropertiesHeaderToggle extends StatefulWidget {
+  final bool isExpanded;
+  final int fieldCount;
+  final VoidCallback onTap;
+
+  const _PropertiesHeaderToggle({
+    required this.isExpanded,
+    required this.fieldCount,
+    required this.onTap,
+  });
+
+  @override
+  State<_PropertiesHeaderToggle> createState() =>
+      _PropertiesHeaderToggleState();
+}
+
+class _PropertiesHeaderToggleState extends State<_PropertiesHeaderToggle> {
+  bool _isHovered = false;
+  bool _isPressed = false;
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+
+    // Scale animation: slightly larger on hover, smaller on tap
+    final double scale = _isPressed
+        ? 0.97
+        : _isHovered
+        ? 1.02
+        : 1.0;
+
+    return MouseRegion(
+      onEnter: (_) => setState(() => _isHovered = true),
+      onExit: (_) => setState(() => _isHovered = false),
+      cursor: SystemMouseCursors.click,
+      child: GestureDetector(
+        onTapDown: (_) => setState(() => _isPressed = true),
+        onTapUp: (_) => setState(() => _isPressed = false),
+        onTapCancel: () => setState(() => _isPressed = false),
+        onTap: widget.onTap,
+        child: AnimatedScale(
+          scale: scale,
+          duration: const Duration(milliseconds: 150),
+          curve: const Cubic(0.2, 0.8, 0.2, 1.0),
+          child: AnimatedContainer(
+            duration: const Duration(milliseconds: 150),
+            padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 12),
+            decoration: BoxDecoration(
+              color: _isHovered
+                  ? theme.colorScheme.surfaceContainer
+                  : theme.colorScheme.surfaceContainerLow,
+              borderRadius: BorderRadius.circular(12),
+              border: Border.all(
+                color: _isHovered
+                    ? theme.colorScheme.primary.withOpacity(0.15)
+                    : theme.colorScheme.outline.withOpacity(0.08),
+              ),
+              boxShadow: [
+                BoxShadow(
+                  color: Colors.black.withOpacity(_isHovered ? 0.08 : 0.03),
+                  blurRadius: _isHovered ? 8 : 3,
+                  offset: Offset(0, _isHovered ? 4 : 1),
+                ),
+              ],
+            ),
+            child: Row(
+              children: [
+                Icon(
+                  Icons.tune_rounded,
+                  size: 18,
+                  color: _isHovered
+                      ? theme.colorScheme.primary
+                      : theme.colorScheme.primary.withOpacity(0.8),
+                ),
+                const SizedBox(width: 10),
+                Expanded(
+                  child: Text(
+                    "Properties Editor",
+                    style: TextStyle(
+                      fontSize: 15,
+                      fontWeight: FontWeight.w600,
+                      color: theme.colorScheme.onSurfaceVariant.withOpacity(
+                        _isHovered ? 1.0 : 0.9,
+                      ),
+                      letterSpacing: 0.3,
+                    ),
+                  ),
+                ),
+                // Small indicator badge with property count
+                AnimatedContainer(
+                  duration: const Duration(milliseconds: 150),
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 8,
+                    vertical: 2,
+                  ),
+                  decoration: BoxDecoration(
+                    color: _isHovered
+                        ? theme.colorScheme.primary.withOpacity(0.12)
+                        : theme.colorScheme.primary.withOpacity(0.08),
+                    borderRadius: BorderRadius.circular(20),
+                  ),
+                  child: Text(
+                    "${widget.fieldCount} fields",
+                    style: TextStyle(
+                      fontSize: 10,
+                      fontWeight: FontWeight.bold,
+                      color: theme.colorScheme.primary.withOpacity(0.8),
+                    ),
+                  ),
+                ),
+                const SizedBox(width: 8),
+                AnimatedRotation(
+                  turns: widget.isExpanded ? 0.5 : 0.0,
+                  duration: const Duration(milliseconds: 200),
+                  curve: const Cubic(0.2, 0.8, 0.2, 1.0),
+                  child: Icon(
+                    Icons.keyboard_arrow_down_rounded,
+                    size: 20,
+                    color: theme.colorScheme.onSurfaceVariant.withOpacity(
+                      _isHovered ? 0.8 : 0.6,
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ),
+      ),
     );
   }
 }

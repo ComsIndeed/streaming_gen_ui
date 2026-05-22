@@ -34,7 +34,9 @@ class ChatAgentService {
   /// Streams the agent's response for a given prompt and conversational history.
   /// Converts the chunk output stream to a standard `Stream<String>` of text deltas.
   Stream<String> streamResponse(String prompt, List<ChatMessage> history) {
-    return _agent.sendStream(prompt, history: history).map((chunk) => chunk.output);
+    return _agent
+        .sendStream(prompt, history: history)
+        .map((chunk) => chunk.output);
   }
 
   static String? _getApiKey() {

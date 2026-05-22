@@ -63,7 +63,8 @@ class _PropertyEditableState extends State<PropertyEditable> {
       if (controller.text != initialText) {
         final selection = controller.selection;
         controller.text = initialText;
-        if (selection.baseOffset <= initialText.length && selection.extentOffset <= initialText.length) {
+        if (selection.baseOffset <= initialText.length &&
+            selection.extentOffset <= initialText.length) {
           controller.selection = selection;
         }
       }
@@ -79,7 +80,9 @@ class _PropertyEditableState extends State<PropertyEditable> {
   Widget build(BuildContext context) {
     _accessedKeys.clear();
     final theme = Theme.of(context);
-    final propertyDesc = widget.catalogItem.widgetDefinition.properties[widget.propertyKey] ?? "";
+    final propertyDesc =
+        widget.catalogItem.widgetDefinition.properties[widget.propertyKey] ??
+        "";
     final value = decodedValue;
 
     // Detect if this is a color property
@@ -91,9 +94,7 @@ class _PropertyEditableState extends State<PropertyEditable> {
       decoration: ShapeDecoration(
         shape: RoundedSuperellipseBorder(
           borderRadius: BorderRadius.circular(16),
-          side: BorderSide(
-            color: theme.colorScheme.outline.withOpacity(0.08),
-          ),
+          side: BorderSide(color: theme.colorScheme.outline.withOpacity(0.08)),
         ),
         color: theme.colorScheme.surfaceContainerLow.withOpacity(0.4),
       ),
@@ -120,7 +121,9 @@ class _PropertyEditableState extends State<PropertyEditable> {
                     propertyDesc,
                     style: TextStyle(
                       fontSize: 12,
-                      color: theme.colorScheme.onSurfaceVariant.withOpacity(0.7),
+                      color: theme.colorScheme.onSurfaceVariant.withOpacity(
+                        0.7,
+                      ),
                     ),
                   ),
                 ],
@@ -165,7 +168,9 @@ class _PropertyEditableState extends State<PropertyEditable> {
     );
 
     // Prune unused controllers
-    final unusedKeys = _subControllers.keys.where((k) => !_accessedKeys.contains(k)).toList();
+    final unusedKeys = _subControllers.keys
+        .where((k) => !_accessedKeys.contains(k))
+        .toList();
     for (final key in unusedKeys) {
       _subControllers.remove(key)?.dispose();
     }
@@ -330,7 +335,10 @@ class _PropertyEditableState extends State<PropertyEditable> {
                           borderRadius: BorderRadius.circular(12),
                         ),
                       ),
-                      controller: _getOrCreateController("map_key_${entry.key}", key),
+                      controller: _getOrCreateController(
+                        "map_key_${entry.key}",
+                        key,
+                      ),
                       onChanged: (newKey) {
                         if (newKey.trim().isNotEmpty && newKey != key) {
                           final newMap = <String, dynamic>{};
@@ -356,7 +364,10 @@ class _PropertyEditableState extends State<PropertyEditable> {
                           borderRadius: BorderRadius.circular(12),
                         ),
                       ),
-                      controller: _getOrCreateController("map_val_${entry.key}", val.toString()),
+                      controller: _getOrCreateController(
+                        "map_val_${entry.key}",
+                        val.toString(),
+                      ),
                       onChanged: (newVal) {
                         map[key] = newVal;
                         _updateValue(map);
@@ -402,7 +413,9 @@ class _PropertyEditableState extends State<PropertyEditable> {
       decoration: InputDecoration(
         border: OutlineInputBorder(
           borderRadius: BorderRadius.circular(12),
-          borderSide: BorderSide(color: theme.colorScheme.outline.withOpacity(0.2)),
+          borderSide: BorderSide(
+            color: theme.colorScheme.outline.withOpacity(0.2),
+          ),
         ),
         filled: true,
         fillColor: theme.colorScheme.surfaceContainerHighest.withOpacity(0.2),
@@ -445,8 +458,8 @@ class _PropertyEditableState extends State<PropertyEditable> {
                       color: isSelected
                           ? theme.colorScheme.primary
                           : isWhite
-                              ? theme.colorScheme.outline.withOpacity(0.2)
-                              : Colors.transparent,
+                          ? theme.colorScheme.outline.withOpacity(0.2)
+                          : Colors.transparent,
                       width: isSelected ? 3.0 : 1.0,
                     ),
                     boxShadow: [
@@ -477,7 +490,10 @@ class _PropertyEditableState extends State<PropertyEditable> {
             hintText: "#HEX Color",
             isDense: true,
             border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
-            contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+            contentPadding: const EdgeInsets.symmetric(
+              horizontal: 12,
+              vertical: 8,
+            ),
           ),
           onChanged: (text) {
             // Keep text controller as raw text if custom input is type written
@@ -534,16 +550,25 @@ class _PropertyEditableState extends State<PropertyEditable> {
             Row(
               children: [
                 IconButton(
-                  icon: const Icon(Icons.remove_circle_outline_rounded, size: 18),
+                  icon: const Icon(
+                    Icons.remove_circle_outline_rounded,
+                    size: 18,
+                  ),
                   onPressed: () {
-                    final newVal = (clampedVal - (max - min) / divisions).clamp(min, max);
+                    final newVal = (clampedVal - (max - min) / divisions).clamp(
+                      min,
+                      max,
+                    );
                     _updateValue(newVal);
                   },
                 ),
                 IconButton(
                   icon: const Icon(Icons.add_circle_outline_rounded, size: 18),
                   onPressed: () {
-                    final newVal = (clampedVal + (max - min) / divisions).clamp(min, max);
+                    final newVal = (clampedVal + (max - min) / divisions).clamp(
+                      min,
+                      max,
+                    );
                     _updateValue(newVal);
                   },
                 ),
@@ -575,7 +600,10 @@ class _PropertyEditableState extends State<PropertyEditable> {
       decoration: InputDecoration(
         isDense: true,
         border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
-        contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+        contentPadding: const EdgeInsets.symmetric(
+          horizontal: 16,
+          vertical: 12,
+        ),
       ),
       controller: _getOrCreateController("standard_string", displayText),
       onChanged: (text) => _updateValue(text),
@@ -585,8 +613,9 @@ class _PropertyEditableState extends State<PropertyEditable> {
   // --- SPECIALIZED LIST STEP Timeline BUILDER (Agent Stepper) ---
 
   Widget _buildStepsListBuilder(List steps, ThemeData theme) {
-    final List<Map<String, dynamic>> stepsList =
-        steps.map((e) => Map<String, dynamic>.from(e as Map)).toList();
+    final List<Map<String, dynamic>> stepsList = steps
+        .map((e) => Map<String, dynamic>.from(e as Map))
+        .toList();
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -601,7 +630,9 @@ class _PropertyEditableState extends State<PropertyEditable> {
 
           return Card(
             margin: const EdgeInsets.only(bottom: 8),
-            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(12),
+            ),
             child: Padding(
               padding: const EdgeInsets.all(8.0),
               child: Row(
@@ -615,7 +646,10 @@ class _PropertyEditableState extends State<PropertyEditable> {
                             hintText: "Step Title",
                             border: InputBorder.none,
                           ),
-                          controller: _getOrCreateController("step_title_$index", title),
+                          controller: _getOrCreateController(
+                            "step_title_$index",
+                            title,
+                          ),
                           onChanged: (val) {
                             stepsList[index]["title"] = val;
                             _updateValue(stepsList);
@@ -627,10 +661,22 @@ class _PropertyEditableState extends State<PropertyEditable> {
                               value: status,
                               isDense: true,
                               items: const [
-                                DropdownMenuItem(value: "completed", child: Text("Completed")),
-                                DropdownMenuItem(value: "running", child: Text("Running")),
-                                DropdownMenuItem(value: "failed", child: Text("Failed")),
-                                DropdownMenuItem(value: "pending", child: Text("Pending")),
+                                DropdownMenuItem(
+                                  value: "completed",
+                                  child: Text("Completed"),
+                                ),
+                                DropdownMenuItem(
+                                  value: "running",
+                                  child: Text("Running"),
+                                ),
+                                DropdownMenuItem(
+                                  value: "failed",
+                                  child: Text("Failed"),
+                                ),
+                                DropdownMenuItem(
+                                  value: "pending",
+                                  child: Text("Pending"),
+                                ),
                               ],
                               onChanged: (val) {
                                 if (val != null) {
@@ -647,7 +693,10 @@ class _PropertyEditableState extends State<PropertyEditable> {
                                   hintText: "Duration (e.g. 140ms)",
                                   border: InputBorder.none,
                                 ),
-                                controller: _getOrCreateController("step_duration_$index", duration),
+                                controller: _getOrCreateController(
+                                  "step_duration_$index",
+                                  duration,
+                                ),
                                 onChanged: (val) {
                                   stepsList[index]["duration"] = val;
                                   _updateValue(stepsList);
@@ -660,7 +709,10 @@ class _PropertyEditableState extends State<PropertyEditable> {
                     ),
                   ),
                   IconButton(
-                    icon: Icon(Icons.delete_outline_rounded, color: theme.colorScheme.error),
+                    icon: Icon(
+                      Icons.delete_outline_rounded,
+                      color: theme.colorScheme.error,
+                    ),
                     onPressed: () {
                       stepsList.removeAt(index);
                       _updateValue(stepsList);
@@ -677,7 +729,11 @@ class _PropertyEditableState extends State<PropertyEditable> {
             icon: const Icon(Icons.add_rounded, size: 16),
             label: const Text("Add Timeline Step"),
             onPressed: () {
-              stepsList.add({"title": "New step", "status": "pending", "duration": ""});
+              stepsList.add({
+                "title": "New step",
+                "status": "pending",
+                "duration": "",
+              });
               _updateValue(stepsList);
             },
           ),
@@ -706,8 +762,13 @@ class _PropertyEditableState extends State<PropertyEditable> {
                   child: TextField(
                     decoration: InputDecoration(
                       isDense: true,
-                      border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
-                      contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                      border: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                      contentPadding: const EdgeInsets.symmetric(
+                        horizontal: 12,
+                        vertical: 8,
+                      ),
                     ),
                     controller: _getOrCreateController("list_$index", item),
                     onChanged: (val) {
@@ -717,7 +778,10 @@ class _PropertyEditableState extends State<PropertyEditable> {
                   ),
                 ),
                 IconButton(
-                  icon: Icon(Icons.remove_circle_outline_rounded, color: theme.colorScheme.error),
+                  icon: Icon(
+                    Icons.remove_circle_outline_rounded,
+                    color: theme.colorScheme.error,
+                  ),
                   onPressed: () {
                     stringList.removeAt(index);
                     _updateValue(stringList);

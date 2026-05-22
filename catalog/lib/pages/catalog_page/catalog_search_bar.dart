@@ -46,9 +46,7 @@ class _CatalogSearchBarState extends State<CatalogSearchBar> {
       decoration: BoxDecoration(
         color: theme.colorScheme.surfaceContainerHighest.withOpacity(0.4),
         borderRadius: BorderRadius.circular(32),
-        border: Border.all(
-          color: theme.colorScheme.outline.withOpacity(0.12),
-        ),
+        border: Border.all(color: theme.colorScheme.outline.withOpacity(0.12)),
       ),
       child: TextField(
         controller: _controller,
@@ -84,4 +82,3 @@ class _CatalogSearchBarState extends State<CatalogSearchBar> {
     );
   }
 }
-
