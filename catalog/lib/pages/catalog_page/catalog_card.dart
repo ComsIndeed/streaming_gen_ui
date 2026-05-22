@@ -1,6 +1,7 @@
 import 'dart:math';
 
 import 'package:flutter/material.dart';
+import 'package:responsive_framework/responsive_framework.dart';
 import 'package:streaming_gen_ui_widget_catalog/core/models/widget_catalog_item.dart';
 import 'package:streaming_gen_ui/streaming_gen_ui.dart';
 import 'package:streaming_gen_ui_widget_catalog/core/utilities/stream_text_in_chunks.dart';
@@ -50,6 +51,7 @@ class _CatalogCardState extends State<CatalogCard> {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
+    final isMobile = ResponsiveBreakpoints.of(context).isMobile;
 
     return Hero(
       tag: "catalog-card-${widget.catalogItem.namespace}",
@@ -68,7 +70,7 @@ class _CatalogCardState extends State<CatalogCard> {
             children: [
               SizedBox.expand(
                 child: Padding(
-                  padding: const EdgeInsets.fromLTRB(8, 8, 8, 36),
+                  padding: EdgeInsets.fromLTRB(8, 8, 8, isMobile ? 24 : 36),
                   child: FittedBox(
                     child: ConstrainedBox(
                       constraints: const BoxConstraints(maxWidth: 300),
@@ -95,9 +97,9 @@ class _CatalogCardState extends State<CatalogCard> {
               Align(
                 alignment: AlignmentGeometry.bottomStart,
                 child: Padding(
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: 16,
-                    vertical: 8,
+                  padding: EdgeInsets.symmetric(
+                    horizontal: isMobile ? 8 : 16,
+                    vertical: isMobile ? 4 : 8,
                   ),
                   child: Wrap(
                     crossAxisAlignment: WrapCrossAlignment.center,
@@ -108,14 +110,14 @@ class _CatalogCardState extends State<CatalogCard> {
                         widget.catalogItem.displayName,
                         style: TextStyle(
                           fontWeight: FontWeight.bold,
-                          fontSize: 15,
+                          fontSize: isMobile ? 11 : 15,
                           color: theme.colorScheme.onSurface.withAlpha(235),
                         ),
                       ),
                       Text(
                         "(${widget.catalogItem.displayProvider})",
                         style: TextStyle(
-                          fontSize: 13,
+                          fontSize: isMobile ? 9 : 13,
                           color: theme.colorScheme.onSurface.withAlpha(190),
                         ),
                       ),

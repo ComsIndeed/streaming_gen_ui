@@ -1,12 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:gpt_markdown/gpt_markdown.dart';
+import 'package:responsive_framework/responsive_framework.dart';
 import 'package:streaming_gen_ui_widget_catalog/core/app_widgets/elastic_wrapper.dart';
 import 'package:streaming_gen_ui_widget_catalog/pages/chat_demo_page/chat_demo_cubit.dart';
 import 'package:streaming_gen_ui_widget_catalog/widgets/graph_background.dart';
 
 class ChatDemoPage extends StatefulWidget {
-  const ChatDemoPage({super.key});
+  final VoidCallback? onBack;
+  const ChatDemoPage({super.key, this.onBack});
 
   @override
   State<ChatDemoPage> createState() => _ChatDemoPageState();
@@ -15,6 +17,7 @@ class ChatDemoPage extends StatefulWidget {
 class _ChatDemoPageState extends State<ChatDemoPage> {
   late final TextEditingController _controller;
   late final FocusNode _focusNode;
+  bool _isCanvasBottomSheetOpen = false;
 
   @override
   void initState() {
@@ -30,86 +33,199 @@ class _ChatDemoPageState extends State<ChatDemoPage> {
     super.dispose();
   }
 
-  @override
-  Widget build(BuildContext context) {
+  void _showCanvasBottomSheet(BuildContext context) {
+    if (_isCanvasBottomSheetOpen) return;
+    _isCanvasBottomSheetOpen = true;
+
     final theme = Theme.of(context);
-    final sizes = MediaQuery.sizeOf(context);
+    final cubit = context.read<ChatDemoCubit>();
 
-    return BlocBuilder<ChatDemoCubit, ChatDemoState>(
-      builder: (context, state) {
-        final isChatExpanded = state.textBoxMode != TextBoxMode.textfield;
-        final isCanvasExpanded = state.canvasMode != CanvasMode.hidden;
-
-        return Scaffold(
-          body: GraphBackground(
-            child: SafeArea(
-              child: Stack(
-                children: [
-                  // Horizontal Split View
-                  Row(
+    showModalBottomSheet(
+      context: context,
+      backgroundColor: Colors.transparent,
+      isScrollControlled: true,
+      enableDrag: true,
+      barrierColor: Colors.black.withOpacity(0.5),
+      builder: (modalContext) {
+        return BlocProvider.value(
+          value: cubit,
+          child: Container(
+            height: MediaQuery.sizeOf(context).height * 0.85,
+            decoration: BoxDecoration(
+              color: theme.colorScheme.surfaceContainerLow,
+              borderRadius: const BorderRadius.vertical(top: Radius.circular(28)),
+              border: Border.all(
+                color: theme.colorScheme.outline.withOpacity(0.1),
+              ),
+            ),
+            child: Column(
+              children: [
+                const SizedBox(height: 12),
+                Container(
+                  width: 36,
+                  height: 4,
+                  decoration: BoxDecoration(
+                    color: theme.colorScheme.onSurfaceVariant.withOpacity(0.3),
+                    borderRadius: BorderRadius.circular(2),
+                  ),
+                ),
+                Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
-                      // 1. LEFT PANEL: Chat conversation space
-                      Expanded(
-                        child: Padding(
-                          padding: const EdgeInsets.fromLTRB(16, 16, 16, 0),
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              _buildHeader(context, theme),
-                              const SizedBox(height: 24),
-                              Expanded(
-                                child: Column(
-                                  children: [
-                                    _buildErrorBanner(context, theme, state),
-                                    Expanded(
-                                      child: _buildMessageList(
-                                        context,
-                                        theme,
-                                        state,
-                                        _controller,
-                                        _focusNode,
-                                      ),
-                                    ),
-                                  ],
-                                ),
-                              ),
-                            ],
+                      Row(
+                        children: [
+                          Icon(
+                            Icons.dashboard_customize_rounded,
+                            color: theme.colorScheme.primary,
+                            size: 22,
+                          ),
+                          const SizedBox(width: 10),
+                          const Text(
+                            "Canvas Preview",
+                            style: TextStyle(
+                              fontWeight: FontWeight.bold,
+                              fontSize: 18,
+                            ),
+                          ),
+                        ],
+                      ),
+                      IconButton.filledTonal(
+                        icon: const Icon(Icons.close_rounded, size: 20),
+                        onPressed: () {
+                          Navigator.pop(modalContext);
+                        },
+                      ),
+                    ],
+                  ),
+                ),
+                const Divider(height: 1),
+                Expanded(
+                  child: Padding(
+                    padding: const EdgeInsets.fromLTRB(20, 20, 20, 24),
+                    child: ClipRRect(
+                      borderRadius: BorderRadius.circular(24),
+                      child: Container(
+                        decoration: BoxDecoration(
+                          color: theme.colorScheme.surfaceContainer,
+                          borderRadius: BorderRadius.circular(24),
+                          border: Border.all(
+                            color: theme.colorScheme.outline.withOpacity(0.1),
+                          ),
+                        ),
+                        padding: const EdgeInsets.all(16),
+                        child: SingleChildScrollView(
+                          physics: const BouncingScrollPhysics(),
+                          child: ListenableBuilder(
+                            listenable: cubit.generativeUi,
+                            builder: (context, _) {
+                              return cubit.generativeUi.view(
+                                'canvas-ui',
+                                textBlockBuilder: (context, text) => GptMarkdown(text),
+                              );
+                            },
                           ),
                         ),
                       ),
-
-                      // 2. RIGHT PANEL: Floating Bento Canvas panel
-                      _buildCanvasPanel(context, theme, state, sizes),
-                    ],
-                  ),
-
-                  // 3. User's exact custom animated chat textfield console
-                  AnimatedAlign(
-                    duration: Durations.short4,
-                    curve: Curves.easeInOut,
-                    alignment: Alignment.bottomCenter,
-                    child: AnimatedPadding(
-                      duration: Durations.short4,
-                      padding: EdgeInsets.only(
-                        bottom: isChatExpanded ? 16.0 : 28.0,
-                        right: isCanvasExpanded ? sizes.width * 0.6 : 0,
-                      ),
-                      curve: Curves.easeOut,
-                      child: ChatConsoleInput(
-                        isChatExpanded: isChatExpanded,
-                        isCanvasExpanded: isCanvasExpanded,
-                        sizes: sizes,
-                        controller: _controller,
-                        focusNode: _focusNode,
-                      ),
                     ),
                   ),
-                ],
-              ),
+                ),
+              ],
             ),
           ),
         );
       },
+    ).then((_) {
+      _isCanvasBottomSheetOpen = false;
+      cubit.setCanvasMode(CanvasMode.hidden);
+    });
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final sizes = MediaQuery.sizeOf(context);
+    final isMobile = ResponsiveBreakpoints.of(context).isMobile;
+
+    return BlocListener<ChatDemoCubit, ChatDemoState>(
+      listener: (context, state) {
+        final isCanvasExpanded = state.canvasMode != CanvasMode.hidden;
+        if (isCanvasExpanded) {
+          if (!_isCanvasBottomSheetOpen) {
+            _showCanvasBottomSheet(context);
+          }
+        } else {
+          if (_isCanvasBottomSheetOpen) {
+            _isCanvasBottomSheetOpen = false;
+            Navigator.of(context).pop();
+          }
+        }
+      },
+      child: BlocBuilder<ChatDemoCubit, ChatDemoState>(
+        builder: (context, state) {
+          final isChatExpanded = state.textBoxMode != TextBoxMode.textfield;
+
+          return Scaffold(
+            body: GraphBackground(
+              child: SafeArea(
+                child: Stack(
+                  children: [
+                    // Chat conversation space
+                    Padding(
+                      padding: const EdgeInsets.fromLTRB(16, 16, 16, 0),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          _buildHeader(context, theme),
+                          const SizedBox(height: 24),
+                          Expanded(
+                            child: Column(
+                              children: [
+                                _buildErrorBanner(context, theme, state),
+                                Expanded(
+                                  child: _buildMessageList(
+                                    context,
+                                    theme,
+                                    state,
+                                    _controller,
+                                    _focusNode,
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+
+                    // User's exact custom animated chat textfield console
+                    AnimatedAlign(
+                      duration: Durations.short4,
+                      curve: Curves.easeInOut,
+                      alignment: Alignment.bottomCenter,
+                      child: AnimatedPadding(
+                        duration: Durations.short4,
+                        padding: EdgeInsets.only(
+                          bottom: isMobile ? (isChatExpanded ? 8.0 : 12.0) : (isChatExpanded ? 16.0 : 28.0),
+                        ),
+                        curve: Curves.easeOut,
+                        child: ChatConsoleInput(
+                          isChatExpanded: isChatExpanded,
+                          isCanvasExpanded: false,
+                          sizes: sizes,
+                          controller: _controller,
+                          focusNode: _focusNode,
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+          );
+        },
+      ),
     );
   }
 
@@ -117,38 +233,85 @@ class _ChatDemoPageState extends State<ChatDemoPage> {
 
   /// Renders the page title header
   Widget _buildHeader(BuildContext context, ThemeData theme) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
+    final isMobile = ResponsiveBreakpoints.of(context).isMobile;
+    final headerContent = Row(
+      mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
-        RichText(
-          text: TextSpan(
-            style: TextStyle(
-              fontSize: 24,
-              letterSpacing: -0.5,
-              color: theme.colorScheme.onSurface,
-            ),
-            children: const [
-              TextSpan(
-                text: "Streaming ",
-                style: TextStyle(fontWeight: FontWeight.bold),
+        Expanded(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              RichText(
+                text: TextSpan(
+                  style: TextStyle(
+                    fontSize: 24,
+                    letterSpacing: -0.5,
+                    color: theme.colorScheme.onSurface,
+                  ),
+                  children: const [
+                    TextSpan(
+                      text: "Streaming ",
+                      style: TextStyle(fontWeight: FontWeight.bold),
+                    ),
+                    TextSpan(
+                      text: "Generative UI",
+                      style: TextStyle(fontWeight: FontWeight.w300),
+                    ),
+                  ],
+                ),
               ),
-              TextSpan(
-                text: "Generative UI",
-                style: TextStyle(fontWeight: FontWeight.w300),
+              Text(
+                "Chat Demo",
+                style: TextStyle(
+                  fontSize: 14,
+                  fontWeight: FontWeight.bold,
+                  color: theme.colorScheme.primary,
+                ),
               ),
             ],
           ),
         ),
-        Text(
-          "Chat Demo",
-          style: TextStyle(
-            fontSize: 14,
-            fontWeight: FontWeight.bold,
-            color: theme.colorScheme.primary,
+        ElasticWrapper(
+          child: TextButton.icon(
+            style: TextButton.styleFrom(
+              backgroundColor: theme.colorScheme.primary.withOpacity(0.08),
+              foregroundColor: theme.colorScheme.primary,
+              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(20),
+                side: BorderSide(
+                  color: theme.colorScheme.primary.withOpacity(0.2),
+                ),
+              ),
+            ),
+            onPressed: () {
+              context.read<ChatDemoCubit>().setCanvasMode(CanvasMode.ui);
+            },
+            icon: const Icon(Icons.dashboard_customize_rounded, size: 16),
+            label: const Text(
+              "Canvas",
+              style: TextStyle(fontWeight: FontWeight.bold, fontSize: 13),
+            ),
           ),
         ),
       ],
     );
+
+    if (isMobile && widget.onBack != null) {
+      return Row(
+        children: [
+          Padding(
+            padding: const EdgeInsets.only(right: 12),
+            child: IconButton.filledTonal(
+              icon: const Icon(Icons.arrow_back_ios_new_rounded, size: 18),
+              onPressed: widget.onBack,
+            ),
+          ),
+          Expanded(child: headerContent),
+        ],
+      );
+    }
+    return headerContent;
   }
 
   /// Renders a critical configuration warning or runtime API error banner
@@ -213,9 +376,9 @@ class _ChatDemoPageState extends State<ChatDemoPage> {
           child: ListView.builder(
             reverse: true,
             itemCount: state.messages.length,
-            padding: const EdgeInsets.only(
+            padding: EdgeInsets.only(
               top: 16,
-              bottom: 140,
+              bottom: ResponsiveBreakpoints.of(context).isMobile ? 200 : 140,
               left: 16,
               right: 16,
             ),
@@ -243,49 +406,35 @@ class _ChatDemoPageState extends State<ChatDemoPage> {
     TextEditingController controller,
     FocusNode focusNode,
   ) {
+    final isMobile = ResponsiveBreakpoints.of(context).isMobile;
+
     return Center(
       child: Container(
         constraints: const BoxConstraints(maxWidth: 600),
         child: SingleChildScrollView(
           physics: const BouncingScrollPhysics(),
-          padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 32),
+          padding: EdgeInsets.only(
+            left: 24,
+            right: 24,
+            top: 32,
+            bottom: isMobile ? 180 : 100,
+          ),
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             crossAxisAlignment: CrossAxisAlignment.center,
             children: [
-              // Try her out! Badge
-              Container(
-                padding: const EdgeInsets.symmetric(
-                  horizontal: 16,
-                  vertical: 8,
-                ),
-                decoration: BoxDecoration(
-                  color: theme.colorScheme.primary.withOpacity(0.08),
-                  borderRadius: BorderRadius.circular(20),
-                  border: Border.all(
-                    color: theme.colorScheme.primary.withOpacity(0.2),
-                  ),
-                ),
+              // Headline (Fits in one line on all devices)
+              FittedBox(
+                fit: BoxFit.scaleDown,
                 child: Text(
-                  "Try her out!",
+                  "Streaming Generative UI",
+                  textAlign: TextAlign.center,
                   style: TextStyle(
-                    fontSize: 13,
+                    fontSize: isMobile ? 24 : 32,
                     fontWeight: FontWeight.bold,
-                    letterSpacing: 1.0,
-                    color: theme.colorScheme.primary,
+                    letterSpacing: -1.0,
+                    color: theme.colorScheme.onSurface,
                   ),
-                ),
-              ),
-              const SizedBox(height: 24),
-              // Headline
-              Text(
-                "Streaming Generative UI",
-                textAlign: TextAlign.center,
-                style: TextStyle(
-                  fontSize: 32,
-                  fontWeight: FontWeight.bold,
-                  letterSpacing: -1.0,
-                  color: theme.colorScheme.onSurface,
                 ),
               ),
               const SizedBox(height: 12),
@@ -310,7 +459,7 @@ class _ChatDemoPageState extends State<ChatDemoPage> {
                     crossAxisCount: isNarrow ? 1 : 2,
                     crossAxisSpacing: 16,
                     mainAxisSpacing: 16,
-                    childAspectRatio: isNarrow ? 2.5 : 2.0,
+                    childAspectRatio: isNarrow ? 3.4 : 2.0,
                     children: [
                       _PresetPromptCard(
                         title: "Weather Check",
@@ -433,110 +582,7 @@ class _ChatDemoPageState extends State<ChatDemoPage> {
     );
   }
 
-  /// Renders the bento canvas panel that dynamically expands/shrinks
-  Widget _buildCanvasPanel(
-    BuildContext context,
-    ThemeData theme,
-    ChatDemoState state,
-    Size sizes,
-  ) {
-    final isCanvasExpanded = state.canvasMode != CanvasMode.hidden;
-    return AnimatedContainer(
-      duration: const Duration(milliseconds: 400),
-      curve: Curves.easeInOutCubicEmphasized,
-      width: isCanvasExpanded ? sizes.width * 0.6 : 0,
-      height: double.infinity,
-      margin: isCanvasExpanded
-          ? const EdgeInsets.fromLTRB(0, 16, 16, 16)
-          : EdgeInsets.zero,
-      clipBehavior: Clip.antiAlias,
-      decoration: ShapeDecoration(
-        shape: RoundedSuperellipseBorder(
-          borderRadius: BorderRadius.circular(24),
-          side: BorderSide(
-            color: theme.colorScheme.outline.withOpacity(0.1),
-            width: isCanvasExpanded ? 1.0 : 0.0,
-          ),
-        ),
-        color: theme.colorScheme.surfaceContainerLow.withOpacity(0.95),
-        shadows: isCanvasExpanded
-            ? [
-                BoxShadow(
-                  color: Colors.black.withOpacity(0.1),
-                  blurRadius: 24,
-                  offset: const Offset(-8, 8),
-                ),
-              ]
-            : null,
-      ),
-      child: LayoutBuilder(
-        builder: (context, constraints) {
-          return OverflowBox(
-            alignment: Alignment.topRight,
-            minWidth: sizes.width * 0.6,
-            maxWidth: sizes.width * 0.6,
-            minHeight: constraints.maxHeight,
-            maxHeight: constraints.maxHeight,
-            child: _buildCanvasContent(context, theme),
-          );
-        },
-      ),
-    );
-  }
 
-  Widget _buildCanvasContent(BuildContext context, ThemeData theme) {
-    final cubit = context.read<ChatDemoCubit>();
-    return Padding(
-      padding: const EdgeInsets.all(24.0),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              Row(
-                children: [
-                  Icon(
-                    Icons.dashboard_customize_rounded,
-                    color: theme.colorScheme.primary,
-                    size: 22,
-                  ),
-                  const SizedBox(width: 10),
-                  const Text(
-                    "Canvas Preview",
-                    style: TextStyle(fontWeight: FontWeight.bold, fontSize: 18),
-                  ),
-                ],
-              ),
-              IconButton.filledTonal(
-                icon: const Icon(Icons.close_rounded, size: 20),
-                onPressed: () {
-                  context.read<ChatDemoCubit>().setCanvasMode(
-                    CanvasMode.hidden,
-                  );
-                },
-              ),
-            ],
-          ),
-          const SizedBox(height: 20),
-          Expanded(
-            child: SingleChildScrollView(
-              physics: const BouncingScrollPhysics(),
-              child: ListenableBuilder(
-                listenable: cubit.generativeUi,
-                builder: (context, _) {
-                  return cubit.generativeUi.view(
-                    'canvas-ui',
-                    textBlockBuilder: (context, text) => GptMarkdown(text),
-                  );
-                },
-              ),
-            ),
-          ),
-        ],
-      ),
-    );
-  }
 }
 
 class ChatConsoleInput extends StatefulWidget {
@@ -609,6 +655,7 @@ class _ChatConsoleInputState extends State<ChatConsoleInput> {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
+    final isMobile = ResponsiveBreakpoints.of(context).isMobile;
 
     // Snappy custom curve for high-fidelity mechanical keyboard feeling
     const customSnap = Cubic(0.2, 0.8, 0.2, 1.0);
@@ -671,12 +718,16 @@ class _ChatConsoleInputState extends State<ChatConsoleInput> {
               });
             }
           },
-          width: widget.isCanvasExpanded
-              ? (widget.sizes.width * 0.4 - 32).clamp(
-                  100.0,
-                  512.0 + (widget.isChatExpanded ? 64 : 0),
-                )
-              : 512.0 + (widget.isChatExpanded ? 64 : 0),
+          width: isMobile
+              ? (widget.isChatExpanded
+                  ? (widget.sizes.width - 16)
+                  : (widget.sizes.width - 48))
+              : (widget.isCanvasExpanded
+                  ? (widget.sizes.width * 0.4 - 32).clamp(
+                      100.0,
+                      512.0 + (widget.isChatExpanded ? 64 : 0),
+                    )
+                  : 512.0 + (widget.isChatExpanded ? 64 : 0)),
           height: widget.isChatExpanded ? 256.0 : 64.0,
           child: AnimatedContainer(
             duration: const Duration(milliseconds: 200),
@@ -775,9 +826,6 @@ class _ChatConsoleInputState extends State<ChatConsoleInput> {
   }
 
   Widget _buildExpandedDrawerInput(BuildContext context, ThemeData theme) {
-    final showRaw = context.select(
-      (ChatDemoCubit c) => c.state.showRawResponse,
-    );
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -828,15 +876,14 @@ class _ChatConsoleInputState extends State<ChatConsoleInput> {
               const SizedBox(width: 12),
               Expanded(
                 child: _buildConsoleUtilityCard(
-                  icon: Icons.code_rounded,
-                  title: "Raw Response",
-                  subtitle: "Toggle raw text",
+                  icon: Icons.dashboard_customize_rounded,
+                  title: "Canvas Preview",
+                  subtitle: "Open canvas UI",
                   theme: theme,
-                  isToggle: true,
-                  isActive: false,
-                  isEnabled: false,
+                  isAction: true,
+                  isEnabled: true,
                   onTap: () {
-                    // Disabled
+                    context.read<ChatDemoCubit>().setCanvasMode(CanvasMode.ui);
                   },
                 ),
               ),

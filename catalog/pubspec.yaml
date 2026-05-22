@@ -16,6 +16,7 @@ dependencies:
     path: "../"
   gpt_markdown: ^1.1.7
   http: ^1.6.0
+  responsive_framework: ^1.5.1
 
 dev_dependencies:
   flutter_test:

@@ -1,14 +1,16 @@
 import 'package:flutter/material.dart';
+import 'package:responsive_framework/responsive_framework.dart';
 import 'package:streaming_gen_ui/streaming_gen_ui.dart';
+import 'package:streaming_gen_ui_widget_catalog/core/app_widgets/elastic_button.dart';
 import 'package:streaming_gen_ui_widget_catalog/core/models/widget_catalog_item.dart';
-import 'package:streaming_gen_ui_widget_catalog/core/widget_catalog.dart';
 import 'package:streaming_gen_ui_widget_catalog/pages/catalog_page/catalog_card.dart';
 import 'package:streaming_gen_ui_widget_catalog/pages/catalog_page/catalog_categories.dart';
 import 'package:streaming_gen_ui_widget_catalog/pages/catalog_page/catalog_search_bar.dart';
 import 'package:streaming_gen_ui_widget_catalog/widgets/graph_background.dart';
 
 class CatalogPage extends StatefulWidget {
-  const CatalogPage({super.key});
+  final VoidCallback? onNavigateToChat;
+  const CatalogPage({super.key, this.onNavigateToChat});
 
   @override
   State<CatalogPage> createState() => _CatalogPageState();
@@ -31,6 +33,8 @@ class _CatalogPageState extends State<CatalogPage> {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
+    final isMobile = ResponsiveBreakpoints.of(context).isMobile;
+    final double paddingVal = isMobile ? 16 : 32;
 
     // Derived unique categories from loaded widgets
     final categories = allItems.map((e) => e.displayProvider).toSet();
@@ -51,41 +55,63 @@ class _CatalogPageState extends State<CatalogPage> {
           physics: const AlwaysScrollableScrollPhysics(),
           slivers: [
             SliverPadding(
-              padding: const EdgeInsets.fromLTRB(32, 48, 32, 16),
+              padding: EdgeInsets.fromLTRB(paddingVal, isMobile ? 32 : 48, paddingVal, 16),
               sliver: SliverToBoxAdapter(
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     // 1. Header Section
-                    RichText(
-                      text: TextSpan(
-                        style: TextStyle(
-                          fontSize: 48,
-                          fontWeight: FontWeight.w400,
-                          color: theme.colorScheme.onSurface,
-                          letterSpacing: -0.8,
-                          fontFamily: theme.textTheme.titleLarge?.fontFamily,
-                        ),
-                        children: [
-                          const TextSpan(
-                            text: "Streaming ",
-                            style: TextStyle(fontWeight: FontWeight.w500),
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Expanded(
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              RichText(
+                                text: TextSpan(
+                                  style: TextStyle(
+                                    fontSize: isMobile ? 36 : 48,
+                                    fontWeight: FontWeight.w400,
+                                    color: theme.colorScheme.onSurface,
+                                    letterSpacing: -0.8,
+                                    fontFamily: theme.textTheme.titleLarge?.fontFamily,
+                                  ),
+                                  children: const [
+                                    TextSpan(
+                                      text: "Streaming ",
+                                      style: TextStyle(fontWeight: FontWeight.w500),
+                                    ),
+                                    TextSpan(text: "Generative UI"),
+                                  ],
+                                ),
+                              ),
+                              const SizedBox(height: 6),
+                              Text(
+                                "WIDGET CATALOG",
+                                style: TextStyle(
+                                  fontSize: isMobile ? 14 : 18,
+                                  fontWeight: FontWeight.bold,
+                                  color: theme.colorScheme.onSurfaceVariant.withOpacity(
+                                    0.7,
+                                  ),
+                                  letterSpacing: 2.0,
+                                ),
+                              ),
+                            ],
                           ),
-                          const TextSpan(text: "Generative UI"),
-                        ],
-                      ),
-                    ),
-                    const SizedBox(height: 6),
-                    Text(
-                      "WIDGET CATALOG",
-                      style: TextStyle(
-                        fontSize: 18,
-                        fontWeight: FontWeight.bold,
-                        color: theme.colorScheme.onSurfaceVariant.withOpacity(
-                          0.7,
                         ),
-                        letterSpacing: 2.0,
-                      ),
+                        if (isMobile && widget.onNavigateToChat != null)
+                          Padding(
+                            padding: const EdgeInsets.only(top: 8),
+                            child: ElasticButton(
+                              onPressed: widget.onNavigateToChat!,
+                              icon: const Icon(Icons.chat_bubble_outline_rounded),
+                              label: const Text("Chat"),
+                            ),
+                          ),
+                      ],
                     ),
                     const SizedBox(height: 48),
 
@@ -116,7 +142,7 @@ class _CatalogPageState extends State<CatalogPage> {
 
             // 3. Lazy-Loaded Responsive Sliver Grid
             SliverPadding(
-              padding: const EdgeInsets.symmetric(horizontal: 32),
+              padding: EdgeInsets.symmetric(horizontal: paddingVal),
               sliver: filteredItems.isEmpty
                   ? SliverToBoxAdapter(
                       child: Container(
@@ -134,24 +160,29 @@ class _CatalogPageState extends State<CatalogPage> {
                             Text(
                               "No widgets found matching your criteria",
                               style: TextStyle(
-                                fontSize: 16,
-                                color: theme.colorScheme.onSurfaceVariant
-                                    .withOpacity(0.6),
-                              ),
+                                  fontSize: 16,
+                                  color: theme.colorScheme.onSurfaceVariant
+                                      .withOpacity(0.6)),
                             ),
                           ],
                         ),
                       ),
                     )
                   : SliverGrid.builder(
-                      gridDelegate:
-                          const SliverGridDelegateWithMaxCrossAxisExtent(
-                            maxCrossAxisExtent: 320,
-                            mainAxisExtent: 340,
-                            crossAxisSpacing: 16,
-                            mainAxisSpacing: 16,
-                            childAspectRatio: 1,
-                          ),
+                      gridDelegate: isMobile
+                          ? const SliverGridDelegateWithFixedCrossAxisCount(
+                              crossAxisCount: 2,
+                              mainAxisExtent: 170,
+                              crossAxisSpacing: 12,
+                              mainAxisSpacing: 12,
+                            )
+                          : const SliverGridDelegateWithMaxCrossAxisExtent(
+                              maxCrossAxisExtent: 320,
+                              mainAxisExtent: 340,
+                              crossAxisSpacing: 16,
+                              mainAxisSpacing: 16,
+                              childAspectRatio: 1,
+                            ),
                       itemCount: filteredItems.length,
                       itemBuilder: (context, index) {
                         final item = filteredItems[index];

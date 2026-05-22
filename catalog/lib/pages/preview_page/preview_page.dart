@@ -1366,15 +1366,22 @@ class _PreviewPageState extends State<PreviewPage> {
     return Scaffold(
       body: GraphBackground(
         child: isMobile
-            ? SingleChildScrollView(
-                padding: const EdgeInsets.all(24),
-                child: Column(
-                  children: [
-                    SizedBox(height: 350, child: rightPanel),
-                    const SizedBox(height: 32),
-                    leftPanel,
-                  ],
-                ),
+            ? Column(
+                children: [
+                  SizedBox(
+                    height: 350,
+                    child: Padding(
+                      padding: const EdgeInsets.fromLTRB(16, 16, 16, 0),
+                      child: rightPanel,
+                    ),
+                  ),
+                  Expanded(
+                    child: SingleChildScrollView(
+                      padding: const EdgeInsets.fromLTRB(24, 16, 24, 24),
+                      child: leftPanel,
+                    ),
+                  ),
+                ],
               )
             : Padding(
                 padding: const EdgeInsets.all(24.0),
