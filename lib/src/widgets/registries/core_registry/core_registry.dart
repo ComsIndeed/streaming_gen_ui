@@ -32,6 +32,9 @@ import 'package:streaming_gen_ui/src/widgets/registries/core_registry/streaming_
 import 'package:streaming_gen_ui/src/widgets/registries/core_registry/streaming_stats_grid.dart';
 import 'package:streaming_gen_ui/src/widgets/registries/core_registry/streaming_log_streamer.dart';
 import 'package:streaming_gen_ui/src/widgets/registries/core_registry/streaming_voice_visualizer.dart';
+import 'package:streaming_gen_ui/src/widgets/registries/core_registry/streaming_weather_card.dart';
+import 'package:streaming_gen_ui/src/widgets/registries/core_registry/streaming_product_card.dart';
+import 'package:streaming_gen_ui/src/widgets/registries/core_registry/streaming_crypto_card.dart';
 
 /// The default population database of all standard, built-in widget definitions.
 final Map<String, WidgetDefinition> coreRegistry = {
@@ -294,7 +297,8 @@ final Map<String, WidgetDefinition> coreRegistry = {
 
   "core:slider": WidgetDefinition(
     builder: (context, props) => StreamingSlider(props: props),
-    description: "An interactive slider input that morphs its state when loaded.",
+    description:
+        "An interactive slider input that morphs its state when loaded.",
     properties: {
       "min": "Num (optional minimum value, default 0.0)",
       "max": "Num (optional maximum value, default 100.0)",
@@ -308,7 +312,8 @@ final Map<String, WidgetDefinition> coreRegistry = {
 
   "core:progress_ring": WidgetDefinition(
     builder: (context, props) => StreamingProgressRing(props: props),
-    description: "A premium circular progress ring displaying numeric percentage indicators.",
+    description:
+        "A premium circular progress ring displaying numeric percentage indicators.",
     properties: {
       "value": "Num (the progress percentage, e.g., 0.0 to 1.0 or 0 to 100)",
       "size": "Num (optional circle diameter size, default 80)",
@@ -322,7 +327,8 @@ final Map<String, WidgetDefinition> coreRegistry = {
 
   "core:alert": WidgetDefinition(
     builder: (context, props) => StreamingAlert(props: props),
-    description: "A premium status banner supporting success, warning, error, or info themes.",
+    description:
+        "A premium status banner supporting success, warning, error, or info themes.",
     properties: {
       "title": "String (primary bold status heading)",
       "description": "String (paragraph details text)",
@@ -335,7 +341,8 @@ final Map<String, WidgetDefinition> coreRegistry = {
 
   "core:segmented_control": WidgetDefinition(
     builder: (context, props) => StreamingSegmentedControl(props: props),
-    description: "A sliding choices tab capsule supporting dynamic multi-option selection.",
+    description:
+        "A sliding choices tab capsule supporting dynamic multi-option selection.",
     properties: {
       "options": "List<String> (ordered list of choice tabs)",
       "selected": "String (currently active/selected choice tab)",
@@ -347,7 +354,8 @@ final Map<String, WidgetDefinition> coreRegistry = {
 
   "core:shimmer_button": WidgetDefinition(
     builder: (context, props) => StreamingShimmerButton(props: props),
-    description: "A premium call-to-action button featuring a shiny sweeping linear gradient shimmer when active.",
+    description:
+        "A premium call-to-action button featuring a shiny sweeping linear gradient shimmer when active.",
     properties: {
       "child": "Component (a nested component, usually core:text)",
       "action": "String (the callback action key)",
@@ -358,9 +366,11 @@ final Map<String, WidgetDefinition> coreRegistry = {
 
   "media:3d_stack_carousel": WidgetDefinition(
     builder: (context, props) => StreamingStackCarousel(props: props),
-    description: "A premium 3D stacked card carousel with depth perspective scaling and horizontal swipe navigation.",
+    description:
+        "A premium 3D stacked card carousel with depth perspective scaling and horizontal swipe navigation.",
     properties: {
-      "items": "List<Map> (each item has title, description, and optional color HEX)",
+      "items":
+          "List<Map> (each item has title, description, and optional color HEX)",
     },
     jsonExample:
         '{"namespace":"media:3d_stack_carousel","items":[{"title":"Creative Assistant","description":"Generate creative story concepts, visuals, and dynamic character arcs instantly.","color":"#E0F2FE"},{"title":"Technical Analyzer","description":"Deep-dive codebase logic, run unit tests, and resolve security vulnerabilities.","color":"#F3E8FF"},{"title":"Financial Strategist","description":"Forecast business revenue models, track expenses, and chart growth trends.","color":"#ECFDF5"}]}',
@@ -368,7 +378,8 @@ final Map<String, WidgetDefinition> coreRegistry = {
 
   "core:icon_button_row": WidgetDefinition(
     builder: (context, props) => StreamingIconButtonRow(props: props),
-    description: "A horizontal row toolbar of sequentially revealing tactile icon buttons.",
+    description:
+        "A horizontal row toolbar of sequentially revealing tactile icon buttons.",
     properties: {
       "buttons": "List<Map> (each map has icon, label, and action key)",
     },
@@ -378,7 +389,8 @@ final Map<String, WidgetDefinition> coreRegistry = {
 
   "core:destructive_action_button": WidgetDefinition(
     builder: (context, props) => StreamingDestructiveActionButton(props: props),
-    description: "A secure confirmation-hold operation button for sensitive destructive commands.",
+    description:
+        "A secure confirmation-hold operation button for sensitive destructive commands.",
     properties: {
       "label": "String (text label showing inside button)",
       "action": "String (the command key triggered after holding 2 seconds)",
@@ -388,10 +400,13 @@ final Map<String, WidgetDefinition> coreRegistry = {
   ),
 
   "media:expanding_accordion_carousel": WidgetDefinition(
-    builder: (context, props) => StreamingExpandingAccordionCarousel(props: props),
-    description: "A responsive side-by-side vertical accordion panel column slider.",
+    builder: (context, props) =>
+        StreamingExpandingAccordionCarousel(props: props),
+    description:
+        "A responsive side-by-side vertical accordion panel column slider.",
     properties: {
-      "items": "List<Map> (each map has title, description, and optional color HEX)",
+      "items":
+          "List<Map> (each map has title, description, and optional color HEX)",
     },
     jsonExample:
         '{"namespace":"media:expanding_accordion_carousel","items":[{"title":"Security Shield","description":"Enterprise grade automated guardrails.","color":"#FEF2F2"},{"title":"Performance Peak","description":"High-throughput asynchronous scaling.","color":"#EFF6FF"}]}',
@@ -399,7 +414,8 @@ final Map<String, WidgetDefinition> coreRegistry = {
 
   "media:split_screen_carousel": WidgetDefinition(
     builder: (context, props) => StreamingSplitScreenCarousel(props: props),
-    description: "A dual-viewport card showing sliding images alongside synchronized text panels.",
+    description:
+        "A dual-viewport card showing sliding images alongside synchronized text panels.",
     properties: {
       "slides": "List<Map> (each slide contains image, title, and description)",
     },
@@ -409,7 +425,8 @@ final Map<String, WidgetDefinition> coreRegistry = {
 
   "ui:stepper_counter": WidgetDefinition(
     builder: (context, props) => StreamingStepperCounter(props: props),
-    description: "A capsule numeric selector containing minus and plus bounds controllers.",
+    description:
+        "A capsule numeric selector containing minus and plus bounds controllers.",
     properties: {
       "label": "String (title caption label)",
       "value": "Num (initial value)",
@@ -423,9 +440,11 @@ final Map<String, WidgetDefinition> coreRegistry = {
 
   "ui:timeline_stepper": WidgetDefinition(
     builder: (context, props) => StreamingTimelineStepper(props: props),
-    description: "A horizontal timeline milestones tracker indicating task progress.",
+    description:
+        "A horizontal timeline milestones tracker indicating task progress.",
     properties: {
-      "steps": "List<Map> (each step has label and status: complete, active, pending)",
+      "steps":
+          "List<Map> (each step has label and status: complete, active, pending)",
     },
     jsonExample:
         '{"namespace":"ui:timeline_stepper","steps":[{"label":"Init","status":"complete"},{"label":"Deploy","status":"active"},{"label":"Verify","status":"pending"}]}',
@@ -433,9 +452,11 @@ final Map<String, WidgetDefinition> coreRegistry = {
 
   "ui:stats_grid": WidgetDefinition(
     builder: (context, props) => StreamingStatsGrid(props: props),
-    description: "A grid dashboard displaying rich analytics cards with micro-sparklines.",
+    description:
+        "A grid dashboard displaying rich analytics cards with micro-sparklines.",
     properties: {
-      "metrics": "List<Map> (each metric has label, value, trend, and sparkline list)",
+      "metrics":
+          "List<Map> (each metric has label, value, trend, and sparkline list)",
     },
     jsonExample:
         '{"namespace":"ui:stats_grid","metrics":[{"label":"API Calls","value":"89.4k","trend":"+22.4% vs yesterday","sparkline":[12,24,19,30,45]},{"label":"Error Rate","value":"0.04%","trend":"-5.2% vs yesterday","sparkline":[8,6,7,4,2]}]}',
@@ -443,7 +464,8 @@ final Map<String, WidgetDefinition> coreRegistry = {
 
   "doc:log_streamer": WidgetDefinition(
     builder: (context, props) => StreamingLogStreamer(props: props),
-    description: "A terminal console log viewer emulator with active blinking cursors.",
+    description:
+        "A terminal console log viewer emulator with active blinking cursors.",
     properties: {
       "logs": "List<String> (ordered list of string terminal outputs)",
     },
@@ -453,12 +475,65 @@ final Map<String, WidgetDefinition> coreRegistry = {
 
   "doc:voice_visualizer": WidgetDefinition(
     builder: (context, props) => StreamingVoiceVisualizer(props: props),
-    description: "An animated voice audio waveform card expressing listening state.",
+    description:
+        "An animated voice audio waveform card expressing listening state.",
     properties: {
       "label": "String (listening status message)",
       "active": "Bool (wave pulse trigger)",
     },
     jsonExample:
         '{"namespace":"doc:voice_visualizer","label":"Analyzing voice patterns...","active":true}',
+  ),
+
+  "weather:forecast_card": WidgetDefinition(
+    builder: (context, props) => StreamingWeatherCard(props: props),
+    description:
+        "A premium glassmorphic weather card with condition-based gradients and forecasts.",
+    properties: {
+      "cityName": "String (the name of the city)",
+      "temperature": "String (the current temperature, e.g. 24°C)",
+      "condition": "String (sunny, rainy, cloudy, snowy)",
+      "humidity": "String (the humidity, e.g. 64%)",
+      "windSpeed": "String (the wind speed, e.g. 12 km/h)",
+      "forecast": "List<Map> (3-day forecast items with day, temp, condition)",
+    },
+    jsonExample:
+        '{"namespace":"weather:forecast_card","cityName":"Paris","temperature":"22°C","condition":"cloudy","humidity":"58%","windSpeed":"14 km/h","forecast":[{"day":"Mon","temp":"24°C","condition":"sunny"},{"day":"Tue","temp":"21°C","condition":"rainy"}]}',
+  ),
+
+  "ecommerce:product_card": WidgetDefinition(
+    builder: (context, props) => StreamingProductCard(props: props),
+    description:
+        "A premium product showcase tile with shimmers and rating stars.",
+    properties: {
+      "title": "String (the name of the product)",
+      "description": "String (the item description)",
+      "price": "String (price string, e.g. \$999)",
+      "imageUrl": "String (URL to product image)",
+      "rating": "Num (average rating 1.0-5.0)",
+      "action": "String (action key triggered on click)",
+    },
+    jsonExample:
+        '{"namespace":"ecommerce:product_card","title":"Precision Chrono","description":"Classic styling with premium mechanical accuracy.","price":"\$249","imageUrl":"https://dummyjson.com/images/watch.jpg","rating":4.7,"action":"buy_chrono"}',
+  ),
+
+  "crypto:price_card": WidgetDefinition(
+    builder: (context, props) => StreamingCryptoCard(props: props),
+    description:
+        "A premium dark glassmorphic cryptocurrency ticker card with trend badges and an inline CustomPainter sparkline.",
+    properties: {
+      "symbol": "String (coin symbol, e.g. BTC, ETH, SOL)",
+      "name": "String (full name of the coin, e.g. Bitcoin)",
+      "price": "String (formatted current price, e.g. \$63,245.20)",
+      "change24h":
+          "String (percentage change with sign, e.g. +2.51% or -1.42%)",
+      "isPositive":
+          "Bool (true if the price change is positive, false otherwise)",
+      "high24h": "String (optional high price string)",
+      "low24h": "String (optional low price string)",
+      "sparkline": "List<Double> (numeric list of 24h rolling price trends)",
+    },
+    jsonExample:
+        '{"namespace":"crypto:price_card","symbol":"BTC","name":"Bitcoin","price":"\$63,245.20","change24h":"+2.51%","isPositive":true,"high24h":"\$64,100","low24h":"\$62,800","sparkline":[62.8,63.1,62.9,63.4,64.1,63.2]}',
   ),
 };
