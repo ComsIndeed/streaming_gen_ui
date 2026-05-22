@@ -196,7 +196,6 @@ void ensureGlobalErrorBuilderInitialized() {
     final detailsString = details.toString();
     final isGenUi = detailsString.contains('StreamingWidget') ||
                     detailsString.contains('WidgetBlock') ||
-                    detailsString.contains('streaming_gen_ui') ||
                     activeBuildNamespace != 'Unknown';
 
     if (isGenUi) {
