@@ -780,9 +780,10 @@ class _ChatConsoleInputState extends State<ChatConsoleInput> {
                               decoration: const InputDecoration(
                                 hintText: 'Talk to AI',
                                 border: InputBorder.none,
+                                isDense: true,
                                 contentPadding: EdgeInsets.symmetric(
                                   horizontal: 12,
-                                  vertical: 12,
+                                  vertical: 8,
                                 ),
                               ),
                             ),

@@ -51,8 +51,10 @@ class _CatalogSearchBarState extends State<CatalogSearchBar> {
       child: TextField(
         controller: _controller,
         onChanged: widget.onChanged,
+        textAlignVertical: TextAlignVertical.center,
         decoration: InputDecoration(
           hintText: "Search widgets...",
+          isDense: true,
           hintStyle: TextStyle(
             color: theme.colorScheme.onSurfaceVariant.withOpacity(0.5),
             fontSize: 14,
@@ -74,7 +76,7 @@ class _CatalogSearchBarState extends State<CatalogSearchBar> {
           border: InputBorder.none,
           contentPadding: const EdgeInsets.symmetric(
             horizontal: 16,
-            vertical: 12,
+            vertical: 10,
           ),
         ),
         style: const TextStyle(fontSize: 14),
