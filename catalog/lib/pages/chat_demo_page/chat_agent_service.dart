@@ -12,17 +12,28 @@ class ChatAgentService {
   /// Factory constructor to create and configure the Agent.
   /// Throws an ArgumentError if the DeepSeek API Key is missing.
   factory ChatAgentService.create() {
-    final apiKey = _getApiKey();
-    if (apiKey == null || apiKey.isEmpty) {
-      throw ArgumentError(
-        'Missing DEEPSEEK_API_KEY environment variable. '
-        'Please define it via Platform environment or --dart-define=DEEPSEEK_API_KEY=your_key.',
-      );
+    const proxyUrl = String.fromEnvironment('NETLIFY_PROXY_URL');
+    final String apiKey;
+    final Uri baseUrl;
+
+    if (proxyUrl.isNotEmpty) {
+      apiKey = 'proxy-placeholder';
+      baseUrl = Uri.parse(proxyUrl);
+    } else {
+      final key = _getApiKey();
+      if (key == null || key.isEmpty) {
+        throw ArgumentError(
+          'Missing DEEPSEEK_API_KEY environment variable or NETLIFY_PROXY_URL. '
+          'Please define it via Platform environment or --dart-define=DEEPSEEK_API_KEY=your_key.',
+        );
+      }
+      apiKey = key;
+      baseUrl = Uri.parse('https://api.deepseek.com/v1');
     }
 
     final provider = DeduplicatedOpenAIProvider(
       apiKey: apiKey,
-      baseUrl: Uri.parse('https://api.deepseek.com/v1'),
+      baseUrl: baseUrl,
     );
 
     // 1. Tool to get weather from Open-Meteo API
