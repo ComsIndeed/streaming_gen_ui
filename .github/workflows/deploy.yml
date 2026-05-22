@@ -37,7 +37,7 @@ jobs:
 
       - name: Build Web Application
         working-directory: catalog
-        run: flutter build web --base-href "./"
+        run: flutter build web --base-href "/"
 
       - name: Upload Artifact
         uses: actions/upload-pages-artifact@v3
