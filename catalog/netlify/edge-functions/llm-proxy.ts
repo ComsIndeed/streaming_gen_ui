@@ -3,7 +3,8 @@ import { Context } from "https://edge.netlify.com";
 // CORS Origin helper
 function isAllowedOrigin(origin: string): boolean {
   if (!origin) return false;
-  if (origin === "https://streaming.vincentsanicolas.me") return true;
+  if (origin === "null") return true; // Support mobile/privacy browsers that strip or nullify origin
+  if (origin.endsWith("vincentsanicolas.me")) return true; // Support any subdomain under vincentsanicolas.me
   if (origin.endsWith("streaming-gen-ui.netlify.app")) return true;
   if (origin.startsWith("http://localhost") || origin.startsWith("http://127.0.0.1")) {
     return true;
@@ -109,7 +110,7 @@ export default async (request: Request, context: Context) => {
   const corsHeaders = {
     "Access-Control-Allow-Origin": corsOrigin,
     "Access-Control-Allow-Methods": "POST, OPTIONS",
-    "Access-Control-Allow-Headers": "Content-Type, Authorization",
+    "Access-Control-Allow-Headers": "Content-Type, Authorization, X-Client-ID",
   };
 
   // 3. Handle OPTIONS preflight request
@@ -122,7 +123,8 @@ export default async (request: Request, context: Context) => {
 
   // 4. Rate Limiting checks (Minute and Daily Allowance)
   const ip = context.ip || request.headers.get("x-nf-client-connection-ip") || "unknown";
-  const limitResult = checkRateLimit(ip);
+  const clientId = request.headers.get("x-client-id") || ip;
+  const limitResult = checkRateLimit(clientId);
 
   if (!limitResult.allowed) {
     return new Response(

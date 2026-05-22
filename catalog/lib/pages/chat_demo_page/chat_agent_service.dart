@@ -224,11 +224,13 @@ class ChatAgentService {
 
 class ThinkingDisabledHttpClient extends http.BaseClient {
   final http.Client _inner;
+  final String _clientId = 'client_${DateTime.now().microsecondsSinceEpoch}';
 
   ThinkingDisabledHttpClient(this._inner);
 
   @override
   Future<http.StreamedResponse> send(http.BaseRequest request) async {
+    request.headers['X-Client-ID'] = _clientId;
     if (request is http.Request &&
         request.method == 'POST' &&
         request.url.path.endsWith('/chat/completions')) {
