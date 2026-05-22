@@ -59,78 +59,145 @@ class _StreamingErrorWidgetState extends State<StreamingErrorWidget> with Single
       }
     }
 
-    final isDark = Theme.of(context).brightness == Brightness.dark;
+    const bsodBlue = Color(0xFF003FAD); // Royal Windows-style BSOD Blue
+    const stripeYellow = Color(0xFFFFCC00); // Construction Yellow
+    const stripeBlack = Color(0xFF1E1E1E); // Construction Charcoal
 
     return FadeTransition(
       opacity: _fadeAnimation,
       child: ScaleTransition(
         scale: _scaleAnimation,
         child: Container(
-          margin: const EdgeInsets.symmetric(vertical: 6, horizontal: 2),
+          margin: const EdgeInsets.symmetric(vertical: 8, horizontal: 2),
           constraints: const BoxConstraints(
             maxWidth: 650, // Prevents expanding infinitely horizontally
           ),
           decoration: BoxDecoration(
-            // Soft orange glaze background
-            color: isDark ? const Color(0x1AFF9800) : const Color(0x0DFF9800),
-            border: const Border(
-              left: BorderSide(
-                color: Color(0xFFFF9800), // Vibrant Orange Accent
-                width: 4,
+            color: bsodBlue,
+            borderRadius: BorderRadius.circular(8),
+            boxShadow: [
+              BoxShadow(
+                color: Colors.black.withOpacity(0.3),
+                blurRadius: 10,
+                offset: const Offset(0, 4),
               ),
-            ),
-            borderRadius: const BorderRadius.only(
-              topRight: Radius.circular(8),
-              bottomRight: Radius.circular(8),
-            ),
+            ],
           ),
-          padding: const EdgeInsets.all(12),
+          clipBehavior: Clip.antiAlias, // Clips the custom stripes to rounded corners
           child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
+            crossAxisAlignment: CrossAxisAlignment.stretch,
             mainAxisSize: MainAxisSize.min, // Contained vertically
             children: [
-              Row(
-                children: [
-                  const Icon(
-                    Icons.warning_amber_rounded,
-                    color: Color(0xFFFF9800),
-                    size: 18,
+              // Top Hazard striped banner
+              const SizedBox(
+                height: 10,
+                child: CustomPaint(
+                  painter: HazardStripesPainter(
+                    color1: stripeYellow,
+                    color2: stripeBlack,
+                    stripeWidth: 8,
                   ),
-                  const SizedBox(width: 8),
-                  Text(
-                    'GENERATIVE_UI_FAULT',
-                    style: TextStyle(
-                      color: const Color(0xFFFF9800),
-                      fontWeight: FontWeight.bold,
-                      letterSpacing: 1.2,
-                      fontFamily: 'monospace',
-                      fontSize: 11,
-                    ),
-                  ),
-                ],
-              ),
-              const SizedBox(height: 8),
-              // Enforce containment with constraints on the stack details
-              ConstrainedBox(
-                constraints: const BoxConstraints(
-                  maxHeight: 180, // Absolute containment: scroll if it exceeds this
                 ),
-                child: Scrollbar(
-                  thumbVisibility: true,
-                  child: SingleChildScrollView(
-                    physics: const BouncingScrollPhysics(),
-                    child: Padding(
-                      padding: const EdgeInsets.only(right: 8.0),
-                      child: Text(
-                        widget.error,
-                        style: TextStyle(
-                          color: isDark ? const Color(0xFFFFCC80) : const Color(0xFFE65100),
-                          fontFamily: 'monospace',
-                          fontSize: 10,
-                          height: 1.4,
+              ),
+              Padding(
+                padding: const EdgeInsets.fromLTRB(16, 12, 16, 12),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Row(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        const Text(
+                          ':(',
+                          style: TextStyle(
+                            color: Colors.white,
+                            fontSize: 32,
+                            fontWeight: FontWeight.bold,
+                            fontFamily: 'monospace',
+                          ),
+                        ),
+                        const SizedBox(width: 16),
+                        Expanded(
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              const Text(
+                                'DYNAMIC_SUBTREE_FAULT',
+                                style: TextStyle(
+                                  color: Colors.white,
+                                  fontWeight: FontWeight.bold,
+                                  fontSize: 11,
+                                  letterSpacing: 1.5,
+                                  fontFamily: 'monospace',
+                                ),
+                              ),
+                              const SizedBox(height: 4),
+                              Text(
+                                'A rendering or state exception occurred inside a dynamic streaming widget. This is a isolated generative UI fault, not a host app UI crash.',
+                                style: TextStyle(
+                                  color: Colors.white.withOpacity(0.8),
+                                  fontSize: 10,
+                                  height: 1.3,
+                                  fontFamily: 'monospace',
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: 12),
+                    Container(
+                      height: 1,
+                      color: Colors.white.withOpacity(0.2),
+                    ),
+                    const SizedBox(height: 12),
+                    const Text(
+                      'ERROR DETAILS:',
+                      style: TextStyle(
+                        color: Color(0xFF8BE9FD), // Light Cyan terminal color
+                        fontSize: 9,
+                        fontWeight: FontWeight.bold,
+                        letterSpacing: 1.0,
+                        fontFamily: 'monospace',
+                      ),
+                    ),
+                    const SizedBox(height: 6),
+                    // Enforce containment with constraints on the stack details
+                    ConstrainedBox(
+                      constraints: const BoxConstraints(
+                        maxHeight: 180, // Absolute containment: scroll if it exceeds this
+                      ),
+                      child: Scrollbar(
+                        thumbVisibility: true,
+                        child: SingleChildScrollView(
+                          physics: const BouncingScrollPhysics(),
+                          child: Padding(
+                            padding: const EdgeInsets.only(right: 8.0),
+                            child: Text(
+                              widget.error,
+                              style: const TextStyle(
+                                color: Colors.white,
+                                fontFamily: 'monospace',
+                                fontSize: 10,
+                                height: 1.4,
+                              ),
+                            ),
+                          ),
                         ),
                       ),
                     ),
+                  ],
+                ),
+              ),
+              // Bottom Hazard striped banner to frame it nicely
+              const SizedBox(
+                height: 6,
+                child: CustomPaint(
+                  painter: HazardStripesPainter(
+                    color1: stripeYellow,
+                    color2: stripeBlack,
+                    stripeWidth: 6,
                   ),
                 ),
               ),
@@ -219,3 +286,50 @@ void ensureGlobalErrorBuilderInitialized() {
     return originalBuilder(details);
   };
 }
+
+/// A custom painter that draws alternating diagonal safety warning stripes (hazard tape pattern).
+class HazardStripesPainter extends CustomPainter {
+  final Color color1;
+  final Color color2;
+  final double stripeWidth;
+
+  const HazardStripesPainter({
+    required this.color1,
+    required this.color2,
+    this.stripeWidth = 10.0,
+  });
+
+  @override
+  void paint(Canvas canvas, Size size) {
+    final paint = Paint()..style = PaintingStyle.fill;
+    final double width = size.width;
+    final double height = size.height;
+
+    // Draw background color1
+    paint.color = color1;
+    canvas.drawRect(Rect.fromLTWH(0, 0, width, height), paint);
+
+    // Draw diagonal stripes of color2
+    paint.color = color2;
+    paint.strokeWidth = stripeWidth;
+    paint.style = PaintingStyle.stroke;
+
+    final double step = stripeWidth * 2;
+    // Draw diagonal lines from top-left to bottom-right (tilted at 45 degrees)
+    for (double x = -height; x < width + height; x += step) {
+      canvas.drawLine(
+        Offset(x, 0),
+        Offset(x + height, height),
+        paint,
+      );
+    }
+  }
+
+  @override
+  bool shouldRepaint(covariant HazardStripesPainter oldDelegate) {
+    return color1 != oldDelegate.color1 ||
+        color2 != oldDelegate.color2 ||
+        stripeWidth != oldDelegate.stripeWidth;
+  }
+}
+
