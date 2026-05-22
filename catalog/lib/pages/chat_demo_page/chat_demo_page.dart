@@ -157,7 +157,7 @@ class _ChatDemoPageState extends State<ChatDemoPage> {
     return BlocListener<ChatDemoCubit, ChatDemoState>(
       listener: (context, state) {
         final isCanvasExpanded = state.canvasMode != CanvasMode.hidden;
-        if (isCanvasExpanded) {
+        if (isMobile && isCanvasExpanded) {
           if (!_isCanvasBottomSheetOpen) {
             _showCanvasBottomSheet(context);
           }
@@ -171,38 +171,48 @@ class _ChatDemoPageState extends State<ChatDemoPage> {
       child: BlocBuilder<ChatDemoCubit, ChatDemoState>(
         builder: (context, state) {
           final isChatExpanded = state.textBoxMode != TextBoxMode.textfield;
+          final isCanvasExpanded = state.canvasMode != CanvasMode.hidden;
+          final showRightPanel = !isMobile && isCanvasExpanded;
 
           return Scaffold(
             body: GraphBackground(
               child: SafeArea(
                 child: Stack(
                   children: [
-                    // Chat conversation space
-                    Padding(
-                      padding: const EdgeInsets.fromLTRB(16, 16, 16, 0),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          _buildHeader(context, theme),
-                          const SizedBox(height: 24),
-                          Expanded(
+                    // Horizontal Split View (left chat conversation, right sliding canvas preview)
+                    Row(
+                      children: [
+                        Expanded(
+                          child: Padding(
+                            padding: const EdgeInsets.fromLTRB(16, 16, 16, 0),
                             child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
-                                _buildErrorBanner(context, theme, state),
+                                _buildHeader(context, theme),
+                                const SizedBox(height: 24),
                                 Expanded(
-                                  child: _buildMessageList(
-                                    context,
-                                    theme,
-                                    state,
-                                    _controller,
-                                    _focusNode,
+                                  child: Column(
+                                    children: [
+                                      _buildErrorBanner(context, theme, state),
+                                      Expanded(
+                                        child: _buildMessageList(
+                                          context,
+                                          theme,
+                                          state,
+                                          _controller,
+                                          _focusNode,
+                                        ),
+                                      ),
+                                    ],
                                   ),
                                 ),
                               ],
                             ),
                           ),
-                        ],
-                      ),
+                        ),
+                        if (showRightPanel)
+                          _buildCanvasPanel(context, theme, state, sizes),
+                      ],
                     ),
 
                     // User's exact custom animated chat textfield console
@@ -216,11 +226,12 @@ class _ChatDemoPageState extends State<ChatDemoPage> {
                           bottom: isMobile
                               ? (isChatExpanded ? 8.0 : 12.0)
                               : (isChatExpanded ? 16.0 : 28.0),
+                          right: showRightPanel ? sizes.width * 0.6 : 0,
                         ),
                         curve: Curves.easeOut,
                         child: ChatConsoleInput(
                           isChatExpanded: isChatExpanded,
-                          isCanvasExpanded: false,
+                          isCanvasExpanded: showRightPanel,
                           sizes: sizes,
                           controller: _controller,
                           focusNode: _focusNode,
@@ -233,6 +244,103 @@ class _ChatDemoPageState extends State<ChatDemoPage> {
             ),
           );
         },
+      ),
+    );
+  }
+
+  /// Renders the bento canvas panel that dynamically expands/shrinks
+  Widget _buildCanvasPanel(
+    BuildContext context,
+    ThemeData theme,
+    ChatDemoState state,
+    Size sizes,
+  ) {
+    final isCanvasExpanded = state.canvasMode != CanvasMode.hidden;
+    return AnimatedContainer(
+      duration: const Duration(milliseconds: 400),
+      curve: Curves.easeInOutCubicEmphasized,
+      width: isCanvasExpanded ? sizes.width * 0.6 : 0,
+      height: double.infinity,
+      margin: isCanvasExpanded
+          ? const EdgeInsets.fromLTRB(0, 16, 16, 16)
+          : EdgeInsets.zero,
+      clipBehavior: Clip.antiAlias,
+      decoration: BoxDecoration(
+        borderRadius: BorderRadius.circular(24),
+        border: Border.all(
+          color: theme.colorScheme.outline.withOpacity(0.1),
+          width: isCanvasExpanded ? 1.0 : 0.0,
+        ),
+        color: theme.colorScheme.surfaceContainerLow.withOpacity(0.95),
+      ),
+      child: LayoutBuilder(
+        builder: (context, constraints) {
+          return OverflowBox(
+            alignment: Alignment.topRight,
+            minWidth: sizes.width * 0.6,
+            maxWidth: sizes.width * 0.6,
+            minHeight: constraints.maxHeight,
+            maxHeight: constraints.maxHeight,
+            child: _buildCanvasContent(context, theme),
+          );
+        },
+      ),
+    );
+  }
+
+  Widget _buildCanvasContent(BuildContext context, ThemeData theme) {
+    final cubit = context.read<ChatDemoCubit>();
+    return Padding(
+      padding: const EdgeInsets.all(24.0),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Row(
+                children: [
+                  Icon(
+                    Icons.dashboard_customize_rounded,
+                    color: theme.colorScheme.primary,
+                    size: 22,
+                  ),
+                  const SizedBox(width: 10),
+                  const Text(
+                    "Canvas Preview",
+                    style: TextStyle(
+                      fontWeight: FontWeight.bold,
+                      fontSize: 18,
+                    ),
+                  ),
+                ],
+              ),
+              IconButton.filledTonal(
+                icon: const Icon(Icons.close_rounded, size: 20),
+                onPressed: () {
+                  context.read<ChatDemoCubit>().setCanvasMode(
+                    CanvasMode.hidden,
+                  );
+                },
+              ),
+            ],
+          ),
+          const SizedBox(height: 20),
+          Expanded(
+            child: SingleChildScrollView(
+              physics: const BouncingScrollPhysics(),
+              child: ListenableBuilder(
+                listenable: cubit.generativeUi,
+                builder: (context, _) {
+                  return cubit.generativeUi.view(
+                    'canvas-ui',
+                    textBlockBuilder: (context, text) => GptMarkdown(text),
+                  );
+                },
+              ),
+            ),
+          ),
+        ],
       ),
     );
   }
