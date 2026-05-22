@@ -21,6 +21,8 @@ class PropertyEditable extends StatefulWidget {
 
 class _PropertyEditableState extends State<PropertyEditable> {
   bool _useRawJson = false;
+  final Map<String, TextEditingController> _subControllers = {};
+  final Set<String> _accessedKeys = {};
 
   Object? get decodedValue {
     try {
@@ -35,7 +37,47 @@ class _PropertyEditableState extends State<PropertyEditable> {
   }
 
   @override
+  void dispose() {
+    for (final controller in _subControllers.values) {
+      controller.dispose();
+    }
+    super.dispose();
+  }
+
+  @override
+  void didUpdateWidget(PropertyEditable oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (oldWidget.propertyKey != widget.propertyKey ||
+        oldWidget.catalogItem != widget.catalogItem) {
+      for (final controller in _subControllers.values) {
+        controller.dispose();
+      }
+      _subControllers.clear();
+    }
+  }
+
+  TextEditingController _getOrCreateController(String key, String initialText) {
+    _accessedKeys.add(key);
+    if (_subControllers.containsKey(key)) {
+      final controller = _subControllers[key]!;
+      if (controller.text != initialText) {
+        final selection = controller.selection;
+        controller.text = initialText;
+        if (selection.baseOffset <= initialText.length && selection.extentOffset <= initialText.length) {
+          controller.selection = selection;
+        }
+      }
+      return controller;
+    } else {
+      final controller = TextEditingController(text: initialText);
+      _subControllers[key] = controller;
+      return controller;
+    }
+  }
+
+  @override
   Widget build(BuildContext context) {
+    _accessedKeys.clear();
     final theme = Theme.of(context);
     final propertyDesc = widget.catalogItem.widgetDefinition.properties[widget.propertyKey] ?? "";
     final value = decodedValue;
@@ -43,7 +85,7 @@ class _PropertyEditableState extends State<PropertyEditable> {
     // Detect if this is a color property
     final isColorKey = widget.propertyKey.toLowerCase().contains("color");
 
-    return Container(
+    final result = Container(
       margin: const EdgeInsets.only(bottom: 20),
       padding: const EdgeInsets.all(16),
       decoration: ShapeDecoration(
@@ -121,6 +163,14 @@ class _PropertyEditableState extends State<PropertyEditable> {
         ],
       ),
     );
+
+    // Prune unused controllers
+    final unusedKeys = _subControllers.keys.where((k) => !_accessedKeys.contains(k)).toList();
+    for (final key in unusedKeys) {
+      _subControllers.remove(key)?.dispose();
+    }
+
+    return result;
   }
 
   // --- EDITOR UI BUILDERS ---
@@ -202,8 +252,9 @@ class _PropertyEditableState extends State<PropertyEditable> {
                   borderRadius: BorderRadius.circular(12),
                 ),
               ),
-              controller: TextEditingController(
-                text: map["content"] as String? ?? "",
+              controller: _getOrCreateController(
+                "map_nested_content",
+                map["content"] as String? ?? "",
               ),
               onChanged: (text) {
                 map["content"] = text;
@@ -219,8 +270,9 @@ class _PropertyEditableState extends State<PropertyEditable> {
                   borderRadius: BorderRadius.circular(12),
                 ),
               ),
-              controller: TextEditingController(
-                text: map["label"] as String? ?? "",
+              controller: _getOrCreateController(
+                "map_nested_label",
+                map["label"] as String? ?? "",
               ),
               onChanged: (text) {
                 map["label"] = text;
@@ -278,7 +330,7 @@ class _PropertyEditableState extends State<PropertyEditable> {
                           borderRadius: BorderRadius.circular(12),
                         ),
                       ),
-                      controller: TextEditingController(text: key),
+                      controller: _getOrCreateController("map_key_${entry.key}", key),
                       onChanged: (newKey) {
                         if (newKey.trim().isNotEmpty && newKey != key) {
                           final newMap = <String, dynamic>{};
@@ -304,7 +356,7 @@ class _PropertyEditableState extends State<PropertyEditable> {
                           borderRadius: BorderRadius.circular(12),
                         ),
                       ),
-                      controller: TextEditingController(text: val.toString()),
+                      controller: _getOrCreateController("map_val_${entry.key}", val.toString()),
                       onChanged: (newVal) {
                         map[key] = newVal;
                         _updateValue(map);
@@ -525,7 +577,7 @@ class _PropertyEditableState extends State<PropertyEditable> {
         border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
         contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
       ),
-      controller: TextEditingController(text: displayText),
+      controller: _getOrCreateController("standard_string", displayText),
       onChanged: (text) => _updateValue(text),
     );
   }
@@ -563,7 +615,7 @@ class _PropertyEditableState extends State<PropertyEditable> {
                             hintText: "Step Title",
                             border: InputBorder.none,
                           ),
-                          controller: TextEditingController(text: title),
+                          controller: _getOrCreateController("step_title_$index", title),
                           onChanged: (val) {
                             stepsList[index]["title"] = val;
                             _updateValue(stepsList);
@@ -595,7 +647,7 @@ class _PropertyEditableState extends State<PropertyEditable> {
                                   hintText: "Duration (e.g. 140ms)",
                                   border: InputBorder.none,
                                 ),
-                                controller: TextEditingController(text: duration),
+                                controller: _getOrCreateController("step_duration_$index", duration),
                                 onChanged: (val) {
                                   stepsList[index]["duration"] = val;
                                   _updateValue(stepsList);
@@ -657,7 +709,7 @@ class _PropertyEditableState extends State<PropertyEditable> {
                       border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
                       contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
                     ),
-                    controller: TextEditingController(text: item),
+                    controller: _getOrCreateController("list_$index", item),
                     onChanged: (val) {
                       stringList[index] = val;
                       _updateValue(stringList);
