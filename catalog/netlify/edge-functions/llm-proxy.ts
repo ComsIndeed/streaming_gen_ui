@@ -4,55 +4,87 @@ import { Context } from "https://edge.netlify.com";
 function isAllowedOrigin(origin: string): boolean {
   if (!origin) return false;
   if (origin === "https://streaming.vincentsanicolas.me") return true;
+  if (origin.endsWith("streaming-gen-ui.netlify.app")) return true;
   if (origin.startsWith("http://localhost") || origin.startsWith("http://127.0.0.1")) {
     return true;
   }
   return false;
 }
 
-// In-memory rate limiting map and settings
+// In-memory rate limiting maps
 const rateLimitMap = new Map<string, { count: number; resetTime: number }>();
+const dailyLimitMap = new Map<string, { count: number; resetTime: number }>();
+
 const RATE_LIMIT_COUNT = 15; // Max 15 requests per minute
 const RATE_LIMIT_WINDOW_MS = 60 * 1000; // 1 minute
 
-function cleanRateLimitMap() {
+const DAILY_LIMIT_COUNT = 60; // 60 requests per day (daily allowance)
+const DAILY_LIMIT_WINDOW_MS = 24 * 60 * 60 * 1000; // 24 hours
+
+function cleanMaps() {
   const now = Date.now();
   for (const [key, value] of rateLimitMap.entries()) {
     if (now > value.resetTime) {
       rateLimitMap.delete(key);
     }
   }
+  for (const [key, value] of dailyLimitMap.entries()) {
+    if (now > value.resetTime) {
+      dailyLimitMap.delete(key);
+    }
+  }
 }
 
-function handleRateLimit(ip: string) {
-  cleanRateLimitMap();
+function checkRateLimit(ip: string) {
+  cleanMaps();
   const now = Date.now();
-  const data = rateLimitMap.get(ip);
 
-  if (!data || now > data.resetTime) {
-    const resetTime = now + RATE_LIMIT_WINDOW_MS;
-    rateLimitMap.set(ip, { count: 1, resetTime });
-    return {
-      allowed: true,
-      remaining: RATE_LIMIT_COUNT - 1,
-      reset: Math.ceil(RATE_LIMIT_WINDOW_MS / 1000),
-    };
+  // 1. Minute Limit check
+  let minData = rateLimitMap.get(ip);
+  if (!minData || now > minData.resetTime) {
+    minData = { count: 0, resetTime: now + RATE_LIMIT_WINDOW_MS };
+    rateLimitMap.set(ip, minData);
   }
 
-  if (data.count >= RATE_LIMIT_COUNT) {
+  // 2. Daily Limit check
+  let dailyData = dailyLimitMap.get(ip);
+  if (!dailyData || now > dailyData.resetTime) {
+    dailyData = { count: 0, resetTime: now + DAILY_LIMIT_WINDOW_MS };
+    dailyLimitMap.set(ip, dailyData);
+  }
+
+  const minReset = Math.ceil((minData.resetTime - now) / 1000);
+  const dailyResetHours = Math.ceil((dailyData.resetTime - now) / (60 * 60 * 1000));
+
+  const headers = {
+    "X-RateLimit-Limit": String(RATE_LIMIT_COUNT),
+    "X-RateLimit-Remaining": String(Math.max(0, RATE_LIMIT_COUNT - minData.count - 1)),
+    "X-RateLimit-Reset": String(minReset),
+    "X-DailyLimit-Limit": String(DAILY_LIMIT_COUNT),
+    "X-DailyLimit-Remaining": String(Math.max(0, DAILY_LIMIT_COUNT - dailyData.count - 1)),
+    "X-DailyLimit-Reset-Hours": String(dailyResetHours),
+  };
+
+  if (minData.count >= RATE_LIMIT_COUNT) {
     return {
       allowed: false,
-      remaining: 0,
-      reset: Math.ceil((data.resetTime - now) / 1000),
+      reason: `Too many requests. Please try again in ${minReset} seconds.`,
+      headers,
     };
   }
 
-  data.count++;
-  return {
-    allowed: true,
-    remaining: RATE_LIMIT_COUNT - data.count,
-    reset: Math.ceil((data.resetTime - now) / 1000),
-  };
+  if (dailyData.count >= DAILY_LIMIT_COUNT) {
+    return {
+      allowed: false,
+      reason: `Daily prompt limit reached (${DAILY_LIMIT_COUNT} prompts/day). Reset in ${dailyResetHours} hours.`,
+      headers,
+    };
+  }
+
+  minData.count++;
+  dailyData.count++;
+
+  return { allowed: true, headers };
 }
 
 export default async (request: Request, context: Context) => {
@@ -88,55 +120,88 @@ export default async (request: Request, context: Context) => {
     });
   }
 
-  // 4. Rate Limiting check
+  // 4. Rate Limiting checks (Minute and Daily Allowance)
   const ip = context.ip || request.headers.get("x-nf-client-connection-ip") || "unknown";
-  const limitResult = handleRateLimit(ip);
-
-  const rateLimitHeaders = {
-    "X-RateLimit-Limit": String(RATE_LIMIT_COUNT),
-    "X-RateLimit-Remaining": String(limitResult.remaining),
-    "X-RateLimit-Reset": String(limitResult.reset),
-  };
+  const limitResult = checkRateLimit(ip);
 
   if (!limitResult.allowed) {
     return new Response(
-      JSON.stringify({ error: "Too many requests. Please try again in a minute." }),
+      JSON.stringify({ error: limitResult.reason }),
       {
         status: 429,
         headers: {
           "Content-Type": "application/json",
-          "Retry-After": String(limitResult.reset),
           ...corsHeaders,
-          ...rateLimitHeaders,
+          ...limitResult.headers,
         },
       }
     );
   }
 
-  const apiKey = Deno.env.get("DEEPSEEK_API_KEY");
+  // Parse and prepare LLM Endpoint / Credentials
+  let requestBody = await request.text();
+
+  // Guard against massive chat history size (chats way too big)
+  // 40,000 characters is roughly 10,000 tokens of input
+  if (requestBody.length > 40000) {
+    return new Response(
+      JSON.stringify({ error: "Chat history size is too large (exceeds safe limits)." }),
+      {
+        status: 400,
+        headers: {
+          "Content-Type": "application/json",
+          ...corsHeaders,
+          ...limitResult.headers,
+        },
+      }
+    );
+  }
+
+  let targetUrl = "https://api.deepseek.com/v1/chat/completions";
+  let targetApiKey = Deno.env.get("DEEPSEEK_API_KEY");
+  let isGroq = false;
+  let requestedModel = "deepseek-v4-flash";
+
+  try {
+    const bodyObj = JSON.parse(requestBody);
+    if (bodyObj.model) {
+      requestedModel = bodyObj.model;
+      if (bodyObj.model.includes("llama") || bodyObj.model.includes("groq")) {
+        targetUrl = "https://api.groq.com/openai/v1/chat/completions";
+        targetApiKey = Deno.env.get("GROQ_API_KEY");
+        isGroq = true;
+        bodyObj.model = "llama-3.1-8b-instant";
+      }
+    }
+    // Limit output generation to 4096 tokens max to protect budget from loops
+    bodyObj.max_tokens = Math.min(bodyObj.max_tokens || 4096, 4096);
+    requestBody = JSON.stringify(bodyObj);
+  } catch (_) {
+    // Fallback if requestBody is not valid JSON
+  }
+
+  const apiKey = targetApiKey;
   const discordWebhookUrl = Deno.env.get("DISCORD_WEBHOOK_URL");
 
   if (!apiKey) {
+    const providerName = isGroq ? "GROQ" : "DEEPSEEK";
     return new Response(
       JSON.stringify({
-        error: "DEEPSEEK_API_KEY environment variable is not defined on Netlify.",
+        error: `${providerName}_API_KEY environment variable is not defined on Netlify.`,
       }),
       {
         status: 500,
         headers: {
           "Content-Type": "application/json",
           ...corsHeaders,
-          ...rateLimitHeaders,
+          ...limitResult.headers,
         },
       },
     );
   }
 
-  // Clone request body to forward
-  const requestBody = await request.text();
-
-  // Forward the request to DeepSeek API
-  const llmResponse = await fetch("https://api.deepseek.com/v1/chat/completions", {
+  // Forward the request to the target API
+  const llmResponse = await fetch(targetUrl, {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
@@ -153,12 +218,12 @@ export default async (request: Request, context: Context) => {
       headers: {
         "Content-Type": "application/json",
         ...corsHeaders,
-        ...rateLimitHeaders,
+        ...limitResult.headers,
       },
     });
   }
 
-  // Stream interceptor to extract usage metadata without blocking response
+  // Stream interceptor to extract usage metadata and guard against stuck infinite loops
   const reader = llmResponse.body?.getReader();
   if (!reader) {
     return llmResponse;
@@ -166,6 +231,10 @@ export default async (request: Request, context: Context) => {
 
   const textDecoder = new TextDecoder();
   let accumulatedText = "";
+  let accumulatedOutputLength = 0;
+  
+  // Guard: Stop infinite loop outputs (max 32,000 characters streamed ~ 8,000 tokens)
+  const MAX_OUTPUT_CHARS = 32000;
 
   const stream = new ReadableStream({
     async start(controller) {
@@ -175,6 +244,15 @@ export default async (request: Request, context: Context) => {
           if (done) {
             break;
           }
+          
+          accumulatedOutputLength += value.length;
+          if (accumulatedOutputLength > MAX_OUTPUT_CHARS) {
+            // Cut off the response stream forcefully to prevent infinite loops
+            console.warn(`[Proxy Warning] Output stream exceeded character limit (${MAX_OUTPUT_CHARS}). Force closing.`);
+            controller.close();
+            break;
+          }
+
           controller.enqueue(value);
 
           // Accumulate SSE chunks for parsing usage data
@@ -182,10 +260,12 @@ export default async (request: Request, context: Context) => {
           accumulatedText += chunkStr;
         }
 
-        controller.close();
+        if (accumulatedOutputLength <= MAX_OUTPUT_CHARS) {
+          controller.close();
+        }
 
         // Process token usage statistics asynchronously in the background
-        processMetadata(accumulatedText, discordWebhookUrl).catch((err) => {
+        processMetadata(accumulatedText, requestedModel, discordWebhookUrl).catch((err) => {
           console.error("Error processing metadata or sending to Discord:", err);
         });
       } catch (error) {
@@ -200,12 +280,12 @@ export default async (request: Request, context: Context) => {
       "Cache-Control": "no-cache",
       "Connection": "keep-alive",
       ...corsHeaders,
-      ...rateLimitHeaders,
+      ...limitResult.headers,
     },
   });
 };
 
-async function processMetadata(accumulatedText: string, webhookUrl?: string) {
+async function processMetadata(accumulatedText: string, modelName: string, webhookUrl?: string) {
   const lines = accumulatedText.split("\n");
   let promptTokens = 0;
   let completionTokens = 0;
@@ -233,22 +313,27 @@ async function processMetadata(accumulatedText: string, webhookUrl?: string) {
     }
   }
 
-  const cacheMissTokens = Math.max(0, promptTokens - cachedTokens);
+  const isLlama = modelName.includes("llama") || modelName.includes("groq");
+  const modelDisplayName = isLlama ? "Llama 3.1 8B (Groq)" : "DeepSeek V3";
+  let costUSD = 0;
 
-  // DeepSeek V3 API Pricing (as of latest spec):
-  // Input Cache Hit: $0.14 / 1M tokens
-  // Input Cache Miss: $0.55 / 1M tokens
-  // Output: $2.19 / 1M tokens
-  const costUSD =
-      (cachedTokens * 0.14 + cacheMissTokens * 0.55 + completionTokens * 2.19) /
-      1000000;
+  if (isLlama) {
+    // Groq Llama 3.1 8B pricing: $0.05 per 1M input tokens, $0.08 per 1M output tokens
+    costUSD = (promptTokens * 0.05 + completionTokens * 0.08) / 1000000;
+  } else {
+    // DeepSeek V3 pricing
+    const cacheMissTokens = Math.max(0, promptTokens - cachedTokens);
+    costUSD =
+        (cachedTokens * 0.14 + cacheMissTokens * 0.55 + completionTokens * 2.19) /
+        1000000;
+  }
 
   // USD to PHP Exchange Rate
   const exchangeRate = 58.50;
   const costPHP = costUSD * exchangeRate;
 
   console.log(
-    `[LLM Usage] Cache Hit: ${cachedTokens} | Cache Miss: ${cacheMissTokens} | Completion: ${completionTokens} | Cost: $${costUSD.toFixed(6)} (${costPHP.toFixed(4)} PHP)`,
+    `[LLM Usage] Model: ${modelDisplayName} | Prompt Tokens: ${promptTokens} (Cached: ${cachedTokens}) | Completion: ${completionTokens} | Cost: $${costUSD.toFixed(6)} (${costPHP.toFixed(4)} PHP)`,
   );
 
   if (!webhookUrl || webhookUrl.trim().length === 0) return;
@@ -256,17 +341,12 @@ async function processMetadata(accumulatedText: string, webhookUrl?: string) {
   const payload = {
     embeds: [
       {
-        title: "⚡ Generative UI Streaming Session Complete",
-        color: 0x003fad, // BSOD Blue
+        title: `⚡ Generative UI Streaming Session (${modelDisplayName})`,
+        color: isLlama ? 0xf58220 : 0x003fad, // Orange for Llama/Groq, Blue for DeepSeek
         fields: [
           {
-            name: "📥 Prompt Cache Hits",
-            value: `\`${cachedTokens.toLocaleString()}\` tokens`,
-            inline: true,
-          },
-          {
-            name: "📥 Prompt Cache Misses",
-            value: `\`${cacheMissTokens.toLocaleString()}\` tokens`,
+            name: "📥 Prompt Tokens",
+            value: `\`${promptTokens.toLocaleString()}\` tokens${cachedTokens > 0 ? ` (Cached: ${cachedTokens.toLocaleString()})` : ""}`,
             inline: true,
           },
           {
@@ -287,7 +367,7 @@ async function processMetadata(accumulatedText: string, webhookUrl?: string) {
         ],
         timestamp: new Date().toISOString(),
         footer: {
-          text: "Netlify Secure LLM Proxy",
+          text: `Netlify Secure LLM Proxy | Model: ${modelDisplayName}`,
         },
       },
     ],

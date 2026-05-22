@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:streaming_gen_ui/streaming_gen_ui.dart';
 import 'package:dartantic_ai/dartantic_ai.dart';
@@ -26,6 +27,7 @@ class ChatDemoState {
   final bool isThinking;
   final String? errorMessage;
   final bool showRawResponse;
+  final String selectedModel;
 
   const ChatDemoState({
     required this.textBoxMode,
@@ -34,6 +36,7 @@ class ChatDemoState {
     required this.isThinking,
     this.errorMessage,
     this.showRawResponse = false,
+    this.selectedModel = 'deepseek-v4-flash',
   });
 
   ChatDemoState copyWith({
@@ -43,6 +46,7 @@ class ChatDemoState {
     bool? isThinking,
     String? errorMessage,
     bool? showRawResponse,
+    String? selectedModel,
   }) {
     return ChatDemoState(
       textBoxMode: textBoxMode ?? this.textBoxMode,
@@ -51,6 +55,7 @@ class ChatDemoState {
       isThinking: isThinking ?? this.isThinking,
       errorMessage: errorMessage ?? this.errorMessage,
       showRawResponse: showRawResponse ?? this.showRawResponse,
+      selectedModel: selectedModel ?? this.selectedModel,
     );
   }
 
@@ -60,6 +65,7 @@ class ChatDemoState {
     List<DemoMessage>? messages,
     bool? isThinking,
     bool? showRawResponse,
+    String? selectedModel,
   }) {
     return ChatDemoState(
       textBoxMode: textBoxMode ?? this.textBoxMode,
@@ -68,6 +74,7 @@ class ChatDemoState {
       isThinking: isThinking ?? this.isThinking,
       errorMessage: null,
       showRawResponse: showRawResponse ?? this.showRawResponse,
+      selectedModel: selectedModel ?? this.selectedModel,
     );
   }
 }
@@ -83,6 +90,10 @@ class ChatDemoCubit extends Cubit<ChatDemoState> {
 
   final List<ChatMessage> _history = [];
   ChatAgentService? _agentService;
+  String? _lastModelUsed;
+
+  StreamSubscription<String>? _currentStreamSubscription;
+  StreamController<String>? _currentResponseController;
 
   ChatDemoCubit()
     : super(
@@ -91,6 +102,7 @@ class ChatDemoCubit extends Cubit<ChatDemoState> {
           canvasMode: CanvasMode.hidden,
           messages: [],
           isThinking: false,
+          selectedModel: 'deepseek-v4-flash',
         ),
       ) {
     _history.add(ChatMessage.system(systemPrompt));
@@ -171,16 +183,40 @@ ${generativeUi.systemPrompt}
     emit(state.copyWith(showRawResponse: !state.showRawResponse));
   }
 
+  void cycleModel() {
+    if (state.isThinking) return; // Disable model cycling during streaming
+    final nextModel = state.selectedModel == 'deepseek-v4-flash'
+        ? 'llama-3.1-8b-instant'
+        : 'deepseek-v4-flash';
+    emit(state.copyWith(selectedModel: nextModel));
+  }
+
+  void stopResponse() {
+    if (state.isThinking) {
+      _currentStreamSubscription?.cancel();
+      _currentStreamSubscription = null;
+
+      if (_currentResponseController != null && !_currentResponseController!.isClosed) {
+        _currentResponseController!.close();
+      }
+      _currentResponseController = null;
+
+      emit(state.copyWith(isThinking: false));
+    }
+  }
+
   void clearChat() {
+    stopResponse();
     _history.clear();
     _history.add(ChatMessage.system(systemPrompt));
     generativeUi.disposeView('canvas-ui');
     emit(
-      const ChatDemoState(
+      ChatDemoState(
         textBoxMode: TextBoxMode.textfield,
         canvasMode: CanvasMode.hidden,
         messages: [],
         isThinking: false,
+        selectedModel: state.selectedModel,
       ),
     );
   }
@@ -204,7 +240,10 @@ ${generativeUi.systemPrompt}
 
     // 2. Instantiate Agent Service (checks API key)
     try {
-      _agentService ??= ChatAgentService.create();
+      if (_agentService == null || _lastModelUsed != state.selectedModel) {
+        _agentService = ChatAgentService.create(modelName: state.selectedModel);
+        _lastModelUsed = state.selectedModel;
+      }
     } catch (e) {
       emit(state.copyWith(errorMessage: e.toString(), isThinking: false));
       return;
@@ -219,24 +258,44 @@ ${generativeUi.systemPrompt}
     try {
       final textStream = _agentService!.streamResponse(text, _history);
 
+      _currentResponseController = StreamController<String>();
       final StringBuffer accumulated = StringBuffer();
-      final trackedStream = textStream.map((chunk) {
-        accumulated.write(chunk);
 
-        final updatedMessages = state.messages.map((m) {
-          if (m.id == aiMsgId) {
-            return m.copyWith(text: accumulated.toString());
+      _currentStreamSubscription = textStream.listen(
+        (chunk) {
+          accumulated.write(chunk);
+
+          final updatedMessages = state.messages.map((m) {
+            if (m.id == aiMsgId) {
+              return m.copyWith(text: accumulated.toString());
+            }
+            return m;
+          }).toList();
+
+          emit(state.copyWith(messages: updatedMessages));
+
+          if (_currentResponseController != null && !_currentResponseController!.isClosed) {
+            _currentResponseController!.add(chunk);
           }
-          return m;
-        }).toList();
-
-        emit(state.copyWith(messages: updatedMessages));
-
-        return chunk;
-      });
+        },
+        onError: (e) {
+          emit(
+            state.copyWith(
+              errorMessage: 'Streaming error: ${e.toString()}',
+              isThinking: false,
+            ),
+          );
+          stopResponse();
+        },
+        onDone: () {
+          if (_currentResponseController != null && !_currentResponseController!.isClosed) {
+            _currentResponseController!.close();
+          }
+        },
+      );
 
       await generativeUi.stream(
-        trackedStream,
+        _currentResponseController!.stream,
         viewId: aiMsgId,
         onComplete: (raw) {
           // Add to LLM history for subsequent turns
@@ -270,6 +329,7 @@ ${generativeUi.systemPrompt}
 
   @override
   Future<void> close() {
+    stopResponse();
     generativeUi.removeListener(_onGenerativeUiChanged);
     return super.close();
   }

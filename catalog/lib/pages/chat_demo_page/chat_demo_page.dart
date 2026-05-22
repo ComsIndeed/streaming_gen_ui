@@ -53,7 +53,9 @@ class _ChatDemoPageState extends State<ChatDemoPage> {
             height: MediaQuery.sizeOf(context).height * 0.85,
             decoration: BoxDecoration(
               color: theme.colorScheme.surfaceContainerLow,
-              borderRadius: const BorderRadius.vertical(top: Radius.circular(28)),
+              borderRadius: const BorderRadius.vertical(
+                top: Radius.circular(28),
+              ),
               border: Border.all(
                 color: theme.colorScheme.outline.withOpacity(0.1),
               ),
@@ -70,7 +72,10 @@ class _ChatDemoPageState extends State<ChatDemoPage> {
                   ),
                 ),
                 Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 20,
+                    vertical: 16,
+                  ),
                   child: Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
@@ -122,7 +127,8 @@ class _ChatDemoPageState extends State<ChatDemoPage> {
                             builder: (context, _) {
                               return cubit.generativeUi.view(
                                 'canvas-ui',
-                                textBlockBuilder: (context, text) => GptMarkdown(text),
+                                textBlockBuilder: (context, text) =>
+                                    GptMarkdown(text),
                               );
                             },
                           ),
@@ -207,7 +213,9 @@ class _ChatDemoPageState extends State<ChatDemoPage> {
                       child: AnimatedPadding(
                         duration: Durations.short4,
                         padding: EdgeInsets.only(
-                          bottom: isMobile ? (isChatExpanded ? 8.0 : 12.0) : (isChatExpanded ? 16.0 : 28.0),
+                          bottom: isMobile
+                              ? (isChatExpanded ? 8.0 : 12.0)
+                              : (isChatExpanded ? 16.0 : 28.0),
                         ),
                         curve: Curves.easeOut,
                         child: ChatConsoleInput(
@@ -269,29 +277,6 @@ class _ChatDemoPageState extends State<ChatDemoPage> {
                 ),
               ),
             ],
-          ),
-        ),
-        ElasticWrapper(
-          child: TextButton.icon(
-            style: TextButton.styleFrom(
-              backgroundColor: theme.colorScheme.primary.withOpacity(0.08),
-              foregroundColor: theme.colorScheme.primary,
-              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(20),
-                side: BorderSide(
-                  color: theme.colorScheme.primary.withOpacity(0.2),
-                ),
-              ),
-            ),
-            onPressed: () {
-              context.read<ChatDemoCubit>().setCanvasMode(CanvasMode.ui);
-            },
-            icon: const Icon(Icons.dashboard_customize_rounded, size: 16),
-            label: const Text(
-              "Canvas",
-              style: TextStyle(fontWeight: FontWeight.bold, fontSize: 13),
-            ),
           ),
         ),
       ],
@@ -465,31 +450,38 @@ class _ChatDemoPageState extends State<ChatDemoPage> {
                         title: "Weather Check",
                         prompt: "Check the weather in Paris. Is it warm?",
                         onTap: () {
-                          controller.text = "Check the weather in Paris. Is it warm?";
+                          controller.text =
+                              "Check the weather in Paris. Is it warm?";
                           focusNode.requestFocus();
                         },
                       ),
                       _PresetPromptCard(
                         title: "Crypto Price",
-                        prompt: "What is the current price and 24h trend of Bitcoin?",
+                        prompt:
+                            "What is the current price and 24h trend of Bitcoin?",
                         onTap: () {
-                          controller.text = "What is the current price and 24h trend of Bitcoin?";
+                          controller.text =
+                              "What is the current price and 24h trend of Bitcoin?";
                           focusNode.requestFocus();
                         },
                       ),
                       _PresetPromptCard(
                         title: "Search Catalog",
-                        prompt: "Search for some high-quality laptops and show me the catalog.",
+                        prompt:
+                            "Search for some high-quality laptops and show me the catalog.",
                         onTap: () {
-                          controller.text = "Search for some high-quality laptops and show me the catalog.";
+                          controller.text =
+                              "Search for some high-quality laptops and show me the catalog.";
                           focusNode.requestFocus();
                         },
                       ),
                       _PresetPromptCard(
                         title: "Canvas Mini-App",
-                        prompt: "Build a beautiful interactive dashboard in canvas-ui containing a CPU load card and a live deploy log terminal.",
+                        prompt:
+                            "Build a beautiful interactive dashboard in canvas-ui containing a CPU load card and a live deploy log terminal.",
                         onTap: () {
-                          controller.text = "Build a beautiful interactive dashboard in canvas-ui containing a CPU load card and a live deploy log terminal.";
+                          controller.text =
+                              "Build a beautiful interactive dashboard in canvas-ui containing a CPU load card and a live deploy log terminal.";
                           focusNode.requestFocus();
                         },
                       ),
@@ -581,8 +573,6 @@ class _ChatDemoPageState extends State<ChatDemoPage> {
       ),
     );
   }
-
-
 }
 
 class ChatConsoleInput extends StatefulWidget {
@@ -645,188 +635,218 @@ class _ChatConsoleInputState extends State<ChatConsoleInput> {
   }
 
   void _submit() {
+    final cubit = context.read<ChatDemoCubit>();
+    if (cubit.state.isThinking) {
+      cubit.stopResponse();
+      return;
+    }
     final text = widget.controller.text.trim();
     if (text.isNotEmpty) {
-      context.read<ChatDemoCubit>().sendMessage(text);
+      cubit.sendMessage(text);
       widget.controller.clear();
     }
   }
 
   @override
   Widget build(BuildContext context) {
-    final theme = Theme.of(context);
-    final isMobile = ResponsiveBreakpoints.of(context).isMobile;
+    return BlocBuilder<ChatDemoCubit, ChatDemoState>(
+      builder: (context, state) {
+        final theme = Theme.of(context);
+        final isMobile = ResponsiveBreakpoints.of(context).isMobile;
 
-    // Snappy custom curve for high-fidelity mechanical keyboard feeling
-    const customSnap = Cubic(0.2, 0.8, 0.2, 1.0);
+        // Snappy custom curve for high-fidelity mechanical keyboard feeling
+        const customSnap = Cubic(0.2, 0.8, 0.2, 1.0);
 
-    // Calculate interactive scale
-    double consoleScale = 1.0;
-    if (_isTextFieldFocused) {
-      consoleScale = 1.03; // Scale up when focused
-    }
-    if (_isSendButtonPressed) {
-      consoleScale =
-          0.96; // Tactile mechanical shrink when send button is pressed
-    }
+        // Calculate interactive scale
+        double consoleScale = 1.0;
+        if (_isTextFieldFocused) {
+          consoleScale = 1.03; // Scale up when focused
+        }
+        if (_isSendButtonPressed) {
+          consoleScale =
+              0.96; // Tactile mechanical shrink when send button is pressed
+        }
 
-    // Interactive highlights & glow effects
-    final borderColor = _isTextFieldFocused
-        ? theme.colorScheme.primary.withOpacity(0.5)
-        : (_isConsoleHovered
-              ? theme.colorScheme.primary.withOpacity(0.25)
-              : theme.colorScheme.outline.withOpacity(0.08));
+        // Interactive highlights & glow effects
+        final borderColor = _isTextFieldFocused
+            ? theme.colorScheme.primary.withOpacity(0.5)
+            : (_isConsoleHovered
+                  ? theme.colorScheme.primary.withOpacity(0.25)
+                  : theme.colorScheme.outline.withOpacity(0.08));
 
-    final borderWidth = _isTextFieldFocused ? 1.5 : 1.0;
+        final borderWidth = _isTextFieldFocused ? 1.5 : 1.0;
 
-    final List<BoxShadow> shadows = [
-      BoxShadow(
-        color: Colors.black.withOpacity(0.08),
-        blurRadius: 16,
-        offset: const Offset(0, 4),
-      ),
-      if (_isTextFieldFocused)
-        BoxShadow(
-          color: theme.colorScheme.primary.withOpacity(0.12),
-          blurRadius: 24,
-          offset: const Offset(0, 0),
-        )
-      else if (_isConsoleHovered)
-        BoxShadow(
-          color: theme.colorScheme.primary.withOpacity(0.04),
-          blurRadius: 16,
-          offset: const Offset(0, 2),
-        ),
-    ];
+        final List<BoxShadow> shadows = [
+          BoxShadow(
+            color: Colors.black.withOpacity(0.08),
+            blurRadius: 16,
+            offset: const Offset(0, 4),
+          ),
+          if (_isTextFieldFocused)
+            BoxShadow(
+              color: theme.colorScheme.primary.withOpacity(0.12),
+              blurRadius: 24,
+              offset: const Offset(0, 0),
+            )
+          else if (_isConsoleHovered)
+            BoxShadow(
+              color: theme.colorScheme.primary.withOpacity(0.04),
+              blurRadius: 16,
+              offset: const Offset(0, 2),
+            ),
+        ];
 
-    return MouseRegion(
-      onEnter: (_) => setState(() => _isConsoleHovered = true),
-      onExit: (_) => setState(() => _isConsoleHovered = false),
-      child: AnimatedScale(
-        scale: consoleScale,
-        duration: const Duration(milliseconds: 200),
-        curve: customSnap,
-        child: AnimatedContainer(
-          duration: _isAnimatingChatExpansion
-              ? const Duration(milliseconds: 350)
-              : const Duration(milliseconds: 200),
-          curve: _isAnimatingChatExpansion ? Curves.easeInOutBack : customSnap,
-          onEnd: () {
-            if (_isAnimatingChatExpansion) {
-              setState(() {
-                _isAnimatingChatExpansion = false;
-              });
-            }
-          },
-          width: isMobile
-              ? (widget.isChatExpanded
-                  ? (widget.sizes.width - 16)
-                  : (widget.sizes.width - 48))
-              : (widget.isCanvasExpanded
-                  ? (widget.sizes.width * 0.4 - 32).clamp(
-                      100.0,
-                      512.0 + (widget.isChatExpanded ? 64 : 0),
-                    )
-                  : 512.0 + (widget.isChatExpanded ? 64 : 0)),
-          height: widget.isChatExpanded ? 256.0 : 64.0,
-          child: AnimatedContainer(
+        return MouseRegion(
+          onEnter: (_) => setState(() => _isConsoleHovered = true),
+          onExit: (_) => setState(() => _isConsoleHovered = false),
+          child: AnimatedScale(
+            scale: consoleScale,
             duration: const Duration(milliseconds: 200),
             curve: customSnap,
-            decoration: ShapeDecoration(
-              shape: RoundedSuperellipseBorder(
-                borderRadius: BorderRadius.circular(32),
-                side: BorderSide(color: borderColor, width: borderWidth),
-              ),
-              color: theme.colorScheme.secondaryContainer,
-              shadows: shadows,
-            ),
-            child: Padding(
-              padding: const EdgeInsets.all(8.0),
-              child: Row(
-                crossAxisAlignment: CrossAxisAlignment.center,
-                children: [
-                  AnimatedAlign(
-                    alignment: widget.isChatExpanded
-                        ? Alignment.topLeft
-                        : Alignment.centerLeft,
-                    duration: Durations.short1,
-                    child: IconButton(
-                      onPressed: () {
-                        final cubit = context.read<ChatDemoCubit>();
-                        cubit.setTextBoxMode(
-                          widget.isChatExpanded
-                              ? TextBoxMode.textfield
-                              : TextBoxMode.media,
-                        );
-                      },
-                      icon: AnimatedSwitcher(
-                        duration: Durations.short4,
-                        child: widget.isChatExpanded
-                            ? const Icon(Icons.close, key: ValueKey('close'))
-                            : const Icon(Icons.add, key: ValueKey('add')),
-                      ),
-                    ),
+            child: AnimatedContainer(
+              duration: _isAnimatingChatExpansion
+                  ? const Duration(milliseconds: 350)
+                  : const Duration(milliseconds: 200),
+              curve: _isAnimatingChatExpansion
+                  ? Curves.easeInOutBack
+                  : customSnap,
+              onEnd: () {
+                if (_isAnimatingChatExpansion) {
+                  setState(() {
+                    _isAnimatingChatExpansion = false;
+                  });
+                }
+              },
+              width: isMobile
+                  ? (widget.isChatExpanded
+                        ? (widget.sizes.width - 16)
+                        : (widget.sizes.width - 48))
+                  : (widget.isCanvasExpanded
+                        ? (widget.sizes.width * 0.4 - 32).clamp(
+                            100.0,
+                            512.0 + (widget.isChatExpanded ? 64 : 0),
+                          )
+                        : 512.0 + (widget.isChatExpanded ? 64 : 0)),
+              height: widget.isChatExpanded ? 270.0 : 64.0,
+              child: AnimatedContainer(
+                duration: const Duration(milliseconds: 200),
+                curve: customSnap,
+                decoration: ShapeDecoration(
+                  shape: RoundedSuperellipseBorder(
+                    borderRadius: BorderRadius.circular(32),
+                    side: BorderSide(color: borderColor, width: borderWidth),
                   ),
-                  Expanded(
-                    child: AnimatedSwitcher(
-                      duration: Durations.short4,
-                      child: widget.isChatExpanded
-                          ? _buildExpandedDrawerInput(context, theme)
-                          : TextField(
-                              controller: widget.controller,
-                              focusNode: widget.focusNode,
-                              onSubmitted: (_) => _submit(),
-                              textAlignVertical: TextAlignVertical.center,
-                              decoration: const InputDecoration(
-                                hintText: 'Talk to AI',
-                                border: InputBorder.none,
-                                isDense: true,
-                                contentPadding: EdgeInsets.symmetric(
-                                  horizontal: 12,
-                                  vertical: 8,
-                                ),
-                              ),
-                            ),
-                    ),
-                  ),
-                  if (!widget.isChatExpanded)
-                    Listener(
-                      onPointerDown: (_) =>
-                          setState(() => _isSendButtonPressed = true),
-                      onPointerUp: (_) =>
-                          setState(() => _isSendButtonPressed = false),
-                      onPointerCancel: (_) =>
-                          setState(() => _isSendButtonPressed = false),
-                      child: MouseRegion(
-                        onEnter: (_) =>
-                            setState(() => _isSendButtonHovered = true),
-                        onExit: (_) =>
-                            setState(() => _isSendButtonHovered = false),
-                        cursor: SystemMouseCursors.click,
-                        child: AnimatedScale(
-                          scale: _isSendButtonHovered ? 1.15 : 1.0,
-                          duration: const Duration(milliseconds: 150),
-                          curve: Curves.easeOutBack,
-                          child: IconButton.filled(
-                            onPressed: _submit,
-                            icon: Icon(
-                              Icons.arrow_upward,
-                              color: theme.colorScheme.onPrimary,
-                            ),
+                  color: theme.colorScheme.secondaryContainer,
+                  shadows: shadows,
+                ),
+                child: Padding(
+                  padding: const EdgeInsets.all(8.0),
+                  child: Row(
+                    crossAxisAlignment: CrossAxisAlignment.center,
+                    children: [
+                      AnimatedAlign(
+                        alignment: widget.isChatExpanded
+                            ? Alignment.topLeft
+                            : Alignment.centerLeft,
+                        duration: Durations.short1,
+                        child: IconButton(
+                          onPressed: () {
+                            final cubit = context.read<ChatDemoCubit>();
+                            cubit.setTextBoxMode(
+                              widget.isChatExpanded
+                                  ? TextBoxMode.textfield
+                                  : TextBoxMode.media,
+                            );
+                          },
+                          icon: AnimatedSwitcher(
+                            duration: Durations.short4,
+                            child: widget.isChatExpanded
+                                ? const Icon(
+                                    Icons.close,
+                                    key: ValueKey('close'),
+                                  )
+                                : const Icon(Icons.add, key: ValueKey('add')),
                           ),
                         ),
                       ),
-                    ),
-                ],
+                      Expanded(
+                        child: AnimatedSwitcher(
+                          duration: Durations.short4,
+                          child: widget.isChatExpanded
+                              ? _buildExpandedDrawerInput(context, state, theme)
+                              : TextField(
+                                  controller: widget.controller,
+                                  focusNode: widget.focusNode,
+                                  onSubmitted: (_) =>
+                                      state.isThinking ? null : _submit(),
+                                  textAlignVertical: TextAlignVertical.center,
+                                  decoration: const InputDecoration(
+                                    hintText: 'Talk to AI',
+                                    border: InputBorder.none,
+                                    isDense: true,
+                                    contentPadding: EdgeInsets.symmetric(
+                                      horizontal: 12,
+                                      vertical: 8,
+                                    ),
+                                  ),
+                                ),
+                        ),
+                      ),
+                      if (!widget.isChatExpanded)
+                        Listener(
+                          onPointerDown: (_) =>
+                              setState(() => _isSendButtonPressed = true),
+                          onPointerUp: (_) =>
+                              setState(() => _isSendButtonPressed = false),
+                          onPointerCancel: (_) =>
+                              setState(() => _isSendButtonPressed = false),
+                          child: MouseRegion(
+                            onEnter: (_) =>
+                                setState(() => _isSendButtonHovered = true),
+                            onExit: (_) =>
+                                setState(() => _isSendButtonHovered = false),
+                            cursor: SystemMouseCursors.click,
+                            child: AnimatedScale(
+                              scale: _isSendButtonHovered ? 1.15 : 1.0,
+                              duration: const Duration(milliseconds: 150),
+                              curve: Curves.easeOutBack,
+                              child: IconButton.filled(
+                                onPressed: _submit,
+                                style: state.isThinking
+                                    ? IconButton.styleFrom(
+                                        backgroundColor: Colors.red.withOpacity(
+                                          0.12,
+                                        ),
+                                      )
+                                    : null,
+                                icon: Icon(
+                                  state.isThinking
+                                      ? Icons.stop_rounded
+                                      : Icons.arrow_upward,
+                                  color: state.isThinking
+                                      ? Colors.red
+                                      : theme.colorScheme.onPrimary,
+                                ),
+                              ),
+                            ),
+                          ),
+                        ),
+                    ],
+                  ),
+                ),
               ),
             ),
           ),
-        ),
-      ),
+        );
+      },
     );
   }
 
-  Widget _buildExpandedDrawerInput(BuildContext context, ThemeData theme) {
+  Widget _buildExpandedDrawerInput(
+    BuildContext context,
+    ChatDemoState state,
+    ThemeData theme,
+  ) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -904,7 +924,91 @@ class _ChatConsoleInputState extends State<ChatConsoleInput> {
             ],
           ),
         ),
+        const SizedBox(height: 12),
+        Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 12),
+          child: _buildModelSelectorCard(context, state, theme),
+        ),
       ],
+    );
+  }
+
+  Widget _buildModelSelectorCard(
+    BuildContext context,
+    ChatDemoState state,
+    ThemeData theme,
+  ) {
+    final isLlama = state.selectedModel == 'llama-3.1-8b-instant';
+    final modelTitle = isLlama ? "Llama 3.1 8B (Groq)" : "DeepSeek V3";
+    final isThinking = state.isThinking;
+
+    return MouseRegion(
+      cursor: isThinking ? SystemMouseCursors.basic : SystemMouseCursors.click,
+      child: GestureDetector(
+        onTap: isThinking
+            ? null
+            : () {
+                context.read<ChatDemoCubit>().cycleModel();
+              },
+        child: Opacity(
+          opacity: isThinking ? 0.6 : 1.0,
+          child: Container(
+            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+            decoration: BoxDecoration(
+              color: theme.colorScheme.surfaceContainerHighest.withOpacity(0.3),
+              borderRadius: BorderRadius.circular(16),
+              border: Border.all(
+                color: theme.colorScheme.outline.withOpacity(0.08),
+              ),
+            ),
+            child: Row(
+              children: [
+                Icon(
+                  Icons.sync_rounded,
+                  color: isThinking
+                      ? theme.disabledColor
+                      : theme.colorScheme.primary,
+                  size: 20,
+                ),
+                const SizedBox(width: 12),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Text(
+                        "Large Language Model",
+                        style: TextStyle(
+                          fontSize: 10,
+                          fontWeight: FontWeight.bold,
+                          letterSpacing: 1.0,
+                          color: theme.colorScheme.onSurfaceVariant.withOpacity(
+                            0.6,
+                          ),
+                        ),
+                      ),
+                      const SizedBox(height: 2),
+                      Text(
+                        modelTitle,
+                        style: TextStyle(
+                          fontSize: 13,
+                          fontWeight: FontWeight.bold,
+                          color: theme.colorScheme.onSurface,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+                Icon(
+                  Icons.chevron_right_rounded,
+                  color: theme.colorScheme.onSurfaceVariant.withOpacity(0.4),
+                  size: 20,
+                ),
+              ],
+            ),
+          ),
+        ),
+      ),
     );
   }
 

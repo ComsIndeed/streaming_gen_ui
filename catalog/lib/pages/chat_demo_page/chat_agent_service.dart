@@ -11,7 +11,7 @@ class ChatAgentService {
 
   /// Factory constructor to create and configure the Agent.
   /// Throws an ArgumentError if the DeepSeek API Key is missing.
-  factory ChatAgentService.create() {
+  factory ChatAgentService.create({String modelName = 'deepseek-v4-flash'}) {
     const proxyUrl = String.fromEnvironment('NETLIFY_PROXY_URL');
     final String apiKey;
     final Uri baseUrl;
@@ -186,7 +186,7 @@ class ChatAgentService {
 
     final agent = Agent.forProvider(
       provider,
-      chatModelName: 'deepseek-v4-flash',
+      chatModelName: modelName,
       tools: tools,
       enableThinking: false,
     );
@@ -226,8 +226,14 @@ class ThinkingDisabledHttpClient extends http.BaseClient {
         final bodyString = request.body;
         final bodyJson = jsonDecode(bodyString);
         if (bodyJson is Map<String, dynamic>) {
-          bodyJson['thinking'] = {'type': 'disabled'};
-          bodyJson.remove('reasoning_effort');
+          final model = bodyJson['model'] as String?;
+          if (model != null && (model.contains('llama') || model.contains('groq'))) {
+            bodyJson.remove('thinking');
+            bodyJson.remove('reasoning_effort');
+          } else {
+            bodyJson['thinking'] = {'type': 'disabled'};
+            bodyJson.remove('reasoning_effort');
+          }
           final newBodyString = jsonEncode(bodyJson);
           final newRequest = http.Request(request.method, request.url)
             ..headers.addAll(request.headers)
