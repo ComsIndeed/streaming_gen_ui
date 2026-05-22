@@ -10,10 +10,12 @@ class StreamingVoiceVisualizer extends StatefulWidget {
   const StreamingVoiceVisualizer({super.key, required this.props});
 
   @override
-  State<StreamingVoiceVisualizer> createState() => _StreamingVoiceVisualizerState();
+  State<StreamingVoiceVisualizer> createState() =>
+      _StreamingVoiceVisualizerState();
 }
 
-class _StreamingVoiceVisualizerState extends State<StreamingVoiceVisualizer> with SingleTickerProviderStateMixin {
+class _StreamingVoiceVisualizerState extends State<StreamingVoiceVisualizer>
+    with SingleTickerProviderStateMixin {
   late Stream<Map<String, dynamic>> _visualizerStream;
   late AnimationController _waveController;
 
@@ -76,14 +78,19 @@ class _StreamingVoiceVisualizerState extends State<StreamingVoiceVisualizer> wit
                   child: FutureBuilder<String>(
                     future: labelFuture,
                     builder: (context, labelSnapshot) {
-                      final isDone = labelSnapshot.connectionState == ConnectionState.done && labelSnapshot.hasData;
+                      final isDone =
+                          labelSnapshot.connectionState ==
+                              ConnectionState.done &&
+                          labelSnapshot.hasData;
                       final initial = isDone ? labelSnapshot.data! : '';
 
                       return AccumulatingStringStreamBuilder(
                         stream: labelStream,
                         initialValue: initial,
                         builder: (context, labelText) {
-                          final statusText = labelText.isEmpty ? "Listening for voice input..." : labelText;
+                          final statusText = labelText.isEmpty
+                              ? "Listening for voice input..."
+                              : labelText;
 
                           return Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
@@ -127,7 +134,10 @@ class _StreamingVoiceVisualizerState extends State<StreamingVoiceVisualizer> wit
                         final waveVal = _waveController.value;
                         final factor = (index - 2.5).abs();
                         final pulseHeight = isActive
-                            ? (12 + 20 * (0.5 + 0.5 * waveVal) * (1 - factor * 0.15))
+                            ? (12 +
+                                  20 *
+                                      (0.5 + 0.5 * waveVal) *
+                                      (1 - factor * 0.15))
                             : 4.0;
 
                         return Container(
@@ -135,12 +145,15 @@ class _StreamingVoiceVisualizerState extends State<StreamingVoiceVisualizer> wit
                           height: pulseHeight,
                           margin: const EdgeInsets.symmetric(horizontal: 2.0),
                           decoration: BoxDecoration(
-                            color: isActive ? theme.colorScheme.primary : theme.colorScheme.outline.withOpacity(0.24),
+                            color: isActive
+                                ? theme.colorScheme.primary
+                                : theme.colorScheme.outline.withOpacity(0.24),
                             borderRadius: BorderRadius.circular(4),
                             boxShadow: isActive
                                 ? [
                                     BoxShadow(
-                                      color: theme.colorScheme.primary.withOpacity(0.3),
+                                      color: theme.colorScheme.primary
+                                          .withOpacity(0.3),
                                       blurRadius: 6,
                                       offset: const Offset(0, 2),
                                     ),

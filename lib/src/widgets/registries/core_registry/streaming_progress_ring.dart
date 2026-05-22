@@ -82,7 +82,9 @@ class _StreamingProgressRingState extends State<StreamingProgressRing> {
                       child: CircularProgressIndicator(
                         value: clampedPercent,
                         strokeWidth: strokeWidth,
-                        backgroundColor: theme.colorScheme.outline.withOpacity(0.06),
+                        backgroundColor: theme.colorScheme.outline.withOpacity(
+                          0.06,
+                        ),
                         valueColor: AlwaysStoppedAnimation<Color>(color),
                       ),
                     ),
@@ -102,7 +104,10 @@ class _StreamingProgressRingState extends State<StreamingProgressRing> {
                   child: FutureBuilder<String>(
                     future: labelFuture,
                     builder: (context, labelSnapshot) {
-                      final isDone = labelSnapshot.connectionState == ConnectionState.done && labelSnapshot.hasData;
+                      final isDone =
+                          labelSnapshot.connectionState ==
+                              ConnectionState.done &&
+                          labelSnapshot.hasData;
                       final initial = isDone ? labelSnapshot.data! : '';
 
                       return AccumulatingStringStreamBuilder(

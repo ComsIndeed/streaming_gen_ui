@@ -146,8 +146,12 @@ class _StepRowState extends State<_StepRow> {
                   FutureBuilder<String>(
                     future: _statusFuture,
                     builder: (context, statusSnap) {
-                      final isDone = statusSnap.connectionState == ConnectionState.done && statusSnap.hasData;
-                      final initialStatus = isDone ? statusSnap.data! : 'pending';
+                      final isDone =
+                          statusSnap.connectionState == ConnectionState.done &&
+                          statusSnap.hasData;
+                      final initialStatus = isDone
+                          ? statusSnap.data!
+                          : 'pending';
 
                       return AccumulatingStringStreamBuilder(
                         stream: _statusStream,
@@ -162,7 +166,9 @@ class _StepRowState extends State<_StepRow> {
                     Expanded(
                       child: Container(
                         width: 2,
-                        color: theme.colorScheme.outlineVariant.withOpacity(0.4),
+                        color: theme.colorScheme.outlineVariant.withOpacity(
+                          0.4,
+                        ),
                       ),
                     ),
                 ],
@@ -181,7 +187,10 @@ class _StepRowState extends State<_StepRow> {
                         child: FutureBuilder<String>(
                           future: _titleFuture,
                           builder: (context, titleSnap) {
-                            final isDone = titleSnap.connectionState == ConnectionState.done && titleSnap.hasData;
+                            final isDone =
+                                titleSnap.connectionState ==
+                                    ConnectionState.done &&
+                                titleSnap.hasData;
                             final initialTitle = isDone ? titleSnap.data! : '';
 
                             return AccumulatingStringStreamBuilder(
@@ -205,21 +214,25 @@ class _StepRowState extends State<_StepRow> {
                       FutureBuilder<String>(
                         future: _durationFuture,
                         builder: (context, durSnap) {
-                          final isDone = durSnap.connectionState == ConnectionState.done && durSnap.hasData;
+                          final isDone =
+                              durSnap.connectionState == ConnectionState.done &&
+                              durSnap.hasData;
                           final initialDur = isDone ? durSnap.data! : '';
 
                           return AccumulatingStringStreamBuilder(
                             stream: _durationStream,
                             initialValue: initialDur,
                             builder: (context, durVal) {
-                              if (durVal.isEmpty) return const SizedBox.shrink();
+                              if (durVal.isEmpty)
+                                return const SizedBox.shrink();
                               return Text(
                                 durVal,
                                 style: TextStyle(
                                   fontSize: 12,
                                   fontWeight: FontWeight.bold,
                                   // ignore: deprecated_member_use
-                                  color: theme.colorScheme.onSurface.withOpacity(0.4),
+                                  color: theme.colorScheme.onSurface
+                                      .withOpacity(0.4),
                                 ),
                               );
                             },
@@ -255,16 +268,14 @@ class _StepRowState extends State<_StepRow> {
             height: 14,
             child: CircularProgressIndicator(
               strokeWidth: 2,
-              valueColor: AlwaysStoppedAnimation<Color>(theme.colorScheme.primary),
+              valueColor: AlwaysStoppedAnimation<Color>(
+                theme.colorScheme.primary,
+              ),
             ),
           ),
         );
       case 'failed':
-        return const Icon(
-          Icons.error_rounded,
-          color: Colors.red,
-          size: 20,
-        );
+        return const Icon(Icons.error_rounded, color: Colors.red, size: 20);
       case 'pending':
       default:
         return Icon(

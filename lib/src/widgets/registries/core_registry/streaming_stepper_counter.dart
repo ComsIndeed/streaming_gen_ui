@@ -10,7 +10,8 @@ class StreamingStepperCounter extends StatefulWidget {
   const StreamingStepperCounter({super.key, required this.props});
 
   @override
-  State<StreamingStepperCounter> createState() => _StreamingStepperCounterState();
+  State<StreamingStepperCounter> createState() =>
+      _StreamingStepperCounterState();
 }
 
 class _StreamingStepperCounterState extends State<StreamingStepperCounter> {
@@ -62,7 +63,9 @@ class _StreamingStepperCounterState extends State<StreamingStepperCounter> {
             future: _actionFuture,
             builder: (context, actionSnapshot) {
               final action = actionSnapshot.data;
-              final isEnabled = actionSnapshot.connectionState == ConnectionState.done && action != null;
+              final isEnabled =
+                  actionSnapshot.connectionState == ConnectionState.done &&
+                  action != null;
 
               return Container(
                 padding: const EdgeInsets.all(12),
@@ -80,14 +83,18 @@ class _StreamingStepperCounterState extends State<StreamingStepperCounter> {
                       child: FutureBuilder<String>(
                         future: labelFuture,
                         builder: (context, labelSnapshot) {
-                          final isDone = labelSnapshot.connectionState == ConnectionState.done && labelSnapshot.hasData;
+                          final isDone =
+                              labelSnapshot.connectionState ==
+                                  ConnectionState.done &&
+                              labelSnapshot.hasData;
                           final initial = isDone ? labelSnapshot.data! : '';
 
                           return AccumulatingStringStreamBuilder(
                             stream: labelStream,
                             initialValue: initial,
                             builder: (context, labelText) {
-                              if (labelText.isEmpty) return const SizedBox.shrink();
+                              if (labelText.isEmpty)
+                                return const SizedBox.shrink();
 
                               return Text(
                                 labelText,
@@ -125,14 +132,18 @@ class _StreamingStepperCounterState extends State<StreamingStepperCounter> {
                               size: 16,
                               color: isEnabled && currentValue > min
                                   ? theme.colorScheme.primary
-                                  : theme.colorScheme.onSurface.withOpacity(0.2),
+                                  : theme.colorScheme.onSurface.withOpacity(
+                                      0.2,
+                                    ),
                             ),
                             onPressed: isEnabled && currentValue > min
                                 ? () {
                                     setState(() {
                                       _localValue = currentValue - 1;
                                     });
-                                    debugPrint('[GEN_UI:STEPPER] Value decremented to: ${currentValue - 1} -> $action');
+                                    debugPrint(
+                                      '[GEN_UI:STEPPER] Value decremented to: ${currentValue - 1} -> $action',
+                                    );
                                   }
                                 : null,
                           ),
@@ -157,14 +168,18 @@ class _StreamingStepperCounterState extends State<StreamingStepperCounter> {
                               size: 16,
                               color: isEnabled && currentValue < max
                                   ? theme.colorScheme.primary
-                                  : theme.colorScheme.onSurface.withOpacity(0.2),
+                                  : theme.colorScheme.onSurface.withOpacity(
+                                      0.2,
+                                    ),
                             ),
                             onPressed: isEnabled && currentValue < max
                                 ? () {
                                     setState(() {
                                       _localValue = currentValue + 1;
                                     });
-                                    debugPrint('[GEN_UI:STEPPER] Value incremented to: ${currentValue + 1} -> $action');
+                                    debugPrint(
+                                      '[GEN_UI:STEPPER] Value incremented to: ${currentValue + 1} -> $action',
+                                    );
                                   }
                                 : null,
                           ),

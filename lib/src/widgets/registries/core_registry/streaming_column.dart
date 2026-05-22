@@ -19,7 +19,9 @@ class StreamingColumn extends StatelessWidget {
         final list = snapshot.data ?? const [];
 
         if (snapshot.connectionState == ConnectionState.done && list.isEmpty) {
-          debugPrint('[GEN_UI:WARNING] core:column layout streaming complete but contains 0 items!');
+          debugPrint(
+            '[GEN_UI:WARNING] core:column layout streaming complete but contains 0 items!',
+          );
         }
 
         // Dynamically instantiate clean, reactive PropertyStream wrappers for each element index

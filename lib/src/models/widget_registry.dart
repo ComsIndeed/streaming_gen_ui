@@ -1,7 +1,8 @@
 import 'package:flutter/widgets.dart';
 import 'package:llm_json_stream/llm_json_stream.dart';
 
-typedef WidgetBuilderFunction = Widget Function(BuildContext context, PropertyStream props);
+typedef WidgetBuilderFunction =
+    Widget Function(BuildContext context, PropertyStream props);
 
 class WidgetDefinition {
   final WidgetBuilderFunction builder;
@@ -24,10 +25,7 @@ class WidgetRegistry {
 
   /// ➕ Union Operator: Merge two registries together seamlessly.
   WidgetRegistry operator +(WidgetRegistry other) {
-    return WidgetRegistry(widgets: {
-      ...widgets,
-      ...other.widgets,
-    });
+    return WidgetRegistry(widgets: {...widgets, ...other.widgets});
   }
 
   /// 🎯 Subset Filter: Derive a new registry containing only selected IDs.
@@ -51,21 +49,25 @@ class WidgetRegistry {
   }
 
   String get systemPromptFragment {
-    final catalog = widgets.entries.map((entry) {
-      final key = entry.key;
-      final def = entry.value;
+    final catalog = widgets.entries
+        .map((entry) {
+          final key = entry.key;
+          final def = entry.value;
 
-      final propsList = def.properties.isEmpty
-          ? '  * None'
-          : def.properties.entries.map((p) => '  * `${p.key}`: ${p.value}').join('\n');
+          final propsList = def.properties.isEmpty
+              ? '  * None'
+              : def.properties.entries
+                    .map((p) => '  * `${p.key}`: ${p.value}')
+                    .join('\n');
 
-      return '''
+          return '''
 #### Component: `$key`
 * **Description:** ${def.description}
 * **Properties:**
 $propsList
 * **Example JSON:** `<interface>${def.jsonExample}</interface>`''';
-    }).join('\n\n');
+        })
+        .join('\n\n');
 
     return '''
 You are a real-time Generative UI assistant. You can mix standard conversational text with rich, interactive UI components.
@@ -85,6 +87,7 @@ $catalog
 To guarantee optimal readability and visual harmony (e.g. avoiding bright blinding colors on dark mode or unreadable low contrast text), the host application automatically adjusts/tints dynamic color parameters (like background colors, borders, and icon colors) to match the active system brightness (dark/light theme).
 * This applies to widgets utilizing colors, including `media:expanding_accordion_carousel`, `media:3d_stack_carousel`, `core:bento_card`, `core:list_tile`, `core:progress_ring`, `ui:stepper_counter`, `core:alert`, etc.
 * **If you explicitly need the absolute, exact color to render exactly as specified** without background darkening or text lightening adjustments, set `"exactColor": true` (optional boolean) in the widget's properties.
-'''.trim();
+'''
+        .trim();
   }
 }

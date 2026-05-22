@@ -65,7 +65,9 @@ class _StreamingSliderState extends State<StreamingSlider> {
             future: _actionFuture,
             builder: (context, actionSnapshot) {
               final action = actionSnapshot.data;
-              final isEnabled = actionSnapshot.connectionState == ConnectionState.done && action != null;
+              final isEnabled =
+                  actionSnapshot.connectionState == ConnectionState.done &&
+                  action != null;
 
               return Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
@@ -74,7 +76,10 @@ class _StreamingSliderState extends State<StreamingSlider> {
                   FutureBuilder<String>(
                     future: labelFuture,
                     builder: (context, labelSnapshot) {
-                      final isDone = labelSnapshot.connectionState == ConnectionState.done && labelSnapshot.hasData;
+                      final isDone =
+                          labelSnapshot.connectionState ==
+                              ConnectionState.done &&
+                          labelSnapshot.hasData;
                       final initial = isDone ? labelSnapshot.data! : '';
 
                       return AccumulatingStringStreamBuilder(
@@ -84,7 +89,10 @@ class _StreamingSliderState extends State<StreamingSlider> {
                           if (labelText.isEmpty) return const SizedBox.shrink();
 
                           return Padding(
-                            padding: const EdgeInsets.only(bottom: 6.0, left: 4.0),
+                            padding: const EdgeInsets.only(
+                              bottom: 6.0,
+                              left: 4.0,
+                            ),
                             child: Row(
                               mainAxisAlignment: MainAxisAlignment.spaceBetween,
                               children: [
@@ -98,11 +106,17 @@ class _StreamingSliderState extends State<StreamingSlider> {
                                 ),
                                 AnimatedContainer(
                                   duration: const Duration(milliseconds: 150),
-                                  padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                                  padding: const EdgeInsets.symmetric(
+                                    horizontal: 6,
+                                    vertical: 2,
+                                  ),
                                   decoration: BoxDecoration(
                                     color: isEnabled
-                                        ? theme.colorScheme.primaryContainer.withOpacity(0.4)
-                                        : theme.colorScheme.surfaceContainerHigh,
+                                        ? theme.colorScheme.primaryContainer
+                                              .withOpacity(0.4)
+                                        : theme
+                                              .colorScheme
+                                              .surfaceContainerHigh,
                                     borderRadius: BorderRadius.circular(6),
                                   ),
                                   child: Text(
@@ -130,7 +144,9 @@ class _StreamingSliderState extends State<StreamingSlider> {
                         min.toStringAsFixed(0),
                         style: TextStyle(
                           fontSize: 12,
-                          color: theme.colorScheme.onSurfaceVariant.withOpacity(0.5),
+                          color: theme.colorScheme.onSurfaceVariant.withOpacity(
+                            0.5,
+                          ),
                         ),
                       ),
                       Expanded(
@@ -139,19 +155,27 @@ class _StreamingSliderState extends State<StreamingSlider> {
                             activeTrackColor: isEnabled
                                 ? theme.colorScheme.primary
                                 : theme.colorScheme.outline.withOpacity(0.12),
-                            inactiveTrackColor: theme.colorScheme.outline.withOpacity(0.06),
-                            disabledActiveTrackColor: theme.colorScheme.outline.withOpacity(0.12),
-                            disabledInactiveTrackColor: theme.colorScheme.outline.withOpacity(0.06),
+                            inactiveTrackColor: theme.colorScheme.outline
+                                .withOpacity(0.06),
+                            disabledActiveTrackColor: theme.colorScheme.outline
+                                .withOpacity(0.12),
+                            disabledInactiveTrackColor: theme
+                                .colorScheme
+                                .outline
+                                .withOpacity(0.06),
                             thumbColor: isEnabled
                                 ? theme.colorScheme.primary
                                 : theme.colorScheme.outline.withOpacity(0.24),
-                            disabledThumbColor: theme.colorScheme.outline.withOpacity(0.24),
+                            disabledThumbColor: theme.colorScheme.outline
+                                .withOpacity(0.24),
                             trackHeight: 4,
                             thumbShape: RoundSliderThumbShape(
                               enabledThumbRadius: isEnabled ? 8 : 6,
                               disabledThumbRadius: 6,
                             ),
-                            overlayColor: theme.colorScheme.primary.withOpacity(0.12),
+                            overlayColor: theme.colorScheme.primary.withOpacity(
+                              0.12,
+                            ),
                           ),
                           child: Slider(
                             min: min,
@@ -166,7 +190,9 @@ class _StreamingSliderState extends State<StreamingSlider> {
                                 : null,
                             onChangeEnd: isEnabled
                                 ? (val) {
-                                    debugPrint('[GEN_UI:SLIDER] Value changed to: $val -> $action');
+                                    debugPrint(
+                                      '[GEN_UI:SLIDER] Value changed to: $val -> $action',
+                                    );
                                   }
                                 : null,
                           ),
@@ -176,7 +202,9 @@ class _StreamingSliderState extends State<StreamingSlider> {
                         max.toStringAsFixed(0),
                         style: TextStyle(
                           fontSize: 12,
-                          color: theme.colorScheme.onSurfaceVariant.withOpacity(0.5),
+                          color: theme.colorScheme.onSurfaceVariant.withOpacity(
+                            0.5,
+                          ),
                         ),
                       ),
                     ],

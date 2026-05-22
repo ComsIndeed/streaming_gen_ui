@@ -20,7 +20,6 @@ class StreamingDataTable extends StatelessWidget {
     final columnsProperty = mapStream.getListProperty("columns");
     final rowsProperty = mapStream.getListProperty("rows");
 
-
     return StreamingEntrance(
       child: AnimatedContainer(
         duration: const Duration(milliseconds: 300),

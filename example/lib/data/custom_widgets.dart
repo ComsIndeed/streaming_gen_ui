@@ -46,7 +46,9 @@ class _CustomUserProfileCardState extends State<CustomUserProfileCard> {
       child: FutureBuilder<String>(
         future: _colorFuture,
         builder: (context, snapshot) {
-          final isDone = snapshot.connectionState == ConnectionState.done && snapshot.hasData;
+          final isDone =
+              snapshot.connectionState == ConnectionState.done &&
+              snapshot.hasData;
           final currentInitial = isDone ? snapshot.data! : '#2196F3';
 
           return AccumulatingStringStreamBuilder(
@@ -136,7 +138,8 @@ class _CustomUserProfileCardState extends State<CustomUserProfileCard> {
                                 style: TextStyle(
                                   fontSize: 13,
                                   // ignore: deprecated_member_use
-                                  color: theme.colorScheme.onSurface.withOpacity(0.6),
+                                  color: theme.colorScheme.onSurface
+                                      .withOpacity(0.6),
                                   fontWeight: FontWeight.w500,
                                 ),
                               ),
@@ -223,7 +226,10 @@ class CustomHotelCard extends StatelessWidget {
                         final hasRating = rating.isNotEmpty && rating != '...';
                         return AnimatedContainer(
                           duration: const Duration(milliseconds: 300),
-                          padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 8,
+                            vertical: 4,
+                          ),
                           decoration: BoxDecoration(
                             color: hasRating
                                 ? Colors.amber.shade700
@@ -236,13 +242,21 @@ class CustomHotelCard extends StatelessWidget {
                               Icon(
                                 Icons.star_rounded,
                                 size: 14,
-                                color: hasRating ? Colors.white : theme.colorScheme.onSurface.withOpacity(0.3),
+                                color: hasRating
+                                    ? Colors.white
+                                    : theme.colorScheme.onSurface.withOpacity(
+                                        0.3,
+                                      ),
                               ),
                               const SizedBox(width: 4),
                               Text(
                                 hasRating ? rating : '...',
                                 style: TextStyle(
-                                  color: hasRating ? Colors.white : theme.colorScheme.onSurface.withOpacity(0.4),
+                                  color: hasRating
+                                      ? Colors.white
+                                      : theme.colorScheme.onSurface.withOpacity(
+                                          0.4,
+                                        ),
                                   fontSize: 12,
                                   fontWeight: FontWeight.bold,
                                 ),
@@ -282,22 +296,26 @@ class CustomHotelCard extends StatelessWidget {
 final Map<String, WidgetDefinition> customRegistry = {
   'custom:user_profile': WidgetDefinition(
     builder: (context, props) => CustomUserProfileCard(props: props),
-    description: "Displays a premium user profile card with typewriter text animations.",
+    description:
+        "Displays a premium user profile card with typewriter text animations.",
     properties: {
       "name": "String (user's name)",
       "role": "String (user's professional role)",
-      "themeColor": "String (HEX color code, e.g. #3b82f6)"
+      "themeColor": "String (HEX color code, e.g. #3b82f6)",
     },
-    jsonExample: '{"namespace":"custom:user_profile","name":"Vincent Sanicolas","role":"Senior Flutter Architect","themeColor":"#3b82f6"}',
+    jsonExample:
+        '{"namespace":"custom:user_profile","name":"Vincent Sanicolas","role":"Senior Flutter Architect","themeColor":"#3b82f6"}',
   ),
   'custom:hotel_card': WidgetDefinition(
     builder: (context, props) => CustomHotelCard(props: props),
-    description: "Displays a premium hotel recommendation card with a rating star badge.",
+    description:
+        "Displays a premium hotel recommendation card with a rating star badge.",
     properties: {
       "title": "String (hotel name)",
       "description": "String (short review description)",
-      "rating": "String (star rating, e.g. 4.9)"
+      "rating": "String (star rating, e.g. 4.9)",
     },
-    jsonExample: '{"namespace":"custom:hotel_card","title":"Le Bristol Paris","description":"A historic palace hotel featuring 3-star Michelin dining.","rating":"4.9"}',
+    jsonExample:
+        '{"namespace":"custom:hotel_card","title":"Le Bristol Paris","description":"A historic palace hotel featuring 3-star Michelin dining.","rating":"4.9"}',
   ),
 };

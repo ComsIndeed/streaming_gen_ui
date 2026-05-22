@@ -22,8 +22,12 @@ class StreamingFlex extends StatelessWidget {
 
           final direction = data["direction"] as String? ?? "vertical";
           final gap = (data["gap"] as num?)?.toDouble() ?? 0.0;
-          final mainAlign = _parseMainAlign(data["mainAxisAlignment"] as String?);
-          final crossAlign = _parseCrossAlign(data["crossAxisAlignment"] as String?);
+          final mainAlign = _parseMainAlign(
+            data["mainAxisAlignment"] as String?,
+          );
+          final crossAlign = _parseCrossAlign(
+            data["crossAxisAlignment"] as String?,
+          );
 
           return StreamBuilder<List<dynamic>>(
             stream: childrenProperty.stream,
@@ -53,18 +57,22 @@ class StreamingFlex extends StatelessWidget {
               return AnimatedSize(
                 duration: const Duration(milliseconds: 300),
                 curve: Curves.easeOutCubic,
-                alignment: isVertical ? Alignment.topCenter : Alignment.centerLeft,
+                alignment: isVertical
+                    ? Alignment.topCenter
+                    : Alignment.centerLeft,
                 child: isVertical
                     ? Column(
                         mainAxisSize: MainAxisSize.min,
                         mainAxisAlignment: mainAlign ?? MainAxisAlignment.start,
-                        crossAxisAlignment: crossAlign ?? CrossAxisAlignment.start,
+                        crossAxisAlignment:
+                            crossAlign ?? CrossAxisAlignment.start,
                         children: childrenList,
                       )
                     : Row(
                         mainAxisSize: MainAxisSize.min,
                         mainAxisAlignment: mainAlign ?? MainAxisAlignment.start,
-                        crossAxisAlignment: crossAlign ?? CrossAxisAlignment.center,
+                        crossAxisAlignment:
+                            crossAlign ?? CrossAxisAlignment.center,
                         children: childrenList,
                       ),
               );
@@ -79,12 +87,18 @@ class StreamingFlex extends StatelessWidget {
 MainAxisAlignment? _parseMainAlign(String? align) {
   if (align == null) return null;
   switch (align) {
-    case 'start': return MainAxisAlignment.start;
-    case 'center': return MainAxisAlignment.center;
-    case 'end': return MainAxisAlignment.end;
-    case 'spaceBetween': return MainAxisAlignment.spaceBetween;
-    case 'spaceAround': return MainAxisAlignment.spaceAround;
-    case 'spaceEvenly': return MainAxisAlignment.spaceEvenly;
+    case 'start':
+      return MainAxisAlignment.start;
+    case 'center':
+      return MainAxisAlignment.center;
+    case 'end':
+      return MainAxisAlignment.end;
+    case 'spaceBetween':
+      return MainAxisAlignment.spaceBetween;
+    case 'spaceAround':
+      return MainAxisAlignment.spaceAround;
+    case 'spaceEvenly':
+      return MainAxisAlignment.spaceEvenly;
   }
   return null;
 }
@@ -92,11 +106,16 @@ MainAxisAlignment? _parseMainAlign(String? align) {
 CrossAxisAlignment? _parseCrossAlign(String? align) {
   if (align == null) return null;
   switch (align) {
-    case 'start': return CrossAxisAlignment.start;
-    case 'center': return CrossAxisAlignment.center;
-    case 'end': return CrossAxisAlignment.end;
-    case 'stretch': return CrossAxisAlignment.stretch;
-    case 'baseline': return CrossAxisAlignment.baseline;
+    case 'start':
+      return CrossAxisAlignment.start;
+    case 'center':
+      return CrossAxisAlignment.center;
+    case 'end':
+      return CrossAxisAlignment.end;
+    case 'stretch':
+      return CrossAxisAlignment.stretch;
+    case 'baseline':
+      return CrossAxisAlignment.baseline;
   }
   return null;
 }

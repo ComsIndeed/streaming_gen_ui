@@ -47,16 +47,20 @@ class _StreamingTextFieldState extends State<StreamingTextField> {
         stream: _textFieldStream,
         builder: (context, snapshot) {
           final data = snapshot.data ?? const {};
-          final hintText = data["placeholder"] as String? ?? data["hintText"] as String?;
+          final hintText =
+              data["placeholder"] as String? ?? data["hintText"] as String?;
           final labelText = data["labelText"] as String?;
           final colorHex = data["color"] as String?;
-          final fillColor = _parseColor(colorHex) ?? theme.colorScheme.surfaceContainerLow;
+          final fillColor =
+              _parseColor(colorHex) ?? theme.colorScheme.surfaceContainerLow;
 
           return FutureBuilder<String>(
             future: _actionFuture,
             builder: (context, actionSnapshot) {
               final action = actionSnapshot.data;
-              final isEnabled = actionSnapshot.connectionState == ConnectionState.done && action != null;
+              final isEnabled =
+                  actionSnapshot.connectionState == ConnectionState.done &&
+                  action != null;
 
               return TextField(
                 enabled: isEnabled,
@@ -75,8 +79,13 @@ class _StreamingTextFieldState extends State<StreamingTextField> {
                   filled: true,
                   fillColor: isEnabled
                       ? fillColor
-                      : theme.colorScheme.surfaceContainerLowest.withOpacity(0.4),
-                  contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+                      : theme.colorScheme.surfaceContainerLowest.withOpacity(
+                          0.4,
+                        ),
+                  contentPadding: const EdgeInsets.symmetric(
+                    horizontal: 16,
+                    vertical: 14,
+                  ),
                   prefixIcon: Icon(
                     Icons.search,
                     size: 18,
@@ -112,9 +121,13 @@ class _StreamingTextFieldState extends State<StreamingTextField> {
                     ),
                   ),
                 ),
-                onSubmitted: isEnabled ? (value) {
-                  debugPrint('[GEN_UI:TEXTFIELD] Submitted: "$value" -> $action');
-                } : null,
+                onSubmitted: isEnabled
+                    ? (value) {
+                        debugPrint(
+                          '[GEN_UI:TEXTFIELD] Submitted: "$value" -> $action',
+                        );
+                      }
+                    : null,
               );
             },
           );

@@ -30,13 +30,16 @@ class StreamingUiProvider extends InheritedWidget {
   /// Throws an assertion error if not found.
   static WidgetRegistry of(BuildContext context) {
     final provider = maybeOf(context);
-    assert(provider != null, 'No StreamingUiProvider found in context. Make sure your view is mounted within the StreamingGenerativeUi system.');
+    assert(
+      provider != null,
+      'No StreamingUiProvider found in context. Make sure your view is mounted within the StreamingGenerativeUi system.',
+    );
     return provider!.registry;
   }
 
   @override
   bool updateShouldNotify(StreamingUiProvider oldWidget) =>
-      registry != oldWidget.registry || 
+      registry != oldWidget.registry ||
       showInternalErrors != oldWidget.showInternalErrors ||
       errorBuilder != oldWidget.errorBuilder ||
       config != oldWidget.config;

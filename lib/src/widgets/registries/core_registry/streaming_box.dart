@@ -22,7 +22,8 @@ class StreamingBox extends StatelessWidget {
           final padding = _parseEdgeInsets(data["padding"]);
           final margin = _parseEdgeInsets(data["margin"]);
           final bgColor = _parseColor(data["bgColor"] as String?);
-          final borderRadius = (data["borderRadius"] as num?)?.toDouble() ?? 8.0;
+          final borderRadius =
+              (data["borderRadius"] as num?)?.toDouble() ?? 8.0;
           final alignment = _parseAlignment(data["alignment"] as String?);
           final width = (data["width"] as num?)?.toDouble();
           final height = (data["height"] as num?)?.toDouble();
@@ -58,11 +59,20 @@ EdgeInsetsGeometry? _parseEdgeInsets(dynamic value) {
   if (value == null) return null;
   if (value is num) return EdgeInsets.all(value.toDouble());
   if (value is String) {
-    final parts = value.split(',').map((p) => double.tryParse(p.trim()) ?? 0.0).toList();
+    final parts = value
+        .split(',')
+        .map((p) => double.tryParse(p.trim()) ?? 0.0)
+        .toList();
     if (parts.length == 1) return EdgeInsets.all(parts[0]);
-    if (parts.length == 2) return EdgeInsets.symmetric(vertical: parts[0], horizontal: parts[1]);
+    if (parts.length == 2)
+      return EdgeInsets.symmetric(vertical: parts[0], horizontal: parts[1]);
     if (parts.length >= 4) {
-      return EdgeInsets.only(left: parts[0], top: parts[1], right: parts[2], bottom: parts[3]);
+      return EdgeInsets.only(
+        left: parts[0],
+        top: parts[1],
+        right: parts[2],
+        bottom: parts[3],
+      );
     }
   }
   return null;
@@ -71,15 +81,24 @@ EdgeInsetsGeometry? _parseEdgeInsets(dynamic value) {
 AlignmentGeometry? _parseAlignment(String? align) {
   if (align == null) return null;
   switch (align) {
-    case 'topLeft': return Alignment.topLeft;
-    case 'topCenter': return Alignment.topCenter;
-    case 'topRight': return Alignment.topRight;
-    case 'centerLeft': return Alignment.centerLeft;
-    case 'center': return Alignment.center;
-    case 'centerRight': return Alignment.centerRight;
-    case 'bottomLeft': return Alignment.bottomLeft;
-    case 'bottomCenter': return Alignment.bottomCenter;
-    case 'bottomRight': return Alignment.bottomRight;
+    case 'topLeft':
+      return Alignment.topLeft;
+    case 'topCenter':
+      return Alignment.topCenter;
+    case 'topRight':
+      return Alignment.topRight;
+    case 'centerLeft':
+      return Alignment.centerLeft;
+    case 'center':
+      return Alignment.center;
+    case 'centerRight':
+      return Alignment.centerRight;
+    case 'bottomLeft':
+      return Alignment.bottomLeft;
+    case 'bottomCenter':
+      return Alignment.bottomCenter;
+    case 'bottomRight':
+      return Alignment.bottomRight;
   }
   return null;
 }

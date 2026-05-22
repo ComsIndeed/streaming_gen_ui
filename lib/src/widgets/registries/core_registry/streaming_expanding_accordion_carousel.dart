@@ -11,10 +11,12 @@ class StreamingExpandingAccordionCarousel extends StatefulWidget {
   const StreamingExpandingAccordionCarousel({super.key, required this.props});
 
   @override
-  State<StreamingExpandingAccordionCarousel> createState() => _StreamingExpandingAccordionCarouselState();
+  State<StreamingExpandingAccordionCarousel> createState() =>
+      _StreamingExpandingAccordionCarouselState();
 }
 
-class _StreamingExpandingAccordionCarouselState extends State<StreamingExpandingAccordionCarousel> {
+class _StreamingExpandingAccordionCarouselState
+    extends State<StreamingExpandingAccordionCarousel> {
   late Stream<Map<String, dynamic>> _accordionStream;
   int _expandedIndex = 0;
 
@@ -25,7 +27,9 @@ class _StreamingExpandingAccordionCarouselState extends State<StreamingExpanding
   }
 
   @override
-  void didUpdateWidget(covariant StreamingExpandingAccordionCarousel oldWidget) {
+  void didUpdateWidget(
+    covariant StreamingExpandingAccordionCarousel oldWidget,
+  ) {
     super.didUpdateWidget(oldWidget);
     if (!identical(widget.props, oldWidget.props)) {
       _initProps();
@@ -62,9 +66,14 @@ class _StreamingExpandingAccordionCarouselState extends State<StreamingExpanding
                 final title = item["title"] as String? ?? "";
                 final desc = item["description"] as String? ?? "";
                 final colorHex = item["color"] as String?;
-                final exactColor = (item["exactColor"] as bool?) ?? (data["exactColor"] as bool?) ?? false;
+                final exactColor =
+                    (item["exactColor"] as bool?) ??
+                    (data["exactColor"] as bool?) ??
+                    false;
                 final provider = StreamingUiProvider.maybeOf(context);
-                final rawBg = _parseColor(colorHex) ?? theme.colorScheme.surfaceContainerHigh;
+                final rawBg =
+                    _parseColor(colorHex) ??
+                    theme.colorScheme.surfaceContainerHigh;
                 final bg = adjustColorForTheme(
                   context,
                   rawBg,
@@ -85,14 +94,21 @@ class _StreamingExpandingAccordionCarouselState extends State<StreamingExpanding
                     },
                     child: AnimatedContainer(
                       duration: const Duration(milliseconds: 350),
-                      curve: const Cubic(0.2, 0.8, 0.2, 1.0), // Standard Snap Curve
+                      curve: const Cubic(
+                        0.2,
+                        0.8,
+                        0.2,
+                        1.0,
+                      ), // Standard Snap Curve
                       margin: const EdgeInsets.symmetric(horizontal: 4),
                       padding: const EdgeInsets.all(16),
                       decoration: BoxDecoration(
                         color: bg,
                         borderRadius: BorderRadius.circular(16),
                         border: Border.all(
-                          color: isExpanded ? theme.colorScheme.primary.withOpacity(0.3) : theme.colorScheme.outline.withOpacity(0.06),
+                          color: isExpanded
+                              ? theme.colorScheme.primary.withOpacity(0.3)
+                              : theme.colorScheme.outline.withOpacity(0.06),
                           width: isExpanded ? 1.5 : 1.0,
                         ),
                       ),
@@ -102,8 +118,14 @@ class _StreamingExpandingAccordionCarouselState extends State<StreamingExpanding
                           Row(
                             children: [
                               Icon(
-                                isExpanded ? Icons.folder_open_rounded : Icons.folder_rounded,
-                                color: isExpanded ? theme.colorScheme.primary : theme.colorScheme.onSurface.withOpacity(0.4),
+                                isExpanded
+                                    ? Icons.folder_open_rounded
+                                    : Icons.folder_rounded,
+                                color: isExpanded
+                                    ? theme.colorScheme.primary
+                                    : theme.colorScheme.onSurface.withOpacity(
+                                        0.4,
+                                      ),
                                 size: 20,
                               ),
                               if (isExpanded) ...[
@@ -132,7 +154,8 @@ class _StreamingExpandingAccordionCarouselState extends State<StreamingExpanding
                                 style: TextStyle(
                                   fontWeight: FontWeight.w600,
                                   fontSize: 13,
-                                  color: theme.colorScheme.onSurface.withOpacity(0.5),
+                                  color: theme.colorScheme.onSurface
+                                      .withOpacity(0.5),
                                 ),
                                 maxLines: 1,
                                 overflow: TextOverflow.ellipsis,
@@ -148,7 +171,8 @@ class _StreamingExpandingAccordionCarouselState extends State<StreamingExpanding
                                   desc,
                                   style: TextStyle(
                                     fontSize: 12,
-                                    color: theme.colorScheme.onSurfaceVariant.withOpacity(0.8),
+                                    color: theme.colorScheme.onSurfaceVariant
+                                        .withOpacity(0.8),
                                     height: 1.4,
                                   ),
                                 ),

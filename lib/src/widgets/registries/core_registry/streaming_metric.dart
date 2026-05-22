@@ -63,7 +63,9 @@ class StreamingMetric extends StatelessWidget {
                   FutureBuilder<String>(
                     future: labelFuture,
                     builder: (context, labelSnap) {
-                      final isDone = labelSnap.connectionState == ConnectionState.done && labelSnap.hasData;
+                      final isDone =
+                          labelSnap.connectionState == ConnectionState.done &&
+                          labelSnap.hasData;
                       final initialLabel = isDone ? labelSnap.data! : '';
 
                       return AccumulatingStringStreamBuilder(
@@ -76,7 +78,9 @@ class StreamingMetric extends StatelessWidget {
                               fontSize: 12,
                               fontWeight: FontWeight.w600,
                               // ignore: deprecated_member_use
-                              color: theme.colorScheme.onSurface.withOpacity(0.5),
+                              color: theme.colorScheme.onSurface.withOpacity(
+                                0.5,
+                              ),
                             ),
                           );
                         },
@@ -89,7 +93,9 @@ class StreamingMetric extends StatelessWidget {
                   FutureBuilder<String>(
                     future: valueFuture,
                     builder: (context, valSnap) {
-                      final isDone = valSnap.connectionState == ConnectionState.done && valSnap.hasData;
+                      final isDone =
+                          valSnap.connectionState == ConnectionState.done &&
+                          valSnap.hasData;
                       final initialVal = isDone ? valSnap.data! : '...';
 
                       return AccumulatingStringStreamBuilder(
@@ -115,8 +121,13 @@ class StreamingMetric extends StatelessWidget {
                   FutureBuilder<String>(
                     future: trendDirFuture,
                     builder: (context, trendDirSnap) {
-                      final isDoneDir = trendDirSnap.connectionState == ConnectionState.done && trendDirSnap.hasData;
-                      final initialDir = isDoneDir ? trendDirSnap.data! : 'neutral';
+                      final isDoneDir =
+                          trendDirSnap.connectionState ==
+                              ConnectionState.done &&
+                          trendDirSnap.hasData;
+                      final initialDir = isDoneDir
+                          ? trendDirSnap.data!
+                          : 'neutral';
 
                       return AccumulatingStringStreamBuilder(
                         stream: trendDirStream,
@@ -138,14 +149,20 @@ class StreamingMetric extends StatelessWidget {
                           return FutureBuilder<String>(
                             future: trendFuture,
                             builder: (context, trendSnap) {
-                              final isDoneTrend = trendSnap.connectionState == ConnectionState.done && trendSnap.hasData;
-                              final initialTrend = isDoneTrend ? trendSnap.data! : '';
+                              final isDoneTrend =
+                                  trendSnap.connectionState ==
+                                      ConnectionState.done &&
+                                  trendSnap.hasData;
+                              final initialTrend = isDoneTrend
+                                  ? trendSnap.data!
+                                  : '';
 
                               return AccumulatingStringStreamBuilder(
                                 stream: trendStream,
                                 initialValue: initialTrend,
                                 builder: (context, trendVal) {
-                                  if (trendVal.isEmpty) return const SizedBox.shrink();
+                                  if (trendVal.isEmpty)
+                                    return const SizedBox.shrink();
 
                                   return Row(
                                     mainAxisSize: MainAxisSize.min,

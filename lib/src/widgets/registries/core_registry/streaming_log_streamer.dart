@@ -76,10 +76,7 @@ class _StreamingLogStreamerState extends State<StreamingLogStreamer> {
             decoration: BoxDecoration(
               color: const Color(0xFF0F172A), // Slate 900
               borderRadius: BorderRadius.circular(16),
-              border: Border.all(
-                color: const Color(0xFF1E293B),
-                width: 1.5,
-              ),
+              border: Border.all(color: const Color(0xFF1E293B), width: 1.5),
               boxShadow: [
                 BoxShadow(
                   color: Colors.black.withOpacity(0.2),
@@ -94,18 +91,42 @@ class _StreamingLogStreamerState extends State<StreamingLogStreamer> {
                 children: [
                   // Header bar
                   Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 16,
+                      vertical: 8,
+                    ),
                     color: const Color(0xFF1E293B), // Slate 800
                     child: Row(
                       children: [
                         // Window buttons
                         Row(
                           children: [
-                            Container(width: 8, height: 8, decoration: const BoxDecoration(color: Color(0xFFEF4444), shape: BoxShape.circle)),
+                            Container(
+                              width: 8,
+                              height: 8,
+                              decoration: const BoxDecoration(
+                                color: Color(0xFFEF4444),
+                                shape: BoxShape.circle,
+                              ),
+                            ),
                             const SizedBox(width: 4),
-                            Container(width: 8, height: 8, decoration: const BoxDecoration(color: Color(0xFFF59E0B), shape: BoxShape.circle)),
+                            Container(
+                              width: 8,
+                              height: 8,
+                              decoration: const BoxDecoration(
+                                color: Color(0xFFF59E0B),
+                                shape: BoxShape.circle,
+                              ),
+                            ),
                             const SizedBox(width: 4),
-                            Container(width: 8, height: 8, decoration: const BoxDecoration(color: Color(0xFF10B981), shape: BoxShape.circle)),
+                            Container(
+                              width: 8,
+                              height: 8,
+                              decoration: const BoxDecoration(
+                                color: Color(0xFF10B981),
+                                shape: BoxShape.circle,
+                              ),
+                            ),
                           ],
                         ),
                         const Expanded(
@@ -136,7 +157,11 @@ class _StreamingLogStreamerState extends State<StreamingLogStreamer> {
                             children: const [
                               Text(
                                 "\$ ",
-                                style: TextStyle(color: Color(0xFF10B981), fontFamily: 'monospace', fontSize: 12),
+                                style: TextStyle(
+                                  color: Color(0xFF10B981),
+                                  fontFamily: 'monospace',
+                                  fontSize: 12,
+                                ),
                               ),
                               _FlashingCursor(),
                             ],
@@ -153,7 +178,11 @@ class _StreamingLogStreamerState extends State<StreamingLogStreamer> {
                             children: [
                               const Text(
                                 "\$ ",
-                                style: TextStyle(color: Color(0xFF10B981), fontFamily: 'monospace', fontSize: 12),
+                                style: TextStyle(
+                                  color: Color(0xFF10B981),
+                                  fontFamily: 'monospace',
+                                  fontSize: 12,
+                                ),
                               ),
                               Expanded(
                                 child: RichText(
@@ -166,7 +195,10 @@ class _StreamingLogStreamerState extends State<StreamingLogStreamer> {
                                     ),
                                     children: [
                                       TextSpan(text: logText),
-                                      if (isLast) const WidgetSpan(child: _FlashingCursor()),
+                                      if (isLast)
+                                        const WidgetSpan(
+                                          child: _FlashingCursor(),
+                                        ),
                                     ],
                                   ),
                                 ),
@@ -222,10 +254,7 @@ class _FlashingCursorState extends State<_FlashingCursor> {
       opacity: _visible ? 1.0 : 0.0,
       child: const Text(
         "█",
-        style: TextStyle(
-          color: Color(0xFF10B981),
-          fontSize: 12,
-        ),
+        style: TextStyle(color: Color(0xFF10B981), fontSize: 12),
       ),
     );
   }

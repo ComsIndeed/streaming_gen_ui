@@ -82,7 +82,10 @@ class _StreamingTerminalState extends State<StreamingTerminal> {
             children: [
               // Mac Title Bar Window Header
               Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 14,
+                  vertical: 10,
+                ),
                 child: Row(
                   children: [
                     // Mac Control Dots
@@ -102,8 +105,12 @@ class _StreamingTerminalState extends State<StreamingTerminal> {
                     FutureBuilder<String>(
                       future: _titleFuture,
                       builder: (context, titleSnap) {
-                        final isDone = titleSnap.connectionState == ConnectionState.done && titleSnap.hasData;
-                        final initialTitle = isDone ? titleSnap.data! : 'terminal';
+                        final isDone =
+                            titleSnap.connectionState == ConnectionState.done &&
+                            titleSnap.hasData;
+                        final initialTitle = isDone
+                            ? titleSnap.data!
+                            : 'terminal';
 
                         return AccumulatingStringStreamBuilder(
                           stream: _titleStream,
@@ -129,16 +136,22 @@ class _StreamingTerminalState extends State<StreamingTerminal> {
                     FutureBuilder<String>(
                       future: _langFuture,
                       builder: (context, langSnap) {
-                        final isDone = langSnap.connectionState == ConnectionState.done && langSnap.hasData;
+                        final isDone =
+                            langSnap.connectionState == ConnectionState.done &&
+                            langSnap.hasData;
                         final initialLang = isDone ? langSnap.data! : '';
 
                         return AccumulatingStringStreamBuilder(
                           stream: _langStream,
                           initialValue: initialLang,
                           builder: (context, langText) {
-                            if (langText.isEmpty) return const SizedBox(width: 44);
+                            if (langText.isEmpty)
+                              return const SizedBox(width: 44);
                             return Container(
-                              padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                              padding: const EdgeInsets.symmetric(
+                                horizontal: 6,
+                                vertical: 2,
+                              ),
                               decoration: BoxDecoration(
                                 color: const Color(0xFF1E293B),
                                 borderRadius: BorderRadius.circular(4),
@@ -161,11 +174,7 @@ class _StreamingTerminalState extends State<StreamingTerminal> {
                 ),
               ),
 
-              const Divider(
-                color: Color(0xFF1E293B),
-                height: 1,
-                thickness: 1,
-              ),
+              const Divider(color: Color(0xFF1E293B), height: 1, thickness: 1),
 
               // Code Display Pane
               Padding(
@@ -173,7 +182,9 @@ class _StreamingTerminalState extends State<StreamingTerminal> {
                 child: FutureBuilder<String>(
                   future: _codeFuture,
                   builder: (context, codeSnap) {
-                    final isDone = codeSnap.connectionState == ConnectionState.done && codeSnap.hasData;
+                    final isDone =
+                        codeSnap.connectionState == ConnectionState.done &&
+                        codeSnap.hasData;
                     final initialCode = isDone ? codeSnap.data! : '';
 
                     return AccumulatingStringStreamBuilder(
@@ -205,10 +216,7 @@ class _StreamingTerminalState extends State<StreamingTerminal> {
     return Container(
       width: 10,
       height: 10,
-      decoration: BoxDecoration(
-        color: color,
-        shape: BoxShape.circle,
-      ),
+      decoration: BoxDecoration(color: color, shape: BoxShape.circle),
     );
   }
 }

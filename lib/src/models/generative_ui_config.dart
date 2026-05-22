@@ -8,9 +8,7 @@ class GenerativeUiConfig {
   /// This can be bypassed per-widget by supplying `exactColor: true`.
   final bool adaptColorsToTheme;
 
-  const GenerativeUiConfig({
-    this.adaptColorsToTheme = true,
-  });
+  const GenerativeUiConfig({this.adaptColorsToTheme = true});
 }
 
 /// Helper function to automatically adjust dynamic colors to match active theme brightness
@@ -40,13 +38,19 @@ Color adjustColorForTheme(
         ? 0.07 + (hsl.lightness - 0.4) * 0.08
         : hsl.lightness.clamp(0.05, 0.15);
     final double newSaturation = hsl.saturation.clamp(0.1, 0.35);
-    return hsl.withLightness(newLightness).withSaturation(newSaturation).toColor();
+    return hsl
+        .withLightness(newLightness)
+        .withSaturation(newSaturation)
+        .toColor();
   } else {
     // Text/Foreground: Lighten the lightness to make it high contrast & pastel readable (0.75 to 0.95).
     final double newLightness = hsl.lightness < 0.6
         ? 0.8 - (0.6 - hsl.lightness) * 0.15
         : hsl.lightness.clamp(0.75, 0.95);
     final double newSaturation = hsl.saturation.clamp(0.2, 0.65);
-    return hsl.withLightness(newLightness).withSaturation(newSaturation).toColor();
+    return hsl
+        .withLightness(newLightness)
+        .withSaturation(newSaturation)
+        .toColor();
   }
 }

@@ -36,7 +36,8 @@ class StreamingListTile extends StatelessWidget {
           final iconColorHex = data["iconColor"] as String?;
           final exactColor = data["exactColor"] as bool? ?? false;
           final provider = StreamingUiProvider.maybeOf(context);
-          final rawIconColor = _parseColor(iconColorHex) ?? theme.colorScheme.primary;
+          final rawIconColor =
+              _parseColor(iconColorHex) ?? theme.colorScheme.primary;
           final iconColor = adjustColorForTheme(
             context,
             rawIconColor,
@@ -74,11 +75,7 @@ class StreamingListTile extends StatelessWidget {
                         color: iconColor.withOpacity(0.1),
                         shape: BoxShape.circle,
                       ),
-                      child: Icon(
-                        iconData,
-                        color: iconColor,
-                        size: 22,
-                      ),
+                      child: Icon(iconData, color: iconColor, size: 22),
                     ),
                     const SizedBox(width: 14),
                   ],
@@ -92,7 +89,10 @@ class StreamingListTile extends StatelessWidget {
                         FutureBuilder<String>(
                           future: titleFuture,
                           builder: (context, titleSnap) {
-                            final isDone = titleSnap.connectionState == ConnectionState.done && titleSnap.hasData;
+                            final isDone =
+                                titleSnap.connectionState ==
+                                    ConnectionState.done &&
+                                titleSnap.hasData;
                             final initialTitle = isDone ? titleSnap.data! : '';
 
                             return AccumulatingStringStreamBuilder(
@@ -116,21 +116,26 @@ class StreamingListTile extends StatelessWidget {
                         FutureBuilder<String>(
                           future: subtitleFuture,
                           builder: (context, subSnap) {
-                            final isDone = subSnap.connectionState == ConnectionState.done && subSnap.hasData;
+                            final isDone =
+                                subSnap.connectionState ==
+                                    ConnectionState.done &&
+                                subSnap.hasData;
                             final initialSub = isDone ? subSnap.data! : '';
 
                             return AccumulatingStringStreamBuilder(
                               stream: subtitleStream,
                               initialValue: initialSub,
                               builder: (context, subText) {
-                                if (subText.isEmpty) return const SizedBox.shrink();
+                                if (subText.isEmpty)
+                                  return const SizedBox.shrink();
 
                                 return Text(
                                   subText,
                                   style: TextStyle(
                                     fontSize: 12,
                                     // ignore: deprecated_member_use
-                                    color: theme.colorScheme.onSurface.withOpacity(0.55),
+                                    color: theme.colorScheme.onSurface
+                                        .withOpacity(0.55),
                                   ),
                                 );
                               },
@@ -143,9 +148,12 @@ class StreamingListTile extends StatelessWidget {
 
                   // Trailing widget
                   FutureBuilder<String>(
-                    future: trailingProperty.asMap.getStringProperty("namespace").future,
+                    future: trailingProperty.asMap
+                        .getStringProperty("namespace")
+                        .future,
                     builder: (context, trailingSnap) {
-                      if (trailingSnap.connectionState == ConnectionState.done &&
+                      if (trailingSnap.connectionState ==
+                              ConnectionState.done &&
                           trailingSnap.hasData &&
                           trailingSnap.data!.isNotEmpty) {
                         return Padding(
@@ -169,25 +177,44 @@ class StreamingListTile extends StatelessWidget {
 IconData? _resolveIcon(String? name) {
   if (name == null) return null;
   switch (name.toLowerCase()) {
-    case 'account_circle': return Icons.account_circle_rounded;
-    case 'person': return Icons.person_rounded;
-    case 'settings': return Icons.settings_rounded;
-    case 'star': return Icons.star_rounded;
-    case 'home': return Icons.home_rounded;
-    case 'info': return Icons.info_rounded;
-    case 'warning': return Icons.warning_rounded;
-    case 'error': return Icons.error_rounded;
-    case 'check': return Icons.check_circle_rounded;
-    case 'search': return Icons.search_rounded;
-    case 'play': return Icons.play_arrow_rounded;
-    case 'notifications': return Icons.notifications_rounded;
-    case 'mail': return Icons.mail_rounded;
-    case 'phone': return Icons.phone_rounded;
-    case 'cloud': return Icons.cloud_rounded;
-    case 'download': return Icons.download_rounded;
-    case 'upload': return Icons.upload_rounded;
-    case 'bolt': return Icons.bolt_rounded;
-    case 'lock': return Icons.lock_rounded;
+    case 'account_circle':
+      return Icons.account_circle_rounded;
+    case 'person':
+      return Icons.person_rounded;
+    case 'settings':
+      return Icons.settings_rounded;
+    case 'star':
+      return Icons.star_rounded;
+    case 'home':
+      return Icons.home_rounded;
+    case 'info':
+      return Icons.info_rounded;
+    case 'warning':
+      return Icons.warning_rounded;
+    case 'error':
+      return Icons.error_rounded;
+    case 'check':
+      return Icons.check_circle_rounded;
+    case 'search':
+      return Icons.search_rounded;
+    case 'play':
+      return Icons.play_arrow_rounded;
+    case 'notifications':
+      return Icons.notifications_rounded;
+    case 'mail':
+      return Icons.mail_rounded;
+    case 'phone':
+      return Icons.phone_rounded;
+    case 'cloud':
+      return Icons.cloud_rounded;
+    case 'download':
+      return Icons.download_rounded;
+    case 'upload':
+      return Icons.upload_rounded;
+    case 'bolt':
+      return Icons.bolt_rounded;
+    case 'lock':
+      return Icons.lock_rounded;
   }
   return Icons.widgets_rounded; // Fallback default icon
 }

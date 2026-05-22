@@ -36,7 +36,8 @@ class StreamingBentoCard extends StatelessWidget {
           final themeColorHex = data["themeColor"] as String?;
           final exactColor = data["exactColor"] as bool? ?? false;
           final provider = StreamingUiProvider.maybeOf(context);
-          final rawThemeColor = _parseColor(themeColorHex) ?? theme.colorScheme.primary;
+          final rawThemeColor =
+              _parseColor(themeColorHex) ?? theme.colorScheme.primary;
           final themeColor = adjustColorForTheme(
             context,
             rawThemeColor,
@@ -79,14 +80,17 @@ class StreamingBentoCard extends StatelessWidget {
                     FutureBuilder<String>(
                       future: titleFuture,
                       builder: (context, titleSnap) {
-                        final isDone = titleSnap.connectionState == ConnectionState.done && titleSnap.hasData;
+                        final isDone =
+                            titleSnap.connectionState == ConnectionState.done &&
+                            titleSnap.hasData;
                         final initialTitle = isDone ? titleSnap.data! : '';
 
                         return AccumulatingStringStreamBuilder(
                           stream: titleStream,
                           initialValue: initialTitle,
                           builder: (context, titleText) {
-                            if (titleText.isEmpty) return const SizedBox.shrink();
+                            if (titleText.isEmpty)
+                              return const SizedBox.shrink();
 
                             return Column(
                               crossAxisAlignment: CrossAxisAlignment.start,
@@ -105,20 +109,27 @@ class StreamingBentoCard extends StatelessWidget {
                                 FutureBuilder<String>(
                                   future: subtitleFuture,
                                   builder: (context, subSnap) {
-                                    final isSubDone = subSnap.connectionState == ConnectionState.done && subSnap.hasData;
-                                    final initialSub = isSubDone ? subSnap.data! : '';
+                                    final isSubDone =
+                                        subSnap.connectionState ==
+                                            ConnectionState.done &&
+                                        subSnap.hasData;
+                                    final initialSub = isSubDone
+                                        ? subSnap.data!
+                                        : '';
 
                                     return AccumulatingStringStreamBuilder(
                                       stream: subtitleStream,
                                       initialValue: initialSub,
                                       builder: (context, subText) {
-                                        if (subText.isEmpty) return const SizedBox.shrink();
+                                        if (subText.isEmpty)
+                                          return const SizedBox.shrink();
                                         return Text(
                                           subText,
                                           style: TextStyle(
                                             fontSize: 13,
                                             // ignore: deprecated_member_use
-                                            color: theme.colorScheme.onSurface.withOpacity(0.5),
+                                            color: theme.colorScheme.onSurface
+                                                .withOpacity(0.5),
                                           ),
                                         );
                                       },
@@ -149,10 +160,14 @@ class StreamingBentoCard extends StatelessWidget {
                           children: List.generate(
                             bodyList.length,
                             (index) => Padding(
-                              padding: EdgeInsets.only(bottom: index == bodyList.length - 1 ? 0 : 12.0),
+                              padding: EdgeInsets.only(
+                                bottom: index == bodyList.length - 1 ? 0 : 12.0,
+                              ),
                               child: StreamingEntrance(
                                 child: StreamingWidget(
-                                  props: bodyProperty.getMapProperty('[$index]'),
+                                  props: bodyProperty.getMapProperty(
+                                    '[$index]',
+                                  ),
                                 ),
                               ),
                             ),
@@ -163,9 +178,12 @@ class StreamingBentoCard extends StatelessWidget {
 
                     // Optional Footer Widget
                     FutureBuilder<String>(
-                      future: footerProperty.asMap.getStringProperty("namespace").future,
+                      future: footerProperty.asMap
+                          .getStringProperty("namespace")
+                          .future,
                       builder: (context, footerSnap) {
-                        if (footerSnap.connectionState == ConnectionState.done &&
+                        if (footerSnap.connectionState ==
+                                ConnectionState.done &&
                             footerSnap.hasData &&
                             footerSnap.data!.isNotEmpty) {
                           return Column(

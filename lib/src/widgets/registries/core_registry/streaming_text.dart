@@ -5,7 +5,7 @@ import 'package:streaming_gen_ui/src/widgets/accumulating_string_stream_builder.
 import 'package:streaming_gen_ui/src/widgets/registries/core_registry/streaming_entrance.dart';
 
 /// A utility widget that progressively listens to and accumulates a specific
-/// text property from a [PropertyStream]. 
+/// text property from a [PropertyStream].
 class StreamingText extends StatefulWidget {
   /// The reactive property stream to parse from.
   final PropertyStream props;
@@ -44,7 +44,8 @@ class _StreamingTextState extends State<StreamingText> {
   @override
   void didUpdateWidget(covariant StreamingText oldWidget) {
     super.didUpdateWidget(oldWidget);
-    if (!identical(widget.props, oldWidget.props) || widget.propertyName != oldWidget.propertyName) {
+    if (!identical(widget.props, oldWidget.props) ||
+        widget.propertyName != oldWidget.propertyName) {
       _initStream();
     }
   }
@@ -61,7 +62,9 @@ class _StreamingTextState extends State<StreamingText> {
       child: FutureBuilder<String>(
         future: _textFuture,
         builder: (context, snapshot) {
-          final isDone = snapshot.connectionState == ConnectionState.done && snapshot.hasData;
+          final isDone =
+              snapshot.connectionState == ConnectionState.done &&
+              snapshot.hasData;
           final currentInitial = isDone ? snapshot.data! : widget.initialValue;
 
           return AccumulatingStringStreamBuilder(

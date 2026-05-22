@@ -13,7 +13,8 @@ class StreamingShimmerButton extends StatefulWidget {
   State<StreamingShimmerButton> createState() => _StreamingShimmerButtonState();
 }
 
-class _StreamingShimmerButtonState extends State<StreamingShimmerButton> with SingleTickerProviderStateMixin {
+class _StreamingShimmerButtonState extends State<StreamingShimmerButton>
+    with SingleTickerProviderStateMixin {
   late AnimationController _shimmerController;
   bool _isPressed = false;
 
@@ -44,15 +45,25 @@ class _StreamingShimmerButtonState extends State<StreamingShimmerButton> with Si
         future: actionFuture,
         builder: (context, snapshot) {
           final action = snapshot.data;
-          final isEnabled = snapshot.connectionState == ConnectionState.done && action != null;
+          final isEnabled =
+              snapshot.connectionState == ConnectionState.done &&
+              action != null;
 
           return GestureDetector(
-            onTapDown: isEnabled ? (_) => setState(() => _isPressed = true) : null,
-            onTapUp: isEnabled ? (_) => setState(() => _isPressed = false) : null,
-            onTapCancel: isEnabled ? () => setState(() => _isPressed = false) : null,
+            onTapDown: isEnabled
+                ? (_) => setState(() => _isPressed = true)
+                : null,
+            onTapUp: isEnabled
+                ? (_) => setState(() => _isPressed = false)
+                : null,
+            onTapCancel: isEnabled
+                ? () => setState(() => _isPressed = false)
+                : null,
             onTap: isEnabled
                 ? () {
-                    debugPrint('[GEN_UI:SHIMMER_BUTTON] Action tapped -> $action');
+                    debugPrint(
+                      '[GEN_UI:SHIMMER_BUTTON] Action tapped -> $action',
+                    );
                   }
                 : null,
             child: AnimatedScale(
@@ -65,7 +76,10 @@ class _StreamingShimmerButtonState extends State<StreamingShimmerButton> with Si
                   return AnimatedContainer(
                     duration: const Duration(milliseconds: 300),
                     curve: const Cubic(0.2, 0.8, 0.2, 1.0),
-                    padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 14),
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 24,
+                      vertical: 14,
+                    ),
                     decoration: BoxDecoration(
                       borderRadius: BorderRadius.circular(16),
                       gradient: isEnabled
@@ -88,7 +102,9 @@ class _StreamingShimmerButtonState extends State<StreamingShimmerButton> with Si
                           : null,
                       color: isEnabled
                           ? null
-                          : theme.colorScheme.surfaceContainerHigh.withOpacity(0.6),
+                          : theme.colorScheme.surfaceContainerHigh.withOpacity(
+                              0.6,
+                            ),
                       border: Border.all(
                         color: isEnabled
                             ? Colors.transparent

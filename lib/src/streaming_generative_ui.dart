@@ -15,7 +15,7 @@ class StreamingGenerativeUi with ChangeNotifier {
   /// Extra custom instructions to append to the system prompt.
   /// These instructions will be dynamically numbered and formatted under an
   /// "Additional Instructions" section in the system prompt.
-  /// 
+  ///
   /// Example:
   /// ```dart
   /// final genUi = StreamingGenerativeUi(
@@ -32,7 +32,7 @@ class StreamingGenerativeUi with ChangeNotifier {
   /// When provided, these are injected into the agent's system prompt instructions
   /// to explain the purpose of each view zone and how to target them using the
   /// `<interface viewId="...">` tag attribute.
-  /// 
+  ///
   /// Example:
   /// ```dart
   /// final genUi = StreamingGenerativeUi(
@@ -58,7 +58,7 @@ class StreamingGenerativeUi with ChangeNotifier {
   /// routing rules, target view IDs, and additional custom instructions.
   String get systemPrompt {
     final buffer = StringBuffer();
-    
+
     // Base system prompt fragment from the registry.
     buffer.writeln(registry.systemPromptFragment);
     buffer.writeln();
@@ -66,10 +66,14 @@ class StreamingGenerativeUi with ChangeNotifier {
     // Custom view IDs target zones instructions if provided.
     if (customViewIds != null && customViewIds!.isNotEmpty) {
       buffer.writeln('### 4. Target View Zones');
-      buffer.writeln('When rendering an interactive component, you can target specific view zones in the application by specifying the `viewId` attribute on the `<interface>` tag:');
+      buffer.writeln(
+        'When rendering an interactive component, you can target specific view zones in the application by specifying the `viewId` attribute on the `<interface>` tag:',
+      );
       buffer.writeln('`<interface viewId="view_id_here">... </interface>`');
       buffer.writeln();
-      buffer.writeln('You can target the following view IDs depending on the context:');
+      buffer.writeln(
+        'You can target the following view IDs depending on the context:',
+      );
       customViewIds!.forEach((id, desc) {
         buffer.writeln('* `$id`: $desc');
       });
@@ -78,7 +82,9 @@ class StreamingGenerativeUi with ChangeNotifier {
 
     // Additional extra instructions.
     if (extraInstructions.isNotEmpty) {
-      final startIndex = (customViewIds != null && customViewIds!.isNotEmpty) ? 5 : 4;
+      final startIndex = (customViewIds != null && customViewIds!.isNotEmpty)
+          ? 5
+          : 4;
       buffer.writeln('### $startIndex. Additional Instructions');
       for (var i = 0; i < extraInstructions.length; i++) {
         buffer.writeln('${i + 1}. ${extraInstructions[i]}');
@@ -138,40 +144,39 @@ class StreamingGenerativeUi with ChangeNotifier {
         .within('<interface{attrs}>')
         .attribute('viewId')
         .listen((targetId) {
-      activeViewId = targetId ?? defaultViewId ?? '';
-      if (activeViewId.isNotEmpty) {
-        final viewState = _getOrCreateViewState(activeViewId);
-        if (!clearedViews.contains(activeViewId)) {
-          clearedViews.add(activeViewId);
-          viewState.clear();
-        }
-      }
-    });
+          activeViewId = targetId ?? defaultViewId ?? '';
+          if (activeViewId.isNotEmpty) {
+            final viewState = _getOrCreateViewState(activeViewId);
+            if (!clearedViews.contains(activeViewId)) {
+              clearedViews.add(activeViewId);
+              viewState.clear();
+            }
+          }
+        });
 
     // Route widget payload chunks to the active target view.
     final widgetSubscription = parser
         .within('<interface{attrs}>')
         .stream
         .listen((chunk) {
-      if (activeViewId.isNotEmpty) {
-        final viewState = _getOrCreateViewState(activeViewId);
-        viewState.addWidgetChunk(chunk);
-      }
-    });
+          if (activeViewId.isNotEmpty) {
+            final viewState = _getOrCreateViewState(activeViewId);
+            viewState.addWidgetChunk(chunk);
+          }
+        });
 
     // Route conversational text chunks to the default view state and trigger callbacks.
-    final textSubscription = parser
-        .outside('<interface{attrs}>')
-        .stream
-        .listen((chunk) {
-      if (defaultViewId != null) {
-        final viewState = _getOrCreateViewState(defaultViewId);
-        viewState.addTextChunk(chunk);
-      }
-      if (onText != null) {
-        onText(chunk);
-      }
-    });
+    final textSubscription = parser.outside('<interface{attrs}>').stream.listen(
+      (chunk) {
+        if (defaultViewId != null) {
+          final viewState = _getOrCreateViewState(defaultViewId);
+          viewState.addTextChunk(chunk);
+        }
+        if (onText != null) {
+          onText(chunk);
+        }
+      },
+    );
 
     final rawSubscription = broadcastStream.listen((chunk) {
       fullRawBuffer.write(chunk);

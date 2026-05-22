@@ -21,10 +21,7 @@ class StreamingEntrance extends StatelessWidget {
       builder: (context, value, child) {
         return Opacity(
           opacity: value,
-          child: Transform.scale(
-            scale: 0.96 + (0.04 * value),
-            child: child,
-          ),
+          child: Transform.scale(scale: 0.96 + (0.04 * value), child: child),
         );
       },
       child: child,

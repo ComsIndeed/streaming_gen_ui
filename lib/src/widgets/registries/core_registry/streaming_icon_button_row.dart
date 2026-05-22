@@ -72,7 +72,9 @@ class _StreamingIconButtonRowState extends State<StreamingIconButtonRow> {
                 final iconData = _parseIcon(iconName);
 
                 return Padding(
-                  padding: EdgeInsets.only(right: index == buttons.length - 1 ? 0 : 8.0),
+                  padding: EdgeInsets.only(
+                    right: index == buttons.length - 1 ? 0 : 8.0,
+                  ),
                   child: Tooltip(
                     message: label ?? action,
                     child: Material(
@@ -80,7 +82,9 @@ class _StreamingIconButtonRowState extends State<StreamingIconButtonRow> {
                       child: InkWell(
                         onTap: action.isNotEmpty
                             ? () {
-                                debugPrint('[GEN_UI:ICON_ROW] Tapped: "$action"');
+                                debugPrint(
+                                  '[GEN_UI:ICON_ROW] Tapped: "$action"',
+                                );
                               }
                             : null,
                         borderRadius: BorderRadius.circular(10),

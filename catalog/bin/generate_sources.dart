@@ -11,7 +11,9 @@ void main() {
     rootPath = p.dirname(currentDir);
   }
 
-  final registryDir = Directory(p.join(rootPath, 'lib', 'src', 'widgets', 'registries', 'core_registry'));
+  final registryDir = Directory(
+    p.join(rootPath, 'lib', 'src', 'widgets', 'registries', 'core_registry'),
+  );
   if (!registryDir.existsSync()) {
     print('Error: Core registry directory not found at ${registryDir.path}');
     exit(1);
@@ -50,5 +52,7 @@ void main() {
 
   final outputFile = File(p.join(outputDir.path, 'widget_sources.g.dart'));
   outputFile.writeAsStringSync(outputBuffer.toString());
-  print('Successfully generated ${outputFile.path} with ${sources.length} sources.');
+  print(
+    'Successfully generated ${outputFile.path} with ${sources.length} sources.',
+  );
 }

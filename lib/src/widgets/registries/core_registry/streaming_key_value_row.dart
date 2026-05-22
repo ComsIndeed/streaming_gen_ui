@@ -43,7 +43,9 @@ class StreamingKeyValueRow extends StatelessWidget {
                   child: FutureBuilder<String>(
                     future: labelFuture,
                     builder: (context, labelSnap) {
-                      final isDone = labelSnap.connectionState == ConnectionState.done && labelSnap.hasData;
+                      final isDone =
+                          labelSnap.connectionState == ConnectionState.done &&
+                          labelSnap.hasData;
                       final initialLabel = isDone ? labelSnap.data! : '';
 
                       return AccumulatingStringStreamBuilder(
@@ -56,7 +58,9 @@ class StreamingKeyValueRow extends StatelessWidget {
                               fontSize: 14,
                               fontWeight: FontWeight.w500,
                               // ignore: deprecated_member_use
-                              color: theme.colorScheme.onSurface.withOpacity(0.55),
+                              color: theme.colorScheme.onSurface.withOpacity(
+                                0.55,
+                              ),
                             ),
                           );
                         },
@@ -71,7 +75,9 @@ class StreamingKeyValueRow extends StatelessWidget {
                 FutureBuilder<String>(
                   future: valueFuture,
                   builder: (context, valueSnap) {
-                    final isDone = valueSnap.connectionState == ConnectionState.done && valueSnap.hasData;
+                    final isDone =
+                        valueSnap.connectionState == ConnectionState.done &&
+                        valueSnap.hasData;
                     final initialValue = isDone ? valueSnap.data! : '';
 
                     return AccumulatingStringStreamBuilder(
@@ -82,7 +88,9 @@ class StreamingKeyValueRow extends StatelessWidget {
                           valueText,
                           style: TextStyle(
                             fontSize: 14,
-                            fontWeight: isMonospace ? FontWeight.w600 : FontWeight.w600,
+                            fontWeight: isMonospace
+                                ? FontWeight.w600
+                                : FontWeight.w600,
                             fontFamily: isMonospace ? 'monospace' : null,
                             color: color,
                           ),

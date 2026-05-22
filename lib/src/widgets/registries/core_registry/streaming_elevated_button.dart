@@ -12,7 +12,8 @@ class StreamingElevatedButton extends StatefulWidget {
   const StreamingElevatedButton({super.key, required this.props});
 
   @override
-  State<StreamingElevatedButton> createState() => _StreamingElevatedButtonState();
+  State<StreamingElevatedButton> createState() =>
+      _StreamingElevatedButtonState();
 }
 
 class _StreamingElevatedButtonState extends State<StreamingElevatedButton> {
@@ -30,12 +31,20 @@ class _StreamingElevatedButtonState extends State<StreamingElevatedButton> {
         future: actionFuture,
         builder: (context, snapshot) {
           final action = snapshot.data;
-          final isEnabled = snapshot.connectionState == ConnectionState.done && action != null;
+          final isEnabled =
+              snapshot.connectionState == ConnectionState.done &&
+              action != null;
 
           return GestureDetector(
-            onTapDown: isEnabled ? (_) => setState(() => _isPressed = true) : null,
-            onTapUp: isEnabled ? (_) => setState(() => _isPressed = false) : null,
-            onTapCancel: isEnabled ? () => setState(() => _isPressed = false) : null,
+            onTapDown: isEnabled
+                ? (_) => setState(() => _isPressed = true)
+                : null,
+            onTapUp: isEnabled
+                ? (_) => setState(() => _isPressed = false)
+                : null,
+            onTapCancel: isEnabled
+                ? () => setState(() => _isPressed = false)
+                : null,
             onTap: isEnabled
                 ? () {
                     debugPrint('[GEN_UI:ACTION] Button tapped -> $action');
@@ -48,7 +57,10 @@ class _StreamingElevatedButtonState extends State<StreamingElevatedButton> {
               child: AnimatedContainer(
                 duration: const Duration(milliseconds: 300),
                 curve: const Cubic(0.2, 0.8, 0.2, 1.0), // Standard Snap Curve
-                padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 20,
+                  vertical: 12,
+                ),
                 decoration: BoxDecoration(
                   color: isEnabled
                       ? theme.colorScheme.primary

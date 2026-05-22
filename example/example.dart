@@ -48,12 +48,9 @@ class _StreamingUiScreenState extends State<StreamingUiScreen> {
 
   void _simulateLlmStream() {
     final streamController = StreamController<String>();
-    
+
     // 2. Feed the streaming text chunks directly into the Generative UI engine
-    _genUi.stream(
-      streamController.stream,
-      viewId: 'welcome-view',
-    );
+    _genUi.stream(streamController.stream, viewId: 'welcome-view');
 
     // Simulate progressive JSON tag streaming from an LLM
     const chunks = [
@@ -63,7 +60,7 @@ class _StreamingUiScreenState extends State<StreamingUiScreen> {
       '"width":300,"height":150,',
       '"child":{"namespace":"core:text","content":"Hello from the progressive stream!"}}',
       '</ui-block>',
-      '\nStream completed successfully!'
+      '\nStream completed successfully!',
     ];
 
     int index = 0;
@@ -80,9 +77,7 @@ class _StreamingUiScreenState extends State<StreamingUiScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('Streaming Generative UI Demo'),
-      ),
+      appBar: AppBar(title: const Text('Streaming Generative UI Demo')),
       body: Center(
         child: Padding(
           padding: const EdgeInsets.all(24.0),

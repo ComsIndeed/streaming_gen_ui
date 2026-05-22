@@ -28,7 +28,8 @@ class Registries {
       "core:segmented_control": coreRegistry["core:segmented_control"]!,
       "core:shimmer_button": coreRegistry["core:shimmer_button"]!,
       "core:icon_button_row": coreRegistry["core:icon_button_row"]!,
-      "core:destructive_action_button": coreRegistry["core:destructive_action_button"]!,
+      "core:destructive_action_button":
+          coreRegistry["core:destructive_action_button"]!,
       "ui:stepper_counter": coreRegistry["ui:stepper_counter"]!,
     },
   );
@@ -103,8 +104,10 @@ class Registries {
     widgets: {
       "media:image": coreRegistry["media:image"]!,
       "media:3d_stack_carousel": coreRegistry["media:3d_stack_carousel"]!,
-      "media:expanding_accordion_carousel": coreRegistry["media:expanding_accordion_carousel"]!,
-      "media:split_screen_carousel": coreRegistry["media:split_screen_carousel"]!,
+      "media:expanding_accordion_carousel":
+          coreRegistry["media:expanding_accordion_carousel"]!,
+      "media:split_screen_carousel":
+          coreRegistry["media:split_screen_carousel"]!,
       "doc:voice_visualizer": coreRegistry["doc:voice_visualizer"]!,
     },
   );

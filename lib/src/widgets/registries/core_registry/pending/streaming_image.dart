@@ -37,7 +37,8 @@ class _StreamingImageState extends State<StreamingImage> {
           final url = data["url"] as String?;
           final urlsListRaw = data["urls"];
           final fitStr = data["fit"] as String? ?? "cover";
-          final borderRadius = (data["borderRadius"] as num?)?.toDouble() ?? 16.0;
+          final borderRadius =
+              (data["borderRadius"] as num?)?.toDouble() ?? 16.0;
           final width = (data["width"] as num?)?.toDouble();
           final height = (data["height"] as num?)?.toDouble() ?? 200.0;
 
@@ -49,8 +50,11 @@ class _StreamingImageState extends State<StreamingImage> {
             urlsList = urlsListRaw.map((e) => e.toString()).toList();
           }
 
-          final isCarousel = urlsList.length > 1 || (url == null && urlsList.isEmpty);
-          final slideCount = urlsList.isNotEmpty ? urlsList.length : _placeholderPaths.length;
+          final isCarousel =
+              urlsList.length > 1 || (url == null && urlsList.isEmpty);
+          final slideCount = urlsList.isNotEmpty
+              ? urlsList.length
+              : _placeholderPaths.length;
 
           return Container(
             width: width ?? double.infinity,
@@ -161,7 +165,9 @@ class _StreamingImageState extends State<StreamingImage> {
         loadingBuilder: (context, child, loadingProgress) {
           if (loadingProgress == null) return child;
           return Container(
-            color: Theme.of(context).colorScheme.surfaceContainerHighest.withOpacity(0.3),
+            color: Theme.of(
+              context,
+            ).colorScheme.surfaceContainerHighest.withOpacity(0.3),
             alignment: Alignment.center,
             child: const SizedBox(
               width: 24,

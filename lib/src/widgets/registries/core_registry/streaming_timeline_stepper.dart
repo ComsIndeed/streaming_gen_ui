@@ -9,7 +9,8 @@ class StreamingTimelineStepper extends StatefulWidget {
   const StreamingTimelineStepper({super.key, required this.props});
 
   @override
-  State<StreamingTimelineStepper> createState() => _StreamingTimelineStepperState();
+  State<StreamingTimelineStepper> createState() =>
+      _StreamingTimelineStepperState();
 }
 
 class _StreamingTimelineStepperState extends State<StreamingTimelineStepper> {
@@ -66,7 +67,9 @@ class _StreamingTimelineStepperState extends State<StreamingTimelineStepper> {
                 children: List.generate(steps.length, (index) {
                   final step = steps[index];
                   final label = step["label"] as String? ?? "";
-                  final status = step["status"] as String? ?? "pending"; // complete, active, pending
+                  final status =
+                      step["status"] as String? ??
+                      "pending"; // complete, active, pending
 
                   final isLast = index == steps.length - 1;
 
@@ -76,7 +79,11 @@ class _StreamingTimelineStepperState extends State<StreamingTimelineStepper> {
                   switch (status) {
                     case 'complete':
                       dotColor = const Color(0xFF10B981); // Emerald
-                      icon = const Icon(Icons.check_rounded, size: 10, color: Colors.white);
+                      icon = const Icon(
+                        Icons.check_rounded,
+                        size: 10,
+                        color: Colors.white,
+                      );
                       break;
                     case 'active':
                       dotColor = theme.colorScheme.primary;
@@ -112,7 +119,8 @@ class _StreamingTimelineStepperState extends State<StreamingTimelineStepper> {
                               boxShadow: status == 'active'
                                   ? [
                                       BoxShadow(
-                                        color: theme.colorScheme.primary.withOpacity(0.3),
+                                        color: theme.colorScheme.primary
+                                            .withOpacity(0.3),
                                         blurRadius: 8,
                                         spreadRadius: 1,
                                       ),
@@ -127,9 +135,12 @@ class _StreamingTimelineStepperState extends State<StreamingTimelineStepper> {
                             label,
                             style: TextStyle(
                               fontSize: 11,
-                              fontWeight: status == 'active' ? FontWeight.w700 : FontWeight.w500,
+                              fontWeight: status == 'active'
+                                  ? FontWeight.w700
+                                  : FontWeight.w500,
                               color: status == 'pending'
-                                  ? theme.colorScheme.onSurfaceVariant.withOpacity(0.4)
+                                  ? theme.colorScheme.onSurfaceVariant
+                                        .withOpacity(0.4)
                                   : theme.colorScheme.onSurface,
                             ),
                           ),

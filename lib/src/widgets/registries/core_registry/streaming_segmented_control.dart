@@ -10,7 +10,8 @@ class StreamingSegmentedControl extends StatefulWidget {
   const StreamingSegmentedControl({super.key, required this.props});
 
   @override
-  State<StreamingSegmentedControl> createState() => _StreamingSegmentedControlState();
+  State<StreamingSegmentedControl> createState() =>
+      _StreamingSegmentedControlState();
 }
 
 class _StreamingSegmentedControlState extends State<StreamingSegmentedControl> {
@@ -50,23 +51,31 @@ class _StreamingSegmentedControlState extends State<StreamingSegmentedControl> {
 
           final rawOptions = data["options"] as List<dynamic>? ?? const [];
           final options = rawOptions.map((e) => e.toString()).toList();
-          final defaultSelection = data["selected"] as String? ?? (options.isNotEmpty ? options.first : "");
+          final defaultSelection =
+              data["selected"] as String? ??
+              (options.isNotEmpty ? options.first : "");
 
           if (options.isEmpty) return const SizedBox.shrink();
 
           final currentSelected = _localSelected ?? defaultSelection;
-          final selectedIndex = options.indexOf(currentSelected).clamp(0, options.length - 1);
+          final selectedIndex = options
+              .indexOf(currentSelected)
+              .clamp(0, options.length - 1);
 
           return FutureBuilder<String>(
             future: _actionFuture,
             builder: (context, actionSnapshot) {
               final action = actionSnapshot.data;
-              final isEnabled = actionSnapshot.connectionState == ConnectionState.done && action != null;
+              final isEnabled =
+                  actionSnapshot.connectionState == ConnectionState.done &&
+                  action != null;
 
               return Container(
                 padding: const EdgeInsets.all(4),
                 decoration: BoxDecoration(
-                  color: theme.colorScheme.surfaceContainerHigh.withOpacity(0.6),
+                  color: theme.colorScheme.surfaceContainerHigh.withOpacity(
+                    0.6,
+                  ),
                   borderRadius: BorderRadius.circular(14),
                   border: Border.all(
                     color: theme.colorScheme.outline.withOpacity(0.08),
@@ -81,7 +90,12 @@ class _StreamingSegmentedControlState extends State<StreamingSegmentedControl> {
                         // Animated sliding slider capsule
                         AnimatedPositioned(
                           duration: const Duration(milliseconds: 250),
-                          curve: const Cubic(0.2, 0.8, 0.2, 1.0), // Standard Snap Curve
+                          curve: const Cubic(
+                            0.2,
+                            0.8,
+                            0.2,
+                            1.0,
+                          ), // Standard Snap Curve
                           left: tabWidth * selectedIndex,
                           top: 0,
                           bottom: 0,
@@ -95,7 +109,8 @@ class _StreamingSegmentedControlState extends State<StreamingSegmentedControl> {
                               boxShadow: isEnabled
                                   ? [
                                       BoxShadow(
-                                        color: theme.colorScheme.primary.withOpacity(0.2),
+                                        color: theme.colorScheme.primary
+                                            .withOpacity(0.2),
                                         blurRadius: 8,
                                         offset: const Offset(0, 2),
                                       ),
@@ -117,23 +132,30 @@ class _StreamingSegmentedControlState extends State<StreamingSegmentedControl> {
                                         setState(() {
                                           _localSelected = option;
                                         });
-                                        debugPrint('[GEN_UI:SEGMENT] Selected: "$option" -> $action');
+                                        debugPrint(
+                                          '[GEN_UI:SEGMENT] Selected: "$option" -> $action',
+                                        );
                                       }
                                     : null,
                                 child: Container(
-                                  padding: const EdgeInsets.symmetric(vertical: 10),
+                                  padding: const EdgeInsets.symmetric(
+                                    vertical: 10,
+                                  ),
                                   color: Colors.transparent, // expand hit area
                                   alignment: Alignment.center,
                                   child: AnimatedDefaultTextStyle(
                                     duration: const Duration(milliseconds: 150),
                                     style: TextStyle(
                                       fontSize: 13,
-                                      fontWeight: isTabSelected ? FontWeight.w700 : FontWeight.w500,
+                                      fontWeight: isTabSelected
+                                          ? FontWeight.w700
+                                          : FontWeight.w500,
                                       color: isTabSelected
                                           ? (isEnabled
-                                              ? theme.colorScheme.onPrimary
-                                              : theme.colorScheme.onSurface)
-                                          : theme.colorScheme.onSurfaceVariant.withOpacity(0.7),
+                                                ? theme.colorScheme.onPrimary
+                                                : theme.colorScheme.onSurface)
+                                          : theme.colorScheme.onSurfaceVariant
+                                                .withOpacity(0.7),
                                     ),
                                     child: Text(
                                       option,

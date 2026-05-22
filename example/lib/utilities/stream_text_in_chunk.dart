@@ -10,7 +10,9 @@ Stream<String> streamTextInChunks(
 
   for (int i = 0; i < numChunks; i++) {
     int start = i * chunkSize;
-    int end = (start + chunkSize < totalLength) ? start + chunkSize : totalLength;
+    int end = (start + chunkSize < totalLength)
+        ? start + chunkSize
+        : totalLength;
     yield text.substring(start, end);
     await Future.delayed(interval);
   }
@@ -21,5 +23,4 @@ Stream<String> streamTextInChunk(
   String text, {
   required int chunkSize,
   required Duration interval,
-}) =>
-    streamTextInChunks(text, chunkSize: chunkSize, interval: interval);
+}) => streamTextInChunks(text, chunkSize: chunkSize, interval: interval);

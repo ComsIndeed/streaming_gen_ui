@@ -29,10 +29,7 @@ class _HomeScreenState extends State<HomeScreen> {
     // Initialize our library controller with the combined widget registry
     _genUi = StreamingGenerativeUi(
       registry: WidgetRegistry(
-        widgets: {
-          ...Registries.core.widgets,
-          ...customRegistry,
-        },
+        widgets: {...Registries.core.widgets, ...customRegistry},
       ),
     );
     _selectedExample = mockExamples.first;
@@ -137,13 +134,20 @@ class _HomeScreenState extends State<HomeScreen> {
           title: const Text('Generative UI Playground'),
           bottom: const TabBar(
             tabs: [
-              Tab(text: '💻 Simulation Playground', icon: Icon(Icons.psychology_outlined)),
-              Tab(text: '🤖 Live AI LLM Chat', icon: Icon(Icons.forum_outlined)),
+              Tab(
+                text: '💻 Simulation Playground',
+                icon: Icon(Icons.psychology_outlined),
+              ),
+              Tab(
+                text: '🤖 Live AI LLM Chat',
+                icon: Icon(Icons.forum_outlined),
+              ),
             ],
           ),
         ),
         body: TabBarView(
-          physics: const NeverScrollableScrollPhysics(), // Prevent swipe-slide gesture conflicts
+          physics:
+              const NeverScrollableScrollPhysics(), // Prevent swipe-slide gesture conflicts
           children: [
             // Tab 1: Simulation Playground
             Column(
@@ -173,7 +177,8 @@ class _HomeScreenState extends State<HomeScreen> {
                                     if (val != null) {
                                       setState(() {
                                         _selectedExample = val;
-                                        _terminalText = ''; // Clear terminal preview
+                                        _terminalText =
+                                            ''; // Clear terminal preview
                                       });
                                     }
                                   },
@@ -260,7 +265,9 @@ class _HomeScreenState extends State<HomeScreen> {
                                 // Ghost template background
                                 Text(
                                   _selectedExample.content,
-                                  style: textStyle.copyWith(color: Colors.white30),
+                                  style: textStyle.copyWith(
+                                    color: Colors.white30,
+                                  ),
                                 ),
                                 // Live active text overlay
                                 Text(

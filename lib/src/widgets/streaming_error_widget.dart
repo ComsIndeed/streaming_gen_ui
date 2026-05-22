@@ -1,8 +1,9 @@
 import 'package:flutter/material.dart';
 
-/// A custom builder function that allows developers to customize the look of 
+/// A custom builder function that allows developers to customize the look of
 /// Generative UI parser, registry, and rendering exceptions.
-typedef GenerativeUiErrorBuilder = Widget Function(BuildContext context, String errorMessage);
+typedef GenerativeUiErrorBuilder =
+    Widget Function(BuildContext context, String errorMessage);
 
 /// A unified widget for displaying errors during stream parsing or component rendering.
 /// Features a contained orange card design with ghostly entry animation and scrollable details.
@@ -22,7 +23,8 @@ class StreamingErrorWidget extends StatefulWidget {
   State<StreamingErrorWidget> createState() => _StreamingErrorWidgetState();
 }
 
-class _StreamingErrorWidgetState extends State<StreamingErrorWidget> with SingleTickerProviderStateMixin {
+class _StreamingErrorWidgetState extends State<StreamingErrorWidget>
+    with SingleTickerProviderStateMixin {
   late AnimationController _controller;
   late Animation<double> _fadeAnimation;
   late Animation<double> _scaleAnimation;
@@ -35,9 +37,10 @@ class _StreamingErrorWidgetState extends State<StreamingErrorWidget> with Single
       duration: const Duration(milliseconds: 250),
     );
     _fadeAnimation = CurvedAnimation(parent: _controller, curve: Curves.easeIn);
-    _scaleAnimation = Tween<double>(begin: 0.96, end: 1.0).animate(
-      CurvedAnimation(parent: _controller, curve: Curves.easeOutCubic),
-    );
+    _scaleAnimation = Tween<double>(
+      begin: 0.96,
+      end: 1.0,
+    ).animate(CurvedAnimation(parent: _controller, curve: Curves.easeOutCubic));
     _controller.forward();
   }
 
@@ -83,7 +86,8 @@ class _StreamingErrorWidgetState extends State<StreamingErrorWidget> with Single
               ),
             ],
           ),
-          clipBehavior: Clip.antiAlias, // Clips the custom stripes to rounded corners
+          clipBehavior:
+              Clip.antiAlias, // Clips the custom stripes to rounded corners
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.stretch,
             mainAxisSize: MainAxisSize.min, // Contained vertically
@@ -147,10 +151,7 @@ class _StreamingErrorWidgetState extends State<StreamingErrorWidget> with Single
                       ],
                     ),
                     const SizedBox(height: 12),
-                    Container(
-                      height: 1,
-                      color: Colors.white.withOpacity(0.2),
-                    ),
+                    Container(height: 1, color: Colors.white.withOpacity(0.2)),
                     const SizedBox(height: 12),
                     const Text(
                       'ERROR DETAILS:',
@@ -166,7 +167,8 @@ class _StreamingErrorWidgetState extends State<StreamingErrorWidget> with Single
                     // Enforce containment with constraints on the stack details
                     ConstrainedBox(
                       constraints: const BoxConstraints(
-                        maxHeight: 180, // Absolute containment: scroll if it exceeds this
+                        maxHeight:
+                            180, // Absolute containment: scroll if it exceeds this
                       ),
                       child: Scrollbar(
                         thumbVisibility: true,
@@ -228,10 +230,12 @@ void popBuildTrace() {
 }
 
 /// Retrieves the active widget namespace currently building.
-String get activeBuildNamespace => _buildNamespaceStack.isNotEmpty ? _buildNamespaceStack.last : 'Unknown';
+String get activeBuildNamespace =>
+    _buildNamespaceStack.isNotEmpty ? _buildNamespaceStack.last : 'Unknown';
 
 /// Retrieves the active widget properties currently building.
-String get activeBuildProperties => _buildPropsStack.isNotEmpty ? _buildPropsStack.last : '{}';
+String get activeBuildProperties =>
+    _buildPropsStack.isNotEmpty ? _buildPropsStack.last : '{}';
 
 /// Prints a highly readable, structured, and orange-colored error block to the developer console.
 void logGenUiError({
@@ -240,17 +244,27 @@ void logGenUiError({
   required String properties,
   StackTrace? stack,
 }) {
-  debugPrint('╔══════════════════════════════════════════════════════════════════════════╗');
-  debugPrint('║ 🍊 \x1B[33m[STREAMING_GEN_UI] Widget Rendering Fault Detected\x1B[0m                   ║');
-  debugPrint('╠══════════════════════════════════════════════════════════════════════════╣');
+  debugPrint(
+    '╔══════════════════════════════════════════════════════════════════════════╗',
+  );
+  debugPrint(
+    '║ 🍊 \x1B[33m[STREAMING_GEN_UI] Widget Rendering Fault Detected\x1B[0m                   ║',
+  );
+  debugPrint(
+    '╠══════════════════════════════════════════════════════════════════════════╣',
+  );
   debugPrint('  Namespace:  $namespace');
   debugPrint('  Properties: $properties');
   debugPrint('  Exception:  $error');
-  debugPrint('╚══════════════════════════════════════════════════════════════════════════╝');
+  debugPrint(
+    '╚══════════════════════════════════════════════════════════════════════════╝',
+  );
   if (stack != null) {
     debugPrint('Stack trace:\n$stack');
   }
-}bool _errorBuilderInitialized = false;
+}
+
+bool _errorBuilderInitialized = false;
 
 /// Ensures the global Flutter ErrorWidget.builder is configured to intercept and isolate
 /// Generative UI layout and build-phase errors as contained orange warning boxes.
@@ -261,9 +275,10 @@ void ensureGlobalErrorBuilderInitialized() {
   final originalBuilder = ErrorWidget.builder;
   ErrorWidget.builder = (FlutterErrorDetails details) {
     final detailsString = details.toString();
-    final isGenUi = detailsString.contains('StreamingWidget') ||
-                    detailsString.contains('WidgetBlock') ||
-                    activeBuildNamespace != 'Unknown';
+    final isGenUi =
+        detailsString.contains('StreamingWidget') ||
+        detailsString.contains('WidgetBlock') ||
+        activeBuildNamespace != 'Unknown';
 
     if (isGenUi) {
       final namespace = activeBuildNamespace;
@@ -278,7 +293,8 @@ void ensureGlobalErrorBuilderInitialized() {
       );
 
       return StreamingErrorWidget(
-        error: 'Subtree Build/Layout Fault ($namespace):\n${details.exceptionAsString()}',
+        error:
+            'Subtree Build/Layout Fault ($namespace):\n${details.exceptionAsString()}',
         showInternalErrors: true,
       );
     }
@@ -317,11 +333,7 @@ class HazardStripesPainter extends CustomPainter {
     final double step = stripeWidth * 2;
     // Draw diagonal lines from top-left to bottom-right (tilted at 45 degrees)
     for (double x = -height; x < width + height; x += step) {
-      canvas.drawLine(
-        Offset(x, 0),
-        Offset(x + height, height),
-        paint,
-      );
+      canvas.drawLine(Offset(x, 0), Offset(x + height, height), paint);
     }
   }
 
@@ -332,4 +344,3 @@ class HazardStripesPainter extends CustomPainter {
         stripeWidth != oldDelegate.stripeWidth;
   }
 }
-

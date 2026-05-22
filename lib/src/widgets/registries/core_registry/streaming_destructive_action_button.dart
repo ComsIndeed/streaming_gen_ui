@@ -11,10 +11,13 @@ class StreamingDestructiveActionButton extends StatefulWidget {
   const StreamingDestructiveActionButton({super.key, required this.props});
 
   @override
-  State<StreamingDestructiveActionButton> createState() => _StreamingDestructiveActionButtonState();
+  State<StreamingDestructiveActionButton> createState() =>
+      _StreamingDestructiveActionButtonState();
 }
 
-class _StreamingDestructiveActionButtonState extends State<StreamingDestructiveActionButton> with SingleTickerProviderStateMixin {
+class _StreamingDestructiveActionButtonState
+    extends State<StreamingDestructiveActionButton>
+    with SingleTickerProviderStateMixin {
   late Stream<Map<String, dynamic>> _btnStream;
   late Future<String> _actionFuture;
   late AnimationController _progressController;
@@ -74,7 +77,9 @@ class _StreamingDestructiveActionButtonState extends State<StreamingDestructiveA
 
   void _triggerAction() async {
     final action = await _actionFuture;
-    debugPrint('[GEN_UI:DESTRUCTIVE_BUTTON] Hold completed! Triggered -> $action');
+    debugPrint(
+      '[GEN_UI:DESTRUCTIVE_BUTTON] Hold completed! Triggered -> $action',
+    );
     if (mounted) {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
@@ -105,7 +110,9 @@ class _StreamingDestructiveActionButtonState extends State<StreamingDestructiveA
             future: _actionFuture,
             builder: (context, actionSnapshot) {
               final action = actionSnapshot.data;
-              final isEnabled = actionSnapshot.connectionState == ConnectionState.done && action != null;
+              final isEnabled =
+                  actionSnapshot.connectionState == ConnectionState.done &&
+                  action != null;
 
               return GestureDetector(
                 onTapDown: isEnabled ? (_) => _startHolding() : null,
@@ -119,7 +126,9 @@ class _StreamingDestructiveActionButtonState extends State<StreamingDestructiveA
                     decoration: BoxDecoration(
                       color: isEnabled
                           ? const Color(0xFFFEF2F2)
-                          : theme.colorScheme.surfaceContainerHigh.withOpacity(0.4),
+                          : theme.colorScheme.surfaceContainerHigh.withOpacity(
+                              0.4,
+                            ),
                       borderRadius: BorderRadius.circular(14),
                       border: Border.all(
                         color: isEnabled
@@ -156,25 +165,41 @@ class _StreamingDestructiveActionButtonState extends State<StreamingDestructiveA
                                 Icon(
                                   Icons.warning_amber_rounded,
                                   size: 18,
-                                  color: isEnabled ? const Color(0xFFDC2626) : theme.colorScheme.onSurface.withOpacity(0.3),
+                                  color: isEnabled
+                                      ? const Color(0xFFDC2626)
+                                      : theme.colorScheme.onSurface.withOpacity(
+                                          0.3,
+                                        ),
                                 ),
                                 const SizedBox(width: 8),
                                 FutureBuilder<String>(
                                   future: labelFuture,
                                   builder: (context, labelSnapshot) {
-                                    final isDone = labelSnapshot.connectionState == ConnectionState.done && labelSnapshot.hasData;
-                                    final initial = isDone ? labelSnapshot.data! : '';
+                                    final isDone =
+                                        labelSnapshot.connectionState ==
+                                            ConnectionState.done &&
+                                        labelSnapshot.hasData;
+                                    final initial = isDone
+                                        ? labelSnapshot.data!
+                                        : '';
 
                                     return AccumulatingStringStreamBuilder(
                                       stream: labelStream,
                                       initialValue: initial,
                                       builder: (context, labelText) {
-                                        final displayStr = labelText.isEmpty ? "Hold to Confirm" : labelText;
+                                        final displayStr = labelText.isEmpty
+                                            ? "Hold to Confirm"
+                                            : labelText;
 
                                         return Text(
-                                          _isHolding ? "Keep holding..." : displayStr,
+                                          _isHolding
+                                              ? "Keep holding..."
+                                              : displayStr,
                                           style: TextStyle(
-                                            color: isEnabled ? const Color(0xFFDC2626) : theme.colorScheme.onSurface.withOpacity(0.4),
+                                            color: isEnabled
+                                                ? const Color(0xFFDC2626)
+                                                : theme.colorScheme.onSurface
+                                                      .withOpacity(0.4),
                                             fontWeight: FontWeight.bold,
                                             fontSize: 14,
                                           ),

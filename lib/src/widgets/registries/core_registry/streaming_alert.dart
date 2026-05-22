@@ -96,7 +96,9 @@ class _StreamingAlertState extends State<StreamingAlert> {
             future: _actionFuture,
             builder: (context, actionSnapshot) {
               final action = actionSnapshot.data;
-              final hasAction = actionSnapshot.connectionState == ConnectionState.done && action != null;
+              final hasAction =
+                  actionSnapshot.connectionState == ConnectionState.done &&
+                  action != null;
 
               return AnimatedContainer(
                 duration: const Duration(milliseconds: 300),
@@ -116,11 +118,7 @@ class _StreamingAlertState extends State<StreamingAlert> {
                 child: Row(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Icon(
-                      iconData,
-                      color: text,
-                      size: 22,
-                    ),
+                    Icon(iconData, color: text, size: 22),
                     const SizedBox(width: 12),
                     Expanded(
                       child: Column(
@@ -130,14 +128,18 @@ class _StreamingAlertState extends State<StreamingAlert> {
                           FutureBuilder<String>(
                             future: titleFuture,
                             builder: (context, titleSnapshot) {
-                              final isDone = titleSnapshot.connectionState == ConnectionState.done && titleSnapshot.hasData;
+                              final isDone =
+                                  titleSnapshot.connectionState ==
+                                      ConnectionState.done &&
+                                  titleSnapshot.hasData;
                               final initial = isDone ? titleSnapshot.data! : '';
 
                               return AccumulatingStringStreamBuilder(
                                 stream: titleStream,
                                 initialValue: initial,
                                 builder: (context, titleText) {
-                                  if (titleText.isEmpty) return const SizedBox.shrink();
+                                  if (titleText.isEmpty)
+                                    return const SizedBox.shrink();
 
                                   return Padding(
                                     padding: const EdgeInsets.only(bottom: 4.0),
@@ -157,14 +159,18 @@ class _StreamingAlertState extends State<StreamingAlert> {
                           FutureBuilder<String>(
                             future: descFuture,
                             builder: (context, descSnapshot) {
-                              final isDone = descSnapshot.connectionState == ConnectionState.done && descSnapshot.hasData;
+                              final isDone =
+                                  descSnapshot.connectionState ==
+                                      ConnectionState.done &&
+                                  descSnapshot.hasData;
                               final initial = isDone ? descSnapshot.data! : '';
 
                               return AccumulatingStringStreamBuilder(
                                 stream: descStream,
                                 initialValue: initial,
                                 builder: (context, descText) {
-                                  if (descText.isEmpty) return const SizedBox.shrink();
+                                  if (descText.isEmpty)
+                                    return const SizedBox.shrink();
 
                                   return Text(
                                     descText,
@@ -185,9 +191,15 @@ class _StreamingAlertState extends State<StreamingAlert> {
                       const SizedBox(width: 8),
                       IconButton(
                         visualDensity: VisualDensity.compact,
-                        icon: Icon(Icons.close_rounded, color: text.withOpacity(0.6), size: 18),
+                        icon: Icon(
+                          Icons.close_rounded,
+                          color: text.withOpacity(0.6),
+                          size: 18,
+                        ),
                         onPressed: () {
-                          debugPrint('[GEN_UI:ALERT] Action dismissed -> $action');
+                          debugPrint(
+                            '[GEN_UI:ALERT] Action dismissed -> $action',
+                          );
                         },
                       ),
                     ],

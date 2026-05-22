@@ -10,10 +10,12 @@ class StreamingSplitScreenCarousel extends StatefulWidget {
   const StreamingSplitScreenCarousel({super.key, required this.props});
 
   @override
-  State<StreamingSplitScreenCarousel> createState() => _StreamingSplitScreenCarouselState();
+  State<StreamingSplitScreenCarousel> createState() =>
+      _StreamingSplitScreenCarouselState();
 }
 
-class _StreamingSplitScreenCarouselState extends State<StreamingSplitScreenCarousel> {
+class _StreamingSplitScreenCarouselState
+    extends State<StreamingSplitScreenCarousel> {
   late Stream<Map<String, dynamic>> _splitStream;
   late PageController _pageController;
   int _activePageIndex = 0;
@@ -62,9 +64,12 @@ class _StreamingSplitScreenCarouselState extends State<StreamingSplitScreenCarou
           if (slides.isEmpty) return const SizedBox.shrink();
 
           final slideCount = slides.length;
-          final currentSlide = slides[_activePageIndex.clamp(0, slideCount - 1)];
+          final currentSlide =
+              slides[_activePageIndex.clamp(0, slideCount - 1)];
 
-          final imageUrl = currentSlide["image"] as String? ?? "https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?w=800";
+          final imageUrl =
+              currentSlide["image"] as String? ??
+              "https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?w=800";
           final title = currentSlide["title"] as String? ?? "";
           final desc = currentSlide["description"] as String? ?? "";
 
@@ -99,11 +104,17 @@ class _StreamingSplitScreenCarouselState extends State<StreamingSplitScreenCarou
                           return Image.network(
                             img.isNotEmpty ? img : imageUrl,
                             fit: BoxFit.cover,
-                            errorBuilder: (context, error, stackTrace) => Container(
-                              color: theme.colorScheme.primaryContainer.withOpacity(0.3),
-                              alignment: Alignment.center,
-                              child: Icon(Icons.image_not_supported_rounded, color: theme.colorScheme.primary, size: 24),
-                            ),
+                            errorBuilder: (context, error, stackTrace) =>
+                                Container(
+                                  color: theme.colorScheme.primaryContainer
+                                      .withOpacity(0.3),
+                                  alignment: Alignment.center,
+                                  child: Icon(
+                                    Icons.image_not_supported_rounded,
+                                    color: theme.colorScheme.primary,
+                                    size: 24,
+                                  ),
+                                ),
                           );
                         },
                       ),
@@ -140,7 +151,8 @@ class _StreamingSplitScreenCarouselState extends State<StreamingSplitScreenCarou
                                 key: ValueKey('desc_$_activePageIndex'),
                                 style: TextStyle(
                                   fontSize: 12,
-                                  color: theme.colorScheme.onSurfaceVariant.withOpacity(0.8),
+                                  color: theme.colorScheme.onSurfaceVariant
+                                      .withOpacity(0.8),
                                   height: 1.4,
                                 ),
                                 maxLines: 4,
@@ -155,11 +167,17 @@ class _StreamingSplitScreenCarouselState extends State<StreamingSplitScreenCarou
                               return AnimatedContainer(
                                 duration: const Duration(milliseconds: 250),
                                 curve: Curves.easeOutCubic,
-                                margin: const EdgeInsets.symmetric(horizontal: 2.0),
+                                margin: const EdgeInsets.symmetric(
+                                  horizontal: 2.0,
+                                ),
                                 width: isDotActive ? 12 : 5,
                                 height: 5,
                                 decoration: BoxDecoration(
-                                  color: isDotActive ? theme.colorScheme.primary : theme.colorScheme.outline.withOpacity(0.2),
+                                  color: isDotActive
+                                      ? theme.colorScheme.primary
+                                      : theme.colorScheme.outline.withOpacity(
+                                          0.2,
+                                        ),
                                   borderRadius: BorderRadius.circular(3),
                                 ),
                               );

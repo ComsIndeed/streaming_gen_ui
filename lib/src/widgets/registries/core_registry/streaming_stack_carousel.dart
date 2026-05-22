@@ -60,7 +60,9 @@ class _StreamingStackCarouselState extends State<StreamingStackCarousel> {
               decoration: BoxDecoration(
                 color: theme.colorScheme.surfaceContainerHigh.withOpacity(0.4),
                 borderRadius: BorderRadius.circular(20),
-                border: Border.all(color: theme.colorScheme.outline.withOpacity(0.08)),
+                border: Border.all(
+                  color: theme.colorScheme.outline.withOpacity(0.08),
+                ),
               ),
               alignment: Alignment.center,
               child: const SizedBox(
@@ -93,15 +95,23 @@ class _StreamingStackCarouselState extends State<StreamingStackCarousel> {
 
                         final scale = 1.0 - (relativeIndex * 0.06);
                         final offset = relativeIndex * 14.0;
-                        final opacity = (1.0 - (relativeIndex * 0.25)).clamp(0.0, 1.0);
+                        final opacity = (1.0 - (relativeIndex * 0.25)).clamp(
+                          0.0,
+                          1.0,
+                        );
 
                         final item = items[index];
                         final title = item["title"] as String? ?? "";
                         final desc = item["description"] as String? ?? "";
                         final colorHex = item["color"] as String?;
-                        final exactColor = (item["exactColor"] as bool?) ?? (data["exactColor"] as bool?) ?? false;
+                        final exactColor =
+                            (item["exactColor"] as bool?) ??
+                            (data["exactColor"] as bool?) ??
+                            false;
                         final provider = StreamingUiProvider.maybeOf(context);
-                        final rawCardColor = _parseColor(colorHex) ?? theme.colorScheme.surfaceContainerLow;
+                        final rawCardColor =
+                            _parseColor(colorHex) ??
+                            theme.colorScheme.surfaceContainerLow;
                         final cardColor = adjustColorForTheme(
                           context,
                           rawCardColor,
@@ -126,12 +136,14 @@ class _StreamingStackCarouselState extends State<StreamingStackCarousel> {
                                   if (details.primaryVelocity! < 0) {
                                     // Swipe left (next card)
                                     setState(() {
-                                      _topCardIndex = (_topCardIndex + 1) % total;
+                                      _topCardIndex =
+                                          (_topCardIndex + 1) % total;
                                     });
                                   } else if (details.primaryVelocity! > 0) {
                                     // Swipe right (prev card)
                                     setState(() {
-                                      _topCardIndex = (_topCardIndex - 1 + total) % total;
+                                      _topCardIndex =
+                                          (_topCardIndex - 1 + total) % total;
                                     });
                                   }
                                 },
@@ -141,18 +153,22 @@ class _StreamingStackCarouselState extends State<StreamingStackCarousel> {
                                     color: cardColor,
                                     borderRadius: BorderRadius.circular(20),
                                     border: Border.all(
-                                      color: theme.colorScheme.outline.withOpacity(0.08),
+                                      color: theme.colorScheme.outline
+                                          .withOpacity(0.08),
                                     ),
                                     boxShadow: [
                                       BoxShadow(
-                                        color: Colors.black.withOpacity(isBehind ? 0.02 : 0.08),
+                                        color: Colors.black.withOpacity(
+                                          isBehind ? 0.02 : 0.08,
+                                        ),
                                         blurRadius: 12,
                                         offset: const Offset(0, 4),
                                       ),
                                     ],
                                   ),
                                   child: Column(
-                                    crossAxisAlignment: CrossAxisAlignment.start,
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.start,
                                     children: [
                                       Text(
                                         title,
@@ -170,7 +186,10 @@ class _StreamingStackCarouselState extends State<StreamingStackCarousel> {
                                           desc,
                                           style: TextStyle(
                                             fontSize: 14,
-                                            color: theme.colorScheme.onSurfaceVariant.withOpacity(0.8),
+                                            color: theme
+                                                .colorScheme
+                                                .onSurfaceVariant
+                                                .withOpacity(0.8),
                                             height: 1.4,
                                           ),
                                           maxLines: 4,
@@ -201,7 +220,9 @@ class _StreamingStackCarouselState extends State<StreamingStackCarousel> {
                     width: isActive ? 16 : 6,
                     height: 6,
                     decoration: BoxDecoration(
-                      color: isActive ? theme.colorScheme.primary : theme.colorScheme.outline.withOpacity(0.2),
+                      color: isActive
+                          ? theme.colorScheme.primary
+                          : theme.colorScheme.outline.withOpacity(0.2),
                       borderRadius: BorderRadius.circular(3),
                     ),
                   );

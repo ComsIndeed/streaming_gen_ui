@@ -67,9 +67,11 @@ class _StreamingStatsGridState extends State<StreamingStatsGrid> {
               final label = metric["label"] as String? ?? "";
               final value = metric["value"] as String? ?? "";
               final trend = metric["trend"] as String? ?? "";
-              final trendUp = trend.startsWith('+') || trend.toLowerCase().contains('up');
+              final trendUp =
+                  trend.startsWith('+') || trend.toLowerCase().contains('up');
 
-              final rawSparkline = metric["sparkline"] as List<dynamic>? ?? const [];
+              final rawSparkline =
+                  metric["sparkline"] as List<dynamic>? ?? const [];
               final sparkline = rawSparkline
                   .where((e) => e is num)
                   .map((e) => (e as num).toDouble())
@@ -91,7 +93,9 @@ class _StreamingStatsGridState extends State<StreamingStatsGrid> {
                       label,
                       style: TextStyle(
                         fontSize: 12,
-                        color: theme.colorScheme.onSurfaceVariant.withOpacity(0.6),
+                        color: theme.colorScheme.onSurfaceVariant.withOpacity(
+                          0.6,
+                        ),
                         fontWeight: FontWeight.w600,
                       ),
                       maxLines: 1,
@@ -116,7 +120,9 @@ class _StreamingStatsGridState extends State<StreamingStatsGrid> {
                           style: TextStyle(
                             fontSize: 11,
                             fontWeight: FontWeight.bold,
-                            color: trendUp ? const Color(0xFF10B981) : const Color(0xFFEF4444),
+                            color: trendUp
+                                ? const Color(0xFF10B981)
+                                : const Color(0xFFEF4444),
                           ),
                         ),
                         if (sparkline.isNotEmpty)
@@ -126,7 +132,9 @@ class _StreamingStatsGridState extends State<StreamingStatsGrid> {
                             child: CustomPaint(
                               painter: _SparklinePainter(
                                 data: sparkline,
-                                color: trendUp ? const Color(0xFF10B981) : const Color(0xFFEF4444),
+                                color: trendUp
+                                    ? const Color(0xFF10B981)
+                                    : const Color(0xFFEF4444),
                               ),
                             ),
                           ),

@@ -68,7 +68,9 @@ class StreamingBadge extends StatelessWidget {
           return FutureBuilder<String>(
             future: labelFuture,
             builder: (context, labelSnapshot) {
-              final isDone = labelSnapshot.connectionState == ConnectionState.done && labelSnapshot.hasData;
+              final isDone =
+                  labelSnapshot.connectionState == ConnectionState.done &&
+                  labelSnapshot.hasData;
               final initial = isDone ? labelSnapshot.data! : '';
 
               return AccumulatingStringStreamBuilder(
@@ -79,7 +81,10 @@ class StreamingBadge extends StatelessWidget {
 
                   return AnimatedContainer(
                     duration: const Duration(milliseconds: 250),
-                    padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 8,
+                      vertical: 4,
+                    ),
                     decoration: BoxDecoration(
                       color: bg,
                       borderRadius: BorderRadius.circular(100),
