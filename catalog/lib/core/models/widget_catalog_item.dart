@@ -28,16 +28,24 @@ class WidgetCatalogItem {
       .join(" ");
   String namespace;
   WidgetDefinition widgetDefinition;
+  bool isBuiltIn;
 
-  WidgetCatalogItem({required this.namespace, required this.widgetDefinition});
+  WidgetCatalogItem({
+    required this.namespace,
+    required this.widgetDefinition,
+    required this.isBuiltIn,
+  });
 
-  static List<WidgetCatalogItem> fromRegistry(WidgetRegistry registry) =>
-      registry.widgets.keys
-          .map(
-            (namespace) => WidgetCatalogItem(
-              namespace: namespace,
-              widgetDefinition: registry.widgets[namespace]!,
-            ),
-          )
-          .toList();
+  static List<WidgetCatalogItem> fromRegistry({
+    required WidgetRegistry registry,
+    required bool isBuiltIn,
+  }) => registry.widgets.keys
+      .map(
+        (namespace) => WidgetCatalogItem(
+          namespace: namespace,
+          widgetDefinition: registry.widgets[namespace]!,
+          isBuiltIn: isBuiltIn,
+        ),
+      )
+      .toList();
 }

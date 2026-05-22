@@ -89,12 +89,11 @@ class ChatDemoCubit extends Cubit<ChatDemoState> {
           isThinking: false,
         ),
       ) {
-    _history.add(
-      ChatMessage.system(systemPrompt),
-    );
+    _history.add(ChatMessage.system(systemPrompt));
   }
 
-  String get systemPrompt => '''
+  String get systemPrompt =>
+      '''
 You are a helpful AI Assistant demonstrating your ability to show UI components in your chat.
 
 Help the user with their requests. Use widgets when you can.
@@ -120,9 +119,7 @@ ${generativeUi.registry.systemPromptFragment}
 
   void clearChat() {
     _history.clear();
-    _history.add(
-      ChatMessage.system(systemPrompt),
-    );
+    _history.add(ChatMessage.system(systemPrompt));
     emit(
       const ChatDemoState(
         textBoxMode: TextBoxMode.textfield,
@@ -168,7 +165,7 @@ ${generativeUi.registry.systemPromptFragment}
       final StringBuffer accumulated = StringBuffer();
       final trackedStream = textStream.map((chunk) {
         accumulated.write(chunk);
-        
+
         final updatedMessages = state.messages.map((m) {
           if (m.id == aiMsgId) {
             return m.copyWith(text: accumulated.toString());
@@ -177,7 +174,7 @@ ${generativeUi.registry.systemPromptFragment}
         }).toList();
 
         emit(state.copyWith(messages: updatedMessages));
-        
+
         return chunk;
       });
 

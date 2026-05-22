@@ -94,7 +94,7 @@ class _ChatDemoPageState extends State<ChatDemoPage> {
                         right: isCanvasExpanded ? sizes.width * 0.6 : 0,
                       ),
                       curve: Curves.easeOut,
-                      child: _ChatConsoleInput(
+                      child: ChatConsoleInput(
                         isChatExpanded: isChatExpanded,
                         isCanvasExpanded: isCanvasExpanded,
                         sizes: sizes,
@@ -658,14 +658,15 @@ class _ChatDemoPageState extends State<ChatDemoPage> {
   }
 }
 
-class _ChatConsoleInput extends StatefulWidget {
+class ChatConsoleInput extends StatefulWidget {
   final bool isChatExpanded;
   final bool isCanvasExpanded;
   final Size sizes;
   final TextEditingController controller;
   final FocusNode focusNode;
 
-  const _ChatConsoleInput({
+  const ChatConsoleInput({
+    super.key,
     required this.isChatExpanded,
     required this.isCanvasExpanded,
     required this.sizes,
@@ -674,10 +675,10 @@ class _ChatConsoleInput extends StatefulWidget {
   });
 
   @override
-  State<_ChatConsoleInput> createState() => _ChatConsoleInputState();
+  State<ChatConsoleInput> createState() => _ChatConsoleInputState();
 }
 
-class _ChatConsoleInputState extends State<_ChatConsoleInput> {
+class _ChatConsoleInputState extends State<ChatConsoleInput> {
   bool _isTextFieldFocused = false;
   bool _isSendButtonPressed = false;
   bool _isSendButtonHovered = false;
@@ -691,7 +692,7 @@ class _ChatConsoleInputState extends State<_ChatConsoleInput> {
   }
 
   @override
-  void didUpdateWidget(covariant _ChatConsoleInput oldWidget) {
+  void didUpdateWidget(covariant ChatConsoleInput oldWidget) {
     super.didUpdateWidget(oldWidget);
     if (widget.isChatExpanded != oldWidget.isChatExpanded) {
       _isAnimatingChatExpansion = true;
@@ -1155,7 +1156,9 @@ class _ConsoleUtilityCardState extends State<_ConsoleUtilityCard> {
         onExit: (_) {
           if (widget.isEnabled) setState(() => _isHovered = false);
         },
-        cursor: widget.isEnabled ? SystemMouseCursors.click : SystemMouseCursors.basic,
+        cursor: widget.isEnabled
+            ? SystemMouseCursors.click
+            : SystemMouseCursors.basic,
         child: GestureDetector(
           onTap: () {
             if (!widget.isEnabled) return;

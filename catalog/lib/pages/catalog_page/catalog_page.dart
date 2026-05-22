@@ -22,7 +22,10 @@ class _CatalogPageState extends State<CatalogPage> {
   @override
   void initState() {
     super.initState();
-    allItems = WidgetCatalogItem.fromRegistry(Registries.all);
+    allItems = WidgetCatalogItem.fromRegistry(
+      registry: Registries.all,
+      isBuiltIn: true,
+    );
   }
 
   @override
