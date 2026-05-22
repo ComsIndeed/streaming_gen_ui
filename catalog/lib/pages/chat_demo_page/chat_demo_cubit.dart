@@ -12,11 +12,22 @@ class DemoMessage {
   final String id;
   final bool isUser;
   final String text;
+  final bool isError;
 
-  DemoMessage({required this.id, required this.isUser, required this.text});
+  DemoMessage({
+    required this.id,
+    required this.isUser,
+    required this.text,
+    this.isError = false,
+  });
 
-  DemoMessage copyWith({String? text}) {
-    return DemoMessage(id: id, isUser: isUser, text: text ?? this.text);
+  DemoMessage copyWith({String? text, bool? isError}) {
+    return DemoMessage(
+      id: id,
+      isUser: isUser,
+      text: text ?? this.text,
+      isError: isError ?? this.isError,
+    );
   }
 }
 
@@ -279,8 +290,19 @@ ${generativeUi.systemPrompt}
           }
         },
         onError: (e) {
+          final updatedMessages = state.messages.map((m) {
+            if (m.id == aiMsgId) {
+              return m.copyWith(
+                text: 'Streaming error: ${e.toString()}',
+                isError: true,
+              );
+            }
+            return m;
+          }).toList();
+
           emit(
             state.copyWith(
+              messages: updatedMessages,
               errorMessage: 'Streaming error: ${e.toString()}',
               isThinking: false,
             ),
@@ -318,8 +340,19 @@ ${generativeUi.systemPrompt}
         },
       );
     } catch (e) {
+      final updatedMessages = state.messages.map((m) {
+        if (m.id == aiMsgId) {
+          return m.copyWith(
+            text: 'Streaming error: ${e.toString()}',
+            isError: true,
+          );
+        }
+        return m;
+      }).toList();
+
       emit(
         state.copyWith(
+          messages: updatedMessages,
           errorMessage: 'Streaming error: ${e.toString()}',
           isThinking: false,
         ),

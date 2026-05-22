@@ -140,7 +140,7 @@ class DeduplicatedOpenAIProvider extends OpenAIProvider {
 }
 
 void main() async {
-  final apiKey = 'sk-f2c6f0dcec994bd29af88b856993b389';
+  final apiKey = Platform.environment['DEEPSEEK_API_KEY'] ?? '';
   final provider = DeduplicatedOpenAIProvider(
     apiKey: apiKey,
     baseUrl: Uri.parse('https://api.deepseek.com/v1'),

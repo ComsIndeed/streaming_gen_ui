@@ -528,6 +528,44 @@ class _ChatDemoPageState extends State<ChatDemoPage> {
     ThemeData theme,
     DemoMessage message,
   ) {
+    if (message.isError) {
+      return Align(
+        alignment: Alignment.centerLeft,
+        child: Container(
+          margin: const EdgeInsets.symmetric(vertical: 8),
+          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+          decoration: BoxDecoration(
+            color: theme.colorScheme.errorContainer.withOpacity(0.4),
+            borderRadius: BorderRadius.circular(16),
+            border: Border.all(
+              color: theme.colorScheme.error.withOpacity(0.3),
+            ),
+          ),
+          child: Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Icon(
+                Icons.error_outline_rounded,
+                color: theme.colorScheme.error,
+                size: 20,
+              ),
+              const SizedBox(width: 12),
+              Flexible(
+                child: Text(
+                  message.text,
+                  style: TextStyle(
+                    color: theme.colorScheme.onErrorContainer,
+                    fontSize: 13,
+                    fontWeight: FontWeight.w500,
+                  ),
+                ),
+              ),
+            ],
+          ),
+        ),
+      );
+    }
+
     final cubit = context.read<ChatDemoCubit>();
     final showRaw = context.select(
       (ChatDemoCubit c) => c.state.showRawResponse,
