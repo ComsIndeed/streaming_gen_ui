@@ -37,7 +37,7 @@ jobs:
 
       - name: Build Web Application
         working-directory: catalog
-        run: flutter build web --base-href "/"
+        run: flutter build web --base-href "/" --dart-define=NETLIFY_PROXY_URL="https://streaming-gen-ui.netlify.app/api/llm-proxy"
 
       - name: Upload Artifact
         uses: actions/upload-pages-artifact@v3
