@@ -80,7 +80,7 @@ class ChatAgentService {
     final productsTool = Tool(
       name: 'search_products',
       description:
-          'Search an online catalog for items, products, or accommodations matching a query string.',
+          'Search an online catalog for items, products, or accommodations matching a query string. Returns details including "title", "description", "price", "rating", and "thumbnail" (image URL).',
       inputSchema: S.object(
         properties: {
           'query': S.string(

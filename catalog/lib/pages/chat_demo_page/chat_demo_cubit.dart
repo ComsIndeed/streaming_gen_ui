@@ -158,7 +158,7 @@ ${generativeUi.systemPrompt}
      * "title": Product title.
      * "description": Short summary.
      * "price": "\$${r'${product["price"]}'}".
-     * "imageUrl": Primary image URL.
+     * "imageUrl": The "thumbnail" image URL (highly recommended to embed. If the product has no image, omit this property).
      * "rating": Float (1.0 to 5.0).
      * "action": "buy_product_${r'${product["id"]}'}".
 
@@ -176,6 +176,7 @@ ${generativeUi.systemPrompt}
  
 ## IMPORTANT:
 - For the above stated WIDGET SELECTION & MAPPING, you must stream the mentioned widget if available.
+- For 'search_products', always populate the "imageUrl" property in the "ecommerce:product_card" widget with the product's "thumbnail" URL so that the image is beautifully embedded. If the product has no image or the URL is empty/missing, completely omit the "imageUrl" property so the widget dynamically hides the image frame.
 ''';
 
   void setTextBoxMode(TextBoxMode mode) {

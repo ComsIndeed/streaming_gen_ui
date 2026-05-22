@@ -140,23 +140,6 @@ export default async (request: Request, context: Context) => {
 
   // Parse and prepare LLM Endpoint / Credentials
   let requestBody = await request.text();
-
-  // Guard against massive chat history size (chats way too big)
-  // 40,000 characters is roughly 10,000 tokens of input
-  if (requestBody.length > 40000) {
-    return new Response(
-      JSON.stringify({ error: "Chat history size is too large (exceeds safe limits)." }),
-      {
-        status: 400,
-        headers: {
-          "Content-Type": "application/json",
-          ...corsHeaders,
-          ...limitResult.headers,
-        },
-      }
-    );
-  }
-
   let targetUrl = "https://api.deepseek.com/v1/chat/completions";
   let targetApiKey = Deno.env.get("DEEPSEEK_API_KEY");
   let isGroq = false;
@@ -173,8 +156,8 @@ export default async (request: Request, context: Context) => {
         bodyObj.model = "llama-3.1-8b-instant";
       }
     }
-    // Limit output generation to 4096 tokens max to protect budget from loops
-    bodyObj.max_tokens = Math.min(bodyObj.max_tokens || 4096, 4096);
+    // Limit output generation to 50,000 tokens max to protect budget from loops
+    bodyObj.max_tokens = Math.min(bodyObj.max_tokens || 50000, 50000);
     requestBody = JSON.stringify(bodyObj);
   } catch (_) {
     // Fallback if requestBody is not valid JSON
@@ -233,8 +216,8 @@ export default async (request: Request, context: Context) => {
   let accumulatedText = "";
   let accumulatedOutputLength = 0;
   
-  // Guard: Stop infinite loop outputs (max 32,000 characters streamed ~ 8,000 tokens)
-  const MAX_OUTPUT_CHARS = 32000;
+  // Guard: Stop infinite loop outputs (max 200,000 characters streamed ~ 50,000 tokens)
+  const MAX_OUTPUT_CHARS = 200000;
 
   const stream = new ReadableStream({
     async start(controller) {

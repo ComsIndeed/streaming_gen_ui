@@ -78,36 +78,36 @@ class _StreamingProductCardState extends State<StreamingProductCard> {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 mainAxisSize: MainAxisSize.min,
                 children: [
-                  // Product Image (Shimmer-to-Fade-In Media Frame)
-                  ClipRRect(
-                    borderRadius: BorderRadius.circular(14),
-                    child: AspectRatio(
-                      aspectRatio: 16 / 10,
-                      child: Stack(
-                        fit: StackFit.expand,
-                        children: [
-                          // Base Skeleton / Shimmer Background
-                          Container(
-                            decoration: BoxDecoration(
-                              gradient: LinearGradient(
-                                colors: [
-                                  theme.colorScheme.surfaceContainerLowest,
-                                  theme.colorScheme.surfaceContainerHighest,
-                                ],
-                                begin: Alignment.topLeft,
-                                end: Alignment.bottomRight,
+                  // Product Image (Shimmer-to-Fade-In Media Frame) only if available
+                  if (isImageAvailable) ...[
+                    ClipRRect(
+                      borderRadius: BorderRadius.circular(14),
+                      child: AspectRatio(
+                        aspectRatio: 16 / 10,
+                        child: Stack(
+                          fit: StackFit.expand,
+                          children: [
+                            // Base Skeleton / Shimmer Background
+                            Container(
+                              decoration: BoxDecoration(
+                                gradient: LinearGradient(
+                                  colors: [
+                                    theme.colorScheme.surfaceContainerLowest,
+                                    theme.colorScheme.surfaceContainerHighest,
+                                  ],
+                                  begin: Alignment.topLeft,
+                                  end: Alignment.bottomRight,
+                                ),
+                              ),
+                              child: const Center(
+                                child: Icon(
+                                  Icons.image_outlined,
+                                  color: Colors.white24,
+                                  size: 28,
+                                ),
                               ),
                             ),
-                            child: const Center(
-                              child: Icon(
-                                Icons.image_outlined,
-                                color: Colors.white24,
-                                size: 28,
-                              ),
-                            ),
-                          ),
-                          // Cross-Fading Network Image
-                          if (isImageAvailable)
+                            // Cross-Fading Network Image
                             Image.network(
                               imageUrl,
                               fit: BoxFit.cover,
@@ -125,11 +125,12 @@ class _StreamingProductCardState extends State<StreamingProductCard> {
                                 );
                               },
                             ),
-                        ],
+                          ],
+                        ),
                       ),
                     ),
-                  ),
-                  const SizedBox(height: 14),
+                    const SizedBox(height: 14),
+                  ],
 
                   // Rating row (progressive display)
                   if (rating > 0) ...[
