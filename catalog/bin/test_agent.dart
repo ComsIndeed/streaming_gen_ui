@@ -3,6 +3,42 @@ import 'package:dartantic_ai/dartantic_ai.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
 
+class ThinkingDisabledHttpClient extends http.BaseClient {
+  final http.Client _inner;
+
+  ThinkingDisabledHttpClient(this._inner);
+
+  @override
+  Future<http.StreamedResponse> send(http.BaseRequest request) async {
+    if (request is http.Request &&
+        request.method == 'POST' &&
+        request.url.path.endsWith('/chat/completions')) {
+      try {
+        final bodyString = request.body;
+        final bodyJson = jsonDecode(bodyString);
+        if (bodyJson is Map<String, dynamic>) {
+          // Inject "thinking": {"type": "disabled"}
+          bodyJson['thinking'] = {'type': 'disabled'};
+          
+          // Also make sure to remove 'reasoning_effort' if present
+          bodyJson.remove('reasoning_effort');
+          
+          final newBodyString = jsonEncode(bodyJson);
+          
+          // Create a new request with the updated body
+          final newRequest = http.Request(request.method, request.url)
+            ..headers.addAll(request.headers)
+            ..body = newBodyString;
+          return _inner.send(newRequest);
+        }
+      } catch (e) {
+        // Fallback to original request if parsing fails
+      }
+    }
+    return _inner.send(request);
+  }
+}
+
 class DeduplicatedOpenAIChatModel extends OpenAIChatModel {
   DeduplicatedOpenAIChatModel({
     required super.name,
@@ -13,8 +49,10 @@ class DeduplicatedOpenAIChatModel extends OpenAIChatModel {
     super.organization,
     super.baseUrl,
     super.headers,
-    super.client,
-  });
+    http.Client? client,
+  }) : super(
+          client: ThinkingDisabledHttpClient(client ?? http.Client()),
+        );
 
   @override
   Stream<ChatResult<ChatMessage>> sendStream(
@@ -127,7 +165,7 @@ void main() async {
 
   final agent = Agent.forProvider(
     provider,
-    chatModelName: 'deepseek-chat',
+    chatModelName: 'deepseek-v4-flash',
     tools: [weatherTool],
     enableThinking: false,
   );

@@ -1,5 +1,5 @@
 import 'dart:io' show Platform;
-import 'dart:convert' show jsonDecode;
+import 'dart:convert' show jsonDecode, jsonEncode;
 import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:dartantic_ai/dartantic_ai.dart';
 import 'package:http/http.dart' as http;
@@ -201,6 +201,34 @@ class ChatAgentService {
   }
 }
 
+class ThinkingDisabledHttpClient extends http.BaseClient {
+  final http.Client _inner;
+
+  ThinkingDisabledHttpClient(this._inner);
+
+  @override
+  Future<http.StreamedResponse> send(http.BaseRequest request) async {
+    if (request is http.Request &&
+        request.method == 'POST' &&
+        request.url.path.endsWith('/chat/completions')) {
+      try {
+        final bodyString = request.body;
+        final bodyJson = jsonDecode(bodyString);
+        if (bodyJson is Map<String, dynamic>) {
+          bodyJson['thinking'] = {'type': 'disabled'};
+          bodyJson.remove('reasoning_effort');
+          final newBodyString = jsonEncode(bodyJson);
+          final newRequest = http.Request(request.method, request.url)
+            ..headers.addAll(request.headers)
+            ..body = newBodyString;
+          return _inner.send(newRequest);
+        }
+      } catch (_) {}
+    }
+    return _inner.send(request);
+  }
+}
+
 class DeduplicatedOpenAIChatModel extends OpenAIChatModel {
   DeduplicatedOpenAIChatModel({
     required super.name,
@@ -211,8 +239,8 @@ class DeduplicatedOpenAIChatModel extends OpenAIChatModel {
     super.organization,
     super.baseUrl,
     super.headers,
-    super.client,
-  });
+    http.Client? client,
+  }) : super(client: ThinkingDisabledHttpClient(client ?? http.Client()));
 
   @override
   Stream<ChatResult<ChatMessage>> sendStream(
@@ -220,28 +248,32 @@ class DeduplicatedOpenAIChatModel extends OpenAIChatModel {
     OpenAIChatOptions? options,
     Schema? outputSchema,
   }) {
-    return super.sendStream(messages, options: options, outputSchema: outputSchema).map((chunk) {
-      if (chunk.messages.isNotEmpty && chunk.output.parts.isNotEmpty) {
-        final completeMessage = chunk.messages.first;
-        final hasToolCalls = completeMessage.parts.any((part) => part is ToolPart);
-        if (hasToolCalls) {
-          // Clear the text parts in output to prevent the orchestrator from streaming the accumulated text again.
-          final emptyOutput = ChatMessage(
-            role: ChatMessageRole.model,
-            parts: const [],
-          );
-          return ChatResult<ChatMessage>(
-            id: chunk.id,
-            output: emptyOutput,
-            messages: chunk.messages,
-            finishReason: chunk.finishReason,
-            metadata: chunk.metadata,
-            usage: chunk.usage,
-          );
-        }
-      }
-      return chunk;
-    });
+    return super
+        .sendStream(messages, options: options, outputSchema: outputSchema)
+        .map((chunk) {
+          if (chunk.messages.isNotEmpty && chunk.output.parts.isNotEmpty) {
+            final completeMessage = chunk.messages.first;
+            final hasToolCalls = completeMessage.parts.any(
+              (part) => part is ToolPart,
+            );
+            if (hasToolCalls) {
+              // Clear the text parts in output to prevent the orchestrator from streaming the accumulated text again.
+              final emptyOutput = ChatMessage(
+                role: ChatMessageRole.model,
+                parts: const [],
+              );
+              return ChatResult<ChatMessage>(
+                id: chunk.id,
+                output: emptyOutput,
+                messages: chunk.messages,
+                finishReason: chunk.finishReason,
+                metadata: chunk.metadata,
+                usage: chunk.usage,
+              );
+            }
+          }
+          return chunk;
+        });
   }
 }
 
