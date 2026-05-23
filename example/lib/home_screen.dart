@@ -66,7 +66,7 @@ class _HomeScreenState extends State<HomeScreen> {
     _streamController?.close();
     _genUi.disposeView('playground-view');
 
-    final controller = StreamController<String>.broadcast();
+    final controller = StreamController<String>();
     _genUi.stream(controller.stream, viewId: 'playground-view');
 
     setState(() {

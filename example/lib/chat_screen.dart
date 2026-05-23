@@ -195,7 +195,7 @@ class _ChatScreenState extends State<ChatScreen> {
 
     _textController.clear();
     final userViewId = 'user_${DateTime.now().millisecondsSinceEpoch}';
-    final userController = StreamController<String>.broadcast();
+    final userController = StreamController<String>();
 
     setState(() {
       _messages.add(
@@ -214,7 +214,7 @@ class _ChatScreenState extends State<ChatScreen> {
 
     // AI message setup
     final aiViewId = 'ai_${DateTime.now().millisecondsSinceEpoch}';
-    final aiController = StreamController<String>.broadcast();
+    final aiController = StreamController<String>();
     final aiMessage = ChatMessage(
       sender: 'assistant',
       rawText: '',
