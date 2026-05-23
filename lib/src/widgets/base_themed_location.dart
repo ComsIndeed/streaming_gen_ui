@@ -60,17 +60,22 @@ class _BaseThemedLocationCardState extends State<BaseThemedLocationCard> {
             context,
           );
 
-          final cardContent = _buildCardContent(
-            context,
-            name,
-            address,
-            latitude,
-            longitude,
-            rating,
-            imageUrl,
-            distance,
-            phone,
-            hours,
+          final cardContent = AnimatedSize(
+            duration: const Duration(milliseconds: 300),
+            curve: Curves.easeOutCubic,
+            alignment: Alignment.topLeft,
+            child: _buildCardContent(
+              context,
+              name,
+              address,
+              latitude,
+              longitude,
+              rating,
+              imageUrl,
+              distance,
+              phone,
+              hours,
+            ),
           );
 
           Widget cardFrame;

@@ -57,15 +57,20 @@ class _BaseThemedWeatherCardState extends State<BaseThemedWeatherCard> {
             context,
           );
 
-          final cardContent = _buildCardContent(
-            context,
-            temp,
-            condition,
-            location,
-            humidity,
-            windSpeed,
-            size,
-            mapStream.getListProperty("forecast"),
+          final cardContent = AnimatedSize(
+            duration: const Duration(milliseconds: 300),
+            curve: Curves.easeOutCubic,
+            alignment: Alignment.topLeft,
+            child: _buildCardContent(
+              context,
+              temp,
+              condition,
+              location,
+              humidity,
+              windSpeed,
+              size,
+              mapStream.getListProperty("forecast"),
+            ),
           );
 
           Widget cardFrame;

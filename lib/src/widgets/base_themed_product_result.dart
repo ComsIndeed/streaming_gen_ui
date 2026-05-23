@@ -58,16 +58,21 @@ class _BaseThemedProductResultCardState extends State<BaseThemedProductResultCar
             context,
           );
 
-          final cardContent = _buildCardContent(
-            context,
-            title,
-            price,
-            originalPrice,
-            rating,
-            imageUrl,
-            description,
-            badge,
-            mapStream.getListProperty("features"),
+          final cardContent = AnimatedSize(
+            duration: const Duration(milliseconds: 300),
+            curve: Curves.easeOutCubic,
+            alignment: Alignment.topLeft,
+            child: _buildCardContent(
+              context,
+              title,
+              price,
+              originalPrice,
+              rating,
+              imageUrl,
+              description,
+              badge,
+              mapStream.getListProperty("features"),
+            ),
           );
 
           Widget cardFrame;

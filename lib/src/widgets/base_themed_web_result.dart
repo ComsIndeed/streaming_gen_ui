@@ -56,14 +56,19 @@ class _BaseThemedWebResultCardState extends State<BaseThemedWebResultCard> {
             context,
           );
 
-          final cardContent = _buildCardContent(
-            context,
-            title,
-            url,
-            snippet,
-            faviconUrl,
-            siteName,
-            publishDate,
+          final cardContent = AnimatedSize(
+            duration: const Duration(milliseconds: 300),
+            curve: Curves.easeOutCubic,
+            alignment: Alignment.topLeft,
+            child: _buildCardContent(
+              context,
+              title,
+              url,
+              snippet,
+              faviconUrl,
+              siteName,
+              publishDate,
+            ),
           );
 
           Widget cardFrame;

@@ -63,17 +63,22 @@ class _BaseThemedNoteCardState extends State<BaseThemedNoteCard> {
             context,
           );
 
-          final cardContent = _buildCardContent(
-            context,
-            type,
-            title,
-            content,
-            completed,
-            dueDate,
-            priority,
-            imageUrl,
-            lastModified,
-            mapStream.getListProperty("tags"),
+          final cardContent = AnimatedSize(
+            duration: const Duration(milliseconds: 300),
+            curve: Curves.easeOutCubic,
+            alignment: Alignment.topLeft,
+            child: _buildCardContent(
+              context,
+              type,
+              title,
+              content,
+              completed,
+              dueDate,
+              priority,
+              imageUrl,
+              lastModified,
+              mapStream.getListProperty("tags"),
+            ),
           );
 
           Widget cardFrame;

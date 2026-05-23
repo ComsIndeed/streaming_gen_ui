@@ -51,10 +51,15 @@ class _BaseThemedListResultsCardState extends State<BaseThemedListResultsCard> {
             context,
           );
 
-          final cardContent = _buildCardContent(
-            context,
-            title,
-            mapStream.getListProperty("items"),
+          final cardContent = AnimatedSize(
+            duration: const Duration(milliseconds: 300),
+            curve: Curves.easeOutCubic,
+            alignment: Alignment.topLeft,
+            child: _buildCardContent(
+              context,
+              title,
+              mapStream.getListProperty("items"),
+            ),
           );
 
           Widget cardFrame;
