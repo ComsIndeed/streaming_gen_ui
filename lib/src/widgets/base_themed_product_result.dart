@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:llm_json_stream/llm_json_stream.dart';
 import 'package:streaming_gen_ui/src/widgets/theme_style_helper.dart';
 import 'package:streaming_gen_ui/src/widgets/core/streaming_entrance.dart';
+import 'package:streaming_gen_ui/src/widgets/base_streaming_image.dart';
 
 /// A premium, customizable Product Result Card supporting M3, Fluent, Apple,
 /// Glassmorphic, Neumorphic, Skeuomorphic, and Neo-Brutalist design aesthetics.
@@ -24,7 +25,6 @@ class _BaseThemedProductResultCardState extends State<BaseThemedProductResultCar
 
   @override
   Widget build(BuildContext context) {
-    final themeData = Theme.of(context);
     final mapStream = widget.props.asMap;
 
     return StreamingEntrance(
@@ -76,7 +76,7 @@ class _BaseThemedProductResultCardState extends State<BaseThemedProductResultCar
             cardFrame = ClipPath(
               clipper: ShapeBorderClipper(shape: shape),
               child: BackdropFilter(
-                filter: ColorFilter.mode(Colors.black.withOpacity(0.02), BlendMode.dstATop),
+                filter: ColorFilter.mode(Colors.black.withValues(alpha: 0.02), BlendMode.dstATop),
                 child: Container(
                   decoration: decoration,
                   child: cardContent,
@@ -87,7 +87,7 @@ class _BaseThemedProductResultCardState extends State<BaseThemedProductResultCar
             cardFrame = ClipPath(
               clipper: ShapeBorderClipper(shape: shape),
               child: BackdropFilter(
-                filter: ColorFilter.mode(Colors.black.withOpacity(0.04), BlendMode.dstATop),
+                filter: ColorFilter.mode(Colors.black.withValues(alpha: 0.04), BlendMode.dstATop),
                 child: Container(
                   decoration: decoration,
                   child: cardContent,
@@ -165,16 +165,11 @@ class _BaseThemedProductResultCardState extends State<BaseThemedProductResultCar
             children: [
               AspectRatio(
                 aspectRatio: 1.6,
-                child: Image.network(
-                  imageUrl,
+                child: BaseStreamingImage(
+                  imageUrl: imageUrl,
+                  themeName: widget.themeName,
+                  borderRadius: 0,
                   fit: BoxFit.cover,
-                  loadingBuilder: (_, child, prog) {
-                    if (prog == null) return child;
-                    return Container(
-                      color: themeData.colorScheme.surfaceContainerHighest,
-                      child: const Center(child: CircularProgressIndicator(strokeWidth: 2.0)),
-                    );
-                  },
                 ),
               ),
               // Optional badge
@@ -247,7 +242,7 @@ class _BaseThemedProductResultCardState extends State<BaseThemedProductResultCar
                 Text(
                   description,
                   style: subStyle.copyWith(
-                    color: themeData.colorScheme.onSurfaceVariant.withOpacity(0.85),
+                    color: themeData.colorScheme.onSurfaceVariant.withValues(alpha: 0.85),
                     fontSize: 13,
                   ),
                   maxLines: 3,
@@ -271,7 +266,7 @@ class _BaseThemedProductResultCardState extends State<BaseThemedProductResultCar
                         children: list.map((item) {
                           return Container(
                             decoration: BoxDecoration(
-                              color: themeData.colorScheme.surfaceContainerHighest.withOpacity(0.5),
+                              color: themeData.colorScheme.surfaceContainerHighest.withValues(alpha: 0.5),
                               borderRadius: isBrutalist ? BorderRadius.zero : BorderRadius.circular(6),
                               border: isBrutalist ? Border.all(color: Colors.black, width: 1.5) : null,
                             ),
@@ -293,7 +288,7 @@ class _BaseThemedProductResultCardState extends State<BaseThemedProductResultCar
               ),
               const SizedBox(height: 16),
               Divider(
-                color: themeData.colorScheme.outline.withOpacity(0.15),
+                color: themeData.colorScheme.outline.withValues(alpha: 0.15),
                 height: 1,
               ),
               const SizedBox(height: 12),
@@ -319,7 +314,7 @@ class _BaseThemedProductResultCardState extends State<BaseThemedProductResultCar
                           origPriceStr,
                           style: TextStyle(
                             fontSize: 14,
-                            color: themeData.colorScheme.onSurfaceVariant.withOpacity(0.6),
+                            color: themeData.colorScheme.onSurfaceVariant.withValues(alpha: 0.6),
                             decoration: TextDecoration.lineThrough,
                           ),
                         ),

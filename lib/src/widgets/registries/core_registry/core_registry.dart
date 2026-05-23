@@ -21,9 +21,6 @@ import 'package:streaming_gen_ui/src/widgets/core/streaming_progression_circle.d
 import 'package:streaming_gen_ui/src/widgets/core/streaming_stepper.dart';
 
 // Themed Base imports
-import 'package:streaming_gen_ui/src/widgets/base_themed_card.dart';
-import 'package:streaming_gen_ui/src/widgets/base_themed_user_profile.dart';
-import 'package:streaming_gen_ui/src/widgets/base_themed_carousel.dart';
 import 'package:streaming_gen_ui/src/widgets/base_themed_weather.dart';
 import 'package:streaming_gen_ui/src/widgets/base_themed_graph.dart';
 import 'package:streaming_gen_ui/src/widgets/base_themed_web_result.dart';
@@ -81,7 +78,7 @@ final Map<String, WidgetDefinition> coreRegistry = {
     ),
     description: "Displays a dynamically streamed block of text character-by-character.",
     properties: {"content": "String"},
-    jsonExample: '{"namespace":"core:text","content":"Hello from Antigravity!"}',
+    jsonExample: '{"namespace":"core:text","content":"streaming_gen_ui"}',
   ),
 
   "core:icon": WidgetDefinition(
@@ -99,42 +96,40 @@ final Map<String, WidgetDefinition> coreRegistry = {
     builder: (context, props) => StreamingMedia(props: props),
     description: "Renders responsive, aspect-ratio locked network images with elegant shimmer placeholders.",
     properties: {
-      "url": "String (image URL)",
-      "aspectRatio": "Num (default 16/9)",
-      "borderRadius": "Num (default 16.0)",
+      "imageUrl": "String",
+      "aspectRatio": "Num",
     },
-    jsonExample: '{"namespace":"core:media","url":"https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?w=800"}',
+    jsonExample: '{"namespace":"core:media","imageUrl":"https://images.unsplash.com/photo-1604871000636-074fa5117945?w=800","aspectRatio":1.6}',
   ),
 
   "core:markdown": WidgetDefinition(
     builder: (context, props) => StreamingMarkdown(props: props),
-    description: "Renders dynamically streamed rich markdown documentation text.",
-    properties: {"content": "String (raw markdown content)"},
-    jsonExample: '{"namespace":"core:markdown","content":"# Heading\\n- Bullet 1\\n- Bullet **bold item**"}',
+    description: "Renders richly formatted markdown structures dynamically.",
+    properties: {"content": "String (Markdown formatted text)"},
+    jsonExample: '{"namespace":"core:markdown","content":"# Dynamic Title\\nStreamed markdown is **fully supported**."}',
   ),
 
   "core:button": WidgetDefinition(
     builder: (context, props) => StreamingButton(props: props),
-    description: "A tactile, click-responsive layouts block with pressed scaling and submit actions.",
+    description: "Displays an interactive primary button with stream action triggers.",
     properties: {
-      "child": "Component",
+      "text": "String",
       "action": "String (callback action trigger key)",
     },
-    jsonExample: '{"namespace":"core:button","child":{"namespace":"core:text","content":"Save Settings"},"action":"save_settings"}',
+    jsonExample: '{"namespace":"core:button","text":"Submit Info","action":"submit_event"}',
   ),
 
   "core:container": WidgetDefinition(
     builder: (context, props) => StreamingContainer(props: props),
-    description: "A flexible layout box wrapping dynamic children inside elegant border radius sheets.",
+    description: "A dynamic layouts nesting wrapper that streams custom dimensions and padding.",
     properties: {
       "child": "Component",
-      "width": "Num",
-      "height": "Num",
       "padding": "Num",
+      "margin": "Num",
+      "backgroundColor": "String (HEX)",
       "borderRadius": "Num",
-      "color": "String (HEX color code)",
     },
-    jsonExample: '{"namespace":"core:container","padding":16,"color":"#0f172a","child":{"namespace":"core:text","content":"Inside Container"}}',
+    jsonExample: '{"namespace":"core:container","padding":16,"backgroundColor":"#f5f5f5","child":{"namespace":"core:text","content":"Wrapped widget"}}',
   ),
 
   "core:column": WidgetDefinition(
@@ -142,9 +137,11 @@ final Map<String, WidgetDefinition> coreRegistry = {
       final childrenProperty = props.asMap.getListProperty("children");
       return StreamingColumn(childrenProperty: childrenProperty);
     },
-    description: "A stable, self-appending vertical layout system that aggregates nested children.",
-    properties: {"children": "List<Component>"},
-    jsonExample: '{"namespace":"core:column","children":[{"namespace":"core:text","content":"First"},{"namespace":"core:text","content":"Second"}]}',
+    description: "Arranges dynamic streamed component items vertically with animated insertions.",
+    properties: {
+      "children": "List<Component>",
+    },
+    jsonExample: '{"namespace":"core:column","children":[{"namespace":"core:text","content":"Line 1"},{"namespace":"core:text","content":"Line 2"}]}',
   ),
 
   "core:row": WidgetDefinition(
@@ -152,34 +149,35 @@ final Map<String, WidgetDefinition> coreRegistry = {
       final childrenProperty = props.asMap.getListProperty("children");
       return StreamingRow(childrenProperty: childrenProperty);
     },
-    description: "A stable, self-appending horizontal layout system that aggregates nested children.",
-    properties: {"children": "List<Component>"},
-    jsonExample: '{"namespace":"core:row","children":[{"namespace":"core:text","content":"Left"},{"namespace":"core:text","content":"Right"}]}',
+    description: "Arranges dynamic streamed component items horizontally with animated insertions.",
+    properties: {
+      "children": "List<Component>",
+    },
+    jsonExample: '{"namespace":"core:row","children":[{"namespace":"core:icon","icon":"star"},{"namespace":"core:text","content":"Favored Star"}]}',
   ),
 
   "core:textfield": WidgetDefinition(
     builder: (context, props) => StreamingTextField(props: props),
-    description: "An interactive input field that executes actions on submit.",
+    description: "An interactive, dynamic input field that emits real-time data events.",
     properties: {
-      "placeholder": "String",
-      "labelText": "String (optional)",
-      "color": "String (HEX background)",
-      "action": "String (callback action trigger key)",
+      "label": "String",
+      "hint": "String",
+      "value": "String (prefilled value)",
+      "action": "String (callback on change)",
     },
-    jsonExample: '{"namespace":"core:textfield","placeholder":"Search files...","action":"search_files"}',
+    jsonExample: '{"namespace":"core:textfield","label":"Email Address","hint":"name@example.com"}',
   ),
 
   "core:slider": WidgetDefinition(
     builder: (context, props) => StreamingSlider(props: props),
-    description: "An anatomy-first slider input control.",
+    description: "A streaming slider selector for custom values.",
     properties: {
       "min": "Num",
       "max": "Num",
       "value": "Num",
-      "label": "String",
-      "action": "String (callback action trigger key)",
+      "action": "String",
     },
-    jsonExample: '{"namespace":"core:slider","min":0,"max":10,"value":5,"label":"Uptime Scale","action":"adjust_uptime"}',
+    jsonExample: '{"namespace":"core:slider","min":0,"max":100,"value":50}',
   ),
 
   // ==========================================
@@ -188,46 +186,43 @@ final Map<String, WidgetDefinition> coreRegistry = {
 
   "core_extended:icon_button": WidgetDefinition(
     builder: (context, props) => StreamingIconButton(props: props),
-    description: "A circular tactile button centered around an icon with pressed scaling.",
+    description: "Displays a highly tactile, circular icon action button.",
     properties: {
       "icon": "String",
-      "size": "Num",
       "color": "String",
-      "backgroundColor": "String",
-      "action": "String (callback action trigger key)",
+      "action": "String",
     },
-    jsonExample: '{"namespace":"core_extended:icon_button","icon":"settings","action":"open_settings"}',
+    jsonExample: '{"namespace":"core_extended:icon_button","icon":"favorite","color":"#ff1744","action":"like_post"}',
   ),
 
   "core_extended:text_button": WidgetDefinition(
     builder: (context, props) => StreamingTextButton(props: props),
-    description: "A low-emphasis underline hyperlink button.",
+    description: "Displays a borderless text action link button.",
     properties: {
       "text": "String",
-      "action": "String (callback action trigger key)",
+      "action": "String",
     },
-    jsonExample: '{"namespace":"core_extended:text_button","text":"Learn More","action":"learn_more"}',
+    jsonExample: '{"namespace":"core_extended:text_button","text":"Learn More","action":"open_learn"}',
   ),
 
   "core_extended:progression_bar": WidgetDefinition(
     builder: (context, props) => StreamingProgressionBar(props: props),
-    description: "A linear progress indicator that fills dynamically.",
+    description: "Renders an animated linear status progression indicator.",
     properties: {
-      "value": "Num (0.0 to 1.0)",
+      "progress": "Num (0.0 to 1.0)",
       "color": "String (HEX)",
     },
-    jsonExample: '{"namespace":"core_extended:progression_bar","value":0.68,"color":"#10b981"}',
+    jsonExample: '{"namespace":"core_extended:progression_bar","progress":0.72}',
   ),
 
   "core_extended:progression_circle": WidgetDefinition(
     builder: (context, props) => StreamingProgressionCircle(props: props),
-    description: "A radial progress loop or circular tracking spinner.",
+    description: "Renders an animated radial status progression indicator.",
     properties: {
-      "value": "Num (0.0 to 1.0)",
-      "size": "Num",
+      "progress": "Num (0.0 to 1.0)",
       "color": "String (HEX)",
     },
-    jsonExample: '{"namespace":"core_extended:progression_circle","value":0.85,"size":32}',
+    jsonExample: '{"namespace":"core_extended:progression_circle","progress":0.85}',
   ),
 
   "core_extended:stepper": WidgetDefinition(
@@ -278,7 +273,7 @@ Map<String, WidgetDefinition> _generateThemeWidgets() {
         "body": "Component",
         "themeSettings": "Map (primaryColor, backgroundColor, borderRadius)",
       },
-      jsonExample: '{"namespace":"${theme}_ui:card","title":"Creative Design","subtitle":"Aesthetic presets","imagePosition":"left","imageUrl":"https://images.unsplash.com/photo-1604871000636-074fa5117945?w=800","body":{"namespace":"core:text","content":"Rich content bodies."}}',
+      jsonExample: '{"namespace":"${theme}_ui:card","title":"Discover Alpine Wilderness","subtitle":"National Geographic Features","imagePosition":"top","imageUrl":"https://images.unsplash.com/photo-1464822759023-fed622ff2c3b?w=800","statusLabel":"Featured","statusStyle":"info","body":{"namespace":"core:text","content":"Journey into the pristine glacial peaks and towering valleys of the European Alps. Discover rare native flora, breathtaking altitude lakes, and professional hiking trails."}}',
     );
 
     // 2. User Profile Card (exposing Vincent Sanicolas's Developer info)
@@ -331,7 +326,7 @@ Map<String, WidgetDefinition> _generateThemeWidgets() {
         "items": "List<Component>",
         "themeSettings": "Map",
       },
-      jsonExample: '{"namespace":"${theme}_ui:carousel","carouselType":"slide","items":[{"namespace":"${theme}_ui:card","title":"Gallery Album 1","subtitle":"Photography"}]}',
+      jsonExample: '{"namespace":"${theme}_ui:carousel","carouselType":"slide","items":[{"namespace":"${theme}_ui:card","title":"Glacial Peaks","subtitle":"The Swiss Alps","imageUrl":"https://images.unsplash.com/photo-1464822759023-fed622ff2c3b?w=600","imagePosition":"top"},{"namespace":"${theme}_ui:card","title":"Sunny Coastlines","subtitle":"Malibu Beach","imageUrl":"https://images.unsplash.com/photo-1505118380757-91f5f5632de0?w=600","imagePosition":"top"},{"namespace":"${theme}_ui:card","title":"Dune Horizons","subtitle":"Sahara Desert","imageUrl":"https://images.unsplash.com/photo-1509316975850-ff9c5deb0cd9?w=600","imagePosition":"top"}]}',
     );
 
     // 4. Weather Card
@@ -382,7 +377,7 @@ Map<String, WidgetDefinition> _generateThemeWidgets() {
         "action": "String",
         "themeSettings": "Map",
       },
-      jsonExample: '{"namespace":"${theme}_ui:web_result","title":"Antigravity AI Assistant","url":"https://github.com/google-deepmind/antigravity","snippet":"Discover the next generation of AI pair programming and developer systems.","siteName":"GitHub","publishDate":"May 2026"}',
+      jsonExample: '{"namespace":"${theme}_ui:web_result","title":"streaming_gen_ui | Flutter Package","url":"https://pub.dev/packages/streaming_gen_ui","snippet":"A next-generation generative UI engine for Flutter. Dynamically parse and stream design-system-compliant polymorphic widgets with smooth real-time animations. Aligned with M3, Fluent, Apple, Glassmorphic, Neumorphic, Skeuomorphic, and Neo-Brutalist systems.","siteName":"pub.dev","publishDate":"May 2026"}',
     );
 
     // 7. Product Result Card
@@ -421,7 +416,7 @@ Map<String, WidgetDefinition> _generateThemeWidgets() {
         "action": "String",
         "themeSettings": "Map",
       },
-      jsonExample: '{"namespace":"${theme}_ui:location","name":"Blue Bottle Coffee","address":"1355 Market St, San Francisco, CA","distance":"0.4 mi","rating":4.5,"hours":"7:00 AM - 6:00 PM"}',
+      jsonExample: '{"namespace":"${theme}_ui:location","name":"Blue Bottle Coffee","address":"1355 Market St, San Francisco, CA","distance":"0.4 mi","rating":4.5,"hours":"7:00 AM - 6:00 PM","imageUrl":"https://images.unsplash.com/photo-1501339847302-ac426a4a7cbb?w=600"}',
     );
 
     // 9. List/File Results Card
@@ -466,7 +461,7 @@ Map<String, WidgetDefinition> _generateThemeWidgets() {
         "action": "String",
         "themeSettings": "Map",
       },
-      jsonExample: '{"namespace":"${theme}_ui:note","type":"note","title":"Meeting Notes","content":"Discussed the new squircle dynamic animations and glassmorphism sigmas.","tags":["design","sprint-5"],"lastModified":"2 Hours Ago"}',
+      jsonExample: '{"namespace":"${theme}_ui:note","type":"note","title":"Meeting Notes","content":"Discussed the new squircle dynamic animations and glassmorphism sigmas.","imageUrl":"https://images.unsplash.com/photo-1517842645767-c639042777db?w=600","tags":["design","sprint-5"],"lastModified":"2 Hours Ago"}',
     );
 
     // 12. Product Comparison Table Card

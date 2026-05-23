@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:llm_json_stream/llm_json_stream.dart';
-import 'package:streaming_gen_ui/src/widgets/streaming_widget.dart';
 import 'package:streaming_gen_ui/src/widgets/theme_style_helper.dart';
 import 'package:streaming_gen_ui/src/widgets/core/streaming_entrance.dart';
 
@@ -25,7 +24,6 @@ class _BaseThemedWeatherCardState extends State<BaseThemedWeatherCard> {
 
   @override
   Widget build(BuildContext context) {
-    final themeData = Theme.of(context);
     final mapStream = widget.props.asMap;
 
     return StreamingEntrance(
@@ -76,7 +74,7 @@ class _BaseThemedWeatherCardState extends State<BaseThemedWeatherCard> {
             cardFrame = ClipPath(
               clipper: ShapeBorderClipper(shape: shape),
               child: BackdropFilter(
-                filter: ColorFilter.mode(Colors.black.withOpacity(0.02), BlendMode.dstATop),
+                filter: ColorFilter.mode(Colors.black.withValues(alpha: 0.02), BlendMode.dstATop),
                 child: Container(
                   decoration: decoration,
                   child: cardContent,
@@ -87,7 +85,7 @@ class _BaseThemedWeatherCardState extends State<BaseThemedWeatherCard> {
             cardFrame = ClipPath(
               clipper: ShapeBorderClipper(shape: shape),
               child: BackdropFilter(
-                filter: ColorFilter.mode(Colors.black.withOpacity(0.04), BlendMode.dstATop),
+                filter: ColorFilter.mode(Colors.black.withValues(alpha: 0.04), BlendMode.dstATop),
                 child: Container(
                   decoration: decoration,
                   child: cardContent,
@@ -203,7 +201,7 @@ class _BaseThemedWeatherCardState extends State<BaseThemedWeatherCard> {
           if (weatherBg != null) Positioned.fill(child: weatherBg),
           if (!isBrutalist && weatherBg != null)
             Positioned.fill(
-              child: Container(color: Colors.black.withOpacity(0.15)),
+              child: Container(color: Colors.black.withValues(alpha: 0.15)),
             ),
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 12.0),
@@ -225,7 +223,7 @@ class _BaseThemedWeatherCardState extends State<BaseThemedWeatherCard> {
                     Text(
                       condition.toUpperCase(),
                       style: textSubStyle.copyWith(
-                        color: textContrastColor.withOpacity(0.8),
+                        color: textContrastColor.withValues(alpha: 0.8),
                         fontSize: 11,
                         letterSpacing: 1.0,
                       ),
@@ -264,7 +262,7 @@ class _BaseThemedWeatherCardState extends State<BaseThemedWeatherCard> {
         if (weatherBg != null) Positioned.fill(child: weatherBg),
         if (!isBrutalist && weatherBg != null)
           Positioned.fill(
-            child: Container(color: Colors.black.withOpacity(0.1)),
+            child: Container(color: Colors.black.withValues(alpha: 0.1)),
           ),
         Padding(
           padding: const EdgeInsets.all(20.0),
@@ -291,7 +289,7 @@ class _BaseThemedWeatherCardState extends State<BaseThemedWeatherCard> {
                         Text(
                           condition.toUpperCase(),
                           style: textSubStyle.copyWith(
-                            color: textContrastColor.withOpacity(0.8),
+                            color: textContrastColor.withValues(alpha: 0.8),
                             fontSize: 12,
                             fontWeight: FontWeight.w600,
                             letterSpacing: 1.2,
@@ -329,7 +327,7 @@ class _BaseThemedWeatherCardState extends State<BaseThemedWeatherCard> {
                           Text(
                             "Humidity: ${humidity.toInt()}%",
                             style: textSubStyle.copyWith(
-                              color: textContrastColor.withOpacity(0.8),
+                              color: textContrastColor.withValues(alpha: 0.8),
                               fontSize: 12,
                             ),
                           ),
@@ -338,7 +336,7 @@ class _BaseThemedWeatherCardState extends State<BaseThemedWeatherCard> {
                           Text(
                             "Wind: ${windSpeed.toStringAsFixed(1)} km/h",
                             style: textSubStyle.copyWith(
-                              color: textContrastColor.withOpacity(0.8),
+                              color: textContrastColor.withValues(alpha: 0.8),
                               fontSize: 12,
                             ),
                           ),
@@ -357,7 +355,7 @@ class _BaseThemedWeatherCardState extends State<BaseThemedWeatherCard> {
                   return Column(
                     children: [
                       const SizedBox(height: 16),
-                      Divider(color: textContrastColor.withOpacity(0.2), height: 1),
+                      Divider(color: textContrastColor.withValues(alpha: 0.2), height: 1),
                       const SizedBox(height: 12),
                       Row(
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -385,7 +383,7 @@ class _BaseThemedWeatherCardState extends State<BaseThemedWeatherCard> {
                               Text(
                                 day,
                                 style: textSubStyle.copyWith(
-                                  color: textContrastColor.withOpacity(0.9),
+                                  color: textContrastColor.withValues(alpha: 0.9),
                                   fontSize: 12,
                                   fontWeight: FontWeight.w600,
                                 ),

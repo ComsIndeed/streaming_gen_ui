@@ -76,11 +76,11 @@ class _ElasticButtonState extends State<ElasticButton> {
               color: bg,
               borderRadius: BorderRadius.circular(height / 2),
               border: Border.all(
-                color: theme.colorScheme.outline.withOpacity(0.08),
+                color: theme.colorScheme.outline.withValues(alpha: 0.08),
               ),
               boxShadow: [
                 BoxShadow(
-                  color: bg.withOpacity(_isHovered ? 0.24 : 0.12),
+                  color: bg.withValues(alpha: _isHovered ? 0.24 : 0.12),
                   blurRadius: (_isHovered ? 12 : 6) * widget.sizeFactor,
                   offset: Offset(0, (_isHovered ? 4 : 2) * widget.sizeFactor),
                 ),

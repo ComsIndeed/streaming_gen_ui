@@ -20,7 +20,7 @@ class GraphBackground extends StatelessWidget {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final activeGridColor =
-        gridColor ?? theme.colorScheme.onSurface.withOpacity(0.04);
+        gridColor ?? theme.colorScheme.onSurface.withValues(alpha: 0.04);
     final activeBgColor = backgroundColor ?? theme.colorScheme.surface;
 
     return CustomPaint(
@@ -61,7 +61,7 @@ class _GraphPainter extends CustomPainter {
 
     final majorPaint = Paint()
       ..color = gridColor
-          .withOpacity(gridColor.opacity * 2.5) // Make major lines more visible
+          .withValues(alpha: (gridColor.a * 2.5).clamp(0.0, 1.0)) // Make major lines more visible
       ..strokeWidth = 1.0;
 
     // Draw vertical lines

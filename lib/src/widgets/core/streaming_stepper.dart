@@ -57,8 +57,8 @@ class _StreamingStepperState extends State<StreamingStepper> {
                       borderRadius: BorderRadius.circular(12),
                       side: BorderSide(
                         color: isOpen
-                            ? theme.colorScheme.primary.withOpacity(0.3)
-                            : theme.colorScheme.outline.withOpacity(0.08),
+                            ? theme.colorScheme.primary.withValues(alpha: 0.3)
+                            : theme.colorScheme.outline.withValues(alpha: 0.08),
                         width: isOpen ? 1.5 : 1.0,
                       ),
                     ),
@@ -72,7 +72,7 @@ class _StreamingStepperState extends State<StreamingStepper> {
                             radius: 12,
                             backgroundColor: isOpen
                                 ? theme.colorScheme.primary
-                                : theme.colorScheme.outline.withOpacity(0.12),
+                                : theme.colorScheme.outline.withValues(alpha: 0.12),
                             child: Text(
                               '${index + 1}',
                               style: TextStyle(

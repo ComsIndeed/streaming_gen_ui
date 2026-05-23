@@ -26,7 +26,6 @@ class _BaseThemedGraphCardState extends State<BaseThemedGraphCard> {
 
   @override
   Widget build(BuildContext context) {
-    final themeData = Theme.of(context);
     final mapStream = widget.props.asMap;
 
     return StreamingEntrance(
@@ -73,7 +72,7 @@ class _BaseThemedGraphCardState extends State<BaseThemedGraphCard> {
             cardFrame = ClipPath(
               clipper: ShapeBorderClipper(shape: shape),
               child: BackdropFilter(
-                filter: ColorFilter.mode(Colors.black.withOpacity(0.02), BlendMode.dstATop),
+                filter: ColorFilter.mode(Colors.black.withValues(alpha: 0.02), BlendMode.dstATop),
                 child: Container(
                   decoration: decoration,
                   child: cardContent,
@@ -84,7 +83,7 @@ class _BaseThemedGraphCardState extends State<BaseThemedGraphCard> {
             cardFrame = ClipPath(
               clipper: ShapeBorderClipper(shape: shape),
               child: BackdropFilter(
-                filter: ColorFilter.mode(Colors.black.withOpacity(0.04), BlendMode.dstATop),
+                filter: ColorFilter.mode(Colors.black.withValues(alpha: 0.04), BlendMode.dstATop),
                 child: Container(
                   decoration: decoration,
                   child: cardContent,
@@ -152,7 +151,7 @@ class _BaseThemedGraphCardState extends State<BaseThemedGraphCard> {
             Text(
               subtitle,
               style: subStyle.copyWith(
-                color: themeData.colorScheme.onSurfaceVariant.withOpacity(0.7),
+                color: themeData.colorScheme.onSurfaceVariant.withValues(alpha: 0.7),
                 fontSize: 12,
               ),
             ),
@@ -411,7 +410,7 @@ class _BaseThemedGraphCardState extends State<BaseThemedGraphCard> {
             child: Table(
               defaultColumnWidth: const IntrinsicColumnWidth(),
               border: TableBorder.all(
-                color: isBrutalist ? Colors.black : themeData.colorScheme.outline.withOpacity(0.15),
+                color: isBrutalist ? Colors.black : themeData.colorScheme.outline.withValues(alpha: 0.15),
                 width: isBrutalist ? 2.0 : 1.0,
               ),
               children: [
@@ -421,7 +420,7 @@ class _BaseThemedGraphCardState extends State<BaseThemedGraphCard> {
                     decoration: BoxDecoration(
                       color: isBrutalist
                           ? const Color(0xFFFFFF00)
-                          : themeData.colorScheme.primaryContainer.withOpacity(0.4),
+                          : themeData.colorScheme.primaryContainer.withValues(alpha: 0.4),
                     ),
                     children: headers.map((h) {
                       return Padding(
@@ -544,10 +543,10 @@ class _LineChartPainter extends CustomPainter {
     fillPath.close();
 
     // Draw background gradient fill under line
-    if (themeName != 'brutalist') {
+      if (themeName != 'brutalist') {
       final fillPaint = Paint()
         ..shader = LinearGradient(
-          colors: [primaryColor.withOpacity(0.25), primaryColor.withOpacity(0.0)],
+          colors: [primaryColor.withValues(alpha: 0.25), primaryColor.withValues(alpha: 0.0)],
           begin: Alignment.topCenter,
           end: Alignment.bottomCenter,
         ).createShader(Rect.fromLTWH(0, 0, size.width, size.height));

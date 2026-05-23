@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:llm_json_stream/llm_json_stream.dart';
 import 'package:streaming_gen_ui/src/widgets/theme_style_helper.dart';
 import 'package:streaming_gen_ui/src/widgets/core/streaming_entrance.dart';
+import 'package:streaming_gen_ui/src/widgets/base_streaming_image.dart';
 
 /// A premium themed Standalone Todo / Reminder / Note card supporting
 /// M3, Fluent, Apple, Glassmorphic, Neumorphic, Skeuomorphic, and Neo-Brutalist design aesthetics.
@@ -26,7 +27,6 @@ class _BaseThemedNoteCardState extends State<BaseThemedNoteCard> {
 
   @override
   Widget build(BuildContext context) {
-    final themeData = Theme.of(context);
     final mapStream = widget.props.asMap;
 
     return StreamingEntrance(
@@ -42,6 +42,7 @@ class _BaseThemedNoteCardState extends State<BaseThemedNoteCard> {
           final rawCompleted = data["completed"] as bool? ?? false;
           final dueDate = data["dueDate"] as String?;
           final priority = data["priority"] as String?;
+          final imageUrl = data["imageUrl"] as String?;
           final lastModified = data["lastModified"] as String?;
           final action = data["action"] as String?;
 
@@ -70,6 +71,7 @@ class _BaseThemedNoteCardState extends State<BaseThemedNoteCard> {
             completed,
             dueDate,
             priority,
+            imageUrl,
             lastModified,
             mapStream.getListProperty("tags"),
           );
@@ -80,7 +82,7 @@ class _BaseThemedNoteCardState extends State<BaseThemedNoteCard> {
             cardFrame = ClipPath(
               clipper: ShapeBorderClipper(shape: shape),
               child: BackdropFilter(
-                filter: ColorFilter.mode(Colors.black.withOpacity(0.02), BlendMode.dstATop),
+                filter: ColorFilter.mode(Colors.black.withValues(alpha: 0.02), BlendMode.dstATop),
                 child: Container(
                   decoration: decoration,
                   child: cardContent,
@@ -91,7 +93,7 @@ class _BaseThemedNoteCardState extends State<BaseThemedNoteCard> {
             cardFrame = ClipPath(
               clipper: ShapeBorderClipper(shape: shape),
               child: BackdropFilter(
-                filter: ColorFilter.mode(Colors.black.withOpacity(0.04), BlendMode.dstATop),
+                filter: ColorFilter.mode(Colors.black.withValues(alpha: 0.04), BlendMode.dstATop),
                 child: Container(
                   decoration: decoration,
                   child: cardContent,
@@ -141,6 +143,7 @@ class _BaseThemedNoteCardState extends State<BaseThemedNoteCard> {
     bool completed,
     String? dueDate,
     String? priority,
+    String? imageUrl,
     String? lastModified,
     PropertyStream tagsProp,
   ) {
@@ -182,6 +185,18 @@ class _BaseThemedNoteCardState extends State<BaseThemedNoteCard> {
         crossAxisAlignment: CrossAxisAlignment.start,
         mainAxisSize: MainAxisSize.min,
         children: [
+          // Banner hero image slot if present
+          if (imageUrl != null && imageUrl.isNotEmpty)
+            Padding(
+              padding: const EdgeInsets.only(bottom: 12.0),
+              child: BaseStreamingImage(
+                imageUrl: imageUrl,
+                themeName: widget.themeName,
+                borderRadius: isBrutalist ? 0 : 8.0,
+                aspectRatio: 2.2,
+                fit: BoxFit.cover,
+              ),
+            ),
           // Row Header: Type icon, Title, Priority dot
           Row(
             children: [
@@ -220,7 +235,7 @@ class _BaseThemedNoteCardState extends State<BaseThemedNoteCard> {
               content,
               style: subStyle.copyWith(
                 fontSize: 14,
-                color: themeData.colorScheme.onSurface.withOpacity(0.85),
+                color: themeData.colorScheme.onSurface.withValues(alpha: 0.85),
                 height: 1.4,
               ),
             ),
@@ -288,7 +303,7 @@ class _BaseThemedNoteCardState extends State<BaseThemedNoteCard> {
                     children: list.map((tag) {
                       return Container(
                         decoration: BoxDecoration(
-                          color: themeData.colorScheme.secondaryContainer.withOpacity(0.4),
+                          color: themeData.colorScheme.secondaryContainer.withValues(alpha: 0.4),
                           borderRadius: isBrutalist ? BorderRadius.zero : BorderRadius.circular(4),
                           border: isBrutalist ? Border.all(color: Colors.black, width: 1.0) : null,
                         ),
@@ -311,7 +326,7 @@ class _BaseThemedNoteCardState extends State<BaseThemedNoteCard> {
           // Footer due-date and lastModified rows
           if (dueDate != null || lastModified != null) ...[
             const SizedBox(height: 12),
-            Divider(color: themeData.colorScheme.outline.withOpacity(0.08), height: 1),
+            Divider(color: themeData.colorScheme.outline.withValues(alpha: 0.08), height: 1),
             const SizedBox(height: 8),
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -319,13 +334,13 @@ class _BaseThemedNoteCardState extends State<BaseThemedNoteCard> {
                 if (dueDate != null && dueDate.isNotEmpty)
                   Row(
                     children: [
-                      Icon(Icons.calendar_today, size: 10, color: themeData.colorScheme.onSurfaceVariant.withOpacity(0.6)),
+                      Icon(Icons.calendar_today, size: 10, color: themeData.colorScheme.onSurfaceVariant.withValues(alpha: 0.6)),
                       const SizedBox(width: 4),
                       Text(
                         "Due: $dueDate",
                         style: TextStyle(
                           fontSize: 10,
-                          color: themeData.colorScheme.onSurfaceVariant.withOpacity(0.6),
+                          color: themeData.colorScheme.onSurfaceVariant.withValues(alpha: 0.6),
                         ),
                       ),
                     ],
@@ -335,7 +350,7 @@ class _BaseThemedNoteCardState extends State<BaseThemedNoteCard> {
                     "Modified: $lastModified",
                     style: TextStyle(
                       fontSize: 10,
-                      color: themeData.colorScheme.onSurfaceVariant.withOpacity(0.6),
+                      color: themeData.colorScheme.onSurfaceVariant.withValues(alpha: 0.6),
                     ),
                   ),
               ],

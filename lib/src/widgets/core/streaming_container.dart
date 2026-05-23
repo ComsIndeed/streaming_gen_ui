@@ -39,11 +39,11 @@ class StreamingContainer extends StatelessWidget {
               color: parsedColor ?? Theme.of(context).colorScheme.surfaceContainerHigh,
               borderRadius: BorderRadius.circular(borderRadiusVal),
               border: Border.all(
-                color: Theme.of(context).colorScheme.outline.withOpacity(0.08),
+                color: Theme.of(context).colorScheme.outline.withValues(alpha: 0.08),
               ),
               boxShadow: [
                 BoxShadow(
-                  color: Colors.black.withOpacity(0.04),
+                  color: Colors.black.withValues(alpha: 0.04),
                   blurRadius: 12,
                   offset: const Offset(0, 6),
                 ),

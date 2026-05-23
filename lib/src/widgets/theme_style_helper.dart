@@ -29,7 +29,7 @@ class ThemeStyleHelper {
         return RoundedSuperellipseBorder(
           borderRadius: BorderRadius.circular(borderRadiusOverride ?? 18.0),
           side: BorderSide(
-            color: themeData.colorScheme.outline.withOpacity(0.06),
+            color: themeData.colorScheme.outline.withValues(alpha: 0.06),
             width: 0.5,
           ),
         );
@@ -45,7 +45,7 @@ class ThemeStyleHelper {
         return RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(borderRadiusOverride ?? 8.0),
           side: BorderSide(
-            color: Colors.white.withOpacity(0.08),
+            color: Colors.white.withValues(alpha: 0.08),
             width: 1.0,
           ),
         );
@@ -57,7 +57,7 @@ class ThemeStyleHelper {
         return RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(borderRadiusOverride ?? 16.0),
           side: BorderSide(
-            color: Colors.white.withOpacity(0.12),
+            color: Colors.white.withValues(alpha: 0.12),
             width: 1.0,
           ),
         );
@@ -74,7 +74,7 @@ class ThemeStyleHelper {
         return RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(borderRadiusOverride ?? 16.0),
           side: BorderSide(
-            color: themeData.colorScheme.outline.withOpacity(0.08),
+            color: themeData.colorScheme.outline.withValues(alpha: 0.08),
             width: 1.0,
           ),
         );
@@ -128,24 +128,24 @@ class ThemeStyleHelper {
           boxShadow: isPressed
               ? [
                   BoxShadow(
-                    color: Colors.black.withOpacity(0.06),
+                    color: Colors.black.withValues(alpha: 0.06),
                     offset: const Offset(2, 2),
                     blurRadius: 4,
                   ),
                   BoxShadow(
-                    color: Colors.white.withOpacity(0.7),
+                    color: Colors.white.withValues(alpha: 0.7),
                     offset: const Offset(-2, -2),
                     blurRadius: 4,
                   ),
                 ]
               : [
                   BoxShadow(
-                    color: Colors.black.withOpacity(0.08),
+                    color: Colors.black.withValues(alpha: 0.08),
                     offset: const Offset(5, 5),
                     blurRadius: 10,
                   ),
                   BoxShadow(
-                    color: Colors.white.withOpacity(0.8),
+                    color: Colors.white.withValues(alpha: 0.8),
                     offset: const Offset(-5, -5),
                     blurRadius: 10,
                   ),
@@ -154,24 +154,24 @@ class ThemeStyleHelper {
 
       case 'glassmorphic':
         return BoxDecoration(
-          color: Colors.white.withOpacity(0.06),
+          color: Colors.white.withValues(alpha: 0.06),
           borderRadius: BorderRadius.circular(settings["borderRadius"] as double? ?? 16.0),
           gradient: LinearGradient(
             begin: Alignment.topLeft,
             end: Alignment.bottomRight,
             colors: [
-              Colors.white.withOpacity(0.08),
-              Colors.white.withOpacity(0.02),
+              Colors.white.withValues(alpha: 0.08),
+              Colors.white.withValues(alpha: 0.02),
             ],
           ),
         );
 
       case 'fluent':
         return BoxDecoration(
-          color: isDark ? Colors.black.withOpacity(0.3) : Colors.white.withOpacity(0.4),
+          color: isDark ? Colors.black.withValues(alpha: 0.3) : Colors.white.withValues(alpha: 0.4),
           borderRadius: BorderRadius.circular(settings["borderRadius"] as double? ?? 8.0),
           border: Border.all(
-            color: Colors.white.withOpacity(0.08),
+            color: Colors.white.withValues(alpha: 0.08),
             width: 1.0,
           ),
         );
@@ -189,12 +189,12 @@ class ThemeStyleHelper {
           borderRadius: BorderRadius.circular(settings["borderRadius"] as double? ?? 12.0),
           boxShadow: [
             BoxShadow(
-              color: Colors.white.withOpacity(0.9),
+              color: Colors.white.withValues(alpha: 0.9),
               offset: const Offset(-2, -2),
               blurRadius: 1,
             ),
             BoxShadow(
-              color: Colors.black.withOpacity(0.2),
+              color: Colors.black.withValues(alpha: 0.2),
               offset: const Offset(2, 2),
               blurRadius: 3,
             ),
@@ -209,7 +209,7 @@ class ThemeStyleHelper {
           borderRadius: BorderRadius.circular(settings["borderRadius"] as double? ?? 16.0),
           boxShadow: [
             BoxShadow(
-              color: Colors.black.withOpacity(0.04),
+              color: Colors.black.withValues(alpha: 0.04),
               blurRadius: 12,
               offset: const Offset(0, 4),
             ),

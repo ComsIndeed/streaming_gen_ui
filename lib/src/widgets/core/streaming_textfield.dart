@@ -70,7 +70,7 @@ class _StreamingTextFieldState extends State<StreamingTextField> {
                 decoration: InputDecoration(
                   hintText: hintText ?? "Enter text...",
                   hintStyle: TextStyle(
-                    color: theme.colorScheme.onSurface.withOpacity(0.35),
+                    color: theme.colorScheme.onSurface.withValues(alpha: 0.35),
                     fontSize: 14,
                   ),
                   labelText: (labelText != null && labelText.isNotEmpty) ? labelText : null,
@@ -78,7 +78,7 @@ class _StreamingTextFieldState extends State<StreamingTextField> {
                   filled: true,
                   fillColor: isEnabled
                       ? fillColor
-                      : theme.colorScheme.surfaceContainerLowest.withOpacity(0.4),
+                      : theme.colorScheme.surfaceContainerLowest.withValues(alpha: 0.4),
                   contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
                   prefixIcon: hideIcon
                       ? null
@@ -87,24 +87,24 @@ class _StreamingTextFieldState extends State<StreamingTextField> {
                           size: 18,
                           color: isEnabled
                               ? theme.colorScheme.primary
-                              : theme.colorScheme.onSurface.withOpacity(0.2),
+                              : theme.colorScheme.onSurface.withValues(alpha: 0.2),
                         ),
                   border: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(12),
                     borderSide: BorderSide(
-                      color: theme.colorScheme.outline.withOpacity(0.12),
+                      color: theme.colorScheme.outline.withValues(alpha: 0.12),
                     ),
                   ),
                   enabledBorder: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(12),
                     borderSide: BorderSide(
-                      color: theme.colorScheme.outline.withOpacity(0.12),
+                      color: theme.colorScheme.outline.withValues(alpha: 0.12),
                     ),
                   ),
                   disabledBorder: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(12),
                     borderSide: BorderSide(
-                      color: theme.colorScheme.outline.withOpacity(0.06),
+                      color: theme.colorScheme.outline.withValues(alpha: 0.06),
                     ),
                   ),
                   focusedBorder: OutlineInputBorder(

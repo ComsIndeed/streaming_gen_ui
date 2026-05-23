@@ -120,19 +120,19 @@ class _ShimmerPlaceholderState extends State<_ShimmerPlaceholder>
               begin: Alignment.topLeft,
               end: Alignment.bottomRight,
               colors: [
-                Theme.of(context).colorScheme.surfaceContainerHighest.withOpacity(0.4),
+                Theme.of(context).colorScheme.surfaceContainerHighest.withValues(alpha: 0.4),
                 Theme.of(context)
                     .colorScheme
                     .surfaceContainerHighest
-                    .withOpacity(0.8 * _controller.value + 0.2),
-                Theme.of(context).colorScheme.surfaceContainerHighest.withOpacity(0.4),
+                    .withValues(alpha: 0.8 * _controller.value + 0.2),
+                Theme.of(context).colorScheme.surfaceContainerHighest.withValues(alpha: 0.4),
               ],
             ),
           ),
           child: Center(
             child: Icon(
               Icons.image_outlined,
-              color: Theme.of(context).colorScheme.onSurfaceVariant.withOpacity(0.2),
+              color: Theme.of(context).colorScheme.onSurfaceVariant.withValues(alpha: 0.2),
               size: 32,
             ),
           ),

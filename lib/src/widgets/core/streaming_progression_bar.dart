@@ -31,7 +31,7 @@ class StreamingProgressionBar extends StatelessWidget {
               height: height,
               child: LinearProgressIndicator(
                 value: value,
-                backgroundColor: theme.colorScheme.outline.withOpacity(0.06),
+                backgroundColor: theme.colorScheme.outline.withValues(alpha: 0.06),
                 valueColor: AlwaysStoppedAnimation<Color>(color),
               ),
             ),

@@ -66,7 +66,7 @@ class _StreamingTextButtonState extends State<StreamingTextButton> {
                           style: TextStyle(
                             color: isEnabled
                                 ? theme.colorScheme.primary
-                                : theme.colorScheme.onSurface.withOpacity(0.3),
+                                : theme.colorScheme.onSurface.withValues(alpha: 0.3),
                             fontWeight: FontWeight.w600,
                             fontSize: 14,
                             decoration: TextDecoration.underline,

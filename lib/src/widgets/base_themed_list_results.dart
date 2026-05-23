@@ -24,7 +24,6 @@ class _BaseThemedListResultsCardState extends State<BaseThemedListResultsCard> {
 
   @override
   Widget build(BuildContext context) {
-    final themeData = Theme.of(context);
     final mapStream = widget.props.asMap;
 
     return StreamingEntrance(
@@ -64,7 +63,7 @@ class _BaseThemedListResultsCardState extends State<BaseThemedListResultsCard> {
             cardFrame = ClipPath(
               clipper: ShapeBorderClipper(shape: shape),
               child: BackdropFilter(
-                filter: ColorFilter.mode(Colors.black.withOpacity(0.02), BlendMode.dstATop),
+                filter: ColorFilter.mode(Colors.black.withValues(alpha: 0.02), BlendMode.dstATop),
                 child: Container(
                   decoration: decoration,
                   child: cardContent,
@@ -75,7 +74,7 @@ class _BaseThemedListResultsCardState extends State<BaseThemedListResultsCard> {
             cardFrame = ClipPath(
               clipper: ShapeBorderClipper(shape: shape),
               child: BackdropFilter(
-                filter: ColorFilter.mode(Colors.black.withOpacity(0.04), BlendMode.dstATop),
+                filter: ColorFilter.mode(Colors.black.withValues(alpha: 0.04), BlendMode.dstATop),
                 child: Container(
                   decoration: decoration,
                   child: cardContent,
@@ -204,7 +203,7 @@ class _BaseThemedListResultsCardState extends State<BaseThemedListResultsCard> {
                 shrinkWrap: true,
                 itemCount: list.length,
                 separatorBuilder: (context, index) => Divider(
-                  color: themeData.colorScheme.outline.withOpacity(0.08),
+                  color: themeData.colorScheme.outline.withValues(alpha: 0.08),
                   height: 12,
                 ),
                 itemBuilder: (context, index) {
@@ -227,7 +226,7 @@ class _BaseThemedListResultsCardState extends State<BaseThemedListResultsCard> {
                         decoration: BoxDecoration(
                           color: isBrutalist
                               ? const Color(0xFF00FFFF)
-                              : themeData.colorScheme.surfaceContainerHighest.withOpacity(0.4),
+                              : themeData.colorScheme.surfaceContainerHighest.withValues(alpha: 0.4),
                           borderRadius: isBrutalist ? BorderRadius.zero : BorderRadius.circular(8),
                           border: isBrutalist ? Border.all(color: Colors.black, width: 1.5) : null,
                         ),
@@ -258,7 +257,7 @@ class _BaseThemedListResultsCardState extends State<BaseThemedListResultsCard> {
                                 itemSubtitle,
                                 style: subStyle.copyWith(
                                   fontSize: 11,
-                                  color: themeData.colorScheme.onSurfaceVariant.withOpacity(0.7),
+                                  color: themeData.colorScheme.onSurfaceVariant.withValues(alpha: 0.7),
                                 ),
                                 maxLines: 1,
                                 overflow: TextOverflow.ellipsis,
@@ -278,7 +277,7 @@ class _BaseThemedListResultsCardState extends State<BaseThemedListResultsCard> {
                               itemDate,
                               style: TextStyle(
                                 fontSize: 10,
-                                color: themeData.colorScheme.onSurfaceVariant.withOpacity(0.6),
+                                color: themeData.colorScheme.onSurfaceVariant.withValues(alpha: 0.6),
                               ),
                             ),
                           if (itemSize != null && itemSize.isNotEmpty) ...[
@@ -288,7 +287,7 @@ class _BaseThemedListResultsCardState extends State<BaseThemedListResultsCard> {
                               style: TextStyle(
                                 fontSize: 10,
                                 fontWeight: FontWeight.bold,
-                                color: themeData.colorScheme.onSurfaceVariant.withOpacity(0.8),
+                                color: themeData.colorScheme.onSurfaceVariant.withValues(alpha: 0.8),
                               ),
                             ),
                           ],
@@ -298,7 +297,7 @@ class _BaseThemedListResultsCardState extends State<BaseThemedListResultsCard> {
                               decoration: BoxDecoration(
                                 color: isBrutalist
                                     ? const Color(0xFF00FF00)
-                                    : themeData.colorScheme.primaryContainer.withOpacity(0.4),
+                                    : themeData.colorScheme.primaryContainer.withValues(alpha: 0.4),
                                 borderRadius: isBrutalist ? BorderRadius.zero : BorderRadius.circular(4),
                                 border: isBrutalist ? Border.all(color: Colors.black, width: 1.0) : null,
                               ),

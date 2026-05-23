@@ -3,6 +3,7 @@ import 'package:llm_json_stream/llm_json_stream.dart';
 import 'package:streaming_gen_ui/src/widgets/streaming_widget.dart';
 import 'package:streaming_gen_ui/src/widgets/theme_style_helper.dart';
 import 'package:streaming_gen_ui/src/widgets/core/streaming_entrance.dart';
+import 'package:streaming_gen_ui/src/widgets/base_streaming_image.dart';
 
 /// A premium, highly customizable shared card engine supporting M3, Fluent, Apple,
 /// Glassmorphism, Neumorphism, Skeuomorphism, and Neo-Brutalist aesthetics.
@@ -25,7 +26,6 @@ class _BaseThemedCardState extends State<BaseThemedCard> {
 
   @override
   Widget build(BuildContext context) {
-    final themeData = Theme.of(context);
     final mapStream = widget.props.asMap;
 
     return StreamingEntrance(
@@ -78,7 +78,7 @@ class _BaseThemedCardState extends State<BaseThemedCard> {
             cardFrame = ClipPath(
               clipper: ShapeBorderClipper(shape: shape),
               child: BackdropFilter(
-                filter: ColorFilter.mode(Colors.black.withOpacity(0.02), BlendMode.dstATop),
+                filter: ColorFilter.mode(Colors.black.withValues(alpha: 0.02), BlendMode.dstATop),
                 child: Container(
                   decoration: decoration,
                   child: cardContent,
@@ -90,7 +90,7 @@ class _BaseThemedCardState extends State<BaseThemedCard> {
             cardFrame = ClipPath(
               clipper: ShapeBorderClipper(shape: shape),
               child: BackdropFilter(
-                filter: ColorFilter.mode(Colors.black.withOpacity(0.04), BlendMode.dstATop),
+                filter: ColorFilter.mode(Colors.black.withValues(alpha: 0.04), BlendMode.dstATop),
                 child: Container(
                   decoration: decoration,
                   child: cardContent,
@@ -177,7 +177,7 @@ class _BaseThemedCardState extends State<BaseThemedCard> {
           Text(
             subtitle,
             style: subStyle.copyWith(
-              color: themeData.colorScheme.onSurfaceVariant.withOpacity(0.7),
+              color: themeData.colorScheme.onSurfaceVariant.withValues(alpha: 0.7),
             ),
             maxLines: 1,
             overflow: TextOverflow.ellipsis,
@@ -191,22 +191,11 @@ class _BaseThemedCardState extends State<BaseThemedCard> {
     // Build the media block if present
     Widget? mediaBlock;
     if (imageUrl != null && imageUrl.isNotEmpty) {
-      mediaBlock = Image.network(
-        imageUrl,
+      mediaBlock = BaseStreamingImage(
+        imageUrl: imageUrl,
+        themeName: widget.themeName,
+        borderRadius: 0,
         fit: BoxFit.cover,
-        loadingBuilder: (context, child, loadingProgress) {
-          if (loadingProgress == null) return child;
-          return Container(
-            color: themeData.colorScheme.surfaceContainerHighest,
-            child: const Center(
-              child: SizedBox(
-                width: 20,
-                height: 20,
-                child: CircularProgressIndicator(strokeWidth: 2.0),
-              ),
-            ),
-          );
-        },
       );
     }
 

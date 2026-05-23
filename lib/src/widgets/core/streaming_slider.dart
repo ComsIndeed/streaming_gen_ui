@@ -105,7 +105,7 @@ class _StreamingSliderState extends State<StreamingSlider> {
                                   padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
                                   decoration: BoxDecoration(
                                     color: isEnabled
-                                        ? theme.colorScheme.primaryContainer.withOpacity(0.4)
+                                        ? theme.colorScheme.primaryContainer.withValues(alpha: 0.4)
                                         : theme.colorScheme.surfaceContainerHigh,
                                     borderRadius: BorderRadius.circular(6),
                                   ),
@@ -134,7 +134,7 @@ class _StreamingSliderState extends State<StreamingSlider> {
                         min.toStringAsFixed(0),
                         style: TextStyle(
                           fontSize: 12,
-                          color: theme.colorScheme.onSurfaceVariant.withOpacity(0.5),
+                          color: theme.colorScheme.onSurfaceVariant.withValues(alpha: 0.5),
                         ),
                       ),
                       Expanded(
@@ -142,20 +142,20 @@ class _StreamingSliderState extends State<StreamingSlider> {
                           data: theme.sliderTheme.copyWith(
                             activeTrackColor: isEnabled
                                 ? theme.colorScheme.primary
-                                : theme.colorScheme.outline.withOpacity(0.12),
-                            inactiveTrackColor: theme.colorScheme.outline.withOpacity(0.06),
-                            disabledActiveTrackColor: theme.colorScheme.outline.withOpacity(0.12),
-                            disabledInactiveTrackColor: theme.colorScheme.outline.withOpacity(0.06),
+                                : theme.colorScheme.outline.withValues(alpha: 0.12),
+                            inactiveTrackColor: theme.colorScheme.outline.withValues(alpha: 0.06),
+                            disabledActiveTrackColor: theme.colorScheme.outline.withValues(alpha: 0.12),
+                            disabledInactiveTrackColor: theme.colorScheme.outline.withValues(alpha: 0.06),
                             thumbColor: isEnabled
                                 ? theme.colorScheme.primary
-                                : theme.colorScheme.outline.withOpacity(0.24),
-                            disabledThumbColor: theme.colorScheme.outline.withOpacity(0.24),
+                                : theme.colorScheme.outline.withValues(alpha: 0.24),
+                            disabledThumbColor: theme.colorScheme.outline.withValues(alpha: 0.24),
                             trackHeight: 4,
                             thumbShape: RoundSliderThumbShape(
                               enabledThumbRadius: isEnabled ? 8 : 6,
                               disabledThumbRadius: 6,
                             ),
-                            overlayColor: theme.colorScheme.primary.withOpacity(0.12),
+                            overlayColor: theme.colorScheme.primary.withValues(alpha: 0.12),
                           ),
                           child: Slider(
                             min: min,
@@ -180,7 +180,7 @@ class _StreamingSliderState extends State<StreamingSlider> {
                         max.toStringAsFixed(0),
                         style: TextStyle(
                           fontSize: 12,
-                          color: theme.colorScheme.onSurfaceVariant.withOpacity(0.5),
+                          color: theme.colorScheme.onSurfaceVariant.withValues(alpha: 0.5),
                         ),
                       ),
                     ],

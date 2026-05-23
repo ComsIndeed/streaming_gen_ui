@@ -24,7 +24,6 @@ class _BaseThemedWebResultCardState extends State<BaseThemedWebResultCard> {
 
   @override
   Widget build(BuildContext context) {
-    final themeData = Theme.of(context);
     final mapStream = widget.props.asMap;
 
     return StreamingEntrance(
@@ -73,7 +72,7 @@ class _BaseThemedWebResultCardState extends State<BaseThemedWebResultCard> {
             cardFrame = ClipPath(
               clipper: ShapeBorderClipper(shape: shape),
               child: BackdropFilter(
-                filter: ColorFilter.mode(Colors.black.withOpacity(0.02), BlendMode.dstATop),
+                filter: ColorFilter.mode(Colors.black.withValues(alpha: 0.02), BlendMode.dstATop),
                 child: Container(
                   decoration: decoration,
                   child: cardContent,
@@ -84,7 +83,7 @@ class _BaseThemedWebResultCardState extends State<BaseThemedWebResultCard> {
             cardFrame = ClipPath(
               clipper: ShapeBorderClipper(shape: shape),
               child: BackdropFilter(
-                filter: ColorFilter.mode(Colors.black.withOpacity(0.04), BlendMode.dstATop),
+                filter: ColorFilter.mode(Colors.black.withValues(alpha: 0.04), BlendMode.dstATop),
                 child: Container(
                   decoration: decoration,
                   child: cardContent,
@@ -158,7 +157,7 @@ class _BaseThemedWebResultCardState extends State<BaseThemedWebResultCard> {
                       faviconUrl,
                       width: 16,
                       height: 16,
-                      errorBuilder: (_, __, ___) => const Icon(Icons.public, size: 16),
+                      errorBuilder: (context, error, stackTrace) => const Icon(Icons.public, size: 16),
                     ),
                   ),
                   const SizedBox(width: 8),
@@ -185,7 +184,7 @@ class _BaseThemedWebResultCardState extends State<BaseThemedWebResultCard> {
                           url,
                           style: TextStyle(
                             fontSize: 10,
-                            color: themeData.colorScheme.onSurfaceVariant.withOpacity(0.6),
+                            color: themeData.colorScheme.onSurfaceVariant.withValues(alpha: 0.6),
                           ),
                           maxLines: 1,
                           overflow: TextOverflow.ellipsis,
@@ -231,7 +230,7 @@ class _BaseThemedWebResultCardState extends State<BaseThemedWebResultCard> {
                   snippet,
                   style: subStyle.copyWith(
                     fontSize: 13,
-                    color: themeData.colorScheme.onSurface.withOpacity(0.85),
+                    color: themeData.colorScheme.onSurface.withValues(alpha: 0.85),
                   ),
                   maxLines: 3,
                   overflow: TextOverflow.ellipsis,

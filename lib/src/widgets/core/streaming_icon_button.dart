@@ -38,7 +38,7 @@ class _StreamingIconButtonState extends State<StreamingIconButton> {
 
           final iconData = _mapIcon(iconName);
           final color = _parseColor(colorHex) ?? theme.colorScheme.primary;
-          final bgColor = _parseColor(bgHex) ?? theme.colorScheme.primaryContainer.withOpacity(0.2);
+          final bgColor = _parseColor(bgHex) ?? theme.colorScheme.primaryContainer.withValues(alpha: 0.2);
 
           return FutureBuilder<String>(
             future: actionFuture,
@@ -66,16 +66,16 @@ class _StreamingIconButtonState extends State<StreamingIconButton> {
                     duration: const Duration(milliseconds: 200),
                     padding: const EdgeInsets.all(10),
                     decoration: BoxDecoration(
-                      color: isEnabled ? bgColor : theme.colorScheme.surfaceContainerHigh.withOpacity(0.4),
+                      color: isEnabled ? bgColor : theme.colorScheme.surfaceContainerHigh.withValues(alpha: 0.4),
                       shape: BoxShape.circle,
                       border: Border.all(
-                        color: theme.colorScheme.outline.withOpacity(0.08),
+                        color: theme.colorScheme.outline.withValues(alpha: 0.08),
                       ),
                     ),
                     child: Icon(
                       iconData,
                       size: iconSize,
-                      color: isEnabled ? color : theme.colorScheme.onSurface.withOpacity(0.3),
+                      color: isEnabled ? color : theme.colorScheme.onSurface.withValues(alpha: 0.3),
                     ),
                   ),
                 ),

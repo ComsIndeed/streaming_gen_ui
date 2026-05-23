@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:llm_json_stream/llm_json_stream.dart';
 import 'package:streaming_gen_ui/src/widgets/theme_style_helper.dart';
 import 'package:streaming_gen_ui/src/widgets/core/streaming_entrance.dart';
+import 'package:streaming_gen_ui/src/widgets/base_streaming_image.dart';
 
 /// A premium themed Location Search Card supporting M3, Fluent, Apple,
 /// Glassmorphic, Neumorphic, Skeuomorphic, and Neo-Brutalist design aesthetics.
@@ -24,7 +25,6 @@ class _BaseThemedLocationCardState extends State<BaseThemedLocationCard> {
 
   @override
   Widget build(BuildContext context) {
-    final themeData = Theme.of(context);
     final mapStream = widget.props.asMap;
 
     return StreamingEntrance(
@@ -79,7 +79,7 @@ class _BaseThemedLocationCardState extends State<BaseThemedLocationCard> {
             cardFrame = ClipPath(
               clipper: ShapeBorderClipper(shape: shape),
               child: BackdropFilter(
-                filter: ColorFilter.mode(Colors.black.withOpacity(0.02), BlendMode.dstATop),
+                filter: ColorFilter.mode(Colors.black.withValues(alpha: 0.02), BlendMode.dstATop),
                 child: Container(
                   decoration: decoration,
                   child: cardContent,
@@ -90,7 +90,7 @@ class _BaseThemedLocationCardState extends State<BaseThemedLocationCard> {
             cardFrame = ClipPath(
               clipper: ShapeBorderClipper(shape: shape),
               child: BackdropFilter(
-                filter: ColorFilter.mode(Colors.black.withOpacity(0.04), BlendMode.dstATop),
+                filter: ColorFilter.mode(Colors.black.withValues(alpha: 0.04), BlendMode.dstATop),
                 child: Container(
                   decoration: decoration,
                   child: cardContent,
@@ -156,16 +156,11 @@ class _BaseThemedLocationCardState extends State<BaseThemedLocationCard> {
         if (imageUrl != null && imageUrl.isNotEmpty)
           AspectRatio(
             aspectRatio: 1.8,
-            child: Image.network(
-              imageUrl,
+            child: BaseStreamingImage(
+              imageUrl: imageUrl,
+              themeName: widget.themeName,
+              borderRadius: 0,
               fit: BoxFit.cover,
-              loadingBuilder: (_, child, prog) {
-                if (prog == null) return child;
-                return Container(
-                  color: themeData.colorScheme.surfaceContainerHighest,
-                  child: const Center(child: CircularProgressIndicator(strokeWidth: 2.0)),
-                );
-              },
             ),
           ),
         Padding(
@@ -214,7 +209,7 @@ class _BaseThemedLocationCardState extends State<BaseThemedLocationCard> {
                 Text(
                   address,
                   style: subStyle.copyWith(
-                    color: themeData.colorScheme.onSurfaceVariant.withOpacity(0.9),
+                    color: themeData.colorScheme.onSurfaceVariant.withValues(alpha: 0.9),
                     fontSize: 13,
                   ),
                   maxLines: 2,
@@ -244,7 +239,7 @@ class _BaseThemedLocationCardState extends State<BaseThemedLocationCard> {
               const SizedBox(height: 12),
               // Meta details (Phone & Hours)
               if (phone != null || hours != null) ...[
-                Divider(color: themeData.colorScheme.outline.withOpacity(0.12), height: 1),
+                Divider(color: themeData.colorScheme.outline.withValues(alpha: 0.12), height: 1),
                 const SizedBox(height: 12),
                 if (hours != null && hours.isNotEmpty)
                   Row(

@@ -81,7 +81,7 @@ class _StreamingErrorWidgetState extends State<StreamingErrorWidget>
             borderRadius: BorderRadius.circular(8),
             boxShadow: [
               BoxShadow(
-                color: Colors.black.withOpacity(0.3),
+                color: Colors.black.withValues(alpha: 0.3),
                 blurRadius: 10,
                 offset: const Offset(0, 4),
               ),
@@ -140,7 +140,7 @@ class _StreamingErrorWidgetState extends State<StreamingErrorWidget>
                               Text(
                                 'A rendering or state exception occurred inside a dynamic streaming widget. This is a isolated generative UI fault, not a host app UI crash.',
                                 style: TextStyle(
-                                  color: Colors.white.withOpacity(0.8),
+                                  color: Colors.white.withValues(alpha: 0.8),
                                   fontSize: 10,
                                   height: 1.3,
                                   fontFamily: 'monospace',
@@ -152,7 +152,7 @@ class _StreamingErrorWidgetState extends State<StreamingErrorWidget>
                       ],
                     ),
                     const SizedBox(height: 12),
-                    Container(height: 1, color: Colors.white.withOpacity(0.2)),
+                    Container(height: 1, color: Colors.white.withValues(alpha: 0.2)),
                     const SizedBox(height: 12),
                     const Text(
                       'ERROR DETAILS:',

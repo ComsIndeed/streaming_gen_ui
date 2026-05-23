@@ -26,7 +26,6 @@ class _BaseThemedTodoCardState extends State<BaseThemedTodoCard> {
 
   @override
   Widget build(BuildContext context) {
-    final themeData = Theme.of(context);
     final mapStream = widget.props.asMap;
 
     return StreamingEntrance(
@@ -66,7 +65,7 @@ class _BaseThemedTodoCardState extends State<BaseThemedTodoCard> {
             cardFrame = ClipPath(
               clipper: ShapeBorderClipper(shape: shape),
               child: BackdropFilter(
-                filter: ColorFilter.mode(Colors.black.withOpacity(0.02), BlendMode.dstATop),
+                filter: ColorFilter.mode(Colors.black.withValues(alpha: 0.02), BlendMode.dstATop),
                 child: Container(
                   decoration: decoration,
                   child: cardContent,
@@ -77,7 +76,7 @@ class _BaseThemedTodoCardState extends State<BaseThemedTodoCard> {
             cardFrame = ClipPath(
               clipper: ShapeBorderClipper(shape: shape),
               child: BackdropFilter(
-                filter: ColorFilter.mode(Colors.black.withOpacity(0.04), BlendMode.dstATop),
+                filter: ColorFilter.mode(Colors.black.withValues(alpha: 0.04), BlendMode.dstATop),
                 child: Container(
                   decoration: decoration,
                   child: cardContent,
@@ -237,7 +236,7 @@ class _BaseThemedTodoCardState extends State<BaseThemedTodoCard> {
                                     fontSize: 13,
                                     decoration: completed ? TextDecoration.lineThrough : null,
                                     color: completed
-                                        ? themeData.colorScheme.onSurfaceVariant.withOpacity(0.5)
+                                        ? themeData.colorScheme.onSurfaceVariant.withValues(alpha: 0.5)
                                         : themeData.colorScheme.onSurface,
                                   ),
                                   maxLines: 2,
@@ -249,7 +248,7 @@ class _BaseThemedTodoCardState extends State<BaseThemedTodoCard> {
                                     "Due: $dueDate",
                                     style: TextStyle(
                                       fontSize: 10,
-                                      color: themeData.colorScheme.onSurfaceVariant.withOpacity(0.6),
+                                      color: themeData.colorScheme.onSurfaceVariant.withValues(alpha: 0.6),
                                     ),
                                   ),
                                 ],
@@ -261,7 +260,7 @@ class _BaseThemedTodoCardState extends State<BaseThemedTodoCard> {
                             const SizedBox(width: 8),
                             Container(
                               decoration: BoxDecoration(
-                                color: priorityColor.withOpacity(0.15),
+                                color: priorityColor.withValues(alpha: 0.15),
                                 borderRadius: isBrutalist ? BorderRadius.zero : BorderRadius.circular(4),
                                 border: isBrutalist ? Border.all(color: Colors.black, width: 1.0) : null,
                               ),

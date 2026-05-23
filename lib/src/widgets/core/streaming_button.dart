@@ -54,15 +54,15 @@ class _StreamingButtonState extends State<StreamingButton> {
                 decoration: BoxDecoration(
                   color: isEnabled
                       ? theme.colorScheme.primary
-                      : theme.colorScheme.surfaceContainerHigh.withOpacity(0.6),
+                      : theme.colorScheme.surfaceContainerHigh.withValues(alpha: 0.6),
                   borderRadius: BorderRadius.circular(isEnabled ? 12 : 8),
                   border: Border.all(
-                    color: isEnabled ? Colors.transparent : theme.colorScheme.outline.withOpacity(0.12),
+                    color: isEnabled ? Colors.transparent : theme.colorScheme.outline.withValues(alpha: 0.12),
                   ),
                   boxShadow: isEnabled
                       ? [
                           BoxShadow(
-                            color: theme.colorScheme.primary.withOpacity(0.16),
+                            color: theme.colorScheme.primary.withValues(alpha: 0.16),
                             blurRadius: 10,
                             offset: const Offset(0, 4),
                           ),
@@ -80,7 +80,7 @@ class _StreamingButtonState extends State<StreamingButton> {
                         child: CircularProgressIndicator(
                           strokeWidth: 1.5,
                           valueColor: AlwaysStoppedAnimation<Color>(
-                            theme.colorScheme.onSurface.withOpacity(0.3),
+                            theme.colorScheme.onSurface.withValues(alpha: 0.3),
                           ),
                         ),
                       ),

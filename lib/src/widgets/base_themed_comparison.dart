@@ -24,7 +24,6 @@ class _BaseThemedComparisonCardState extends State<BaseThemedComparisonCard> {
 
   @override
   Widget build(BuildContext context) {
-    final themeData = Theme.of(context);
     final mapStream = widget.props.asMap;
 
     return StreamingEntrance(
@@ -65,7 +64,7 @@ class _BaseThemedComparisonCardState extends State<BaseThemedComparisonCard> {
             cardFrame = ClipPath(
               clipper: ShapeBorderClipper(shape: shape),
               child: BackdropFilter(
-                filter: ColorFilter.mode(Colors.black.withOpacity(0.02), BlendMode.dstATop),
+                filter: ColorFilter.mode(Colors.black.withValues(alpha: 0.02), BlendMode.dstATop),
                 child: Container(
                   decoration: decoration,
                   child: cardContent,
@@ -76,7 +75,7 @@ class _BaseThemedComparisonCardState extends State<BaseThemedComparisonCard> {
             cardFrame = ClipPath(
               clipper: ShapeBorderClipper(shape: shape),
               child: BackdropFilter(
-                filter: ColorFilter.mode(Colors.black.withOpacity(0.04), BlendMode.dstATop),
+                filter: ColorFilter.mode(Colors.black.withValues(alpha: 0.04), BlendMode.dstATop),
                 child: Container(
                   decoration: decoration,
                   child: cardContent,
@@ -127,7 +126,6 @@ class _BaseThemedComparisonCardState extends State<BaseThemedComparisonCard> {
     final themeData = Theme.of(context);
     final isBrutalist = widget.themeName == 'brutalist';
     final titleStyle = ThemeStyleHelper.getTextStyle(widget.themeName, context, isTitle: true);
-    final subStyle = ThemeStyleHelper.getTextStyle(widget.themeName, context, isTitle: false);
 
     return Padding(
       padding: const EdgeInsets.all(16.0),
@@ -174,7 +172,7 @@ class _BaseThemedComparisonCardState extends State<BaseThemedComparisonCard> {
                   child: Table(
                     defaultColumnWidth: const IntrinsicColumnWidth(),
                     border: TableBorder.all(
-                      color: isBrutalist ? Colors.black : themeData.colorScheme.outline.withOpacity(0.12),
+                      color: isBrutalist ? Colors.black : themeData.colorScheme.outline.withValues(alpha: 0.12),
                       width: isBrutalist ? 2.0 : 1.0,
                     ),
                     children: [
@@ -183,14 +181,18 @@ class _BaseThemedComparisonCardState extends State<BaseThemedComparisonCard> {
                         decoration: BoxDecoration(
                           color: isBrutalist
                               ? const Color(0xFFFFFF00)
-                              : themeData.colorScheme.primaryContainer.withOpacity(0.4),
+                              : themeData.colorScheme.primaryContainer.withValues(alpha: 0.4),
                         ),
                         children: [
-                          const Padding(
-                            padding: EdgeInsets.symmetric(horizontal: 12.0, vertical: 10.0),
+                          Padding(
+                            padding: const EdgeInsets.symmetric(horizontal: 12.0, vertical: 10.0),
                             child: Text(
                               'Feature',
-                              style: TextStyle(fontWeight: FontWeight.bold, fontSize: 11),
+                              style: TextStyle(
+                                fontWeight: FontWeight.bold,
+                                fontSize: 11,
+                                color: isBrutalist ? Colors.black : themeData.colorScheme.onSurface,
+                              ),
                             ),
                           ),
                           ...safeProducts.map((p) {
@@ -207,7 +209,7 @@ class _BaseThemedComparisonCardState extends State<BaseThemedComparisonCard> {
                                 ),
                               ),
                             );
-                          }).toList(),
+                          }),
                         ],
                       ),
                       // Spec rows
@@ -219,7 +221,11 @@ class _BaseThemedComparisonCardState extends State<BaseThemedComparisonCard> {
                               padding: const EdgeInsets.symmetric(horizontal: 12.0, vertical: 8.0),
                               child: Text(
                                 spec,
-                                style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 11),
+                                style: TextStyle(
+                                  fontWeight: FontWeight.bold,
+                                  fontSize: 11,
+                                  color: isBrutalist ? Colors.black : themeData.colorScheme.onSurface,
+                                ),
                               ),
                             ),
                             // Comparative spec value for each product
@@ -238,14 +244,26 @@ class _BaseThemedComparisonCardState extends State<BaseThemedComparisonCard> {
                                 specVal = specs[spec]?.toString() ?? '--';
                               }
 
+                              Color textColor;
+                              if (widget.themeName == 'brutalist') {
+                                textColor = Colors.black;
+                              } else if (widget.themeName == 'skeumorphic') {
+                                textColor = themeData.brightness == Brightness.dark ? Colors.grey.shade100 : Colors.grey.shade900;
+                              } else {
+                                textColor = themeData.colorScheme.onSurface;
+                              }
+
                               return Padding(
                                 padding: const EdgeInsets.symmetric(horizontal: 14.0, vertical: 8.0),
                                 child: Text(
                                   specVal,
-                                  style: const TextStyle(fontSize: 11),
+                                  style: TextStyle(
+                                    fontSize: 11,
+                                    color: textColor,
+                                  ),
                                 ),
                               );
-                            }).toList(),
+                            }),
                           ],
                         );
                       }),

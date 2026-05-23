@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:llm_json_stream/llm_json_stream.dart';
 import 'package:streaming_gen_ui/src/widgets/theme_style_helper.dart';
 import 'package:streaming_gen_ui/src/widgets/core/streaming_entrance.dart';
+import 'package:streaming_gen_ui/src/widgets/base_streaming_image.dart';
 
 /// A premium, shared Profile Card widget that displays contacts and portfolios,
 /// providing offline-safe vector avatar fallbacks for privacy and premium styling.
@@ -24,7 +25,6 @@ class _BaseThemedUserProfileState extends State<BaseThemedUserProfile> {
 
   @override
   Widget build(BuildContext context) {
-    final themeData = Theme.of(context);
     final mapStream = widget.props.asMap;
 
     return StreamingEntrance(
@@ -73,7 +73,7 @@ class _BaseThemedUserProfileState extends State<BaseThemedUserProfile> {
             frame = ClipPath(
               clipper: ShapeBorderClipper(shape: shape),
               child: BackdropFilter(
-                filter: ColorFilter.mode(Colors.black.withOpacity(0.02), BlendMode.dstATop),
+                filter: ColorFilter.mode(Colors.black.withValues(alpha: 0.02), BlendMode.dstATop),
                 child: Container(
                   decoration: decoration,
                   child: cardContent,
@@ -84,7 +84,7 @@ class _BaseThemedUserProfileState extends State<BaseThemedUserProfile> {
             frame = ClipPath(
               clipper: ShapeBorderClipper(shape: shape),
               child: BackdropFilter(
-                filter: ColorFilter.mode(Colors.black.withOpacity(0.04), BlendMode.dstATop),
+                filter: ColorFilter.mode(Colors.black.withValues(alpha: 0.04), BlendMode.dstATop),
                 child: Container(
                   decoration: decoration,
                   child: cardContent,
@@ -126,10 +126,17 @@ class _BaseThemedUserProfileState extends State<BaseThemedUserProfile> {
     // Build offline-safe avatar bubble
     Widget avatarWidget;
     if (avatarUrl != null && avatarUrl.isNotEmpty) {
-      avatarWidget = CircleAvatar(
-        radius: 36,
-        backgroundImage: NetworkImage(avatarUrl),
-        backgroundColor: theme.colorScheme.primaryContainer,
+      avatarWidget = ClipOval(
+        child: SizedBox(
+          width: 72,
+          height: 72,
+          child: BaseStreamingImage(
+            imageUrl: avatarUrl,
+            themeName: widget.themeName,
+            borderRadius: 0,
+            fit: BoxFit.cover,
+          ),
+        ),
       );
     } else {
       // Stunning local visual gradient vector to ensure privacy and offline rendering
@@ -148,7 +155,7 @@ class _BaseThemedUserProfileState extends State<BaseThemedUserProfile> {
           ),
           boxShadow: [
             BoxShadow(
-              color: theme.colorScheme.primary.withOpacity(0.24),
+              color: theme.colorScheme.primary.withValues(alpha: 0.24),
               blurRadius: 8,
               offset: const Offset(0, 4),
             ),
@@ -194,7 +201,7 @@ class _BaseThemedUserProfileState extends State<BaseThemedUserProfile> {
                       Text(
                         role,
                         style: subStyle.copyWith(
-                          color: theme.colorScheme.onSurfaceVariant.withOpacity(0.7),
+                          color: theme.colorScheme.onSurfaceVariant.withValues(alpha: 0.7),
                           fontWeight: FontWeight.w500,
                         ),
                         maxLines: 1,
@@ -212,7 +219,7 @@ class _BaseThemedUserProfileState extends State<BaseThemedUserProfile> {
             Text(
               bio,
               style: subStyle.copyWith(
-                color: theme.colorScheme.onSurface.withOpacity(0.85),
+                color: theme.colorScheme.onSurface.withValues(alpha: 0.85),
                 height: 1.4,
               ),
             ),
@@ -230,12 +237,12 @@ class _BaseThemedUserProfileState extends State<BaseThemedUserProfile> {
                   decoration: BoxDecoration(
                     color: widget.themeName == 'brutalist'
                         ? const Color(0xFF00FFFF) // Cyan
-                        : theme.colorScheme.primaryContainer.withOpacity(0.3),
+                        : theme.colorScheme.primaryContainer.withValues(alpha: 0.3),
                     borderRadius: BorderRadius.circular(widget.themeName == 'brutalist' ? 0.0 : 8.0),
                     border: Border.all(
                       color: widget.themeName == 'brutalist'
                           ? Colors.black
-                          : theme.colorScheme.outline.withOpacity(0.08),
+                          : theme.colorScheme.outline.withValues(alpha: 0.08),
                       width: widget.themeName == 'brutalist' ? 1.5 : 1.0,
                     ),
                   ),
