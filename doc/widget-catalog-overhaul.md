@@ -1,6 +1,6 @@
 # Widget Catalog Overhaul & Theme Specification
 
-This specification documents the architecture and implementation blueprint for overhauling the widget catalog inside the `streaming_gen_ui` library. It organizes widgets into clear registries, details unified themed component structures, and establishes strict guidelines for clean, fluid visual styling.
+This specification documents the architecture and implementation blueprint for overhauling the widget catalog inside the `streaming_gen_ui` library. It organizes widgets into clear registries, details themed component structures, and establishes strict guidelines for clean, fluid visual styling.
 
 ---
 
@@ -61,7 +61,7 @@ Dynamic component interfaces supporting custom aesthetic variations.
 ## 📝 2. Detailed Themed Component Specs
 
 ### A. Polymorphic Layout Card (`<theme_name>_ui:card`)
-To prevent token bloat, all catalog card layouts (list-tiles, product cards, pricing boxes) are consolidated into a single card widget.
+To prevent token bloat, all catalog card layouts (list-tiles, product cards, pricing boxes) are consolidated into a single card widget interface across all themes.
 
 *   **Layout Modes (`imagePosition`)**:
     *   `"left"` / `"right"` (Mini/List-Tile layout): Renders a compact horizontal row, placing the image as a leading/trailing aspect-locked box. Ideal for navigation tiles, contacts, and news logs.
@@ -125,10 +125,23 @@ Every themed widget **must adapt seamlessly** to the active host context `ThemeD
 *   Use `Theme.of(context)` for surface background, text styling, and icon colors.
 *   Theme settings overrides (like hex color codes passed by the LLM) should be adjusted dynamically to maintain appropriate legibility contrast unless `exactColor: true` is set.
 
-### 🌀 Elegant, Fluid Animations (Zero Jarring Effects)
-We enforce a strict visual motion protocol. There must be **absolutely zero distracting persistent loops, spins, or jarring entrance shakes**.
-*   **Entrances**: Widgets introduce themselves smoothly by progressively fading in alongside a light, elegant scale-up (increasing size slightly from `0.95` to `1.0`).
-*   **Transitions**: Card transformations and list updates morph using smooth interpolations over `200ms` - `300ms` durations.
+### 🧩 Empty & Missing Parameter Protection
+To prevent broken frames or null pointer failures during active property streams:
+*   **Do not render a text/content widget** if its dynamic parameter (e.g., card `title` or `subtitle`) is missing, null, or empty.
+*   The space must be kept compact or occupied by a sleek skeletal shimmer, rather than rendering empty string blocks or throwing overflows.
+
+### 📐 Dynamic Size Morphing & Overflows (Jitter Prevention)
+For all container and card-based widgets, we enforce fluid size adjustments:
+*   Wrap the root boundary in an **`AnimatedSize`** container with custom durations (`200ms` - `300ms`) and organic curves (`Curves.easeOutCubic`) so height and width expand dynamically based on children requirements.
+*   **The Stable Alignment Rule**: Set `AnimatedSize.alignment` strictly to `Alignment.topLeft` (or `Alignment.topCenter` for vertical panels, `Alignment.centerLeft` for horizontal items) to lock already-rendered content in place, preventing jitter or shaking as boundary boxes resize.
+*   Ensure scroll and clip behaviors (like `Clip.antiAlias` or scroll offsets) are set to handle sudden data expansion gracefully without creating rigid layout red-lines.
+
+### 🌀 Emil Kowalski + Streaming Animation Synthesis
+We merge high-fidelity micro-animation principles with real-time progressive streaming bounds:
+*   **Tactile Active States**: Every button and clickable element needs a responsive `:active` pressed state. Apply a quick scale transformation (`scale: 0.97`) on tap to provide tactile physical confirmation.
+*   **Stable Loading States**: Always reserve layout space for loading progress loops or spinners to prevent layout shifts on activation.
+*   **Fluid Entrances**: Zero sudden pops or persistent shakes. Elements must fade in (`opacity: 0.0` $\rightarrow$ `1.0`) while lightly scaling up (`scale: 0.96` $\rightarrow$ `1.0`) over `200ms` using `cubic-bezier(0.2, 0.8, 0.2, 1)`.
+*   **Text Rendering Exception**: While standard static UIs utilize lines of shimmers for unloaded blocks, our streaming system displays the progressively arriving string chunk directly into the stream block. Unloaded text blocks should not render any element until the string content starts streaming.
 
 ---
 
