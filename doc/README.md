@@ -1,6 +1,4 @@
-# streaming_gen_ui
-
-<!-- CENTER THIS -->
+# <center>streaming_gen_ui</center>
 
 ### The Streaming Generative UI Engine for Flutter
 
