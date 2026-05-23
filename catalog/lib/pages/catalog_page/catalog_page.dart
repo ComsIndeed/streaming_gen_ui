@@ -179,87 +179,11 @@ class _CatalogPageState extends State<CatalogPage> {
                           ),
                       ],
                     ),
-                    if (_showDevOptions) ...[
-                      const SizedBox(height: 24),
-                      Container(
-                        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-                        decoration: BoxDecoration(
-                          color: Colors.redAccent.withValues(alpha: 0.08),
-                          borderRadius: BorderRadius.circular(16),
-                          border: Border.all(
-                            color: Colors.redAccent.withValues(alpha: 0.3),
-                            width: 1.5,
-                          ),
-                        ),
-                        child: Row(
-                          children: [
-                            Icon(
-                              Icons.developer_mode_rounded,
-                              color: Colors.redAccent.shade400,
-                            ),
-                            const SizedBox(width: 12),
-                            Expanded(
-                              child: Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  Text(
-                                    "Developer Mode Active",
-                                    style: TextStyle(
-                                      fontWeight: FontWeight.bold,
-                                      fontSize: isMobile ? 13 : 15,
-                                      color: theme.colorScheme.onSurface,
-                                    ),
-                                  ),
-                                  Text(
-                                    "Reset and align the streaming state of all catalog widgets.",
-                                    style: TextStyle(
-                                      fontSize: isMobile ? 11 : 12,
-                                      color: theme.colorScheme.onSurfaceVariant,
-                                    ),
-                                  ),
-                                ],
-                              ),
-                            ),
-                            const SizedBox(width: 12),
-                            ElevatedButton.icon(
-                              onPressed: () {
-                                CatalogCard.resetSignal.value++;
-                                ScaffoldMessenger.of(context).showSnackBar(
-                                  SnackBar(
-                                    content: const Text("🔄 Synchronized all widget streams!"),
-                                    backgroundColor: Colors.redAccent.shade400,
-                                    duration: const Duration(milliseconds: 800),
-                                    behavior: SnackBarBehavior.floating,
-                                  ),
-                                );
-                              },
-                              style: ElevatedButton.styleFrom(
-                                backgroundColor: Colors.redAccent.shade400,
-                                foregroundColor: Colors.white,
-                                elevation: 0,
-                                shape: RoundedRectangleBorder(
-                                  borderRadius: BorderRadius.circular(12),
-                                ),
-                                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
-                              ),
-                              icon: const Icon(Icons.sync_rounded, size: 16),
-                              label: const Text(
-                                "SYNC STREAMS",
-                                style: TextStyle(
-                                  fontWeight: FontWeight.bold,
-                                  fontSize: 12,
-                                  letterSpacing: 0.5,
-                                ),
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
-                    ],
                     const SizedBox(height: 48),
 
-                    // 2. Search Bar & Theme Switcher
+                    // 2. Search Bar, Theme Switcher & Dev Sync
                     Wrap(
+                      crossAxisAlignment: WrapCrossAlignment.center,
                       children: [
                         CatalogSearchBar(
                           value: searchQuery,
@@ -271,6 +195,10 @@ class _CatalogPageState extends State<CatalogPage> {
                         ),
                         const SizedBox(width: 12),
                         _buildThemeToggleButton(context),
+                        if (_showDevOptions) ...[
+                          const SizedBox(width: 8),
+                          _buildDevSyncButton(context),
+                        ],
                       ],
                     ),
                     const SizedBox(height: 20),
@@ -396,6 +324,19 @@ class _CatalogPageState extends State<CatalogPage> {
             }
           },
         );
+      },
+    );
+  }
+
+  Widget _buildDevSyncButton(BuildContext context) {
+    return IconButton(
+      icon: const Icon(
+        Icons.sync_rounded,
+        color: Colors.redAccent,
+      ),
+      tooltip: "Synchronize all widget streams",
+      onPressed: () {
+        CatalogCard.resetSignal.value++;
       },
     );
   }

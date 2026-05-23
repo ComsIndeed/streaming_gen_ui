@@ -25,6 +25,7 @@ class _CatalogCardState extends State<CatalogCard> {
   bool _disposed = false;
   bool _isHovered = false;
   Timer? _loopTimer;
+  int _currentCycle = 0;
 
   @override
   void initState() {
@@ -40,11 +41,13 @@ class _CatalogCardState extends State<CatalogCard> {
 
   void _startStreamLoop() {
     _loopTimer?.cancel();
-    _runSingleStreamCycle();
+    _currentCycle++;
+    _streamingGenUi.disposeView('main-view');
+    _runSingleStreamCycle(_currentCycle);
   }
 
-  Future<void> _runSingleStreamCycle() async {
-    if (_disposed) return;
+  Future<void> _runSingleStreamCycle(int cycleId) async {
+    if (_disposed || cycleId != _currentCycle) return;
 
     final stream = streamTextInChunks(
       text:
@@ -56,10 +59,10 @@ class _CatalogCardState extends State<CatalogCard> {
 
     await _streamingGenUi.stream(stream, viewId: 'main-view');
 
-    if (_disposed) return;
+    if (_disposed || cycleId != _currentCycle) return;
 
     _loopTimer = Timer(const Duration(milliseconds: 3000), () {
-      _runSingleStreamCycle();
+      _runSingleStreamCycle(cycleId);
     });
   }
 
