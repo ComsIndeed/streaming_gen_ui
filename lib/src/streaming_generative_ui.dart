@@ -250,6 +250,7 @@ class StreamingGenerativeUi with ChangeNotifier {
 
   void disposeView(String viewId) {
     final view = _views.remove(viewId);
+    view?.clear();
     view?.removeListener(notifyListeners);
     notifyListeners();
   }

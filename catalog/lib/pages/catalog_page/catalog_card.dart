@@ -26,6 +26,8 @@ class _CatalogCardState extends State<CatalogCard> {
   bool _isHovered = false;
   Timer? _loopTimer;
   int _currentCycle = 0;
+  StreamController<String>? _activeStreamController;
+  StreamSubscription<String>? _activeStreamSubscription;
 
   @override
   void initState() {
@@ -41,6 +43,11 @@ class _CatalogCardState extends State<CatalogCard> {
 
   void _startStreamLoop() {
     _loopTimer?.cancel();
+    _activeStreamSubscription?.cancel();
+    _activeStreamSubscription = null;
+    _activeStreamController?.close();
+    _activeStreamController = null;
+
     _currentCycle++;
     _streamingGenUi.disposeView('main-view');
     _runSingleStreamCycle(_currentCycle);
@@ -49,7 +56,10 @@ class _CatalogCardState extends State<CatalogCard> {
   Future<void> _runSingleStreamCycle(int cycleId) async {
     if (_disposed || cycleId != _currentCycle) return;
 
-    final stream = streamTextInChunks(
+    final controller = StreamController<String>();
+    _activeStreamController = controller;
+
+    final rawStream = streamTextInChunks(
       text:
           "<interface>${widget.catalogItem.widgetDefinition.jsonExample}</interface>",
       chunkSize: 4,
@@ -57,7 +67,26 @@ class _CatalogCardState extends State<CatalogCard> {
       chunkSizeImmediatelyEmit: '<interface>{"namespace":"  core:'.length,
     );
 
-    await _streamingGenUi.stream(stream, viewId: 'main-view');
+    _activeStreamSubscription = rawStream.listen(
+      (chunk) {
+        if (!controller.isClosed) {
+          controller.add(chunk);
+        }
+      },
+      onError: (err) {
+        if (!controller.isClosed) {
+          controller.close();
+        }
+      },
+      onDone: () {
+        if (!controller.isClosed) {
+          controller.close();
+        }
+      },
+      cancelOnError: true,
+    );
+
+    await _streamingGenUi.stream(controller.stream, viewId: 'main-view');
 
     if (_disposed || cycleId != _currentCycle) return;
 
@@ -70,6 +99,8 @@ class _CatalogCardState extends State<CatalogCard> {
   void dispose() {
     _disposed = true;
     _loopTimer?.cancel();
+    _activeStreamSubscription?.cancel();
+    _activeStreamController?.close();
     CatalogCard.resetSignal.removeListener(_onResetSignal);
     super.dispose();
   }
