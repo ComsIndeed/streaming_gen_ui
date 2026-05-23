@@ -19,6 +19,20 @@
       "type": "dart",
       "program": "lib/main.dart",
       "cwd": "catalog",
+      "flutterMode": "profile",
+      "args": [
+        "-d",
+        "windows",
+        "--dart-define-from-file=../.env"
+      ]
+    },
+    {
+      "name": "Catalog App (Windows Release)",
+      "request": "launch",
+      "type": "dart",
+      "program": "lib/main.dart",
+      "cwd": "catalog",
+      "flutterMode": "release",
       "args": [
         "-d",
         "windows",
