@@ -124,52 +124,23 @@ class ChatDemoCubit extends Cubit<ChatDemoState> {
     }
   }
 
+  /// The custom prompt for your app
   String get systemPrompt =>
       '''
 You are a helpful AI Assistant demonstrating your ability to show UI components in your chat.
 
-Help the user with their requests. Use widgets when you can.
-
-The package is still in early development. Expect bugs and instability. Better custom UI composition on runtime is planned.
+Help the user with their requests. Use the correct widgets.
 
 ${generativeUi.systemPrompt}
 
-## WIDGET SELECTION & MAPPING (YOU MUST STRICTLY USE THESE WHEN CALLING A TOOL.):
-1. Weather ('get_weather' tool success):
-   - Stream "weather:forecast_card".
-   - Map:
-     * "cityName": Requested city name.
-     * "temperature": "${r'${current_weather["temperature"]}'}°C".
-     * "condition": Short weather summary (sunny/rainy/cloudy/snowy).
-     * "humidity": Format or omit.
-     * "windSpeed": "${r'${current_weather["windspeed"]}'} km/h".
-     * "forecast": 3-day list. Map items: {"day": "Mon", "temp": "24°C", "condition": "sunny"}.
-     
-2. Products ('search_products' tool success):
-   - Stream "ecommerce:product_card" (wrap in "core:column" if multiple).
-   - Map:
-     * "title": Product title.
-     * "description": Short summary.
-     * "price": "\$${r'${product["price"]}'}".
-     * "imageUrl": The "thumbnail" image URL (highly recommended to embed. If the product has no image, omit this property).
-     * "rating": Float (1.0 to 5.0).
-     * "action": "buy_product_${r'${product["id"]}'}".
+### GENERAL GUIDELINES:
+- For product searches, use product cards. Include images.
+- For weather queries, use the weather card.
+- For queries that includes quantitative data, use charts.
+- Only use canvas-ui for explicitly mini-app like requests (e.g., "show me a calculator", "create a timer").
+- For everything else, don't use a view ID.
 
-3. Crypto ('get_crypto_price' tool success):
-   - Stream "crypto:price_card".
-   - Map:
-     * "symbol": Uppercase symbol (e.g. BTC).
-     * "name": Capitalized name (e.g. Bitcoin).
-     * "price": Formatted price.
-     * "change24h": Formatted change (e.g. +2.51%).
-     * "isPositive": Trend boolean.
-     * "high24h": Formatted high.
-     * "low24h": Formatted low.
-     * "sparkline": Trend float list.
- 
-## IMPORTANT:
-- For the above stated WIDGET SELECTION & MAPPING, you must stream the mentioned widget if available.
-- For 'search_products', always populate the "imageUrl" property in the "ecommerce:product_card" widget with the product's "thumbnail" URL so that the image is beautifully embedded. If the product has no image or the URL is empty/missing, completely omit the "imageUrl" property so the widget dynamically hides the image frame.
+The package is still in early development. Expect bugs and instability. Better custom UI composition on runtime is planned. Interactivity on widgets is planned and under development.
 ''';
 
   void setTextBoxMode(TextBoxMode mode) {
@@ -206,7 +177,8 @@ ${generativeUi.systemPrompt}
       _currentStreamSubscription?.cancel();
       _currentStreamSubscription = null;
 
-      if (_currentResponseController != null && !_currentResponseController!.isClosed) {
+      if (_currentResponseController != null &&
+          !_currentResponseController!.isClosed) {
         _currentResponseController!.close();
       }
       _currentResponseController = null;
@@ -249,9 +221,7 @@ ${generativeUi.systemPrompt}
 
     // 2. Instantiate Agent Service (checks API key)
     try {
-      if (_agentService == null) {
-        _agentService = ChatAgentService.create();
-      }
+      _agentService ??= ChatAgentService.create();
     } catch (e) {
       emit(state.copyWith(errorMessage: e.toString(), isThinking: false));
       return;
@@ -282,7 +252,8 @@ ${generativeUi.systemPrompt}
 
           emit(state.copyWith(messages: updatedMessages));
 
-          if (_currentResponseController != null && !_currentResponseController!.isClosed) {
+          if (_currentResponseController != null &&
+              !_currentResponseController!.isClosed) {
             _currentResponseController!.add(chunk);
           }
         },
@@ -307,7 +278,8 @@ ${generativeUi.systemPrompt}
           stopResponse();
         },
         onDone: () {
-          if (_currentResponseController != null && !_currentResponseController!.isClosed) {
+          if (_currentResponseController != null &&
+              !_currentResponseController!.isClosed) {
             _currentResponseController!.close();
           }
         },
