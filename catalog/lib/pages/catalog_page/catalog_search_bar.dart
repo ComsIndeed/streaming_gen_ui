@@ -1,3 +1,5 @@
+import 'dart:math';
+
 import 'package:flutter/material.dart';
 
 class CatalogSearchBar extends StatefulWidget {
@@ -40,13 +42,16 @@ class _CatalogSearchBarState extends State<CatalogSearchBar> {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
+    final sizes = MediaQuery.sizeOf(context);
 
     return Container(
-      constraints: const BoxConstraints(maxWidth: 420),
+      constraints: BoxConstraints(maxWidth: min(420, sizes.width - 64)),
       decoration: BoxDecoration(
         color: theme.colorScheme.surfaceContainerHighest.withValues(alpha: 0.4),
         borderRadius: BorderRadius.circular(32),
-        border: Border.all(color: theme.colorScheme.outline.withValues(alpha: 0.12)),
+        border: Border.all(
+          color: theme.colorScheme.outline.withValues(alpha: 0.12),
+        ),
       ),
       child: TextField(
         controller: _controller,

@@ -76,8 +76,10 @@ class _CatalogPageState extends State<CatalogPage> {
     final double paddingVal = isMobile ? 16 : 32;
 
     // Derived unique themes and widget types from loaded widgets
-    final themes = allItems.map((e) => e.displayProvider).toSet().toList()..sort();
-    final widgetTypes = allItems.map((e) => e.displayName).toSet().toList()..sort();
+    final themes = allItems.map((e) => e.displayProvider).toSet().toList()
+      ..sort();
+    final widgetTypes = allItems.map((e) => e.displayName).toSet().toList()
+      ..sort();
 
     // Perform live query filtering
     final filteredItems = allItems.where((item) {
@@ -97,7 +99,12 @@ class _CatalogPageState extends State<CatalogPage> {
           physics: const AlwaysScrollableScrollPhysics(),
           slivers: [
             SliverPadding(
-              padding: EdgeInsets.fromLTRB(paddingVal, isMobile ? 32 : 48, paddingVal, 16),
+              padding: EdgeInsets.fromLTRB(
+                paddingVal,
+                isMobile ? 32 : 48,
+                paddingVal,
+                16,
+              ),
               sliver: SliverToBoxAdapter(
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
@@ -118,12 +125,15 @@ class _CatalogPageState extends State<CatalogPage> {
                                     fontWeight: FontWeight.w400,
                                     color: theme.colorScheme.onSurface,
                                     letterSpacing: -0.8,
-                                    fontFamily: theme.textTheme.titleLarge?.fontFamily,
+                                    fontFamily:
+                                        theme.textTheme.titleLarge?.fontFamily,
                                   ),
                                   children: const [
                                     TextSpan(
                                       text: "Streaming ",
-                                      style: TextStyle(fontWeight: FontWeight.w500),
+                                      style: TextStyle(
+                                        fontWeight: FontWeight.w500,
+                                      ),
                                     ),
                                     TextSpan(text: "Generative UI"),
                                   ],
@@ -135,9 +145,8 @@ class _CatalogPageState extends State<CatalogPage> {
                                 style: TextStyle(
                                   fontSize: isMobile ? 14 : 18,
                                   fontWeight: FontWeight.bold,
-                                  color: theme.colorScheme.onSurfaceVariant.withValues(
-                                    alpha: 0.7,
-                                  ),
+                                  color: theme.colorScheme.onSurfaceVariant
+                                      .withValues(alpha: 0.7),
                                   letterSpacing: 2.0,
                                 ),
                               ),
@@ -149,7 +158,9 @@ class _CatalogPageState extends State<CatalogPage> {
                             padding: const EdgeInsets.only(top: 8),
                             child: ElasticButton(
                               onPressed: widget.onNavigateToChat!,
-                              icon: const Icon(Icons.chat_bubble_outline_rounded),
+                              icon: const Icon(
+                                Icons.chat_bubble_outline_rounded,
+                              ),
                               label: const Text("Chat"),
                             ),
                           ),
@@ -158,7 +169,7 @@ class _CatalogPageState extends State<CatalogPage> {
                     const SizedBox(height: 48),
 
                     // 2. Search Bar & Theme Switcher
-                    Row(
+                    Wrap(
                       children: [
                         CatalogSearchBar(
                           value: searchQuery,
@@ -197,7 +208,9 @@ class _CatalogPageState extends State<CatalogPage> {
                           items: ["All Widgets", ...widgetTypes],
                           onChanged: (val) {
                             setState(() {
-                              selectedWidgetType = val == "All Widgets" ? null : val;
+                              selectedWidgetType = val == "All Widgets"
+                                  ? null
+                                  : val;
                             });
                           },
                         ),
@@ -229,9 +242,10 @@ class _CatalogPageState extends State<CatalogPage> {
                             Text(
                               "No widgets found matching your criteria",
                               style: TextStyle(
-                                  fontSize: 16,
-                                  color: theme.colorScheme.onSurfaceVariant
-                                      .withValues(alpha: 0.6)),
+                                fontSize: 16,
+                                color: theme.colorScheme.onSurfaceVariant
+                                    .withValues(alpha: 0.6),
+                              ),
                             ),
                           ],
                         ),
@@ -305,9 +319,7 @@ class _CatalogPageState extends State<CatalogPage> {
   }) {
     final theme = Theme.of(context);
     return Theme(
-      data: theme.copyWith(
-        cardColor: theme.colorScheme.surfaceContainerHigh,
-      ),
+      data: theme.copyWith(cardColor: theme.colorScheme.surfaceContainerHigh),
       child: PopupMenuButton<String>(
         onSelected: onChanged,
         shape: RoundedRectangleBorder(
@@ -330,7 +342,9 @@ class _CatalogPageState extends State<CatalogPage> {
                     item,
                     style: TextStyle(
                       fontSize: 14,
-                      fontWeight: isSelected ? FontWeight.w600 : FontWeight.w400,
+                      fontWeight: isSelected
+                          ? FontWeight.w600
+                          : FontWeight.w400,
                       color: isSelected
                           ? theme.colorScheme.primary
                           : theme.colorScheme.onSurface,
@@ -351,7 +365,9 @@ class _CatalogPageState extends State<CatalogPage> {
           width: 220,
           padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
           decoration: BoxDecoration(
-            color: theme.colorScheme.surfaceContainerHighest.withValues(alpha: 0.4),
+            color: theme.colorScheme.surfaceContainerHighest.withValues(
+              alpha: 0.4,
+            ),
             borderRadius: BorderRadius.circular(24),
             border: Border.all(
               color: theme.colorScheme.outline.withValues(alpha: 0.12),
@@ -369,7 +385,9 @@ class _CatalogPageState extends State<CatalogPage> {
                     style: TextStyle(
                       fontSize: 10,
                       fontWeight: FontWeight.bold,
-                      color: theme.colorScheme.onSurfaceVariant.withValues(alpha: 0.5),
+                      color: theme.colorScheme.onSurfaceVariant.withValues(
+                        alpha: 0.5,
+                      ),
                       letterSpacing: 0.5,
                     ),
                   ),
@@ -387,7 +405,9 @@ class _CatalogPageState extends State<CatalogPage> {
               Icon(
                 Icons.keyboard_arrow_down_rounded,
                 size: 18,
-                color: theme.colorScheme.onSurfaceVariant.withValues(alpha: 0.7),
+                color: theme.colorScheme.onSurfaceVariant.withValues(
+                  alpha: 0.7,
+                ),
               ),
             ],
           ),
