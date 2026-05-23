@@ -28,6 +28,44 @@ class _CatalogPageState extends State<CatalogPage> {
       registry: Registries.all,
       isBuiltIn: true,
     );
+    allItems.sort((a, b) {
+      final partsA = a.namespace.split(':');
+      final partsB = b.namespace.split(':');
+
+      final themeA = partsA[0];
+      final themeB = partsB[0];
+
+      final uiA = partsA.length > 1 ? partsA[1] : '';
+      final uiB = partsB.length > 1 ? partsB[1] : '';
+
+      // Determine priority:
+      // 0: Non-core themes (sorted alphabetically by theme name)
+      // 1: Core themes (like 'core')
+      // 2: Extended core themes (like 'core_extended')
+      int getThemePriority(String theme) {
+        if (theme.startsWith('core')) {
+          if (theme.contains('extended')) {
+            return 2;
+          }
+          return 1;
+        }
+        return 0;
+      }
+
+      final pA = getThemePriority(themeA);
+      final pB = getThemePriority(themeB);
+
+      if (pA != pB) {
+        return pA.compareTo(pB);
+      }
+
+      final themeComp = themeA.compareTo(themeB);
+      if (themeComp != 0) {
+        return themeComp;
+      }
+
+      return uiA.compareTo(uiB);
+    });
   }
 
   @override

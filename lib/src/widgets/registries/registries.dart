@@ -56,13 +56,22 @@ class Registries {
   /// Flat high-contrast Pop-Art Brutalist aesthetic UI widget set.
   static WidgetRegistry get brutalist => _themeRegistry('brutalist');
 
-  /// Dynamic helper to extract a theme's widget triplet (card, user_profile, carousel).
+  /// Dynamic helper to extract a theme's widget set.
   static WidgetRegistry _themeRegistry(String theme) {
     return WidgetRegistry(
       widgets: {
         "${theme}_ui:card": coreRegistry["${theme}_ui:card"]!,
         "${theme}_ui:user_profile": coreRegistry["${theme}_ui:user_profile"]!,
         "${theme}_ui:carousel": coreRegistry["${theme}_ui:carousel"]!,
+        "${theme}_ui:weather": coreRegistry["${theme}_ui:weather"]!,
+        "${theme}_ui:graph": coreRegistry["${theme}_ui:graph"]!,
+        "${theme}_ui:web_result": coreRegistry["${theme}_ui:web_result"]!,
+        "${theme}_ui:product_result": coreRegistry["${theme}_ui:product_result"]!,
+        "${theme}_ui:location": coreRegistry["${theme}_ui:location"]!,
+        "${theme}_ui:list_results": coreRegistry["${theme}_ui:list_results"]!,
+        "${theme}_ui:todo_list": coreRegistry["${theme}_ui:todo_list"]!,
+        "${theme}_ui:note": coreRegistry["${theme}_ui:note"]!,
+        "${theme}_ui:comparison": coreRegistry["${theme}_ui:comparison"]!,
       },
     );
   }
