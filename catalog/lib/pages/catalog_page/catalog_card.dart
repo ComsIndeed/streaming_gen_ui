@@ -10,9 +10,17 @@ import 'package:streaming_gen_ui_widget_catalog/pages/preview_page/preview_page.
 
 import 'package:streaming_gen_ui_widget_catalog/core/app_widgets/elastic_wrapper.dart';
 
+enum StreamingMode {
+  streaming,
+  noWidgetStreaming,
+  noStreaming,
+}
+
 class CatalogCard extends StatefulWidget {
   final WidgetCatalogItem catalogItem;
   static final ValueNotifier<int> resetSignal = ValueNotifier<int>(0);
+  static final ValueNotifier<StreamingMode> streamingMode =
+      ValueNotifier<StreamingMode>(StreamingMode.streaming);
 
   const CatalogCard({super.key, required this.catalogItem});
 
@@ -34,6 +42,7 @@ class _CatalogCardState extends State<CatalogCard> {
     super.initState();
     _streamingGenUi = StreamingGenerativeUi(registries: [Registries.all]);
     CatalogCard.resetSignal.addListener(_onResetSignal);
+    CatalogCard.streamingMode.addListener(_onResetSignal);
     _startStreamLoop();
   }
 
@@ -53,6 +62,80 @@ class _CatalogCardState extends State<CatalogCard> {
     _runSingleStreamCycle(_currentCycle);
   }
 
+  Stream<String> _transformNoWidgetStreaming(Stream<String> source) async* {
+    final buffer = StringBuffer();
+    bool insideInterface = false;
+
+    await for (final chunk in source) {
+      if (insideInterface) {
+        buffer.write(chunk);
+        final currentBuffered = buffer.toString();
+        if (currentBuffered.contains('</interface>')) {
+          final idx = currentBuffered.indexOf('</interface>');
+          final endIdx = idx + '</interface>'.length;
+          final interfaceBlock = currentBuffered.substring(0, endIdx);
+          yield interfaceBlock;
+
+          final remainder = currentBuffered.substring(endIdx);
+          buffer.clear();
+          insideInterface = false;
+
+          if (remainder.isNotEmpty) {
+            if (remainder.contains('<interface')) {
+              insideInterface = true;
+              buffer.write(remainder);
+            } else {
+              yield remainder;
+            }
+          }
+        }
+      } else {
+        if (chunk.contains('<interface')) {
+          final idx = chunk.indexOf('<interface');
+          final textBefore = chunk.substring(0, idx);
+          if (textBefore.isNotEmpty) {
+            yield textBefore;
+          }
+
+          final interfaceStart = chunk.substring(idx);
+          insideInterface = true;
+          buffer.write(interfaceStart);
+
+          final currentBuffered = buffer.toString();
+          if (currentBuffered.contains('</interface>')) {
+            final cIdx = currentBuffered.indexOf('</interface>');
+            final cEndIdx = cIdx + '</interface>'.length;
+            final interfaceBlock = currentBuffered.substring(0, cEndIdx);
+            yield interfaceBlock;
+
+            final remainder = currentBuffered.substring(cEndIdx);
+            buffer.clear();
+            insideInterface = false;
+            if (remainder.isNotEmpty) {
+              yield remainder;
+            }
+          }
+        } else {
+          yield chunk;
+        }
+      }
+    }
+
+    if (buffer.isNotEmpty) {
+      yield buffer.toString();
+    }
+  }
+
+  Stream<String> _transformNoStreaming(Stream<String> source) async* {
+    final buffer = StringBuffer();
+    await for (final chunk in source) {
+      buffer.write(chunk);
+    }
+    if (buffer.isNotEmpty) {
+      yield buffer.toString();
+    }
+  }
+
   Future<void> _runSingleStreamCycle(int cycleId) async {
     if (_disposed || cycleId != _currentCycle) return;
 
@@ -67,7 +150,20 @@ class _CatalogCardState extends State<CatalogCard> {
       chunkSizeImmediatelyEmit: '<interface>{"namespace":"  core:'.length,
     );
 
-    _activeStreamSubscription = rawStream.listen(
+    final Stream<String> processedStream;
+    switch (CatalogCard.streamingMode.value) {
+      case StreamingMode.streaming:
+        processedStream = rawStream;
+        break;
+      case StreamingMode.noWidgetStreaming:
+        processedStream = _transformNoWidgetStreaming(rawStream);
+        break;
+      case StreamingMode.noStreaming:
+        processedStream = _transformNoStreaming(rawStream);
+        break;
+    }
+
+    _activeStreamSubscription = processedStream.listen(
       (chunk) {
         if (!controller.isClosed) {
           controller.add(chunk);
@@ -102,6 +198,7 @@ class _CatalogCardState extends State<CatalogCard> {
     _activeStreamSubscription?.cancel();
     _activeStreamController?.close();
     CatalogCard.resetSignal.removeListener(_onResetSignal);
+    CatalogCard.streamingMode.removeListener(_onResetSignal);
     super.dispose();
   }
 

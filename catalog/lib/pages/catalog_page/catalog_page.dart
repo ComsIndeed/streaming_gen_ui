@@ -198,6 +198,8 @@ class _CatalogPageState extends State<CatalogPage> {
                         if (_showDevOptions) ...[
                           const SizedBox(width: 8),
                           _buildDevSyncButton(context),
+                          const SizedBox(width: 8),
+                          _buildStreamingModeButton(context),
                         ],
                       ],
                     ),
@@ -337,6 +339,46 @@ class _CatalogPageState extends State<CatalogPage> {
       tooltip: "Synchronize all widget streams",
       onPressed: () {
         CatalogCard.resetSignal.value++;
+      },
+    );
+  }
+
+  Widget _buildStreamingModeButton(BuildContext context) {
+    return ListenableBuilder(
+      listenable: CatalogCard.streamingMode,
+      builder: (context, _) {
+        final mode = CatalogCard.streamingMode.value;
+        final IconData icon;
+        final Color color;
+        final String tooltip;
+
+        switch (mode) {
+          case StreamingMode.streaming:
+            icon = Icons.waves_rounded;
+            color = Colors.greenAccent;
+            tooltip = "Streaming Mode: Progressive text & widgets";
+            break;
+          case StreamingMode.noWidgetStreaming:
+            icon = Icons.widgets_rounded;
+            color = Colors.orangeAccent;
+            tooltip = "No Widget Stream Mode: Text streams, widgets render whole";
+            break;
+          case StreamingMode.noStreaming:
+            icon = Icons.done_all_rounded;
+            color = Colors.blueAccent;
+            tooltip = "No-Stream Mode: Entire response awaited and rendered whole";
+            break;
+        }
+
+        return IconButton(
+          icon: Icon(icon, color: color),
+          tooltip: tooltip,
+          onPressed: () {
+            final nextMode = StreamingMode.values[
+                (mode.index + 1) % StreamingMode.values.length];
+            CatalogCard.streamingMode.value = nextMode;
+          },
+        );
       },
     );
   }
