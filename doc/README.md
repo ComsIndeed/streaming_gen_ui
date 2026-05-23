@@ -8,7 +8,7 @@ without waiting for a complete JSON response.
 [![pub.dev](https://img.shields.io/pub/v/streaming_gen_ui.svg)](https://pub.dev/packages/streaming_gen_ui)
 [![License: MIT](https://img.shields.io/badge/license-MIT-blue.svg)](https://opensource.org/licenses/MIT)
 
-![streaming_gen_ui in action](https://raw.githubusercontent.com/ComsIndeed/streaming_gen_ui/main/doc/gifs/chat-demo-1_small.gif)
+![streaming_gen_ui in action](https://raw.githubusercontent.com/ComsIndeed/streaming_gen_ui/main/doc/gifs/output/chat-demo-1_small.gif)
 
 [GitHub](https://github.com/ComsIndeed/streaming-gen-ui) ·
 [Widget Catalog](https://streaming.vincentsanicolas.me) ·
@@ -33,7 +33,7 @@ Elevate standard text-based conversational interfaces. Instead of presenting a l
 
 ### Streaming Support
 
-![streaming_gen_ui in action](https://raw.githubusercontent.com/ComsIndeed/streaming_gen_ui/main/doc/gifs/mechanics-demo_small.gif)
+![streaming_gen_ui in action](https://raw.githubusercontent.com/ComsIndeed/streaming_gen_ui/main/doc/gifs/output/mechanics-demo_small.gif)
 
 Most generative UI packages require you to wait for the complete JSON payload before decoding and popping the final widget tree onto the screen. `streaming_gen_ui` progressively parses and renders widgets *character-by-character* as the tokens arrive. Buttons start disabled and transition to active instantly with organic spring animations once their handlers load.
 
