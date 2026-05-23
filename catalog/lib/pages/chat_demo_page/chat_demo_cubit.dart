@@ -103,7 +103,7 @@ class ChatDemoCubit extends Cubit<ChatDemoState> {
         ),
       ) {
     generativeUi = StreamingGenerativeUi(
-      registry: Registries.forThemes({'apple'}),
+      registries: [Registries.forThemes({'apple'})],
       customViewIds: const {
         'canvas-ui':
             'Renders a dedicated full-screen dynamic mini app, interactive dashboard, or tool requested by the user.',
@@ -163,9 +163,9 @@ The package is still in early development. Expect bugs and instability. Better c
   /// so existing rendered chat views remain visible. The system prompt in history
   /// is also updated so subsequent turns only mention the selected themes.
   void updateRegistry(Set<String> themes, {bool includePrimitives = false}) {
-    generativeUi.updateRegistry(
+    generativeUi.updateRegistries([
       Registries.forThemes(themes, includePrimitives: includePrimitives),
-    );
+    ]);
     // Re-inject system prompt so the LLM only knows about selected themes.
     if (_history.isNotEmpty) {
       _history[0] = ChatMessage.system(systemPrompt);

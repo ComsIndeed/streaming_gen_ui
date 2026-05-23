@@ -12,210 +12,98 @@ without waiting for a complete JSON response.
 
 [GitHub](https://github.com/ComsIndeed/streaming-gen-ui) ·
 [Widget Catalog](https://streaming.vincentsanicolas.me) ·
-[Test](https://streaming.vincentsanicolas.me)
+[Demo](https://streaming.vincentsanicolas.me/?page=chat)
 
----
+## Why `streaming_gen_ui`?
 
----
-
----
+- **[Generative UI](#generative-ui)** - No more walls of text, mix in some interfaces.
+- **[Streaming Support](#streaming-support)** - Progressively render UI as it streams from the LLM.
+- **[Render Anywhere](#render-anywhere)** - Place views elsewhere, instruct LLM to render there.
+- **[Easy Display](#easy-display)** - By default, render normal response markdown with UI.
+- **[Simple & Flexible APIs](#simple--flexible-apis)** - Set up however wanted, easy to use.
+- **[Platform/Framework Agnostic](#platformframework-agnostic)** - `Stream<String>` in, `Widget` out.
+- **[Batteries Included](#batteries-included)** - Includes lightweight prebuilt registries of widgets.
+- **[Easy Composition](#easy-composition)** - Easily create your own widgets.
 
 ## Features
 
-### Widget-by-Widget Streaming
+### Generative UI
 
-<!--
-  GIF: progressive_build.gif
-  Show a core:column with 3 children building itself — each child fades/scales in
-  as its JSON is parsed. The parent container grows in height via AnimatedSize.
-  About 4 seconds. No interaction needed.
--->
+Elevate standard text-based conversational interfaces. Instead of presenting a long wall of static text, seamlessly mix in rich, interactive components (like profile cards, charts, accordion carousels, or metric tiles) that bring your application to life.
 
-![Progressive widget build](https://raw.githubusercontent.com/ComsIndeed/streaming-gen-ui/main/demos/progressive_build.gif)
+### Streaming Support
 
-Widgets mount immediately and fill in their properties as tokens arrive. Parent
-containers don't wait for children. Children don't wait for siblings.
+![streaming_gen_ui in action](https://raw.githubusercontent.com/ComsIndeed/streaming_gen_ui/main/doc/gifs/mechanics-demo_small.gif)
 
-### Disabled-to-Active Button Transmutation
+Most generative UI packages require you to wait for the complete JSON payload before decoding and popping the final widget tree onto the screen. `streaming_gen_ui` progressively parses and renders widgets *character-by-character* as the tokens arrive. Buttons start disabled and transition to active instantly with organic spring animations once their handlers load.
 
-<!--
-  GIF: button_activation.gif
-  Show a button starting grey and visually muted while text streams into its label.
-  The instant the "action" property token arrives, it triggers a micro-bounce and
-  morphs to the primary theme color. About 3 seconds. Clean loop.
--->
+### Render Anywhere
 
-![Button activation](https://raw.githubusercontent.com/ComsIndeed/streaming-gen-ui/main/demos/button_activation.gif)
+Direct the LLM to render specific layouts or controls in custom areas of your screen (e.g., a dedicated full-screen Canvas or tool panel) rather than the standard sequential chat thread. Simply define a mapping of custom view IDs and watch them update reactively.
 
-Interactive elements (buttons, inputs) are drawn immediately in a disabled
-state. The exact millisecond their action property resolves in the stream, they
-activate with a micro-bounce transition.
+### Easy Display
 
-### Self-Documenting Registry
+Seamlessly blend rich markdown responses and dynamic interfaces. The streaming engine parses `<interface>` tags out of the stream automatically, keeping the raw conversational text clean and displaying markdown blocks alongside active widgets in chronological order.
 
-Every widget in the registry carries its own schema and JSON example. The engine
-automatically compiles these into a precise LLM system prompt fragment — no
-manual prompt maintenance, no drift between what the LLM thinks exists and
-what's actually registered.
+### Simple & Flexible APIs
 
-```dart
-// The prompt updates automatically as your registry changes
-final systemPrompt = genUi.registry.systemPromptFragment;
-```
+Modern, intuitive developer experience designed for high discoverability and minimal friction:
+* Initialize with a simple list of registries: `StreamingGenerativeUi(registries: [Registries.essentials, myRegistry])`
+* Dynamically hot-swap active components using `updateRegistries(...)`
+* Access active views anywhere in your widget tree with `genUi.view('message-id')`
 
-### Set-Theory Registry Composition
+### Platform/Framework Agnostic
 
-```dart
-// Union — combine registries
-final registry = Registries.essentials + Registries.dashboard;
+No vendor lock-in. Whether you are using Gemini, Claude, ChatGPT, or local models via Ollama/llama.cpp, the engine works entirely on standard inputs. Simply feed a `Stream<String>` of raw tokens in, and get responsive, state-managed Flutter `Widget` outputs out.
 
-// Subtraction — strip what you don't need
-final readOnly = Registries.essentials.without(['core:elevated_button', 'core:textfield']);
+### Batteries Included
 
-// Subset — allow only specific widgets
-final locked = Registries.essentials.only(['core:text', 'core:card']);
-```
+Comes packed with built-in, beautifully designed, and highly optimized widget registries:
+* **`Registries.layout`**: `core:column`, `core:row`, `core:stack`, `core:wrap`, `core:container`, `core:spacer`, `core:divider`
+* **`Registries.display`**: `core:text`, `core:heading`, `core:badge`, `core:chip`, `core:icon`, `core:avatar`, `core:code_block`
+* **`Registries.cards`**: `core:card`, `core:stat_card`, `core:profile_card`, `core:list_tile`, `core:key_value_card`
+* **`Registries.dashboard`**: `core:metric_tile`, `core:chart_bar`
 
-### Restore Past Responses
+### Easy Composition
+
+Define individual custom widgets inline using `WidgetRegistry.fromDefinition` or bundle them into custom registries. 
+The package automatically computes the LLM's system prompt instructions (`systemPrompt`) and even auto-generates compliant mock JSON examples if they are omitted, leaving you with zero boilerplate to maintain!
+
+## Quick Setup
 
 ```dart
-// Restore a previously saved raw response from your database
-genUi.restore(viewId: 'message-42', raw: savedRaw);
-```
+import 'package:streaming_gen_ui/streaming_gen_ui.dart';
 
-The view rebuilds identically from the stored string — no re-prompting the LLM.
-
----
-
-## Built-In Widget Catalog
-
-| Registry               | Widgets                                                                                                                                                      | Use Case                                 |
-| :--------------------- | :----------------------------------------------------------------------------------------------------------------------------------------------------------- | :--------------------------------------- |
-| `Registries.layout`    | `core:column`, `core:row`, `core:stack`, `core:wrap`, `core:container`, `core:spacer`, `core:divider`                                                        | Structural layout primitives             |
-| `Registries.display`   | `core:text`, `core:heading`, `core:label`, `core:badge`, `core:chip`, `core:icon`, `core:avatar`, `core:code_block`                                          | Typography and display                   |
-| `Registries.cards`     | `core:card`, `core:stat_card`, `core:profile_card`, `core:list_tile`, `core:key_value_card`, `core:media_card`, `core:timeline_item`, `core:comparison_card` | General-purpose AI response cards        |
-| `Registries.status`    | `core:alert`, `core:progress_bar`, `core:progress_ring`, `core:skeleton`, `core:empty_state`                                                                 | Feedback and status indicators           |
-| `Registries.advanced`  | `core:terminal_card`, `core:log_viewer`, `core:document_card`, `core:diff_card`, `core:json_viewer`                                                          | Developer tools, agent output, documents |
-| `Registries.dashboard` | `core:metric_tile`, `core:chart_bar`, `core:dashboard_header`, `core:dashboard_grid`, `core:dashboard_preset`                                                | Analytics and dashboard layouts          |
-
-**Pre-composed bundles:**
-
-```dart
-Registries.base        // layout + display only — minimal prompt cost
-Registries.essentials  // base + cards + status — covers most AI chat apps
-Registries.full        // everything
-```
-
-> Browse all widgets with live streaming previews at the
-> **[Widget Catalog →](https://streaming-gen-ui.web.app)**
-
----
-
-## Custom Widgets
-
-Registering your own widget takes a single `WidgetDefinition`:
-
-```dart
-final myRegistry = WidgetRegistry(
-  widgets: {
-    "custom:user_card": WidgetDefinition(
-      description: "A profile summary card.",
-      properties: {
-        "name": "String — the user's full name",
-        "role": "String — their current title",
-      },
-      jsonExample: '{"namespace":"custom:user_card","name":"Ada Lovelace","role":"Mathematician"}',
-      builder: (context, props) => Card(
-        child: Column(
-          children: [
-            StreamingText(props: props, propertyName: 'name'),
-            StreamingText(props: props, propertyName: 'role'),
-          ],
-        ),
-      ),
-    ),
-  },
+// Create instance, use registries (or custom widgets)
+final streamingGenUi = StreamingGenerativeUi(
+  registries: [Registries.material, Registries.core],
 );
 
-// Merge seamlessly with built-ins
-final genUi = StreamingGenerativeUi(
-  registry: Registries.essentials + myRegistry,
+// Include generated prompt in instructions
+final responseStream = Llm.sendMessageStream(
+  message: 'Most durable laptops on the market?',
+  systemPrompt:
+      'You are a helpful assistant.\n${streamingGenUi.systemPrompt}',
 );
+
+// Stream response to target view
+streamingGenUi.stream(responseStream, viewId: 'msg-box-1');
+
+// Render response + widgets in view
+@override
+Widget build(BuildContext context) {
+  return Column(
+    children: [
+      const Text('AI Assistant'),
+      streamingGenUi.view('msg-box-1'),
+    ],
+  );
+}
 ```
-
-`StreamingText` and `StreamingWidget` are exposed publicly so custom widget
-builders stay stateless and boilerplate-free.
-
----
-
-## LLM Provider Setup
-
-### Anthropic
-
-```dart
-final tokenStream = anthropic.messages
-  .stream(model: 'claude-sonnet-4-20250514', messages: messages)
-  .map((event) => event.delta?.text ?? '');
-
-await genUi.stream(tokenStream, viewId: 'view-id');
-```
-
-### OpenAI
-
-```dart
-final tokenStream = OpenAI.instance.chat
-  .createStream(model: 'gpt-4o', messages: messages)
-  .map((chunk) => chunk.choices.first.delta.content ?? '');
-
-await genUi.stream(tokenStream, viewId: 'view-id');
-```
-
-### Gemini
-
-```dart
-final tokenStream = model
-  .generateContentStream(content)
-  .map((chunk) => chunk.text ?? '');
-
-await genUi.stream(tokenStream, viewId: 'view-id');
-```
-
----
-
-## API Reference
-
-### `StreamingGenerativeUi`
-
-| Member                                                           | Description                                 |
-| :--------------------------------------------------------------- | :------------------------------------------ |
-| `StreamingGenerativeUi({required registry, showInternalErrors})` | Instantiate the engine                      |
-| `stream(tokenStream, {viewId, onText, onComplete})`              | Pipe a live token stream                    |
-| `restore({viewId, raw})`                                         | Rebuild a past response from a saved string |
-| `view(viewId)`                                                   | Get the reactive widget for a view          |
-| `disposeView(viewId)`                                            | Free memory for a view                      |
-
-### `WidgetRegistry`
-
-| Member                          | Description                             |
-| :------------------------------ | :-------------------------------------- |
-| `registry + other`              | Union — merge two registries            |
-| `registry.only(ids)`            | Subset — keep only listed widget IDs    |
-| `registry.without(ids)`         | Subtraction — remove listed widget IDs  |
-| `registry.systemPromptFragment` | Auto-generated LLM system prompt string |
-
-### Public Leaf Widgets
-
-| Widget            | Description                                                                  |
-| :---------------- | :--------------------------------------------------------------------------- |
-| `StreamingText`   | Binds to a named property on a `PropertyStream` and renders accumulated text |
-| `StreamingWidget` | Resolves a nested child from a sub-property stream into a widget subtree     |
-
----
 
 ## Contributing
 
-Contributions are welcome — especially new widget definitions for the community
-catalog.
+Contributions are welcome (even new widgets on the catalog).
 
 1. Check [open issues](https://github.com/ComsIndeed/streaming-gen-ui/issues)
    before starting

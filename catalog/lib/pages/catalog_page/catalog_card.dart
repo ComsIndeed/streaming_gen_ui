@@ -26,7 +26,7 @@ class _CatalogCardState extends State<CatalogCard> {
   @override
   void initState() {
     super.initState();
-    _streamingGenUi = StreamingGenerativeUi(registry: Registries.all);
+    _streamingGenUi = StreamingGenerativeUi(registries: [Registries.all]);
     _startLoop();
   }
 

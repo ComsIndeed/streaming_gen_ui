@@ -37,12 +37,10 @@ class _StreamingUiScreenState extends State<StreamingUiScreen> {
   void initState() {
     super.initState();
     _genUi = StreamingGenerativeUi(
-      registry: WidgetRegistry(
-        widgets: {
-          ...Registries.core.widgets,
-          // Register any custom domain widgets here...
-        },
-      ),
+      registries: [
+        Registries.core,
+        // Register any custom domain widgets/registries here...
+      ],
     );
   }
 

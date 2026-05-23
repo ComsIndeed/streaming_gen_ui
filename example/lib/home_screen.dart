@@ -26,11 +26,12 @@ class _HomeScreenState extends State<HomeScreen> {
   @override
   void initState() {
     super.initState();
-    // Initialize our library controller with the combined widget registry
+    // Initialize our library controller with the combined widget registry list
     _genUi = StreamingGenerativeUi(
-      registry: WidgetRegistry(
-        widgets: {...Registries.core.widgets, ...customRegistry},
-      ),
+      registries: [
+        Registries.core,
+        WidgetRegistry(widgets: customRegistry),
+      ],
     );
     _selectedExample = mockExamples.first;
   }

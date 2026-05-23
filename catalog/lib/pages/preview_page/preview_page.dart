@@ -116,7 +116,7 @@ class _PreviewPageState extends State<PreviewPage> {
     _streamController?.close();
 
     // Re-create a completely fresh engine slate and controller
-    final engine = StreamingGenerativeUi(registry: Registries.all);
+    final engine = StreamingGenerativeUi(registries: [Registries.all]);
     final controller = StreamController<String>.broadcast();
     engine.stream(controller.stream, viewId: 'main-view');
 
@@ -844,7 +844,7 @@ class _PreviewPageState extends State<PreviewPage> {
           _buildPremiumCodeBlock(
             fileName: "usage.dart",
             code:
-                "final genUi = StreamingGenerativeUi(registry: myRegistry);\n\n"
+                "final genUi = StreamingGenerativeUi(registries: [myRegistry]);\n\n"
                 "// Inject the prompt fragment into your LLM system prompt\n"
                 "final systemPrompt = genUi.systemPrompt;\n\n"
                 "// Pipe the LLM response stream in\n"
@@ -857,7 +857,7 @@ class _PreviewPageState extends State<PreviewPage> {
             onCopy: () async {
               final messenger = ScaffoldMessenger.of(context);
               const snippet =
-                  "final genUi = StreamingGenerativeUi(registry: myRegistry);\n\n"
+                  "final genUi = StreamingGenerativeUi(registries: [myRegistry]);\n\n"
                   "// Inject the prompt fragment into your LLM system prompt\n"
                   "final systemPrompt = genUi.systemPrompt;\n\n"
                   "// Pipe the LLM response stream in\n"

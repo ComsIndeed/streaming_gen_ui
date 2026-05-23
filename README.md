@@ -48,9 +48,9 @@ dependencies:
 ```dart
 import 'package:streaming_gen_ui/streaming_gen_ui.dart';
 
-// 1. Instantiate with a registry
+// 1. Instantiate with registries
 final genUi = StreamingGenerativeUi(
-  registry: Registries.essentials,
+  registries: [Registries.essentials],
 );
 
 // 2. Inject the auto-generated prompt fragment into your LLM system prompt
@@ -155,35 +155,29 @@ Registries.full        // everything
 
 ---
 
-## Custom Widgets
-
-Registering your own widget takes a single `WidgetDefinition`:
+Registering your own custom widget is extremely easy using the `fromDefinition` named constructor:
 
 ```dart
-final myRegistry = WidgetRegistry(
-  widgets: {
-    "custom:user_card": WidgetDefinition(
-      description: "A profile summary card.",
-      properties: {
-        "name": "String — the user's full name",
-        "role": "String — their current title",
-      },
-      jsonExample: '{"namespace":"custom:user_card","name":"Ada Lovelace","role":"Mathematician"}',
-      builder: (context, props) => Card(
-        child: Column(
-          children: [
-            StreamingText(props: props, propertyName: 'name'),
-            StreamingText(props: props, propertyName: 'role'),
-          ],
-        ),
-      ),
-    ),
+final myRegistry = WidgetRegistry.fromDefinition(
+  id: "custom:user_card",
+  description: "A profile summary card.",
+  properties: {
+    "name": "String",
+    "role": "String",
   },
+  builder: (context, props) => Card(
+    child: Column(
+      children: [
+        StreamingText(props: props, propertyName: 'name'),
+        StreamingText(props: props, propertyName: 'role'),
+      ],
+    ),
+  ),
 );
 
-// Merge seamlessly with built-ins
+// Drop it seamlessly into the registries list
 final genUi = StreamingGenerativeUi(
-  registry: Registries.essentials + myRegistry,
+  registries: [Registries.essentials, myRegistry],
 );
 ```
 
@@ -230,9 +224,9 @@ await genUi.stream(tokenStream, viewId: 'view-id');
 
 ### `StreamingGenerativeUi`
 
-| Member                                                           | Description                                 |
-| :--------------------------------------------------------------- | :------------------------------------------ |
-| `StreamingGenerativeUi({required registry, showInternalErrors})` | Instantiate the engine                      |
+| Member                                                                | Description                                 |
+| :-------------------------------------------------------------------- | :------------------------------------------ |
+| `StreamingGenerativeUi({required registries, showInternalErrors})`  | Instantiate the engine                      |
 | `stream(tokenStream, {viewId, onText, onComplete})`              | Pipe a live token stream                    |
 | `restore({viewId, raw})`                                         | Rebuild a past response from a saved string |
 | `view(viewId)`                                                   | Get the reactive widget for a view          |

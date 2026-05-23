@@ -32,11 +32,15 @@ class StreamingGenerativeUi with ChangeNotifier {
   /// When provided, these are injected into the agent's system prompt instructions
   /// to explain the purpose of each view zone and how to target them using the
   /// `<interface viewId="...">` tag attribute.
+  /// An optional map of custom target view IDs to their descriptions.
+  /// When provided, these are injected into the agent's system prompt instructions
+  /// to explain the purpose of each view zone and how to target them using the
+  /// `<interface viewId="...">` tag attribute.
   ///
   /// Example:
   /// ```dart
   /// final genUi = StreamingGenerativeUi(
-  ///   registry: myRegistry,
+  ///   registries: [Registries.core, Registries.material],
   ///   customViewIds: {
   ///     'side-panel': 'Renders supplementary details or secondary controls on the side panel.',
   ///     'global-modal': 'Renders modal-based overlays for actions requiring immediate attention.',
@@ -46,19 +50,32 @@ class StreamingGenerativeUi with ChangeNotifier {
   final Map<String, String>? customViewIds;
 
   StreamingGenerativeUi({
-    required this.registry,
+    required List<WidgetRegistry> registries,
     this.showInternalErrors = false,
     this.errorBuilder,
     this.config = const GenerativeUiConfig(),
     this.extraInstructions = const [],
     this.customViewIds,
-  });
+  }) : registry = registries.fold(
+          WidgetRegistry(widgets: {}),
+          (a, b) => a + b,
+        );
 
   /// Swaps the active widget registry in-place. Existing rendered views keep
   /// their snapshot (widgets already on screen remain visible). Only new
   /// streams will use the updated registry.
   void updateRegistry(WidgetRegistry newRegistry) {
     registry = newRegistry;
+    notifyListeners();
+  }
+
+  /// Swaps the active widget registries in-place. Existing rendered views keep
+  /// their snapshot. Only new streams will use the updated registries.
+  void updateRegistries(List<WidgetRegistry> newRegistries) {
+    registry = newRegistries.fold(
+      WidgetRegistry(widgets: {}),
+      (a, b) => a + b,
+    );
     notifyListeners();
   }
 
