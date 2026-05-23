@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:llm_json_stream/llm_json_stream.dart';
 import 'package:streaming_gen_ui/src/widgets/theme_style_helper.dart';
 import 'package:streaming_gen_ui/src/widgets/core/streaming_entrance.dart';
+import 'package:streaming_gen_ui/src/widgets/core/themed_streaming_text.dart';
 import 'package:streaming_gen_ui/src/widgets/base_streaming_image.dart';
 
 /// A premium, customizable Product Result Card supporting M3, Fluent, Apple,
@@ -211,8 +212,9 @@ class _BaseThemedProductResultCardState extends State<BaseThemedProductResultCar
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
                   Expanded(
-                    child: Text(
+                    child: ThemedStreamingText(
                       title,
+                      themeName: widget.themeName,
                       style: titleStyle.copyWith(fontSize: 18),
                       maxLines: 2,
                       overflow: TextOverflow.ellipsis,
@@ -244,8 +246,9 @@ class _BaseThemedProductResultCardState extends State<BaseThemedProductResultCar
               ],
               if (description != null && description.isNotEmpty) ...[
                 const SizedBox(height: 8),
-                Text(
+                ThemedStreamingText(
                   description,
+                  themeName: widget.themeName,
                   style: subStyle.copyWith(
                     color: themeData.colorScheme.onSurfaceVariant.withValues(alpha: 0.85),
                     fontSize: 13,

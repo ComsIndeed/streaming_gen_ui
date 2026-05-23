@@ -79,11 +79,11 @@ class _HomepageState extends State<Homepage> {
                       shape: RoundedSuperellipseBorder(
                         borderRadius: BorderRadius.circular(20),
                         side: BorderSide(
-                          color: theme.colorScheme.outline.withOpacity(0.06),
+                          color: theme.colorScheme.outline.withValues(alpha: 0.06),
                         ),
                       ),
                       color: theme.colorScheme.surfaceContainerHighest
-                          .withOpacity(0.2),
+                          .withValues(alpha: 0.2),
                     ),
                     child: Stack(
                       children: [
@@ -98,10 +98,10 @@ class _HomepageState extends State<Homepage> {
                               shape: RoundedSuperellipseBorder(
                                 borderRadius: BorderRadius.circular(16),
                               ),
-                              color: theme.colorScheme.primary.withOpacity(0.85),
+                              color: theme.colorScheme.primary.withValues(alpha: 0.85),
                               shadows: [
                                 BoxShadow(
-                                  color: theme.colorScheme.primary.withOpacity(
+                                  color: theme.colorScheme.primary.withValues(alpha: 
                                     0.12,
                                   ),
                                   blurRadius: 4,
@@ -135,7 +135,7 @@ class _HomepageState extends State<Homepage> {
                                       color: pageOffset < 0.5
                                           ? theme.colorScheme.onPrimary
                                           : theme.colorScheme.onSurfaceVariant
-                                                .withOpacity(0.8),
+                                                .withValues(alpha: 0.8),
                                     ),
                                   ),
                                 ),
@@ -160,7 +160,7 @@ class _HomepageState extends State<Homepage> {
                                       color: pageOffset >= 0.5
                                           ? theme.colorScheme.onPrimary
                                           : theme.colorScheme.onSurfaceVariant
-                                                .withOpacity(0.8),
+                                                .withValues(alpha: 0.8),
                                     ),
                                   ),
                                 ),

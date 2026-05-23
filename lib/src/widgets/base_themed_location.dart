@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:llm_json_stream/llm_json_stream.dart';
 import 'package:streaming_gen_ui/src/widgets/theme_style_helper.dart';
 import 'package:streaming_gen_ui/src/widgets/core/streaming_entrance.dart';
+import 'package:streaming_gen_ui/src/widgets/core/themed_streaming_text.dart';
 import 'package:streaming_gen_ui/src/widgets/base_streaming_image.dart';
 
 /// A premium themed Location Search Card supporting M3, Fluent, Apple,
@@ -187,8 +188,9 @@ class _BaseThemedLocationCardState extends State<BaseThemedLocationCard> {
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        Text(
+                        ThemedStreamingText(
                           name,
+                          themeName: widget.themeName,
                           style: titleStyle.copyWith(fontSize: 18),
                           maxLines: 2,
                           overflow: TextOverflow.ellipsis,
@@ -211,8 +213,9 @@ class _BaseThemedLocationCardState extends State<BaseThemedLocationCard> {
               ),
               const SizedBox(height: 12),
               if (address.isNotEmpty)
-                Text(
+                ThemedStreamingText(
                   address,
+                  themeName: widget.themeName,
                   style: subStyle.copyWith(
                     color: themeData.colorScheme.onSurfaceVariant.withValues(alpha: 0.9),
                     fontSize: 13,

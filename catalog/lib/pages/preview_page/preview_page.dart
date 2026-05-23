@@ -377,7 +377,7 @@ class _PreviewPageState extends State<PreviewPage> {
           TextSpan(
             text: matchText,
             style: TextStyle(
-              color: theme.colorScheme.onSurface.withOpacity(0.5),
+              color: theme.colorScheme.onSurface.withValues(alpha: 0.5),
             ),
           ),
         );
@@ -457,7 +457,7 @@ class _PreviewPageState extends State<PreviewPage> {
           style: TextStyle(
             fontSize: 18,
             fontWeight: FontWeight.bold,
-            color: theme.colorScheme.onSurfaceVariant.withOpacity(0.8),
+            color: theme.colorScheme.onSurfaceVariant.withValues(alpha: 0.8),
             letterSpacing: 0.5,
           ),
         ),
@@ -468,7 +468,7 @@ class _PreviewPageState extends State<PreviewPage> {
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(16),
             side: BorderSide(
-              color: theme.colorScheme.outline.withOpacity(0.12),
+              color: theme.colorScheme.outline.withValues(alpha: 0.12),
             ),
           ),
           child: Padding(
@@ -505,7 +505,7 @@ class _PreviewPageState extends State<PreviewPage> {
   }) {
     final codeBlockBg = theme.colorScheme.surfaceContainer;
     final headerBg = theme.colorScheme.surfaceContainerHigh;
-    final borderCol = theme.colorScheme.outline.withOpacity(0.12);
+    final borderCol = theme.colorScheme.outline.withValues(alpha: 0.12);
 
     final codeBlockWidget = Container(
       decoration: BoxDecoration(
@@ -552,8 +552,8 @@ class _PreviewPageState extends State<PreviewPage> {
                     begin: Alignment.topCenter,
                     end: Alignment.bottomCenter,
                     colors: [
-                      codeBlockBg.withOpacity(0.0),
-                      codeBlockBg.withOpacity(0.85),
+                      codeBlockBg.withValues(alpha: 0.0),
+                      codeBlockBg.withValues(alpha: 0.85),
                       codeBlockBg,
                     ],
                   ),
@@ -578,7 +578,7 @@ class _PreviewPageState extends State<PreviewPage> {
                         shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(18),
                           side: BorderSide(
-                            color: theme.colorScheme.outline.withOpacity(0.12),
+                            color: theme.colorScheme.outline.withValues(alpha: 0.12),
                           ),
                         ),
                         elevation: 1,
@@ -621,7 +621,7 @@ class _PreviewPageState extends State<PreviewPage> {
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(14),
                       side: BorderSide(
-                        color: theme.colorScheme.outline.withOpacity(0.12),
+                        color: theme.colorScheme.outline.withValues(alpha: 0.12),
                       ),
                     ),
                   ),
@@ -665,7 +665,7 @@ class _PreviewPageState extends State<PreviewPage> {
                         ? Icons.description_rounded
                         : Icons.code_rounded,
                     size: 14,
-                    color: theme.colorScheme.onSurfaceVariant.withOpacity(0.7),
+                    color: theme.colorScheme.onSurfaceVariant.withValues(alpha: 0.7),
                   ),
                   const SizedBox(width: 8),
                   Text(
@@ -674,7 +674,7 @@ class _PreviewPageState extends State<PreviewPage> {
                       fontFamily: 'monospace',
                       fontSize: 12,
                       fontWeight: FontWeight.w600,
-                      color: theme.colorScheme.onSurfaceVariant.withOpacity(
+                      color: theme.colorScheme.onSurfaceVariant.withValues(alpha: 
                         0.9,
                       ),
                     ),
@@ -733,7 +733,7 @@ class _PreviewPageState extends State<PreviewPage> {
               : "Follow these steps to import and use the generated streaming component.",
           style: TextStyle(
             fontSize: 13,
-            color: theme.colorScheme.onSurfaceVariant.withOpacity(0.85),
+            color: theme.colorScheme.onSurfaceVariant.withValues(alpha: 0.85),
           ),
         ),
         const SizedBox(height: 24),
@@ -752,7 +752,7 @@ class _PreviewPageState extends State<PreviewPage> {
           "Add the package to your dependencies list.",
           style: TextStyle(
             fontSize: 12,
-            color: theme.colorScheme.onSurfaceVariant.withOpacity(0.8),
+            color: theme.colorScheme.onSurfaceVariant.withValues(alpha: 0.8),
           ),
         ),
         const SizedBox(height: 12),
@@ -794,7 +794,7 @@ class _PreviewPageState extends State<PreviewPage> {
             "Use the + operator on Registries.all, filtered to only the widget you need.",
             style: TextStyle(
               fontSize: 12,
-              color: theme.colorScheme.onSurfaceVariant.withOpacity(0.8),
+              color: theme.colorScheme.onSurfaceVariant.withValues(alpha: 0.8),
             ),
           ),
           const SizedBox(height: 12),
@@ -837,7 +837,7 @@ class _PreviewPageState extends State<PreviewPage> {
             "into .stream(), then place .view() anywhere in your build method.",
             style: TextStyle(
               fontSize: 12,
-              color: theme.colorScheme.onSurfaceVariant.withOpacity(0.8),
+              color: theme.colorScheme.onSurfaceVariant.withValues(alpha: 0.8),
             ),
           ),
           const SizedBox(height: 12),
@@ -914,7 +914,7 @@ class _PreviewPageState extends State<PreviewPage> {
             "Map the custom namespace in your local WidgetRegistry list.",
             style: TextStyle(
               fontSize: 12,
-              color: theme.colorScheme.onSurfaceVariant.withOpacity(0.8),
+              color: theme.colorScheme.onSurfaceVariant.withValues(alpha: 0.8),
             ),
           ),
           const SizedBox(height: 12),
@@ -954,7 +954,7 @@ class _PreviewPageState extends State<PreviewPage> {
             "Add this standalone widget file to your project codebase.",
             style: TextStyle(
               fontSize: 12,
-              color: theme.colorScheme.onSurfaceVariant.withOpacity(0.8),
+              color: theme.colorScheme.onSurfaceVariant.withValues(alpha: 0.8),
             ),
           ),
           const SizedBox(height: 12),
@@ -1044,7 +1044,7 @@ class _PreviewPageState extends State<PreviewPage> {
           style: TextStyle(
             fontSize: 14,
             fontWeight: FontWeight.w500,
-            color: theme.colorScheme.onSurface.withOpacity(0.6),
+            color: theme.colorScheme.onSurface.withValues(alpha: 0.6),
           ),
         ),
         const SizedBox(height: 12),
@@ -1052,7 +1052,7 @@ class _PreviewPageState extends State<PreviewPage> {
           widget.catalogItem.widgetDefinition.description,
           style: TextStyle(
             fontSize: 16,
-            color: theme.colorScheme.onSurface.withOpacity(0.85),
+            color: theme.colorScheme.onSurface.withValues(alpha: 0.85),
           ),
         ),
         const SizedBox(height: 24),
@@ -1096,7 +1096,7 @@ class _PreviewPageState extends State<PreviewPage> {
           borderRadius: BorderRadius.circular(28),
         ),
         elevation: 8,
-        shadowColor: theme.colorScheme.shadow.withOpacity(0.08),
+        shadowColor: theme.colorScheme.shadow.withValues(alpha: 0.08),
         child: Container(
           decoration: BoxDecoration(color: theme.colorScheme.surface),
           child: Stack(
@@ -1144,10 +1144,10 @@ class _PreviewPageState extends State<PreviewPage> {
                                 borderRadius: BorderRadius.circular(24),
                               ),
                               color: theme.colorScheme.surfaceContainerHighest
-                                  .withOpacity(0.85),
+                                  .withValues(alpha: 0.85),
                               shadows: [
                                 BoxShadow(
-                                  color: Colors.black.withOpacity(0.08),
+                                  color: Colors.black.withValues(alpha: 0.08),
                                   blurRadius: 16,
                                   offset: const Offset(0, 8),
                                 ),
@@ -1174,7 +1174,7 @@ class _PreviewPageState extends State<PreviewPage> {
                                 Container(
                                   width: 1,
                                   height: 18,
-                                  color: theme.colorScheme.outline.withOpacity(
+                                  color: theme.colorScheme.outline.withValues(alpha: 
                                     0.2,
                                   ),
                                 ),
@@ -1222,7 +1222,7 @@ class _PreviewPageState extends State<PreviewPage> {
                                 Container(
                                   width: 1,
                                   height: 18,
-                                  color: theme.colorScheme.outline.withOpacity(
+                                  color: theme.colorScheme.outline.withValues(alpha: 
                                     0.2,
                                   ),
                                 ),
@@ -1271,7 +1271,7 @@ class _PreviewPageState extends State<PreviewPage> {
                                 Container(
                                   width: 1,
                                   height: 18,
-                                  color: theme.colorScheme.outline.withOpacity(
+                                  color: theme.colorScheme.outline.withValues(alpha: 
                                     0.2,
                                   ),
                                 ),
@@ -1346,7 +1346,7 @@ class _PreviewPageState extends State<PreviewPage> {
                                     backgroundColor: theme
                                         .colorScheme
                                         .surfaceContainerHighest
-                                        .withOpacity(0.5),
+                                        .withValues(alpha: 0.5),
                                     foregroundColor:
                                         theme.colorScheme.onSurfaceVariant,
                                   ),
@@ -1437,12 +1437,12 @@ class _BreathingDotState extends State<BreathingDot>
           height: 8,
           decoration: BoxDecoration(
             shape: BoxShape.circle,
-            color: Colors.lightBlueAccent.withOpacity(
+            color: Colors.lightBlueAccent.withValues(alpha: 
               0.3 + (0.7 * _controller.value),
             ),
             boxShadow: [
               BoxShadow(
-                color: Colors.lightBlueAccent.withOpacity(
+                color: Colors.lightBlueAccent.withValues(alpha: 
                   0.3 * _controller.value,
                 ),
                 blurRadius: 4 + (6 * _controller.value),
@@ -1540,12 +1540,12 @@ class _PropertiesHeaderToggleState extends State<_PropertiesHeaderToggle> {
               borderRadius: BorderRadius.circular(12),
               border: Border.all(
                 color: _isHovered
-                    ? theme.colorScheme.primary.withOpacity(0.15)
-                    : theme.colorScheme.outline.withOpacity(0.08),
+                    ? theme.colorScheme.primary.withValues(alpha: 0.15)
+                    : theme.colorScheme.outline.withValues(alpha: 0.08),
               ),
               boxShadow: [
                 BoxShadow(
-                  color: Colors.black.withOpacity(_isHovered ? 0.08 : 0.03),
+                  color: Colors.black.withValues(alpha: _isHovered ? 0.08 : 0.03),
                   blurRadius: _isHovered ? 8 : 3,
                   offset: Offset(0, _isHovered ? 4 : 1),
                 ),
@@ -1558,7 +1558,7 @@ class _PropertiesHeaderToggleState extends State<_PropertiesHeaderToggle> {
                   size: 18,
                   color: _isHovered
                       ? theme.colorScheme.primary
-                      : theme.colorScheme.primary.withOpacity(0.8),
+                      : theme.colorScheme.primary.withValues(alpha: 0.8),
                 ),
                 const SizedBox(width: 10),
                 Expanded(
@@ -1567,7 +1567,7 @@ class _PropertiesHeaderToggleState extends State<_PropertiesHeaderToggle> {
                     style: TextStyle(
                       fontSize: 15,
                       fontWeight: FontWeight.w600,
-                      color: theme.colorScheme.onSurfaceVariant.withOpacity(
+                      color: theme.colorScheme.onSurfaceVariant.withValues(alpha: 
                         _isHovered ? 1.0 : 0.9,
                       ),
                       letterSpacing: 0.3,
@@ -1583,8 +1583,8 @@ class _PropertiesHeaderToggleState extends State<_PropertiesHeaderToggle> {
                   ),
                   decoration: BoxDecoration(
                     color: _isHovered
-                        ? theme.colorScheme.primary.withOpacity(0.12)
-                        : theme.colorScheme.primary.withOpacity(0.08),
+                        ? theme.colorScheme.primary.withValues(alpha: 0.12)
+                        : theme.colorScheme.primary.withValues(alpha: 0.08),
                     borderRadius: BorderRadius.circular(20),
                   ),
                   child: Text(
@@ -1592,7 +1592,7 @@ class _PropertiesHeaderToggleState extends State<_PropertiesHeaderToggle> {
                     style: TextStyle(
                       fontSize: 10,
                       fontWeight: FontWeight.bold,
-                      color: theme.colorScheme.primary.withOpacity(0.8),
+                      color: theme.colorScheme.primary.withValues(alpha: 0.8),
                     ),
                   ),
                 ),
@@ -1604,7 +1604,7 @@ class _PropertiesHeaderToggleState extends State<_PropertiesHeaderToggle> {
                   child: Icon(
                     Icons.keyboard_arrow_down_rounded,
                     size: 20,
-                    color: theme.colorScheme.onSurfaceVariant.withOpacity(
+                    color: theme.colorScheme.onSurfaceVariant.withValues(alpha: 
                       _isHovered ? 0.8 : 0.6,
                     ),
                   ),

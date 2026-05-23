@@ -45,7 +45,7 @@ class _ChatDemoPageState extends State<ChatDemoPage> {
       backgroundColor: Colors.transparent,
       isScrollControlled: true,
       enableDrag: true,
-      barrierColor: Colors.black.withOpacity(0.5),
+      barrierColor: Colors.black.withValues(alpha: 0.5),
       builder: (modalContext) {
         return BlocProvider.value(
           value: cubit,
@@ -57,7 +57,7 @@ class _ChatDemoPageState extends State<ChatDemoPage> {
                 top: Radius.circular(28),
               ),
               border: Border.all(
-                color: theme.colorScheme.outline.withOpacity(0.1),
+                color: theme.colorScheme.outline.withValues(alpha: 0.1),
               ),
             ),
             child: Column(
@@ -67,7 +67,7 @@ class _ChatDemoPageState extends State<ChatDemoPage> {
                   width: 36,
                   height: 4,
                   decoration: BoxDecoration(
-                    color: theme.colorScheme.onSurfaceVariant.withOpacity(0.3),
+                    color: theme.colorScheme.onSurfaceVariant.withValues(alpha: 0.3),
                     borderRadius: BorderRadius.circular(2),
                   ),
                 ),
@@ -116,7 +116,7 @@ class _ChatDemoPageState extends State<ChatDemoPage> {
                           color: theme.colorScheme.surfaceContainer,
                           borderRadius: BorderRadius.circular(24),
                           border: Border.all(
-                            color: theme.colorScheme.outline.withOpacity(0.1),
+                            color: theme.colorScheme.outline.withValues(alpha: 0.1),
                           ),
                         ),
                         padding: const EdgeInsets.all(16),
@@ -268,10 +268,10 @@ class _ChatDemoPageState extends State<ChatDemoPage> {
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(24),
         border: Border.all(
-          color: theme.colorScheme.outline.withOpacity(0.1),
+          color: theme.colorScheme.outline.withValues(alpha: 0.1),
           width: isCanvasExpanded ? 1.0 : 0.0,
         ),
-        color: theme.colorScheme.surfaceContainerLow.withOpacity(0.95),
+        color: theme.colorScheme.surfaceContainerLow.withValues(alpha: 0.95),
       ),
       child: LayoutBuilder(
         builder: (context, constraints) {
@@ -423,7 +423,7 @@ class _ChatDemoPageState extends State<ChatDemoPage> {
         decoration: BoxDecoration(
           color: theme.colorScheme.errorContainer,
           borderRadius: BorderRadius.circular(16),
-          border: Border.all(color: theme.colorScheme.error.withOpacity(0.3)),
+          border: Border.all(color: theme.colorScheme.error.withValues(alpha: 0.3)),
         ),
         child: Row(
           children: [
@@ -538,7 +538,7 @@ class _ChatDemoPageState extends State<ChatDemoPage> {
                 style: TextStyle(
                   fontSize: 14,
                   height: 1.5,
-                  color: theme.colorScheme.onSurfaceVariant.withOpacity(0.7),
+                  color: theme.colorScheme.onSurfaceVariant.withValues(alpha: 0.7),
                 ),
               ),
               const SizedBox(height: 48),
@@ -643,10 +643,10 @@ class _ChatDemoPageState extends State<ChatDemoPage> {
           margin: const EdgeInsets.symmetric(vertical: 8),
           padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
           decoration: BoxDecoration(
-            color: theme.colorScheme.errorContainer.withOpacity(0.4),
+            color: theme.colorScheme.errorContainer.withValues(alpha: 0.4),
             borderRadius: BorderRadius.circular(16),
             border: Border.all(
-              color: theme.colorScheme.error.withOpacity(0.3),
+              color: theme.colorScheme.error.withValues(alpha: 0.3),
             ),
           ),
           child: Row(
@@ -686,11 +686,11 @@ class _ChatDemoPageState extends State<ChatDemoPage> {
         padding: const EdgeInsets.all(12),
         decoration: BoxDecoration(
           color: showRaw
-              ? Colors.black.withOpacity(0.9)
+              ? Colors.black.withValues(alpha: 0.9)
               : theme.colorScheme.surfaceContainerLow,
           borderRadius: BorderRadius.circular(16),
           border: Border.all(
-            color: theme.colorScheme.outline.withOpacity(0.08),
+            color: theme.colorScheme.outline.withValues(alpha: 0.08),
           ),
         ),
         child: showRaw
@@ -831,28 +831,28 @@ class _ChatConsoleInputState extends State<ChatConsoleInput> {
 
         // Interactive highlights & glow effects
         final borderColor = _isTextFieldFocused
-            ? theme.colorScheme.primary.withOpacity(0.5)
+            ? theme.colorScheme.primary.withValues(alpha: 0.5)
             : (_isConsoleHovered
-                  ? theme.colorScheme.primary.withOpacity(0.25)
-                  : theme.colorScheme.outline.withOpacity(0.08));
+                  ? theme.colorScheme.primary.withValues(alpha: 0.25)
+                  : theme.colorScheme.outline.withValues(alpha: 0.08));
 
         final borderWidth = _isTextFieldFocused ? 1.5 : 1.0;
 
         final List<BoxShadow> shadows = [
           BoxShadow(
-            color: Colors.black.withOpacity(0.08),
+            color: Colors.black.withValues(alpha: 0.08),
             blurRadius: 16,
             offset: const Offset(0, 4),
           ),
           if (_isTextFieldFocused)
             BoxShadow(
-              color: theme.colorScheme.primary.withOpacity(0.12),
+              color: theme.colorScheme.primary.withValues(alpha: 0.12),
               blurRadius: 24,
               offset: const Offset(0, 0),
             )
           else if (_isConsoleHovered)
             BoxShadow(
-              color: theme.colorScheme.primary.withOpacity(0.04),
+              color: theme.colorScheme.primary.withValues(alpha: 0.04),
               blurRadius: 16,
               offset: const Offset(0, 2),
             ),
@@ -976,7 +976,7 @@ class _ChatConsoleInputState extends State<ChatConsoleInput> {
                                 onPressed: _submit,
                                 style: state.isThinking
                                     ? IconButton.styleFrom(
-                                        backgroundColor: Colors.red.withOpacity(
+                                        backgroundColor: Colors.red.withValues(alpha: 
                                           0.12,
                                         ),
                                       )
@@ -1098,10 +1098,10 @@ class _ChatConsoleInputState extends State<ChatConsoleInput> {
                 duration: const Duration(milliseconds: 150),
                 padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
                 decoration: BoxDecoration(
-                  color: theme.colorScheme.surfaceContainerHighest.withOpacity(0.35),
+                  color: theme.colorScheme.surfaceContainerHighest.withValues(alpha: 0.35),
                   borderRadius: BorderRadius.circular(14),
                   border: Border.all(
-                    color: theme.colorScheme.primary.withOpacity(0.18),
+                    color: theme.colorScheme.primary.withValues(alpha: 0.18),
                   ),
                 ),
                 child: Row(
@@ -1139,7 +1139,7 @@ class _ChatConsoleInputState extends State<ChatConsoleInput> {
                       Container(
                         padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
                         decoration: BoxDecoration(
-                          color: theme.colorScheme.tertiary.withOpacity(0.15),
+                          color: theme.colorScheme.tertiary.withValues(alpha: 0.15),
                           borderRadius: BorderRadius.circular(6),
                         ),
                         child: Text(
@@ -1156,7 +1156,7 @@ class _ChatConsoleInputState extends State<ChatConsoleInput> {
                     Icon(
                       Icons.chevron_right_rounded,
                       size: 16,
-                      color: theme.colorScheme.onSurfaceVariant.withOpacity(0.5),
+                      color: theme.colorScheme.onSurfaceVariant.withValues(alpha: 0.5),
                     ),
                   ],
                 ),
@@ -1185,7 +1185,7 @@ class _ChatConsoleInputState extends State<ChatConsoleInput> {
                 color: theme.colorScheme.surfaceContainerLow,
                 borderRadius: const BorderRadius.vertical(top: Radius.circular(28)),
                 border: Border.all(
-                  color: theme.colorScheme.outline.withOpacity(0.1),
+                  color: theme.colorScheme.outline.withValues(alpha: 0.1),
                 ),
               ),
               child: Column(
@@ -1199,7 +1199,7 @@ class _ChatConsoleInputState extends State<ChatConsoleInput> {
                       width: 36,
                       height: 4,
                       decoration: BoxDecoration(
-                        color: theme.colorScheme.onSurfaceVariant.withOpacity(0.3),
+                        color: theme.colorScheme.onSurfaceVariant.withValues(alpha: 0.3),
                         borderRadius: BorderRadius.circular(2),
                       ),
                     ),
@@ -1244,16 +1244,16 @@ class _ChatConsoleInputState extends State<ChatConsoleInput> {
                               fontSize: 10,
                               fontWeight: FontWeight.bold,
                               letterSpacing: 1.5,
-                              color: theme.colorScheme.onSurfaceVariant.withOpacity(0.6),
+                              color: theme.colorScheme.onSurfaceVariant.withValues(alpha: 0.6),
                             ),
                           ),
                           const SizedBox(height: 10),
                           Container(
                             decoration: BoxDecoration(
-                              color: theme.colorScheme.surfaceContainerHighest.withOpacity(0.4),
+                              color: theme.colorScheme.surfaceContainerHighest.withValues(alpha: 0.4),
                               borderRadius: BorderRadius.circular(16),
                               border: Border.all(
-                                color: theme.colorScheme.outline.withOpacity(0.08),
+                                color: theme.colorScheme.outline.withValues(alpha: 0.08),
                               ),
                             ),
                             child: Column(
@@ -1272,7 +1272,7 @@ class _ChatConsoleInputState extends State<ChatConsoleInput> {
                                   height: 1,
                                   indent: 16,
                                   endIndent: 16,
-                                  color: theme.colorScheme.outline.withOpacity(0.08),
+                                  color: theme.colorScheme.outline.withValues(alpha: 0.08),
                                 ),
                                 _ThemeModeRadioTile(
                                   title: 'Multiple Themes',
@@ -1295,7 +1295,7 @@ class _ChatConsoleInputState extends State<ChatConsoleInput> {
                               fontSize: 10,
                               fontWeight: FontWeight.bold,
                               letterSpacing: 1.5,
-                              color: theme.colorScheme.onSurfaceVariant.withOpacity(0.6),
+                              color: theme.colorScheme.onSurfaceVariant.withValues(alpha: 0.6),
                             ),
                           ),
                           const SizedBox(height: 10),
@@ -1331,13 +1331,13 @@ class _ChatConsoleInputState extends State<ChatConsoleInput> {
                                   padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 9),
                                   decoration: BoxDecoration(
                                     color: isSelected
-                                        ? theme.colorScheme.primary.withOpacity(0.12)
-                                        : theme.colorScheme.surfaceContainerHighest.withOpacity(0.4),
+                                        ? theme.colorScheme.primary.withValues(alpha: 0.12)
+                                        : theme.colorScheme.surfaceContainerHighest.withValues(alpha: 0.4),
                                     borderRadius: BorderRadius.circular(12),
                                     border: Border.all(
                                       color: isSelected
-                                          ? theme.colorScheme.primary.withOpacity(0.5)
-                                          : theme.colorScheme.outline.withOpacity(0.1),
+                                          ? theme.colorScheme.primary.withValues(alpha: 0.5)
+                                          : theme.colorScheme.outline.withValues(alpha: 0.1),
                                       width: isSelected ? 1.5 : 1.0,
                                     ),
                                   ),
@@ -1379,13 +1379,13 @@ class _ChatConsoleInputState extends State<ChatConsoleInput> {
                               padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 13),
                               decoration: BoxDecoration(
                                 color: _includePrimitives
-                                    ? theme.colorScheme.tertiary.withOpacity(0.08)
-                                    : theme.colorScheme.surfaceContainerHighest.withOpacity(0.4),
+                                    ? theme.colorScheme.tertiary.withValues(alpha: 0.08)
+                                    : theme.colorScheme.surfaceContainerHighest.withValues(alpha: 0.4),
                                 borderRadius: BorderRadius.circular(16),
                                 border: Border.all(
                                   color: _includePrimitives
-                                      ? theme.colorScheme.tertiary.withOpacity(0.4)
-                                      : theme.colorScheme.outline.withOpacity(0.08),
+                                      ? theme.colorScheme.tertiary.withValues(alpha: 0.4)
+                                      : theme.colorScheme.outline.withValues(alpha: 0.08),
                                 ),
                               ),
                               child: Row(
@@ -1402,7 +1402,7 @@ class _ChatConsoleInputState extends State<ChatConsoleInput> {
                                       border: Border.all(
                                         color: _includePrimitives
                                             ? theme.colorScheme.tertiary
-                                            : theme.colorScheme.outline.withOpacity(0.4),
+                                            : theme.colorScheme.outline.withValues(alpha: 0.4),
                                         width: 1.5,
                                       ),
                                     ),
@@ -1432,7 +1432,7 @@ class _ChatConsoleInputState extends State<ChatConsoleInput> {
                                           'Add core layout & text primitives to the registry',
                                           style: TextStyle(
                                             fontSize: 11,
-                                            color: theme.colorScheme.onSurfaceVariant.withOpacity(0.6),
+                                            color: theme.colorScheme.onSurfaceVariant.withValues(alpha: 0.6),
                                           ),
                                         ),
                                       ],
@@ -1496,7 +1496,7 @@ class _ChatConsoleInputState extends State<ChatConsoleInput> {
             color: theme.colorScheme.surfaceContainerLow,
             borderRadius: const BorderRadius.vertical(top: Radius.circular(28)),
             border: Border.all(
-              color: theme.colorScheme.outline.withOpacity(0.1),
+              color: theme.colorScheme.outline.withValues(alpha: 0.1),
             ),
           ),
           child: Column(
@@ -1544,10 +1544,10 @@ class _ChatConsoleInputState extends State<ChatConsoleInput> {
                     width: double.infinity,
                     padding: const EdgeInsets.all(16),
                     decoration: BoxDecoration(
-                      color: Colors.black.withOpacity(0.04),
+                      color: Colors.black.withValues(alpha: 0.04),
                       borderRadius: BorderRadius.circular(16),
                       border: Border.all(
-                        color: theme.colorScheme.outline.withOpacity(0.08),
+                        color: theme.colorScheme.outline.withValues(alpha: 0.08),
                       ),
                     ),
                     child: SelectableText(
@@ -1617,16 +1617,16 @@ class _ConsoleUtilityCardState extends State<_ConsoleUtilityCard> {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final cardColor = widget.isToggle && _toggleState
-        ? theme.colorScheme.primary.withOpacity(0.08)
+        ? theme.colorScheme.primary.withValues(alpha: 0.08)
         : (_isHovered && widget.isEnabled
-              ? theme.colorScheme.surfaceContainerHighest.withOpacity(0.8)
-              : theme.colorScheme.surfaceContainerHighest.withOpacity(0.3));
+              ? theme.colorScheme.surfaceContainerHighest.withValues(alpha: 0.8)
+              : theme.colorScheme.surfaceContainerHighest.withValues(alpha: 0.3));
 
     final borderColor = widget.isToggle && _toggleState
-        ? theme.colorScheme.primary.withOpacity(0.4)
+        ? theme.colorScheme.primary.withValues(alpha: 0.4)
         : (_isHovered && widget.isEnabled
-              ? theme.colorScheme.primary.withOpacity(0.2)
-              : theme.colorScheme.outline.withOpacity(0.08));
+              ? theme.colorScheme.primary.withValues(alpha: 0.2)
+              : theme.colorScheme.outline.withValues(alpha: 0.08));
 
     return Opacity(
       opacity: widget.isEnabled ? 1.0 : 0.4,
@@ -1682,7 +1682,7 @@ class _ConsoleUtilityCardState extends State<_ConsoleUtilityCard> {
                           borderRadius: BorderRadius.circular(9),
                           color: _toggleState
                               ? theme.colorScheme.primary
-                              : theme.colorScheme.outline.withOpacity(0.3),
+                              : theme.colorScheme.outline.withValues(alpha: 0.3),
                         ),
                         child: AnimatedAlign(
                           duration: const Duration(milliseconds: 150),
@@ -1715,7 +1715,7 @@ class _ConsoleUtilityCardState extends State<_ConsoleUtilityCard> {
                   widget.subtitle,
                   style: TextStyle(
                     fontSize: 9,
-                    color: theme.colorScheme.onSurfaceVariant.withOpacity(0.6),
+                    color: theme.colorScheme.onSurfaceVariant.withValues(alpha: 0.6),
                   ),
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,
@@ -1762,13 +1762,13 @@ class _PresetPromptCardState extends State<_PresetPromptCard> {
             padding: const EdgeInsets.all(16),
             decoration: BoxDecoration(
               color: _isHovered
-                  ? theme.colorScheme.primary.withOpacity(0.04)
-                  : theme.colorScheme.surfaceContainerLow.withOpacity(0.6),
+                  ? theme.colorScheme.primary.withValues(alpha: 0.04)
+                  : theme.colorScheme.surfaceContainerLow.withValues(alpha: 0.6),
               borderRadius: BorderRadius.circular(16),
               border: Border.all(
                 color: _isHovered
-                    ? theme.colorScheme.primary.withOpacity(0.3)
-                    : theme.colorScheme.outline.withOpacity(0.08),
+                    ? theme.colorScheme.primary.withValues(alpha: 0.3)
+                    : theme.colorScheme.outline.withValues(alpha: 0.08),
                 width: 1.0,
               ),
             ),
@@ -1792,7 +1792,7 @@ class _PresetPromptCardState extends State<_PresetPromptCard> {
                     widget.prompt,
                     style: TextStyle(
                       fontSize: 12,
-                      color: theme.colorScheme.onSurfaceVariant.withOpacity(
+                      color: theme.colorScheme.onSurfaceVariant.withValues(alpha: 
                         0.8,
                       ),
                       height: 1.3,
@@ -1836,7 +1836,7 @@ class _ThemeModeRadioTile extends StatelessWidget {
         padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
         decoration: BoxDecoration(
           color: selected
-              ? theme.colorScheme.primary.withOpacity(0.06)
+              ? theme.colorScheme.primary.withValues(alpha: 0.06)
               : Colors.transparent,
           borderRadius: BorderRadius.circular(16),
         ),
@@ -1854,7 +1854,7 @@ class _ThemeModeRadioTile extends StatelessWidget {
                 border: Border.all(
                   color: selected
                       ? theme.colorScheme.primary
-                      : theme.colorScheme.outline.withOpacity(0.4),
+                      : theme.colorScheme.outline.withValues(alpha: 0.4),
                   width: 2,
                 ),
               ),
@@ -1891,7 +1891,7 @@ class _ThemeModeRadioTile extends StatelessWidget {
                     subtitle,
                     style: TextStyle(
                       fontSize: 11,
-                      color: theme.colorScheme.onSurfaceVariant.withOpacity(0.6),
+                      color: theme.colorScheme.onSurfaceVariant.withValues(alpha: 0.6),
                     ),
                   ),
                 ],

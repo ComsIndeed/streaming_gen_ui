@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:llm_json_stream/llm_json_stream.dart';
 import 'package:streaming_gen_ui/src/widgets/accumulating_string_stream_builder.dart';
 import 'package:streaming_gen_ui/src/widgets/core/streaming_entrance.dart';
+import 'package:streaming_gen_ui/src/widgets/core/themed_streaming_text.dart';
 
 /// A utility widget that progressively listens to and accumulates a specific
 /// text property from a [PropertyStream].
@@ -9,6 +10,7 @@ class StreamingText extends StatefulWidget {
   final PropertyStream props;
   final String propertyName;
   final String initialValue;
+  final String themeName;
   final Widget Function(BuildContext context, String accumulatedText)? builder;
 
   const StreamingText({
@@ -16,6 +18,7 @@ class StreamingText extends StatefulWidget {
     required this.props,
     this.propertyName = 'content',
     this.initialValue = '',
+    this.themeName = 'material',
     this.builder,
   });
 
@@ -71,7 +74,10 @@ class _StreamingTextState extends State<StreamingText> {
               if (widget.builder != null) {
                 return widget.builder!(context, accumulatedText);
               }
-              return Text(accumulatedText);
+              return ThemedStreamingText(
+                accumulatedText,
+                themeName: widget.themeName,
+              );
             },
           );
         },

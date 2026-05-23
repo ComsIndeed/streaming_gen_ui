@@ -44,9 +44,9 @@ class _CatalogSearchBarState extends State<CatalogSearchBar> {
     return Container(
       constraints: const BoxConstraints(maxWidth: 420),
       decoration: BoxDecoration(
-        color: theme.colorScheme.surfaceContainerHighest.withOpacity(0.4),
+        color: theme.colorScheme.surfaceContainerHighest.withValues(alpha: 0.4),
         borderRadius: BorderRadius.circular(32),
-        border: Border.all(color: theme.colorScheme.outline.withOpacity(0.12)),
+        border: Border.all(color: theme.colorScheme.outline.withValues(alpha: 0.12)),
       ),
       child: TextField(
         controller: _controller,
@@ -56,12 +56,12 @@ class _CatalogSearchBarState extends State<CatalogSearchBar> {
           hintText: "Search widgets...",
           isDense: true,
           hintStyle: TextStyle(
-            color: theme.colorScheme.onSurfaceVariant.withOpacity(0.5),
+            color: theme.colorScheme.onSurfaceVariant.withValues(alpha: 0.5),
             fontSize: 14,
           ),
           prefixIcon: Icon(
             Icons.search_rounded,
-            color: theme.colorScheme.onSurfaceVariant.withOpacity(0.5),
+            color: theme.colorScheme.onSurfaceVariant.withValues(alpha: 0.5),
             size: 20,
           ),
           suffixIcon: widget.value.isNotEmpty

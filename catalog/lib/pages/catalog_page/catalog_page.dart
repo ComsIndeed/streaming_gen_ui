@@ -135,8 +135,8 @@ class _CatalogPageState extends State<CatalogPage> {
                                 style: TextStyle(
                                   fontSize: isMobile ? 14 : 18,
                                   fontWeight: FontWeight.bold,
-                                  color: theme.colorScheme.onSurfaceVariant.withOpacity(
-                                    0.7,
+                                  color: theme.colorScheme.onSurfaceVariant.withValues(
+                                    alpha: 0.7,
                                   ),
                                   letterSpacing: 2.0,
                                 ),
@@ -160,15 +160,13 @@ class _CatalogPageState extends State<CatalogPage> {
                     // 2. Search Bar & Theme Switcher
                     Row(
                       children: [
-                        Expanded(
-                          child: CatalogSearchBar(
-                            value: searchQuery,
-                            onChanged: (val) {
-                              setState(() {
-                                searchQuery = val;
-                              });
-                            },
-                          ),
+                        CatalogSearchBar(
+                          value: searchQuery,
+                          onChanged: (val) {
+                            setState(() {
+                              searchQuery = val;
+                            });
+                          },
                         ),
                         const SizedBox(width: 12),
                         _buildThemeToggleButton(context),
@@ -177,52 +175,33 @@ class _CatalogPageState extends State<CatalogPage> {
                     const SizedBox(height: 20),
 
                     // 3. Responsive Dropdowns
-                    LayoutBuilder(
-                      builder: (context, constraints) {
-                        final isNarrow = constraints.maxWidth < 600;
-                        final dropdownChildren = [
-                          Expanded(
-                            flex: isNarrow ? 0 : 1,
-                            child: _buildDropdown(
-                              context: context,
-                              label: "DESIGN THEME",
-                              value: selectedTheme ?? "All Themes",
-                              items: ["All Themes", ...themes],
-                              onChanged: (val) {
-                                setState(() {
-                                  selectedTheme = val == "All Themes" ? null : val;
-                                });
-                              },
-                            ),
-                          ),
-                          SizedBox(width: isNarrow ? 0 : 16, height: isNarrow ? 12 : 0),
-                          Expanded(
-                            flex: isNarrow ? 0 : 1,
-                            child: _buildDropdown(
-                              context: context,
-                              label: "WIDGET UI TYPE",
-                              value: selectedWidgetType ?? "All Widgets",
-                              items: ["All Widgets", ...widgetTypes],
-                              onChanged: (val) {
-                                setState(() {
-                                  selectedWidgetType = val == "All Widgets" ? null : val;
-                                });
-                              },
-                            ),
-                          ),
-                        ];
-
-                        if (isNarrow) {
-                          return Column(
-                            crossAxisAlignment: CrossAxisAlignment.stretch,
-                            children: dropdownChildren.map((e) => e is Expanded ? e.child : e).toList(),
-                          );
-                        } else {
-                          return Row(
-                            children: dropdownChildren,
-                          );
-                        }
-                      },
+                    Wrap(
+                      spacing: 16,
+                      runSpacing: 12,
+                      children: [
+                        _buildDropdown(
+                          context: context,
+                          label: "DESIGN THEME",
+                          value: selectedTheme ?? "All Themes",
+                          items: ["All Themes", ...themes],
+                          onChanged: (val) {
+                            setState(() {
+                              selectedTheme = val == "All Themes" ? null : val;
+                            });
+                          },
+                        ),
+                        _buildDropdown(
+                          context: context,
+                          label: "WIDGET UI TYPE",
+                          value: selectedWidgetType ?? "All Widgets",
+                          items: ["All Widgets", ...widgetTypes],
+                          onChanged: (val) {
+                            setState(() {
+                              selectedWidgetType = val == "All Widgets" ? null : val;
+                            });
+                          },
+                        ),
+                      ],
                     ),
                     const SizedBox(height: 24),
                   ],
@@ -244,7 +223,7 @@ class _CatalogPageState extends State<CatalogPage> {
                               Icons.search_off_rounded,
                               size: 48,
                               color: theme.colorScheme.onSurfaceVariant
-                                  .withOpacity(0.4),
+                                  .withValues(alpha: 0.4),
                             ),
                             const SizedBox(height: 16),
                             Text(
@@ -252,7 +231,7 @@ class _CatalogPageState extends State<CatalogPage> {
                               style: TextStyle(
                                   fontSize: 16,
                                   color: theme.colorScheme.onSurfaceVariant
-                                      .withOpacity(0.6)),
+                                      .withValues(alpha: 0.6)),
                             ),
                           ],
                         ),
@@ -296,31 +275,24 @@ class _CatalogPageState extends State<CatalogPage> {
     final theme = Theme.of(context);
     final isDark = theme.brightness == Brightness.dark;
 
-    return Container(
-      decoration: BoxDecoration(
-        color: theme.colorScheme.surfaceContainerHighest.withOpacity(0.4),
-        shape: BoxShape.circle,
-        border: Border.all(color: theme.colorScheme.outline.withOpacity(0.12)),
-      ),
-      child: ValueListenableBuilder<ThemeMode>(
-        valueListenable: themeNotifier,
-        builder: (context, currentMode, _) {
-          return IconButton(
-            icon: Icon(
-              isDark ? Icons.light_mode_rounded : Icons.dark_mode_rounded,
-              color: isDark ? Colors.amber.shade300 : theme.colorScheme.primary,
-            ),
-            tooltip: "Toggle Light/Dark Theme",
-            onPressed: () {
-              if (isDark) {
-                themeNotifier.value = ThemeMode.light;
-              } else {
-                themeNotifier.value = ThemeMode.dark;
-              }
-            },
-          );
-        },
-      ),
+    return ValueListenableBuilder<ThemeMode>(
+      valueListenable: themeNotifier,
+      builder: (context, currentMode, _) {
+        return IconButton(
+          icon: Icon(
+            isDark ? Icons.light_mode_outlined : Icons.dark_mode_outlined,
+            color: theme.colorScheme.onSurfaceVariant.withValues(alpha: 0.7),
+          ),
+          tooltip: "Toggle Light/Dark Theme",
+          onPressed: () {
+            if (isDark) {
+              themeNotifier.value = ThemeMode.light;
+            } else {
+              themeNotifier.value = ThemeMode.dark;
+            }
+          },
+        );
+      },
     );
   }
 
@@ -341,7 +313,7 @@ class _CatalogPageState extends State<CatalogPage> {
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(16),
           side: BorderSide(
-            color: theme.colorScheme.outline.withOpacity(0.12),
+            color: theme.colorScheme.outline.withValues(alpha: 0.12),
           ),
         ),
         elevation: 6,
@@ -376,12 +348,13 @@ class _CatalogPageState extends State<CatalogPage> {
           }).toList();
         },
         child: Container(
+          width: 220,
           padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
           decoration: BoxDecoration(
-            color: theme.colorScheme.surfaceContainerHighest.withOpacity(0.4),
+            color: theme.colorScheme.surfaceContainerHighest.withValues(alpha: 0.4),
             borderRadius: BorderRadius.circular(24),
             border: Border.all(
-              color: theme.colorScheme.outline.withOpacity(0.12),
+              color: theme.colorScheme.outline.withValues(alpha: 0.12),
             ),
           ),
           child: Row(
@@ -396,7 +369,7 @@ class _CatalogPageState extends State<CatalogPage> {
                     style: TextStyle(
                       fontSize: 10,
                       fontWeight: FontWeight.bold,
-                      color: theme.colorScheme.onSurfaceVariant.withOpacity(0.5),
+                      color: theme.colorScheme.onSurfaceVariant.withValues(alpha: 0.5),
                       letterSpacing: 0.5,
                     ),
                   ),
@@ -414,7 +387,7 @@ class _CatalogPageState extends State<CatalogPage> {
               Icon(
                 Icons.keyboard_arrow_down_rounded,
                 size: 18,
-                color: theme.colorScheme.onSurfaceVariant.withOpacity(0.7),
+                color: theme.colorScheme.onSurfaceVariant.withValues(alpha: 0.7),
               ),
             ],
           ),

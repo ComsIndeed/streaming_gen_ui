@@ -108,7 +108,8 @@ class _CatalogCardState extends State<CatalogCard> {
                     child: Image.network(
                       _getBackgroundImage(widget.catalogItem.namespace),
                       fit: BoxFit.cover,
-                      errorBuilder: (context, error, stackTrace) => const SizedBox.shrink(),
+                      errorBuilder: (context, error, stackTrace) =>
+                          const SizedBox.shrink(),
                     ),
                   ),
                 ),
@@ -133,7 +134,10 @@ class _CatalogCardState extends State<CatalogCard> {
                       gradient: LinearGradient(
                         transform: const GradientRotation(pi * 1.5),
                         stops: const [0.0, 0.3],
-                        colors: [Colors.black.withAlpha(90), Colors.transparent],
+                        colors: [
+                          Colors.black.withAlpha(30),
+                          Colors.transparent,
+                        ],
                       ),
                     ),
                   ),

@@ -69,17 +69,17 @@ class _CustomUserProfileCardState extends State<CustomUserProfileCard> {
                 padding: const EdgeInsets.all(16),
                 decoration: BoxDecoration(
                   // ignore: deprecated_member_use
-                  color: color.withOpacity(0.06),
+                  color: color.withValues(alpha: 0.06),
                   borderRadius: BorderRadius.circular(16),
                   border: Border.all(
                     // ignore: deprecated_member_use
-                    color: color.withOpacity(0.25),
+                    color: color.withValues(alpha: 0.25),
                     width: 1.5,
                   ),
                   boxShadow: [
                     BoxShadow(
                       // ignore: deprecated_member_use
-                      color: color.withOpacity(0.04),
+                      color: color.withValues(alpha: 0.04),
                       blurRadius: 16,
                       offset: const Offset(0, 8),
                     ),
@@ -99,7 +99,7 @@ class _CustomUserProfileCardState extends State<CustomUserProfileCard> {
                         height: 44,
                         decoration: BoxDecoration(
                           // ignore: deprecated_member_use
-                          color: color.withOpacity(0.12),
+                          color: color.withValues(alpha: 0.12),
                           shape: BoxShape.circle,
                         ),
                         child: Icon(
@@ -139,7 +139,7 @@ class _CustomUserProfileCardState extends State<CustomUserProfileCard> {
                                   fontSize: 13,
                                   // ignore: deprecated_member_use
                                   color: theme.colorScheme.onSurface
-                                      .withOpacity(0.6),
+                                      .withValues(alpha: 0.6),
                                   fontWeight: FontWeight.w500,
                                 ),
                               ),
@@ -178,12 +178,12 @@ class CustomHotelCard extends StatelessWidget {
           borderRadius: BorderRadius.circular(16),
           border: Border.all(
             // ignore: deprecated_member_use
-            color: theme.colorScheme.outline.withOpacity(0.08),
+            color: theme.colorScheme.outline.withValues(alpha: 0.08),
           ),
           boxShadow: [
             BoxShadow(
               // ignore: deprecated_member_use
-              color: Colors.black.withOpacity(0.03),
+              color: Colors.black.withValues(alpha: 0.03),
               blurRadius: 12,
               offset: const Offset(0, 6),
             ),
@@ -244,7 +244,7 @@ class CustomHotelCard extends StatelessWidget {
                                 size: 14,
                                 color: hasRating
                                     ? Colors.white
-                                    : theme.colorScheme.onSurface.withOpacity(
+                                    : theme.colorScheme.onSurface.withValues(alpha: 
                                         0.3,
                                       ),
                               ),
@@ -254,7 +254,7 @@ class CustomHotelCard extends StatelessWidget {
                                 style: TextStyle(
                                   color: hasRating
                                       ? Colors.white
-                                      : theme.colorScheme.onSurface.withOpacity(
+                                      : theme.colorScheme.onSurface.withValues(alpha: 
                                           0.4,
                                         ),
                                   fontSize: 12,
@@ -279,7 +279,7 @@ class CustomHotelCard extends StatelessWidget {
                       fontSize: 13,
                       height: 1.4,
                       // ignore: deprecated_member_use
-                      color: theme.colorScheme.onSurface.withOpacity(0.6),
+                      color: theme.colorScheme.onSurface.withValues(alpha: 0.6),
                     ),
                   ),
                 ),

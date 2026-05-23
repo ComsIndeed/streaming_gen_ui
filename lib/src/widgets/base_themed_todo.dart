@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:llm_json_stream/llm_json_stream.dart';
 import 'package:streaming_gen_ui/src/widgets/theme_style_helper.dart';
 import 'package:streaming_gen_ui/src/widgets/core/streaming_entrance.dart';
+import 'package:streaming_gen_ui/src/widgets/core/themed_streaming_text.dart';
 
 /// A premium themed Todo & Checklists card supporting M3, Fluent, Apple,
 /// Glassmorphic, Neumorphic, Skeuomorphic, and Neo-Brutalist design systems.
@@ -157,8 +158,9 @@ class _BaseThemedTodoCardState extends State<BaseThemedTodoCard> {
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              Text(
+              ThemedStreamingText(
                 title,
+                themeName: widget.themeName,
                 style: titleStyle.copyWith(fontSize: 16),
               ),
               const Icon(Icons.playlist_add_check, size: 20),
@@ -235,8 +237,9 @@ class _BaseThemedTodoCardState extends State<BaseThemedTodoCard> {
                             child: Column(
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
-                                Text(
+                                ThemedStreamingText(
                                   text,
+                                  themeName: widget.themeName,
                                   style: subStyle.copyWith(
                                     fontSize: 13,
                                     decoration: completed ? TextDecoration.lineThrough : null,

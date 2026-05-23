@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:llm_json_stream/llm_json_stream.dart';
 import 'package:streaming_gen_ui/src/widgets/theme_style_helper.dart';
 import 'package:streaming_gen_ui/src/widgets/core/streaming_entrance.dart';
+import 'package:streaming_gen_ui/src/widgets/core/themed_streaming_text.dart';
 import 'package:streaming_gen_ui/src/widgets/base_streaming_image.dart';
 
 /// A premium themed Standalone Todo / Reminder / Note card supporting
@@ -212,8 +213,9 @@ class _BaseThemedNoteCardState extends State<BaseThemedNoteCard> {
               ),
               const SizedBox(width: 8),
               Expanded(
-                child: Text(
+                child: ThemedStreamingText(
                   title,
+                  themeName: widget.themeName,
                   style: titleStyle.copyWith(
                     fontSize: 16,
                     decoration: completed ? TextDecoration.lineThrough : null,
@@ -236,8 +238,9 @@ class _BaseThemedNoteCardState extends State<BaseThemedNoteCard> {
           const SizedBox(height: 12),
           // Content block
           if (content.isNotEmpty)
-            Text(
+            ThemedStreamingText(
               content,
+              themeName: widget.themeName,
               style: subStyle.copyWith(
                 fontSize: 14,
                 color: themeData.colorScheme.onSurface.withValues(alpha: 0.85),

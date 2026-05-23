@@ -4,6 +4,7 @@ export 'src/models/view_state.dart';
 export 'src/models/generative_ui_config.dart';
 export 'src/widgets/accumulating_string_stream_builder.dart';
 export 'src/widgets/core/streaming_text.dart';
+export 'src/widgets/core/themed_streaming_text.dart';
 export 'src/widgets/core/streaming_entrance.dart';
 export 'src/widgets/registries/registries.dart';
 export 'src/widgets/streaming_widget.dart';

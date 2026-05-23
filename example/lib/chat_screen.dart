@@ -340,7 +340,7 @@ class _ChatScreenState extends State<ChatScreen> {
           height: _showApiKey ? 120 : 45,
           color: Theme.of(
             context,
-          ).colorScheme.primaryContainer.withOpacity(0.4),
+          ).colorScheme.primaryContainer.withValues(alpha: 0.4),
           child: SingleChildScrollView(
             physics: const NeverScrollableScrollPhysics(),
             child: Padding(
@@ -503,7 +503,7 @@ class _ChatScreenState extends State<ChatScreen> {
                             size: 64,
                             color: Theme.of(
                               context,
-                            ).colorScheme.primary.withOpacity(0.5),
+                            ).colorScheme.primary.withValues(alpha: 0.5),
                           ),
                           const SizedBox(height: 16),
                           const Text(
@@ -519,7 +519,7 @@ class _ChatScreenState extends State<ChatScreen> {
                             style: TextStyle(
                               color: Theme.of(
                                 context,
-                              ).colorScheme.onSurface.withOpacity(0.6),
+                              ).colorScheme.onSurface.withValues(alpha: 0.6),
                             ),
                           ),
                           Text(
@@ -527,7 +527,7 @@ class _ChatScreenState extends State<ChatScreen> {
                             style: TextStyle(
                               color: Theme.of(
                                 context,
-                              ).colorScheme.onSurface.withOpacity(0.6),
+                              ).colorScheme.onSurface.withValues(alpha: 0.6),
                             ),
                           ),
                         ],
@@ -580,7 +580,7 @@ class _ChatScreenState extends State<ChatScreen> {
                                         ? Theme.of(context)
                                               .colorScheme
                                               .onPrimary
-                                              .withOpacity(0.7)
+                                              .withValues(alpha: 0.7)
                                         : Theme.of(context).colorScheme.primary,
                                   ),
                                 ),
@@ -614,7 +614,7 @@ class _ChatScreenState extends State<ChatScreen> {
                                         color: Theme.of(context)
                                             .colorScheme
                                             .onSurface
-                                            .withOpacity(0.5),
+                                            .withValues(alpha: 0.5),
                                         fontStyle: FontStyle.italic,
                                       ),
                                     )
@@ -673,12 +673,12 @@ class _ChatScreenState extends State<ChatScreen> {
                 decoration: BoxDecoration(
                   color: Theme.of(
                     context,
-                  ).colorScheme.surfaceContainerHighest.withOpacity(0.5),
+                  ).colorScheme.surfaceContainerHighest.withValues(alpha: 0.5),
                   borderRadius: BorderRadius.circular(24),
                   border: Border.all(
                     color: Theme.of(
                       context,
-                    ).colorScheme.outline.withOpacity(0.2),
+                    ).colorScheme.outline.withValues(alpha: 0.2),
                   ),
                 ),
                 child: Row(
@@ -722,17 +722,17 @@ class _ChatScreenState extends State<ChatScreen> {
                   color: _lockScrollToBottom
                       ? Theme.of(
                           context,
-                        ).colorScheme.primaryContainer.withOpacity(0.5)
+                        ).colorScheme.primaryContainer.withValues(alpha: 0.5)
                       : Theme.of(
                           context,
-                        ).colorScheme.surfaceContainerHighest.withOpacity(0.5),
+                        ).colorScheme.surfaceContainerHighest.withValues(alpha: 0.5),
                   borderRadius: BorderRadius.circular(24),
                   border: Border.all(
                     color: _lockScrollToBottom
-                        ? Theme.of(context).colorScheme.primary.withOpacity(0.3)
+                        ? Theme.of(context).colorScheme.primary.withValues(alpha: 0.3)
                         : Theme.of(
                             context,
-                          ).colorScheme.outline.withOpacity(0.2),
+                          ).colorScheme.outline.withValues(alpha: 0.2),
                   ),
                 ),
                 child: IconButton(
@@ -745,7 +745,7 @@ class _ChatScreenState extends State<ChatScreen> {
                         ? Theme.of(context).colorScheme.primary
                         : Theme.of(
                             context,
-                          ).colorScheme.onSurfaceVariant.withOpacity(0.4),
+                          ).colorScheme.onSurfaceVariant.withValues(alpha: 0.4),
                   ),
                   onPressed: () {
                     setState(() {

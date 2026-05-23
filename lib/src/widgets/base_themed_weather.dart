@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:llm_json_stream/llm_json_stream.dart';
 import 'package:streaming_gen_ui/src/widgets/theme_style_helper.dart';
 import 'package:streaming_gen_ui/src/widgets/core/streaming_entrance.dart';
+import 'package:streaming_gen_ui/src/widgets/core/themed_streaming_text.dart';
 
 /// A premium themed Weather Card supporting M3, Fluent, Apple, Glassmorphic,
 /// Neumorphic, Skeuomorphic, and Neo-Brutalist design systems.
@@ -217,16 +218,18 @@ class _BaseThemedWeatherCardState extends State<BaseThemedWeatherCard> {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   mainAxisSize: MainAxisSize.min,
                   children: [
-                    Text(
+                    ThemedStreamingText(
                       location,
+                      themeName: widget.themeName,
                       style: textTitleStyle.copyWith(
                         color: textContrastColor,
                         fontSize: 16,
                       ),
                     ),
                     const SizedBox(height: 2),
-                    Text(
+                    ThemedStreamingText(
                       condition.toUpperCase(),
+                      themeName: widget.themeName,
                       style: textSubStyle.copyWith(
                         color: textContrastColor.withValues(alpha: 0.8),
                         fontSize: 11,
@@ -282,8 +285,9 @@ class _BaseThemedWeatherCardState extends State<BaseThemedWeatherCard> {
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        Text(
+                        ThemedStreamingText(
                           location,
+                          themeName: widget.themeName,
                           style: textTitleStyle.copyWith(
                             color: textContrastColor,
                             fontSize: 22,
@@ -291,8 +295,9 @@ class _BaseThemedWeatherCardState extends State<BaseThemedWeatherCard> {
                           overflow: TextOverflow.ellipsis,
                         ),
                         const SizedBox(height: 4),
-                        Text(
+                        ThemedStreamingText(
                           condition.toUpperCase(),
+                          themeName: widget.themeName,
                           style: textSubStyle.copyWith(
                             color: textContrastColor.withValues(alpha: 0.8),
                             fontSize: 12,

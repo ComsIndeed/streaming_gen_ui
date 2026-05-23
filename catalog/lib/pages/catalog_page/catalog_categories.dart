@@ -38,12 +38,12 @@ class CatalogCategories extends StatelessWidget {
                   side: BorderSide(
                     color: isSelected
                         ? Colors.transparent
-                        : theme.colorScheme.outline.withOpacity(0.12),
+                        : theme.colorScheme.outline.withValues(alpha: 0.12),
                   ),
                 ),
                 color: isSelected
                     ? theme.colorScheme.primary
-                    : theme.colorScheme.surfaceContainerHighest.withOpacity(
+                    : theme.colorScheme.surfaceContainerHighest.withValues(alpha: 
                         0.4,
                       ),
                 clipBehavior: Clip.antiAlias,

@@ -1,6 +1,5 @@
 import 'dart:convert';
 import 'package:flutter/material.dart';
-import 'package:streaming_gen_ui/streaming_gen_ui.dart';
 import 'package:streaming_gen_ui_widget_catalog/core/models/widget_catalog_item.dart';
 
 class PropertyEditable extends StatefulWidget {
@@ -94,9 +93,9 @@ class _PropertyEditableState extends State<PropertyEditable> {
       decoration: ShapeDecoration(
         shape: RoundedSuperellipseBorder(
           borderRadius: BorderRadius.circular(16),
-          side: BorderSide(color: theme.colorScheme.outline.withOpacity(0.08)),
+          side: BorderSide(color: theme.colorScheme.outline.withValues(alpha: 0.08)),
         ),
-        color: theme.colorScheme.surfaceContainerLow.withOpacity(0.4),
+        color: theme.colorScheme.surfaceContainerLow.withValues(alpha: 0.4),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -121,7 +120,7 @@ class _PropertyEditableState extends State<PropertyEditable> {
                     propertyDesc,
                     style: TextStyle(
                       fontSize: 12,
-                      color: theme.colorScheme.onSurfaceVariant.withOpacity(
+                      color: theme.colorScheme.onSurfaceVariant.withValues(alpha: 
                         0.7,
                       ),
                     ),
@@ -207,7 +206,7 @@ class _PropertyEditableState extends State<PropertyEditable> {
           ),
           const SizedBox(height: 12),
           DropdownButtonFormField<String>(
-            value: ["core:text", "core:badge"].contains(namespace)
+            initialValue: ["core:text", "core:badge"].contains(namespace)
                 ? namespace
                 : "custom",
             decoration: InputDecoration(
@@ -286,7 +285,7 @@ class _PropertyEditableState extends State<PropertyEditable> {
             ),
             const SizedBox(height: 10),
             DropdownButtonFormField<String>(
-              value: map["style"] as String? ?? "neutral",
+              initialValue: map["style"] as String? ?? "neutral",
               decoration: InputDecoration(
                 labelText: "Style",
                 isDense: true,
@@ -414,11 +413,11 @@ class _PropertyEditableState extends State<PropertyEditable> {
         border: OutlineInputBorder(
           borderRadius: BorderRadius.circular(12),
           borderSide: BorderSide(
-            color: theme.colorScheme.outline.withOpacity(0.2),
+            color: theme.colorScheme.outline.withValues(alpha: 0.2),
           ),
         ),
         filled: true,
-        fillColor: theme.colorScheme.surfaceContainerHighest.withOpacity(0.2),
+        fillColor: theme.colorScheme.surfaceContainerHighest.withValues(alpha: 0.2),
         contentPadding: const EdgeInsets.all(12),
       ),
     );
@@ -458,13 +457,13 @@ class _PropertyEditableState extends State<PropertyEditable> {
                       color: isSelected
                           ? theme.colorScheme.primary
                           : isWhite
-                          ? theme.colorScheme.outline.withOpacity(0.2)
+                          ? theme.colorScheme.outline.withValues(alpha: 0.2)
                           : Colors.transparent,
                       width: isSelected ? 3.0 : 1.0,
                     ),
                     boxShadow: [
                       BoxShadow(
-                        color: Colors.black.withOpacity(0.08),
+                        color: Colors.black.withValues(alpha: 0.08),
                         blurRadius: 4,
                         offset: const Offset(0, 2),
                       ),
@@ -508,7 +507,7 @@ class _PropertyEditableState extends State<PropertyEditable> {
       value: val,
       title: const Text("Enable Mode", style: TextStyle(fontSize: 14)),
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-      tileColor: theme.colorScheme.surfaceContainerHighest.withOpacity(0.15),
+      tileColor: theme.colorScheme.surfaceContainerHighest.withValues(alpha: 0.15),
       contentPadding: const EdgeInsets.symmetric(horizontal: 16),
       onChanged: (newVal) => _updateValue(newVal),
     );
