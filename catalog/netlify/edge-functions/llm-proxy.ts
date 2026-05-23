@@ -31,10 +31,11 @@ export default async (request: Request, context: Context) => {
 
   // 2. Setup CORS headers
   const corsOrigin = isOriginAllowed ? requestOrigin : "https://streaming.vincentsanicolas.me";
+  const requestedHeaders = request.headers.get("access-control-request-headers") || "Content-Type, Authorization, X-Client-ID";
   const corsHeaders = {
     "Access-Control-Allow-Origin": corsOrigin,
     "Access-Control-Allow-Methods": "POST, OPTIONS",
-    "Access-Control-Allow-Headers": "Content-Type, Authorization, X-Client-ID",
+    "Access-Control-Allow-Headers": requestedHeaders,
   };
 
   // 3. Handle OPTIONS preflight request
