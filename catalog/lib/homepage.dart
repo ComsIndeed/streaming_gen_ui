@@ -15,10 +15,41 @@ class _HomepageState extends State<Homepage> {
   late final PageController pageController;
   double pageOffset = 0.0;
 
+  bool _shouldShowChatDemo() {
+    try {
+      final uri = Uri.base;
+      final path = uri.path.toLowerCase();
+      final fragment = uri.fragment.toLowerCase();
+
+      // Check query parameters (e.g. ?chat-demo, ?chat, ?page=chat-demo)
+      if (uri.queryParameters.containsKey('chat-demo') ||
+          uri.queryParameters.containsKey('chat') ||
+          uri.queryParameters['page'] == 'chat' ||
+          uri.queryParameters['page'] == 'chat-demo') {
+        return true;
+      }
+
+      // Check path (e.g. /chat-demo, /chat_demo)
+      if (path.contains('chat-demo') || path.contains('chat_demo')) {
+        return true;
+      }
+
+      // Check hash fragment (e.g. #/chat-demo, #chat-demo)
+      if (fragment.contains('chat-demo') || fragment.contains('chat_demo')) {
+        return true;
+      }
+    } catch (e) {
+      // Fail-safe default
+    }
+    return false;
+  }
+
   @override
   void initState() {
     super.initState();
-    pageController = PageController(initialPage: 0);
+    final initialPage = _shouldShowChatDemo() ? 1 : 0;
+    pageController = PageController(initialPage: initialPage);
+    pageOffset = initialPage.toDouble();
     pageController.addListener(() {
       if (mounted && pageController.hasClients) {
         setState(() {

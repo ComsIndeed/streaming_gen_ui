@@ -4,3 +4,8 @@
 [[edge_functions]]
 path = "/api/llm-proxy/*"
 function = "llm-proxy"
+
+[[redirects]]
+  from = "/*"
+  to = "/index.html"
+  status = 200

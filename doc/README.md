@@ -2,98 +2,21 @@
 
 ### The Streaming Generative UI Engine for Flutter
 
-Render interactive Flutter widgets progressively as raw LLM token streams flow
-in character-by-character without waiting for a complete JSON response.
+Render widgets progressively as LLM streams flow in character-by-character
+without waiting for a complete JSON response.
 
 [![pub.dev](https://img.shields.io/pub/v/streaming_gen_ui.svg)](https://pub.dev/packages/streaming_gen_ui)
 [![License: MIT](https://img.shields.io/badge/license-MIT-blue.svg)](https://opensource.org/licenses/MIT)
 
-[API Docs](https://pub.dev/documentation/streaming_gen_ui/latest/) ·
+![streaming_gen_ui in action](https://raw.githubusercontent.com/ComsIndeed/streaming_gen_ui/main/doc/gifs/chat-demo-1_small.gif)
+
 [GitHub](https://github.com/ComsIndeed/streaming-gen-ui) ·
-[Widget Catalog](https://streaming-gen-ui.web.app)
+[Widget Catalog](https://streaming.vincentsanicolas.me) ·
+[Test](https://streaming.vincentsanicolas.me)
 
 ---
 
-<!--
-  GIF: hero_streaming_chat.gif
-  Show a full end-to-end stream. LLM streams normal text, then an <interface> block opens.
-  A profile card builds itself character-by-character — text types in, a button fades from
-  grey/disabled to active blue the instant the action property resolves.
-  Keep it under 8 seconds. Loop cleanly.
--->
-
-![streaming_gen_ui in action](https://raw.githubusercontent.com/ComsIndeed/streaming-gen-ui/main/demos/hero_streaming_chat.gif)
-
 ---
-
-## The Problem
-
-When an LLM outputs a UI as JSON, you're typically forced to:
-
-1. Wait for the **entire JSON payload** to finish generating
-2. `jsonDecode()` it all at once
-3. Build the widget tree in a single frame — everything pops in at once
-
-For long or complex widgets, this means a multi-second blank spinner followed by
-a jarring layout snap.
-
-## The Solution
-
-`streaming_gen_ui` parses and renders widgets **as tokens arrive**. Text streams
-in like a typewriter. Nested widgets mount and fill in progressively. Buttons
-start disabled and activate the millisecond their action property resolves. No
-waiting. No pop-in.
-
-Mix conversational Markdown text and dynamic UI components freely in the same
-stream — the engine separates and renders them in the correct chronological
-order automatically.
-
----
-
-## Quick Start
-
-```yaml
-dependencies:
-  streaming_gen_ui: ^0.0.1
-```
-
-```dart
-import 'package:streaming_gen_ui/streaming_gen_ui.dart';
-
-// 1. Instantiate with a registry
-final genUi = StreamingGenerativeUi(
-  registry: Registries.essentials,
-);
-
-// 2. Inject the auto-generated prompt fragment into your LLM system prompt
-final systemPrompt = genUi.registry.systemPromptFragment;
-
-// 3. Pipe the live token stream in
-await genUi.stream(
-  llmTokenStream,
-  viewId: 'message-42',
-  onComplete: (raw) => db.save(raw),
-);
-
-// 4. Place the reactive view anywhere in your widget tree
-genUi.view('message-42')
-```
-
-The LLM wraps UI components in `<interface>` tags anywhere in its response:
-
-```
-Here's the profile card you asked for:
-
-<interface>{"namespace":"core:card","child":{"namespace":"core:column","children":[
-  {"namespace":"core:text","content":"Vincent"},
-  {"namespace":"core:elevated_button","child":{"namespace":"core:text","content":"Save"},"action":"save_profile"}
-]}}</interface>
-
-Let me know if you'd like any changes!
-```
-
-The text renders as Markdown. The widget renders progressively. Both appear in
-order.
 
 ---
 

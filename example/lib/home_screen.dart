@@ -119,6 +119,35 @@ class _HomeScreenState extends State<HomeScreen> {
     });
   }
 
+  bool _shouldShowChatDemo() {
+    try {
+      final uri = Uri.base;
+      final path = uri.path.toLowerCase();
+      final fragment = uri.fragment.toLowerCase();
+
+      // Check query parameters (e.g. ?chat-demo, ?chat, ?page=chat-demo)
+      if (uri.queryParameters.containsKey('chat-demo') ||
+          uri.queryParameters.containsKey('chat') ||
+          uri.queryParameters['page'] == 'chat' ||
+          uri.queryParameters['page'] == 'chat-demo') {
+        return true;
+      }
+
+      // Check path (e.g. /chat-demo, /chat_demo)
+      if (path.contains('chat-demo') || path.contains('chat_demo')) {
+        return true;
+      }
+
+      // Check hash fragment (e.g. #/chat-demo, #chat-demo)
+      if (fragment.contains('chat-demo') || fragment.contains('chat_demo')) {
+        return true;
+      }
+    } catch (e) {
+      // Fail-safe
+    }
+    return false;
+  }
+
   @override
   Widget build(BuildContext context) {
     const textStyle = TextStyle(
@@ -129,6 +158,7 @@ class _HomeScreenState extends State<HomeScreen> {
 
     return DefaultTabController(
       length: 2,
+      initialIndex: _shouldShowChatDemo() ? 1 : 0,
       child: Scaffold(
         appBar: AppBar(
           title: const Text('Generative UI Playground'),
