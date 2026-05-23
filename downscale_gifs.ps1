@@ -1,4 +1,10 @@
 $gifDir = "doc/gifs"
+
+Write-Host "Cleaning up old downscaled variants..."
+Get-ChildItem -Path $gifDir -Filter "*_small.gif" | Remove-Item -ErrorAction SilentlyContinue
+Get-ChildItem -Path $gifDir -Filter "*_medium.gif" | Remove-Item -ErrorAction SilentlyContinue
+Get-ChildItem -Path $gifDir -Filter "*_large.gif" | Remove-Item -ErrorAction SilentlyContinue
+
 $gifs = Get-ChildItem -Path $gifDir -Filter "*.gif"
 
 foreach ($gif in $gifs) {
@@ -10,7 +16,7 @@ foreach ($gif in $gifs) {
     $dir = $gif.DirectoryName
 
     Write-Host "=========================================="
-    Write-Host "Processing: $($gif.Name)"
+    Write-Host "Processing: $($gif.Name) ($($gif.Length / 1MB -as [int])MB)"
     Write-Host "=========================================="
 
     # Small: 320px
@@ -18,15 +24,15 @@ foreach ($gif in $gifs) {
     Write-Host "-> Generating small (320px)..."
     ffmpeg -y -loglevel warning -i $gif.FullName -vf "scale=320:-1:flags=lanczos,split[s0][s1];[s0]palettegen[p];[s1][p]paletteuse" $smallOut
 
-    # Medium: 640px
+    # Medium: 480px
     $mediumOut = Join-Path $dir "$($baseName)_medium.gif"
-    Write-Host "-> Generating medium (640px)..."
-    ffmpeg -y -loglevel warning -i $gif.FullName -vf "scale=640:-1:flags=lanczos,split[s0][s1];[s0]palettegen[p];[s1][p]paletteuse" $mediumOut
+    Write-Host "-> Generating medium (480px)..."
+    ffmpeg -y -loglevel warning -i $gif.FullName -vf "scale=480:-1:flags=lanczos,split[s0][s1];[s0]palettegen[p];[s1][p]paletteuse" $mediumOut
 
-    # Large: 960px
+    # Large: 640px
     $largeOut = Join-Path $dir "$($baseName)_large.gif"
-    Write-Host "-> Generating large (960px)..."
-    ffmpeg -y -loglevel warning -i $gif.FullName -vf "scale=960:-1:flags=lanczos,split[s0][s1];[s0]palettegen[p];[s1][p]paletteuse" $largeOut
+    Write-Host "-> Generating large (640px)..."
+    ffmpeg -y -loglevel warning -i $gif.FullName -vf "scale=640:-1:flags=lanczos,split[s0][s1];[s0]palettegen[p];[s1][p]paletteuse" $largeOut
     
     Write-Host "Finished $($gif.Name)"
 }
