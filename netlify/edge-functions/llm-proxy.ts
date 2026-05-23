@@ -12,82 +12,6 @@ function isAllowedOrigin(origin: string): boolean {
   return false;
 }
 
-// In-memory rate limiting maps
-const rateLimitMap = new Map<string, { count: number; resetTime: number }>();
-const dailyLimitMap = new Map<string, { count: number; resetTime: number }>();
-
-const RATE_LIMIT_COUNT = 15; // Max 15 requests per minute
-const RATE_LIMIT_WINDOW_MS = 60 * 1000; // 1 minute
-
-const DAILY_LIMIT_COUNT = 60; // 60 requests per day (daily allowance)
-const DAILY_LIMIT_WINDOW_MS = 24 * 60 * 60 * 1000; // 24 hours
-
-function cleanMaps() {
-  const now = Date.now();
-  for (const [key, value] of rateLimitMap.entries()) {
-    if (now > value.resetTime) {
-      rateLimitMap.delete(key);
-    }
-  }
-  for (const [key, value] of dailyLimitMap.entries()) {
-    if (now > value.resetTime) {
-      dailyLimitMap.delete(key);
-    }
-  }
-}
-
-function checkRateLimit(ip: string) {
-  cleanMaps();
-  const now = Date.now();
-
-  // 1. Minute Limit check
-  let minData = rateLimitMap.get(ip);
-  if (!minData || now > minData.resetTime) {
-    minData = { count: 0, resetTime: now + RATE_LIMIT_WINDOW_MS };
-    rateLimitMap.set(ip, minData);
-  }
-
-  // 2. Daily Limit check
-  let dailyData = dailyLimitMap.get(ip);
-  if (!dailyData || now > dailyData.resetTime) {
-    dailyData = { count: 0, resetTime: now + DAILY_LIMIT_WINDOW_MS };
-    dailyLimitMap.set(ip, dailyData);
-  }
-
-  const minReset = Math.ceil((minData.resetTime - now) / 1000);
-  const dailyResetHours = Math.ceil((dailyData.resetTime - now) / (60 * 60 * 1000));
-
-  const headers = {
-    "X-RateLimit-Limit": String(RATE_LIMIT_COUNT),
-    "X-RateLimit-Remaining": String(Math.max(0, RATE_LIMIT_COUNT - minData.count - 1)),
-    "X-RateLimit-Reset": String(minReset),
-    "X-DailyLimit-Limit": String(DAILY_LIMIT_COUNT),
-    "X-DailyLimit-Remaining": String(Math.max(0, DAILY_LIMIT_COUNT - dailyData.count - 1)),
-    "X-DailyLimit-Reset-Hours": String(dailyResetHours),
-  };
-
-  if (minData.count >= RATE_LIMIT_COUNT) {
-    return {
-      allowed: false,
-      reason: `Too many requests. Please try again in ${minReset} seconds.`,
-      headers,
-    };
-  }
-
-  if (dailyData.count >= DAILY_LIMIT_COUNT) {
-    return {
-      allowed: false,
-      reason: `Daily prompt limit reached (${DAILY_LIMIT_COUNT} prompts/day). Reset in ${dailyResetHours} hours.`,
-      headers,
-    };
-  }
-
-  minData.count++;
-  dailyData.count++;
-
-  return { allowed: true, headers };
-}
-
 export default async (request: Request, context: Context) => {
   const requestOrigin = request.headers.get("origin") || "";
   const isOriginAllowed = isAllowedOrigin(requestOrigin);
@@ -121,43 +45,14 @@ export default async (request: Request, context: Context) => {
     });
   }
 
-  // 4. Rate Limiting checks (Minute and Daily Allowance)
-  const ip = context.ip || request.headers.get("x-nf-client-connection-ip") || "unknown";
-  const clientId = request.headers.get("x-client-id") || ip;
-  const limitResult = checkRateLimit(clientId);
-
-  if (!limitResult.allowed) {
-    return new Response(
-      JSON.stringify({ error: limitResult.reason }),
-      {
-        status: 429,
-        headers: {
-          "Content-Type": "application/json",
-          ...corsHeaders,
-          ...limitResult.headers,
-        },
-      }
-    );
-  }
-
   // Parse and prepare LLM Endpoint / Credentials
   let requestBody = await request.text();
-  let targetUrl = "https://api.deepseek.com/v1/chat/completions";
-  let targetApiKey = Deno.env.get("DEEPSEEK_API_KEY");
-  let isGroq = false;
-  let requestedModel = "deepseek-v4-flash";
+  const targetUrl = "https://api.deepseek.com/v1/chat/completions";
+  const targetApiKey = Deno.env.get("DEEPSEEK_API_KEY");
 
   try {
     const bodyObj = JSON.parse(requestBody);
-    if (bodyObj.model) {
-      requestedModel = bodyObj.model;
-      if (bodyObj.model.includes("llama") || bodyObj.model.includes("groq")) {
-        targetUrl = "https://api.groq.com/openai/v1/chat/completions";
-        targetApiKey = Deno.env.get("GROQ_API_KEY");
-        isGroq = true;
-        bodyObj.model = "llama-3.1-8b-instant";
-      }
-    }
+    bodyObj.model = "deepseek-chat";
     // Limit output generation to 50,000 tokens max to protect budget from loops
     bodyObj.max_tokens = Math.min(bodyObj.max_tokens || 50000, 50000);
     requestBody = JSON.stringify(bodyObj);
@@ -169,17 +64,15 @@ export default async (request: Request, context: Context) => {
   const discordWebhookUrl = Deno.env.get("DISCORD_WEBHOOK_URL");
 
   if (!apiKey) {
-    const providerName = isGroq ? "GROQ" : "DEEPSEEK";
     return new Response(
       JSON.stringify({
-        error: `${providerName}_API_KEY environment variable is not defined on Netlify.`,
+        error: "DEEPSEEK_API_KEY environment variable is not defined on Netlify.",
       }),
       {
         status: 500,
         headers: {
           "Content-Type": "application/json",
           ...corsHeaders,
-          ...limitResult.headers,
         },
       },
     );
@@ -203,7 +96,6 @@ export default async (request: Request, context: Context) => {
       headers: {
         "Content-Type": "application/json",
         ...corsHeaders,
-        ...limitResult.headers,
       },
     });
   }
@@ -250,7 +142,7 @@ export default async (request: Request, context: Context) => {
         }
 
         // Process token usage statistics asynchronously in the background
-        processMetadata(accumulatedText, requestedModel, discordWebhookUrl).catch((err) => {
+        processMetadata(accumulatedText, "deepseek-chat", discordWebhookUrl).catch((err) => {
           console.error("Error processing metadata or sending to Discord:", err);
         });
       } catch (error) {
@@ -265,7 +157,6 @@ export default async (request: Request, context: Context) => {
       "Cache-Control": "no-cache",
       "Connection": "keep-alive",
       ...corsHeaders,
-      ...limitResult.headers,
     },
   });
 };
@@ -298,20 +189,14 @@ async function processMetadata(accumulatedText: string, modelName: string, webho
     }
   }
 
-  const isLlama = modelName.includes("llama") || modelName.includes("groq");
-  const modelDisplayName = isLlama ? "Llama 3.1 8B (Groq)" : "DeepSeek V3";
+  const modelDisplayName = "DeepSeek V3";
   let costUSD = 0;
 
-  if (isLlama) {
-    // Groq Llama 3.1 8B pricing: $0.05 per 1M input tokens, $0.08 per 1M output tokens
-    costUSD = (promptTokens * 0.05 + completionTokens * 0.08) / 1000000;
-  } else {
-    // DeepSeek V3 pricing
-    const cacheMissTokens = Math.max(0, promptTokens - cachedTokens);
-    costUSD =
-        (cachedTokens * 0.14 + cacheMissTokens * 0.55 + completionTokens * 2.19) /
-        1000000;
-  }
+  // DeepSeek V3 pricing
+  const cacheMissTokens = Math.max(0, promptTokens - cachedTokens);
+  costUSD =
+      (cachedTokens * 0.14 + cacheMissTokens * 0.55 + completionTokens * 2.19) /
+      1000000;
 
   // USD to PHP Exchange Rate
   const exchangeRate = 58.50;
@@ -327,7 +212,7 @@ async function processMetadata(accumulatedText: string, modelName: string, webho
     embeds: [
       {
         title: `⚡ Generative UI Streaming Session (${modelDisplayName})`,
-        color: isLlama ? 0xf58220 : 0x003fad, // Orange for Llama/Groq, Blue for DeepSeek
+        color: 0x003fad, // Blue for DeepSeek
         fields: [
           {
             name: "📥 Prompt Tokens",

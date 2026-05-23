@@ -38,7 +38,6 @@ class ChatDemoState {
   final bool isThinking;
   final String? errorMessage;
   final bool showRawResponse;
-  final String selectedModel;
 
   const ChatDemoState({
     required this.textBoxMode,
@@ -47,7 +46,6 @@ class ChatDemoState {
     required this.isThinking,
     this.errorMessage,
     this.showRawResponse = false,
-    this.selectedModel = 'deepseek-v4-flash',
   });
 
   ChatDemoState copyWith({
@@ -57,7 +55,6 @@ class ChatDemoState {
     bool? isThinking,
     String? errorMessage,
     bool? showRawResponse,
-    String? selectedModel,
   }) {
     return ChatDemoState(
       textBoxMode: textBoxMode ?? this.textBoxMode,
@@ -66,7 +63,6 @@ class ChatDemoState {
       isThinking: isThinking ?? this.isThinking,
       errorMessage: errorMessage ?? this.errorMessage,
       showRawResponse: showRawResponse ?? this.showRawResponse,
-      selectedModel: selectedModel ?? this.selectedModel,
     );
   }
 
@@ -76,7 +72,6 @@ class ChatDemoState {
     List<DemoMessage>? messages,
     bool? isThinking,
     bool? showRawResponse,
-    String? selectedModel,
   }) {
     return ChatDemoState(
       textBoxMode: textBoxMode ?? this.textBoxMode,
@@ -85,7 +80,6 @@ class ChatDemoState {
       isThinking: isThinking ?? this.isThinking,
       errorMessage: null,
       showRawResponse: showRawResponse ?? this.showRawResponse,
-      selectedModel: selectedModel ?? this.selectedModel,
     );
   }
 }
@@ -101,7 +95,6 @@ class ChatDemoCubit extends Cubit<ChatDemoState> {
 
   final List<ChatMessage> _history = [];
   ChatAgentService? _agentService;
-  String? _lastModelUsed;
 
   StreamSubscription<String>? _currentStreamSubscription;
   StreamController<String>? _currentResponseController;
@@ -113,7 +106,6 @@ class ChatDemoCubit extends Cubit<ChatDemoState> {
           canvasMode: CanvasMode.hidden,
           messages: [],
           isThinking: false,
-          selectedModel: 'deepseek-v4-flash',
         ),
       ) {
     _history.add(ChatMessage.system(systemPrompt));
@@ -195,14 +187,6 @@ ${generativeUi.systemPrompt}
     emit(state.copyWith(showRawResponse: !state.showRawResponse));
   }
 
-  void cycleModel() {
-    if (state.isThinking) return; // Disable model cycling during streaming
-    final nextModel = state.selectedModel == 'deepseek-v4-flash'
-        ? 'llama-3.1-8b-instant'
-        : 'deepseek-v4-flash';
-    emit(state.copyWith(selectedModel: nextModel));
-  }
-
   void stopResponse() {
     if (state.isThinking) {
       _currentStreamSubscription?.cancel();
@@ -223,12 +207,11 @@ ${generativeUi.systemPrompt}
     _history.add(ChatMessage.system(systemPrompt));
     generativeUi.disposeView('canvas-ui');
     emit(
-      ChatDemoState(
+      const ChatDemoState(
         textBoxMode: TextBoxMode.textfield,
         canvasMode: CanvasMode.hidden,
         messages: [],
         isThinking: false,
-        selectedModel: state.selectedModel,
       ),
     );
   }
@@ -252,9 +235,8 @@ ${generativeUi.systemPrompt}
 
     // 2. Instantiate Agent Service (checks API key)
     try {
-      if (_agentService == null || _lastModelUsed != state.selectedModel) {
-        _agentService = ChatAgentService.create(modelName: state.selectedModel);
-        _lastModelUsed = state.selectedModel;
+      if (_agentService == null) {
+        _agentService = ChatAgentService.create();
       }
     } catch (e) {
       emit(state.copyWith(errorMessage: e.toString(), isThinking: false));

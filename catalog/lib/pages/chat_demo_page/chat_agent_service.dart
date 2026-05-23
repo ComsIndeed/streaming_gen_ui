@@ -9,9 +9,7 @@ class ChatAgentService {
 
   ChatAgentService._(this._agent);
 
-  /// Factory constructor to create and configure the Agent.
-  /// Throws an ArgumentError if the API Key is missing.
-  factory ChatAgentService.create({String modelName = 'deepseek-v4-flash'}) {
+  factory ChatAgentService.create() {
     const proxyUrl = String.fromEnvironment('NETLIFY_PROXY_URL');
     final String apiKey;
     final Uri baseUrl;
@@ -20,19 +18,15 @@ class ChatAgentService {
       apiKey = 'proxy-placeholder';
       baseUrl = Uri.parse(proxyUrl);
     } else {
-      final key = _getApiKey(modelName);
-      final isLlama = modelName.contains('llama') || modelName.contains('groq');
-      final String keyName = isLlama ? 'GROQ_API_KEY' : 'DEEPSEEK_API_KEY';
+      final key = _getApiKey();
       if (key == null || key.isEmpty) {
         throw ArgumentError(
-          'Missing $keyName environment variable or NETLIFY_PROXY_URL. '
-          'Please define it via Platform environment or --dart-define=$keyName=your_key.',
+          'Missing DEEPSEEK_API_KEY environment variable or NETLIFY_PROXY_URL. '
+          'Please define it via Platform environment or --dart-define=DEEPSEEK_API_KEY=your_key.',
         );
       }
       apiKey = key;
-      baseUrl = isLlama
-          ? Uri.parse('https://api.groq.com/openai/v1')
-          : Uri.parse('https://api.deepseek.com/v1');
+      baseUrl = Uri.parse('https://api.deepseek.com/v1');
     }
 
     final provider = DeduplicatedOpenAIProvider(
@@ -190,7 +184,7 @@ class ChatAgentService {
 
     final agent = Agent.forProvider(
       provider,
-      chatModelName: modelName,
+      chatModelName: 'deepseek-chat',
       tools: tools,
       enableThinking: false,
     );
@@ -206,17 +200,12 @@ class ChatAgentService {
         .map((chunk) => chunk.output);
   }
 
-  static String? _getApiKey(String modelName) {
-    final isLlama = modelName.contains('llama') || modelName.contains('groq');
-    final String keyName = isLlama ? 'GROQ_API_KEY' : 'DEEPSEEK_API_KEY';
-
-    final envKey = isLlama
-        ? const String.fromEnvironment('GROQ_API_KEY')
-        : const String.fromEnvironment('DEEPSEEK_API_KEY');
+  static String? _getApiKey() {
+    const envKey = String.fromEnvironment('DEEPSEEK_API_KEY');
     if (envKey.isNotEmpty) return envKey;
 
     if (!kIsWeb) {
-      return Platform.environment[keyName];
+      return Platform.environment['DEEPSEEK_API_KEY'];
     }
     return null;
   }
@@ -238,14 +227,8 @@ class ThinkingDisabledHttpClient extends http.BaseClient {
         final bodyString = request.body;
         final bodyJson = jsonDecode(bodyString);
         if (bodyJson is Map<String, dynamic>) {
-          final model = bodyJson['model'] as String?;
-          if (model != null && (model.contains('llama') || model.contains('groq'))) {
-            bodyJson.remove('thinking');
-            bodyJson.remove('reasoning_effort');
-          } else {
-            bodyJson['thinking'] = {'type': 'disabled'};
-            bodyJson.remove('reasoning_effort');
-          }
+          bodyJson['thinking'] = {'type': 'disabled'};
+          bodyJson.remove('reasoning_effort');
           final newBodyString = jsonEncode(bodyJson);
           final newRequest = http.Request(request.method, request.url)
             ..headers.addAll(request.headers)
