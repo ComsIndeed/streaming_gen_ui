@@ -1104,7 +1104,9 @@ class _PreviewPageState extends State<PreviewPage> {
               // 1. Sandbox Stream Display
               Positioned.fill(
                 child: Padding(
-                  padding: const EdgeInsets.all(48),
+                  padding: isMobile
+                      ? const EdgeInsets.fromLTRB(16, 16, 16, 80)
+                      : const EdgeInsets.all(48),
                   child: FittedBox(
                     fit: BoxFit.contain,
                     child: KeyedSubtree(
@@ -1122,9 +1124,9 @@ class _PreviewPageState extends State<PreviewPage> {
 
               // 2. Playback Floating Control Bar & Tab Switcher Side-by-Side
               Positioned(
-                bottom: 24,
-                left: 24,
-                right: 24,
+                bottom: isMobile ? 12 : 24,
+                left: isMobile ? 12 : 24,
+                right: isMobile ? 12 : 24,
                 child: Align(
                   alignment: Alignment.bottomCenter,
                   child: SingleChildScrollView(
@@ -1135,9 +1137,9 @@ class _PreviewPageState extends State<PreviewPage> {
                         // Pill 1: Streaming Controls Pill
                         ElasticWrapper(
                           child: Container(
-                            padding: const EdgeInsets.symmetric(
-                              horizontal: 16,
-                              vertical: 8,
+                            padding: EdgeInsets.symmetric(
+                              horizontal: isMobile ? 8 : 16,
+                              vertical: isMobile ? 4 : 8,
                             ),
                             decoration: ShapeDecoration(
                               shape: RoundedSuperellipseBorder(
@@ -1158,34 +1160,37 @@ class _PreviewPageState extends State<PreviewPage> {
                               children: [
                                 // Live indicator
                                 const BreathingDot(),
-                                const SizedBox(width: 8),
-                                Text(
-                                  _isStreaming
-                                      ? (_isPaused ? "PAUSED" : "STREAMING")
-                                      : "COMPLETED",
-                                  style: TextStyle(
-                                    fontSize: 11,
-                                    fontWeight: FontWeight.bold,
-                                    letterSpacing: 1.0,
-                                    color: theme.colorScheme.onSurfaceVariant,
+                                if (!isMobile) ...[
+                                  const SizedBox(width: 8),
+                                  Text(
+                                    _isStreaming
+                                        ? (_isPaused ? "PAUSED" : "STREAMING")
+                                        : "COMPLETED",
+                                    style: TextStyle(
+                                      fontSize: 11,
+                                      fontWeight: FontWeight.bold,
+                                      letterSpacing: 1.0,
+                                      color: theme.colorScheme.onSurfaceVariant,
+                                    ),
                                   ),
-                                ),
-                                const SizedBox(width: 12),
-                                Container(
-                                  width: 1,
-                                  height: 18,
-                                  color: theme.colorScheme.outline.withValues(alpha: 
-                                    0.2,
+                                  const SizedBox(width: 12),
+                                  Container(
+                                    width: 1,
+                                    height: 18,
+                                    color: theme.colorScheme.outline.withValues(alpha: 
+                                      0.2,
+                                    ),
                                   ),
-                                ),
+                                ],
                                 const SizedBox(width: 4),
 
                                 // Chunk size adjuster
                                 IconButton(
                                   visualDensity: VisualDensity.compact,
+                                  iconSize: isMobile ? 14 : 16,
+                                  padding: isMobile ? const EdgeInsets.all(2) : const EdgeInsets.all(8),
                                   icon: const Icon(
                                     Icons.remove_rounded,
-                                    size: 16,
                                   ),
                                   tooltip: "Decrease Chunk Size",
                                   onPressed: () {
@@ -1199,15 +1204,17 @@ class _PreviewPageState extends State<PreviewPage> {
                                 ),
                                 Text(
                                   "$_chunkSize",
-                                  style: const TextStyle(
-                                    fontSize: 11,
+                                  style: TextStyle(
+                                    fontSize: isMobile ? 9 : 11,
                                     fontWeight: FontWeight.bold,
                                     fontFamily: 'monospace',
                                   ),
                                 ),
                                 IconButton(
                                   visualDensity: VisualDensity.compact,
-                                  icon: const Icon(Icons.add_rounded, size: 16),
+                                  iconSize: isMobile ? 14 : 16,
+                                  padding: isMobile ? const EdgeInsets.all(2) : const EdgeInsets.all(8),
+                                  icon: const Icon(Icons.add_rounded),
                                   tooltip: "Increase Chunk Size",
                                   onPressed: () {
                                     if (_chunkSize < 50) {
@@ -1231,9 +1238,10 @@ class _PreviewPageState extends State<PreviewPage> {
                                 // Interval Speed Adjuster
                                 IconButton(
                                   visualDensity: VisualDensity.compact,
+                                  iconSize: isMobile ? 14 : 16,
+                                  padding: isMobile ? const EdgeInsets.all(2) : const EdgeInsets.all(8),
                                   icon: const Icon(
                                     Icons.remove_rounded,
-                                    size: 16,
                                   ),
                                   tooltip: "Speed Up Stream (Reduce Interval)",
                                   onPressed: () {
@@ -1247,15 +1255,17 @@ class _PreviewPageState extends State<PreviewPage> {
                                 ),
                                 Text(
                                   "${_intervalMs}ms",
-                                  style: const TextStyle(
-                                    fontSize: 11,
+                                  style: TextStyle(
+                                    fontSize: isMobile ? 9 : 11,
                                     fontWeight: FontWeight.bold,
                                     fontFamily: 'monospace',
                                   ),
                                 ),
                                 IconButton(
                                   visualDensity: VisualDensity.compact,
-                                  icon: const Icon(Icons.add_rounded, size: 16),
+                                  iconSize: isMobile ? 14 : 16,
+                                  padding: isMobile ? const EdgeInsets.all(2) : const EdgeInsets.all(8),
+                                  icon: const Icon(Icons.add_rounded),
                                   tooltip:
                                       "Slow Down Stream (Increase Interval)",
                                   onPressed: () {
@@ -1280,6 +1290,8 @@ class _PreviewPageState extends State<PreviewPage> {
                                 // Pause / Play Button
                                 IconButton(
                                   visualDensity: VisualDensity.compact,
+                                  iconSize: isMobile ? 14 : 18,
+                                  padding: isMobile ? const EdgeInsets.all(2) : const EdgeInsets.all(8),
                                   tooltip: _isPaused
                                       ? "Resume Streaming"
                                       : "Pause Streaming",
@@ -1287,7 +1299,6 @@ class _PreviewPageState extends State<PreviewPage> {
                                     _isPaused
                                         ? Icons.play_arrow_rounded
                                         : Icons.pause_rounded,
-                                    size: 18,
                                   ),
                                   onPressed: _togglePlayPause,
                                 ),
@@ -1295,10 +1306,11 @@ class _PreviewPageState extends State<PreviewPage> {
                                 // Restart Button
                                 IconButton(
                                   visualDensity: VisualDensity.compact,
+                                  iconSize: isMobile ? 14 : 18,
+                                  padding: isMobile ? const EdgeInsets.all(2) : const EdgeInsets.all(8),
                                   tooltip: "Restart Stream",
                                   icon: const Icon(
                                     Icons.replay_rounded,
-                                    size: 18,
                                   ),
                                   onPressed: _resetStream,
                                 ),
@@ -1306,7 +1318,7 @@ class _PreviewPageState extends State<PreviewPage> {
                             ),
                           ),
                         ),
-                        const SizedBox(width: 16),
+                        SizedBox(width: isMobile ? 6 : 16),
 
                         // Pill 2: Tab Switching Toggle Pill
                         AnimatedSize(
@@ -1321,7 +1333,8 @@ class _PreviewPageState extends State<PreviewPage> {
                             },
                             child: _currentLeftPanelPage == 0
                                 ? ElasticButton(
-                                    sizeFactor: 1.2,
+                                    sizeFactor: isMobile ? 0.85 : 1.2,
+                                    isFlat: isMobile,
                                     key: const ValueKey('btn-integrate'),
                                     onPressed: () {
                                       setState(() {
@@ -1335,6 +1348,8 @@ class _PreviewPageState extends State<PreviewPage> {
                                         theme.colorScheme.onPrimary,
                                   )
                                 : ElasticButton(
+                                    sizeFactor: isMobile ? 0.85 : 1.2,
+                                    isFlat: isMobile,
                                     key: const ValueKey('btn-sandbox'),
                                     onPressed: () {
                                       setState(() {

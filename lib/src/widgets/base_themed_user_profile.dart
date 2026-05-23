@@ -43,67 +43,100 @@ class _BaseThemedUserProfileState extends State<BaseThemedUserProfile> {
 
           final skillsList = data["skills"] as List<dynamic>? ?? const [];
 
-          final decoration = ThemeStyleHelper.getCardDecoration(
-            widget.themeName,
-            settings,
-            context,
-            isPressed: _isPressed,
+          final themeData = Theme.of(context);
+          final isDark = themeData.brightness == Brightness.dark;
+          
+          final textStyleColor = widget.themeName == 'brutalist'
+              ? Colors.black
+              : widget.themeName == 'skeumorphic'
+                  ? (isDark ? Colors.white : Colors.grey.shade900)
+                  : widget.themeName == 'neumorphic'
+                      ? (isDark ? Colors.grey.shade100 : Colors.grey.shade900)
+                      : themeData.colorScheme.onSurface;
+
+          final subtitleColor = widget.themeName == 'brutalist'
+              ? Colors.black.withOpacity(0.7)
+              : widget.themeName == 'skeumorphic'
+                  ? (isDark ? Colors.grey.shade300 : Colors.grey.shade700)
+                  : widget.themeName == 'neumorphic'
+                      ? (isDark ? Colors.grey.shade400 : Colors.grey.shade600)
+                      : themeData.colorScheme.onSurfaceVariant.withOpacity(0.7);
+
+          final localTheme = themeData.copyWith(
+            colorScheme: themeData.colorScheme.copyWith(
+              onSurface: textStyleColor,
+              onSurfaceVariant: subtitleColor,
+            ),
           );
 
-          final shape = ThemeStyleHelper.getCardShape(
-            widget.themeName,
-            (settings["borderRadius"] as num?)?.toDouble(),
-            context,
+          return Theme(
+            data: localTheme,
+            child: Builder(
+              builder: (context) {
+                final decoration = ThemeStyleHelper.getCardDecoration(
+                  widget.themeName,
+                  settings,
+                  context,
+                  isPressed: _isPressed,
+                );
+
+                final shape = ThemeStyleHelper.getCardShape(
+                  widget.themeName,
+                  (settings["borderRadius"] as num?)?.toDouble(),
+                  context,
+                );
+
+                final cardContent = _buildProfileContent(
+                  context,
+                  name,
+                  role,
+                  website,
+                  avatarUrl,
+                  bio,
+                  skillsList,
+                  action,
+                );
+
+                Widget frame;
+
+                if (widget.themeName == 'glassmorphic') {
+                  frame = ClipPath(
+                    clipper: ShapeBorderClipper(shape: shape),
+                    child: BackdropFilter(
+                      filter: ColorFilter.mode(Colors.black.withValues(alpha: 0.02), BlendMode.dstATop),
+                      child: Container(
+                        decoration: decoration,
+                        child: cardContent,
+                      ),
+                    ),
+                  );
+                } else if (widget.themeName == 'fluent') {
+                  frame = ClipPath(
+                    clipper: ShapeBorderClipper(shape: shape),
+                    child: BackdropFilter(
+                      filter: ColorFilter.mode(Colors.black.withValues(alpha: 0.04), BlendMode.dstATop),
+                      child: Container(
+                        decoration: decoration,
+                        child: cardContent,
+                      ),
+                    ),
+                  );
+                } else {
+                  frame = Container(
+                    decoration: decoration,
+                    child: Material(
+                      type: MaterialType.transparency,
+                      shape: shape,
+                      clipBehavior: Clip.antiAlias,
+                      child: cardContent,
+                    ),
+                  );
+                }
+
+                return frame;
+              },
+            ),
           );
-
-          final cardContent = _buildProfileContent(
-            context,
-            name,
-            role,
-            website,
-            avatarUrl,
-            bio,
-            skillsList,
-            action,
-          );
-
-          Widget frame;
-
-          if (widget.themeName == 'glassmorphic') {
-            frame = ClipPath(
-              clipper: ShapeBorderClipper(shape: shape),
-              child: BackdropFilter(
-                filter: ColorFilter.mode(Colors.black.withValues(alpha: 0.02), BlendMode.dstATop),
-                child: Container(
-                  decoration: decoration,
-                  child: cardContent,
-                ),
-              ),
-            );
-          } else if (widget.themeName == 'fluent') {
-            frame = ClipPath(
-              clipper: ShapeBorderClipper(shape: shape),
-              child: BackdropFilter(
-                filter: ColorFilter.mode(Colors.black.withValues(alpha: 0.04), BlendMode.dstATop),
-                child: Container(
-                  decoration: decoration,
-                  child: cardContent,
-                ),
-              ),
-            );
-          } else {
-            frame = Container(
-              decoration: decoration,
-              child: Material(
-                type: MaterialType.transparency,
-                shape: shape,
-                clipBehavior: Clip.antiAlias,
-                child: cardContent,
-              ),
-            );
-          }
-
-          return frame;
         },
       ),
     );
@@ -201,7 +234,7 @@ class _BaseThemedUserProfileState extends State<BaseThemedUserProfile> {
                       Text(
                         role,
                         style: subStyle.copyWith(
-                          color: theme.colorScheme.onSurfaceVariant.withValues(alpha: 0.7),
+                          color: Theme.of(context).colorScheme.onSurfaceVariant,
                           fontWeight: FontWeight.w500,
                         ),
                         maxLines: 1,
@@ -219,7 +252,7 @@ class _BaseThemedUserProfileState extends State<BaseThemedUserProfile> {
             Text(
               bio,
               style: subStyle.copyWith(
-                color: theme.colorScheme.onSurface.withValues(alpha: 0.85),
+                color: Theme.of(context).colorScheme.onSurface,
                 height: 1.4,
               ),
             ),

@@ -45,89 +45,122 @@ class _BaseThemedCardState extends State<BaseThemedCard> {
 
           final hasAction = action != null && action.isNotEmpty;
 
-          // Resolve aesthetic decorations
-          final decoration = ThemeStyleHelper.getCardDecoration(
-            widget.themeName,
-            settings,
-            context,
-            isPressed: _isPressed,
+          final themeData = Theme.of(context);
+          final isDark = themeData.brightness == Brightness.dark;
+          
+          final textStyleColor = widget.themeName == 'brutalist'
+              ? Colors.black
+              : widget.themeName == 'skeumorphic'
+                  ? (isDark ? Colors.white : Colors.grey.shade900)
+                  : widget.themeName == 'neumorphic'
+                      ? (isDark ? Colors.grey.shade100 : Colors.grey.shade900)
+                      : themeData.colorScheme.onSurface;
+
+          final subtitleColor = widget.themeName == 'brutalist'
+              ? Colors.black.withOpacity(0.7)
+              : widget.themeName == 'skeumorphic'
+                  ? (isDark ? Colors.grey.shade300 : Colors.grey.shade700)
+                  : widget.themeName == 'neumorphic'
+                      ? (isDark ? Colors.grey.shade400 : Colors.grey.shade600)
+                      : themeData.colorScheme.onSurfaceVariant.withOpacity(0.7);
+
+          final localTheme = themeData.copyWith(
+            colorScheme: themeData.colorScheme.copyWith(
+              onSurface: textStyleColor,
+              onSurfaceVariant: subtitleColor,
+            ),
           );
 
-          final shape = ThemeStyleHelper.getCardShape(
-            widget.themeName,
-            (settings["borderRadius"] as num?)?.toDouble(),
-            context,
-          );
+          return Theme(
+            data: localTheme,
+            child: Builder(
+              builder: (context) {
+                // Resolve aesthetic decorations with the correct theme context
+                final decoration = ThemeStyleHelper.getCardDecoration(
+                  widget.themeName,
+                  settings,
+                  context,
+                  isPressed: _isPressed,
+                );
 
-          // Card contents
-          final cardContent = _buildCardContent(
-            context,
-            title,
-            subtitle,
-            imageUrl,
-            imagePos,
-            statusLabel,
-            statusStyle,
-            mapStream.getMapProperty("body"),
-          );
+                final shape = ThemeStyleHelper.getCardShape(
+                  widget.themeName,
+                  (settings["borderRadius"] as num?)?.toDouble(),
+                  context,
+                );
 
-          Widget cardFrame;
+                // Card contents
+                final cardContent = _buildCardContent(
+                  context,
+                  title,
+                  subtitle,
+                  imageUrl,
+                  imagePos,
+                  statusLabel,
+                  statusStyle,
+                  mapStream.getMapProperty("body"),
+                );
 
-          if (widget.themeName == 'glassmorphic') {
-            // High sigma frosted glass panel
-            cardFrame = ClipPath(
-              clipper: ShapeBorderClipper(shape: shape),
-              child: BackdropFilter(
-                filter: ColorFilter.mode(Colors.black.withValues(alpha: 0.02), BlendMode.dstATop),
-                child: Container(
-                  decoration: decoration,
-                  child: cardContent,
-                ),
-              ),
-            );
-          } else if (widget.themeName == 'fluent') {
-            // Windows Fluent acrylic blurred panel
-            cardFrame = ClipPath(
-              clipper: ShapeBorderClipper(shape: shape),
-              child: BackdropFilter(
-                filter: ColorFilter.mode(Colors.black.withValues(alpha: 0.04), BlendMode.dstATop),
-                child: Container(
-                  decoration: decoration,
-                  child: cardContent,
-                ),
-              ),
-            );
-          } else {
-            // Standard container card
-            cardFrame = Container(
-              decoration: decoration,
-              child: Material(
-                type: MaterialType.transparency,
-                shape: shape,
-                clipBehavior: Clip.antiAlias,
-                child: cardContent,
-              ),
-            );
-          }
+                Widget cardFrame;
 
-          if (hasAction) {
-            return GestureDetector(
-              onTapDown: (_) => setState(() => _isPressed = true),
-              onTapUp: (_) => setState(() => _isPressed = false),
-              onTapCancel: () => setState(() => _isPressed = false),
-              onTap: () {
-                debugPrint('[GEN_UI:CARD_ACTION] Card clicked -> $action');
+                if (widget.themeName == 'glassmorphic') {
+                  // High sigma frosted glass panel
+                  cardFrame = ClipPath(
+                    clipper: ShapeBorderClipper(shape: shape),
+                    child: BackdropFilter(
+                      filter: ColorFilter.mode(Colors.black.withValues(alpha: 0.02), BlendMode.dstATop),
+                      child: Container(
+                        decoration: decoration,
+                        child: cardContent,
+                      ),
+                    ),
+                  );
+                } else if (widget.themeName == 'fluent') {
+                  // Windows Fluent acrylic blurred panel
+                  cardFrame = ClipPath(
+                    clipper: ShapeBorderClipper(shape: shape),
+                    child: BackdropFilter(
+                      filter: ColorFilter.mode(Colors.black.withValues(alpha: 0.04), BlendMode.dstATop),
+                      child: Container(
+                        decoration: decoration,
+                        child: cardContent,
+                      ),
+                    ),
+                  );
+                } else {
+                  // Standard container card
+                  cardFrame = Container(
+                    decoration: decoration,
+                    child: Material(
+                      type: MaterialType.transparency,
+                      shape: shape,
+                      clipBehavior: Clip.antiAlias,
+                      child: cardContent,
+                    ),
+                  );
+                }
+
+                if (hasAction) {
+                  return GestureDetector(
+                    onTapDown: (_) => setState(() => _isPressed = true),
+                    onTapUp: (_) => setState(() => _isPressed = false),
+                    onTapCancel: () => setState(() => _isPressed = false),
+                    onTap: () {
+                      debugPrint('[GEN_UI:CARD_ACTION] Card clicked -> $action');
+                    },
+                    child: AnimatedScale(
+                      scale: _isPressed ? 0.97 : 1.0, // Emil tactile pressed scale
+                      duration: const Duration(milliseconds: 100),
+                      curve: Curves.easeOutCubic,
+                      child: cardFrame,
+                    ),
+                  );
+                }
+
+                return cardFrame;
               },
-              child: AnimatedScale(
-                scale: _isPressed ? 0.97 : 1.0, // Emil tactile pressed scale
-                duration: const Duration(milliseconds: 100),
-                curve: Curves.easeOutCubic,
-                child: cardFrame,
-              ),
-            );
-          }
-
-          return cardFrame;
+            ),
+          );
         },
       ),
     );
@@ -143,7 +176,6 @@ class _BaseThemedCardState extends State<BaseThemedCard> {
     String statusStyle,
     PropertyStream bodyProp,
   ) {
-    final themeData = Theme.of(context);
     final titleStyle = ThemeStyleHelper.getTextStyle(widget.themeName, context, isTitle: true);
     final subStyle = ThemeStyleHelper.getTextStyle(widget.themeName, context, isTitle: false);
 
@@ -177,7 +209,7 @@ class _BaseThemedCardState extends State<BaseThemedCard> {
           Text(
             subtitle,
             style: subStyle.copyWith(
-              color: themeData.colorScheme.onSurfaceVariant.withValues(alpha: 0.7),
+              color: Theme.of(context).colorScheme.onSurfaceVariant,
             ),
             maxLines: 1,
             overflow: TextOverflow.ellipsis,

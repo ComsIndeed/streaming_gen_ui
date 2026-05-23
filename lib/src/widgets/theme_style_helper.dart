@@ -105,22 +105,26 @@ class ThemeStyleHelper {
         final highlight = parseColor(highlightHex, const Color(0xFFFFFF00)); // Hot Yellow
         return BoxDecoration(
           color: isPressed ? primaryColor : highlight,
+          border: Border.all(
+            color: Colors.black,
+            width: 3.0,
+          ),
           boxShadow: isPressed
               ? []
               : [
                   const BoxShadow(
                     color: Colors.black,
-                    offset: Offset(4, 4),
+                    offset: Offset(5, 5),
                     blurRadius: 0,
                   ),
                 ],
         );
 
       case 'neumorphic':
-        // Soft physical bevel shadows
+        // Soft physical pillowy bevel shadows rising from canvas
         final surfaceColor = cardBgOverride != null
-            ? parseColor(cardBgOverride, themeData.colorScheme.surface)
-            : themeData.colorScheme.surface;
+            ? parseColor(cardBgOverride, isDark ? const Color(0xFF1E1E24) : Colors.grey.shade200)
+            : (isDark ? const Color(0xFF1E1E24) : Colors.grey.shade200);
 
         return BoxDecoration(
           color: surfaceColor,
@@ -128,26 +132,26 @@ class ThemeStyleHelper {
           boxShadow: isPressed
               ? [
                   BoxShadow(
-                    color: Colors.black.withValues(alpha: 0.06),
+                    color: Colors.black.withOpacity(isDark ? 0.6 : 0.1),
                     offset: const Offset(2, 2),
                     blurRadius: 4,
                   ),
                   BoxShadow(
-                    color: Colors.white.withValues(alpha: 0.7),
+                    color: isDark ? Colors.white.withOpacity(0.04) : Colors.white.withOpacity(0.9),
                     offset: const Offset(-2, -2),
                     blurRadius: 4,
                   ),
                 ]
               : [
                   BoxShadow(
-                    color: Colors.black.withValues(alpha: 0.08),
-                    offset: const Offset(5, 5),
-                    blurRadius: 10,
+                    color: Colors.black.withOpacity(isDark ? 0.75 : 0.12),
+                    offset: const Offset(6, 6),
+                    blurRadius: 12,
                   ),
                   BoxShadow(
-                    color: Colors.white.withValues(alpha: 0.8),
-                    offset: const Offset(-5, -5),
-                    blurRadius: 10,
+                    color: isDark ? Colors.white.withOpacity(0.05) : Colors.white,
+                    offset: const Offset(-6, -6),
+                    blurRadius: 12,
                   ),
                 ],
         );
@@ -177,26 +181,36 @@ class ThemeStyleHelper {
         );
 
       case 'skeumorphic':
+        final cardBgColorStart = isDark ? Colors.grey.shade800 : Colors.grey.shade100;
+        final cardBgColorEnd = isDark ? const Color(0xFF121212) : Colors.grey.shade300;
+        final highlightColor = isDark ? Colors.white.withValues(alpha: 0.12) : Colors.white.withValues(alpha: 0.8);
+        final shadowColor = isDark ? Colors.black.withValues(alpha: 0.6) : Colors.black.withValues(alpha: 0.3);
         return BoxDecoration(
           gradient: LinearGradient(
             begin: Alignment.topCenter,
             end: Alignment.bottomCenter,
             colors: [
-              Colors.grey.shade100,
-              Colors.grey.shade300,
+              cardBgColorStart,
+              cardBgColorEnd,
             ],
           ),
           borderRadius: BorderRadius.circular(settings["borderRadius"] as double? ?? 12.0),
+          border: Border.all(
+            color: isDark ? Colors.grey.shade900 : Colors.grey.shade400,
+            width: 2.0,
+          ),
           boxShadow: [
+            // Top gloss highlight
             BoxShadow(
-              color: Colors.white.withValues(alpha: 0.9),
-              offset: const Offset(-2, -2),
-              blurRadius: 1,
+              color: highlightColor,
+              offset: const Offset(0, 1.5),
+              blurRadius: 0,
             ),
+            // Heavy 3D extrusion drop shadow
             BoxShadow(
-              color: Colors.black.withValues(alpha: 0.2),
-              offset: const Offset(2, 2),
-              blurRadius: 3,
+              color: shadowColor,
+              offset: const Offset(0, 5),
+              blurRadius: 10,
             ),
           ],
         );
@@ -228,6 +242,28 @@ class ThemeStyleHelper {
           fontWeight: FontWeight.bold,
           fontSize: isTitle ? 16.0 : 13.0,
           color: Colors.black,
+        );
+      case 'neumorphic':
+        final isDark = themeData.brightness == Brightness.dark;
+        return TextStyle(
+          fontWeight: isTitle ? FontWeight.w700 : FontWeight.w500,
+          fontSize: isTitle ? 16.0 : 13.0,
+          color: isDark ? Colors.grey.shade100 : Colors.grey.shade900,
+        );
+      case 'skeumorphic':
+        final isDark = themeData.brightness == Brightness.dark;
+        return TextStyle(
+          fontFamily: 'serif',
+          fontWeight: isTitle ? FontWeight.w800 : FontWeight.normal,
+          fontSize: isTitle ? 17.0 : 13.5,
+          color: isDark ? Colors.white : Colors.grey.shade900,
+          shadows: [
+            Shadow(
+              color: isDark ? Colors.black.withOpacity(0.8) : Colors.white.withOpacity(0.8),
+              offset: Offset(0, isDark ? -1.0 : 1.0),
+              blurRadius: 1,
+            ),
+          ],
         );
       case 'apple':
         return TextStyle(

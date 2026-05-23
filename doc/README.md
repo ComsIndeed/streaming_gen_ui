@@ -16,58 +16,99 @@ without waiting for a complete JSON response.
 
 ## Why `streaming_gen_ui`?
 
-- **[Generative UI](#generative-ui)** - No more walls of text, mix in some interfaces.
-- **[Streaming Support](#streaming-support)** - Progressively render UI as it streams from the LLM.
-- **[Render Anywhere](#render-anywhere)** - Place views elsewhere, instruct LLM to render there.
-- **[Easy Display](#easy-display)** - By default, render normal response markdown with UI.
-- **[Simple & Flexible APIs](#simple--flexible-apis)** - Set up however wanted, easy to use.
-- **[Platform/Framework Agnostic](#platformframework-agnostic)** - `Stream<String>` in, `Widget` out.
-- **[Batteries Included](#batteries-included)** - Includes lightweight prebuilt registries of widgets.
+- **[Generative UI](#generative-ui)** - No more walls of text, mix in some
+  interfaces.
+- **[Streaming Support](#streaming-support)** - Progressively render UI as it
+  streams from the LLM.
+- **[Render Anywhere](#render-anywhere)** - Place views elsewhere, instruct LLM
+  to render there.
+- **[Easy Display](#easy-display)** - By default, render normal response
+  markdown with UI.
+- **[Simple & Flexible APIs](#simple--flexible-apis)** - Set up however wanted,
+  easy to use.
+- **[Platform/Framework Agnostic](#platformframework-agnostic)** -
+  `Stream<String>` in, `Widget` out.
+- **[Batteries Included](#batteries-included)** - Includes lightweight prebuilt
+  registries of widgets.
+- **[Pre-Built Themes](#pre-built-themes)** - Includes pre-built themed widgets.
 - **[Easy Composition](#easy-composition)** - Easily create your own widgets.
 
 ## Features
 
 ### Generative UI
 
-Elevate standard text-based conversational interfaces. Instead of presenting a long wall of static text, seamlessly mix in rich, interactive components (like profile cards, charts, accordion carousels, or metric tiles) that bring your application to life.
+Elevate standard text-based conversational interfaces. Instead of presenting a
+long wall of static text, seamlessly mix in rich, interactive components (like
+profile cards, charts, accordion carousels, or metric tiles) that bring your
+application to life.
 
 ### Streaming Support
 
 ![streaming_gen_ui in action](https://raw.githubusercontent.com/ComsIndeed/streaming_gen_ui/main/doc/gifs/output/mechanics-demo_small.gif)
 
-Most generative UI packages require you to wait for the complete JSON payload before decoding and popping the final widget tree onto the screen. `streaming_gen_ui` progressively parses and renders widgets *character-by-character* as the tokens arrive. Buttons start disabled and transition to active instantly with organic spring animations once their handlers load.
+Most generative UI packages require you to wait for the complete JSON payload
+before decoding and popping the final widget tree onto the screen.
+`streaming_gen_ui` progressively parses and renders widgets
+_character-by-character_ as the tokens arrive. Buttons start disabled and
+transition to active instantly with organic spring animations once their
+handlers load.
 
 ### Render Anywhere
 
-Direct the LLM to render specific layouts or controls in custom areas of your screen (e.g., a dedicated full-screen Canvas or tool panel) rather than the standard sequential chat thread. Simply define a mapping of custom view IDs and watch them update reactively.
+![Rendering in a different view](https://raw.githubusercontent.com/ComsIndeed/streaming_gen_ui/main/doc/gifs/output/canvas-demo_medium.gif)
+
+Direct the LLM to render specific layouts or controls in custom areas of your
+screen (e.g., a dedicated full-screen Canvas or tool panel) rather than the
+standard sequential chat thread. Simply define a mapping of custom view IDs and
+watch them update reactively.
 
 ### Easy Display
 
-Seamlessly blend rich markdown responses and dynamic interfaces. The streaming engine parses `<interface>` tags out of the stream automatically, keeping the raw conversational text clean and displaying markdown blocks alongside active widgets in chronological order.
+Seamlessly blend rich markdown responses and dynamic interfaces. The streaming
+engine parses `<interface>` tags out of the stream automatically, keeping the
+raw conversational text clean and displaying markdown blocks alongside active
+widgets in chronological order.
 
 ### Simple & Flexible APIs
 
-Modern, intuitive developer experience designed for high discoverability and minimal friction:
-* Initialize with a simple list of registries: `StreamingGenerativeUi(registries: [Registries.essentials, myRegistry])`
-* Dynamically hot-swap active components using `updateRegistries(...)`
-* Access active views anywhere in your widget tree with `genUi.view('message-id')`
+Modern, intuitive developer experience designed for high discoverability and
+minimal friction:
+
+- Initialize with a simple list of registries:
+  `StreamingGenerativeUi(registries: [Registries.essentials, myRegistry])`
+- Dynamically hot-swap active components using `updateRegistries(...)`
+- Access active views anywhere in your widget tree with
+  `genUi.view('message-id')`
 
 ### Platform/Framework Agnostic
 
-No vendor lock-in. Whether you are using Gemini, Claude, ChatGPT, or local models via Ollama/llama.cpp, the engine works entirely on standard inputs. Simply feed a `Stream<String>` of raw tokens in, and get responsive, state-managed Flutter `Widget` outputs out.
+No vendor lock-in. Whether you are using Gemini, Claude, ChatGPT, or local
+models via Ollama/llama.cpp, the engine works entirely on standard inputs.
+Simply feed a `Stream<String>` of raw tokens in, and get responsive,
+state-managed Flutter `Widget` outputs out.
 
 ### Batteries Included
 
-Comes packed with built-in, beautifully designed, and highly optimized widget registries:
-* **`Registries.layout`**: `core:column`, `core:row`, `core:stack`, `core:wrap`, `core:container`, `core:spacer`, `core:divider`
-* **`Registries.display`**: `core:text`, `core:heading`, `core:badge`, `core:chip`, `core:icon`, `core:avatar`, `core:code_block`
-* **`Registries.cards`**: `core:card`, `core:stat_card`, `core:profile_card`, `core:list_tile`, `core:key_value_card`
-* **`Registries.dashboard`**: `core:metric_tile`, `core:chart_bar`
+Comes packed with built-in, beautifully designed, and highly optimized widget
+registries:
+
+- **`Registries.layout`**: `core:column`, `core:row`, `core:stack`, `core:wrap`,
+  `core:container`, `core:spacer`, `core:divider`
+- **`Registries.display`**: `core:text`, `core:heading`, `core:badge`,
+  `core:chip`, `core:icon`, `core:avatar`, `core:code_block`
+- **`Registries.cards`**: `core:card`, `core:stat_card`, `core:profile_card`,
+  `core:list_tile`, `core:key_value_card`
+- **`Registries.dashboard`**: `core:metric_tile`, `core:chart_bar`
+
+### Pre-Built Themes
 
 ### Easy Composition
 
-Define individual custom widgets inline using `WidgetRegistry.fromDefinition` or bundle them into custom registries. 
-The package automatically computes the LLM's system prompt instructions (`systemPrompt`) and even auto-generates compliant mock JSON examples if they are omitted, leaving you with zero boilerplate to maintain!
+Define individual custom widgets inline using `WidgetRegistry.fromDefinition` or
+bundle them into custom registries. The package automatically computes the LLM's
+system prompt instructions (`systemPrompt`) and even auto-generates compliant
+mock JSON examples if they are omitted, leaving you with zero boilerplate to
+maintain!
 
 ## Quick Setup
 

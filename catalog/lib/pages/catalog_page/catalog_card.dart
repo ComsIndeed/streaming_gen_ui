@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:math';
 
 import 'package:flutter/material.dart';
@@ -11,6 +12,7 @@ import 'package:streaming_gen_ui_widget_catalog/core/app_widgets/elastic_wrapper
 
 class CatalogCard extends StatefulWidget {
   final WidgetCatalogItem catalogItem;
+  static final ValueNotifier<int> resetSignal = ValueNotifier<int>(0);
 
   const CatalogCard({super.key, required this.catalogItem});
 
@@ -22,32 +24,50 @@ class _CatalogCardState extends State<CatalogCard> {
   late final StreamingGenerativeUi _streamingGenUi;
   bool _disposed = false;
   bool _isHovered = false;
+  Timer? _loopTimer;
 
   @override
   void initState() {
     super.initState();
     _streamingGenUi = StreamingGenerativeUi(registries: [Registries.all]);
-    _startLoop();
+    CatalogCard.resetSignal.addListener(_onResetSignal);
+    _startStreamLoop();
   }
 
-  Future<void> _startLoop() async {
-    while (!_disposed) {
-      final stream = streamTextInChunks(
-        text:
-            "<interface>${widget.catalogItem.widgetDefinition.jsonExample}</interface>",
-        chunkSize: 4,
-        interval: const Duration(milliseconds: 100),
-        chunkSizeImmediatelyEmit: '<interface>{"namespace":"  core:'.length,
-      );
-      await _streamingGenUi.stream(stream, viewId: 'main-view');
-      if (_disposed) break;
-      await Future.delayed(const Duration(milliseconds: 3000));
-    }
+  void _onResetSignal() {
+    _startStreamLoop();
+  }
+
+  void _startStreamLoop() {
+    _loopTimer?.cancel();
+    _runSingleStreamCycle();
+  }
+
+  Future<void> _runSingleStreamCycle() async {
+    if (_disposed) return;
+
+    final stream = streamTextInChunks(
+      text:
+          "<interface>${widget.catalogItem.widgetDefinition.jsonExample}</interface>",
+      chunkSize: 4,
+      interval: const Duration(milliseconds: 100),
+      chunkSizeImmediatelyEmit: '<interface>{"namespace":"  core:'.length,
+    );
+
+    await _streamingGenUi.stream(stream, viewId: 'main-view');
+
+    if (_disposed) return;
+
+    _loopTimer = Timer(const Duration(milliseconds: 3000), () {
+      _runSingleStreamCycle();
+    });
   }
 
   @override
   void dispose() {
     _disposed = true;
+    _loopTimer?.cancel();
+    CatalogCard.resetSignal.removeListener(_onResetSignal);
     super.dispose();
   }
 

@@ -21,6 +21,8 @@ class _CatalogPageState extends State<CatalogPage> {
   String searchQuery = "";
   String? selectedTheme;
   String? selectedWidgetType;
+  int _headerTapCount = 0;
+  bool _showDevOptions = false;
 
   @override
   void initState() {
@@ -115,42 +117,53 @@ class _CatalogPageState extends State<CatalogPage> {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Expanded(
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              RichText(
-                                text: TextSpan(
-                                  style: TextStyle(
-                                    fontSize: isMobile ? 36 : 48,
-                                    fontWeight: FontWeight.w400,
-                                    color: theme.colorScheme.onSurface,
-                                    letterSpacing: -0.8,
-                                    fontFamily:
-                                        theme.textTheme.titleLarge?.fontFamily,
-                                  ),
-                                  children: const [
-                                    TextSpan(
-                                      text: "Streaming ",
-                                      style: TextStyle(
-                                        fontWeight: FontWeight.w500,
-                                      ),
+                          child: GestureDetector(
+                            behavior: HitTestBehavior.translucent,
+                            onTap: () {
+                              setState(() {
+                                _headerTapCount++;
+                                if (_headerTapCount >= 5) {
+                                  _showDevOptions = true;
+                                }
+                              });
+                            },
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                RichText(
+                                  text: TextSpan(
+                                    style: TextStyle(
+                                      fontSize: isMobile ? 36 : 48,
+                                      fontWeight: FontWeight.w400,
+                                      color: theme.colorScheme.onSurface,
+                                      letterSpacing: -0.8,
+                                      fontFamily:
+                                          theme.textTheme.titleLarge?.fontFamily,
                                     ),
-                                    TextSpan(text: "Generative UI"),
-                                  ],
+                                    children: const [
+                                      TextSpan(
+                                        text: "Streaming ",
+                                        style: TextStyle(
+                                          fontWeight: FontWeight.w500,
+                                        ),
+                                      ),
+                                      TextSpan(text: "Generative UI"),
+                                    ],
+                                  ),
                                 ),
-                              ),
-                              const SizedBox(height: 6),
-                              Text(
-                                "WIDGET CATALOG",
-                                style: TextStyle(
-                                  fontSize: isMobile ? 14 : 18,
-                                  fontWeight: FontWeight.bold,
-                                  color: theme.colorScheme.onSurfaceVariant
-                                      .withValues(alpha: 0.7),
-                                  letterSpacing: 2.0,
+                                const SizedBox(height: 6),
+                                Text(
+                                  "WIDGET CATALOG",
+                                  style: TextStyle(
+                                    fontSize: isMobile ? 14 : 18,
+                                    fontWeight: FontWeight.bold,
+                                    color: theme.colorScheme.onSurfaceVariant
+                                        .withValues(alpha: 0.7),
+                                    letterSpacing: 2.0,
+                                  ),
                                 ),
-                              ),
-                            ],
+                              ],
+                            ),
                           ),
                         ),
                         if (isMobile && widget.onNavigateToChat != null)
@@ -166,6 +179,83 @@ class _CatalogPageState extends State<CatalogPage> {
                           ),
                       ],
                     ),
+                    if (_showDevOptions) ...[
+                      const SizedBox(height: 24),
+                      Container(
+                        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                        decoration: BoxDecoration(
+                          color: Colors.redAccent.withValues(alpha: 0.08),
+                          borderRadius: BorderRadius.circular(16),
+                          border: Border.all(
+                            color: Colors.redAccent.withValues(alpha: 0.3),
+                            width: 1.5,
+                          ),
+                        ),
+                        child: Row(
+                          children: [
+                            Icon(
+                              Icons.developer_mode_rounded,
+                              color: Colors.redAccent.shade400,
+                            ),
+                            const SizedBox(width: 12),
+                            Expanded(
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Text(
+                                    "Developer Mode Active",
+                                    style: TextStyle(
+                                      fontWeight: FontWeight.bold,
+                                      fontSize: isMobile ? 13 : 15,
+                                      color: theme.colorScheme.onSurface,
+                                    ),
+                                  ),
+                                  Text(
+                                    "Reset and align the streaming state of all catalog widgets.",
+                                    style: TextStyle(
+                                      fontSize: isMobile ? 11 : 12,
+                                      color: theme.colorScheme.onSurfaceVariant,
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+                            const SizedBox(width: 12),
+                            ElevatedButton.icon(
+                              onPressed: () {
+                                CatalogCard.resetSignal.value++;
+                                ScaffoldMessenger.of(context).showSnackBar(
+                                  SnackBar(
+                                    content: const Text("🔄 Synchronized all widget streams!"),
+                                    backgroundColor: Colors.redAccent.shade400,
+                                    duration: const Duration(milliseconds: 800),
+                                    behavior: SnackBarBehavior.floating,
+                                  ),
+                                );
+                              },
+                              style: ElevatedButton.styleFrom(
+                                backgroundColor: Colors.redAccent.shade400,
+                                foregroundColor: Colors.white,
+                                elevation: 0,
+                                shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(12),
+                                ),
+                                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+                              ),
+                              icon: const Icon(Icons.sync_rounded, size: 16),
+                              label: const Text(
+                                "SYNC STREAMS",
+                                style: TextStyle(
+                                  fontWeight: FontWeight.bold,
+                                  fontSize: 12,
+                                  letterSpacing: 0.5,
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ],
                     const SizedBox(height: 48),
 
                     // 2. Search Bar & Theme Switcher
