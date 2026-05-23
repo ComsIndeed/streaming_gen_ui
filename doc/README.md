@@ -1,9 +1,11 @@
 # streaming_gen_ui
 
+<!-- CENTER THIS -->
+
 ### The Streaming Generative UI Engine for Flutter
 
 Render interactive Flutter widgets progressively as raw LLM token streams flow
-in — character-by-character — without waiting for a complete JSON response.
+in character-by-character without waiting for a complete JSON response.
 
 [![pub.dev](https://img.shields.io/pub/v/streaming_gen_ui.svg)](https://pub.dev/packages/streaming_gen_ui)
 [![License: MIT](https://img.shields.io/badge/license-MIT-blue.svg)](https://opensource.org/licenses/MIT)
