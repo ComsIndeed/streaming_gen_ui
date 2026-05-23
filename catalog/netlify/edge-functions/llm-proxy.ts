@@ -12,6 +12,82 @@ function isAllowedOrigin(origin: string): boolean {
   return false;
 }
 
+// In-memory rate limiting maps
+const rateLimitMap = new Map<string, { count: number; resetTime: number }>();
+const dailyLimitMap = new Map<string, { count: number; resetTime: number }>();
+
+const RATE_LIMIT_COUNT = 15; // Max 15 requests per minute
+const RATE_LIMIT_WINDOW_MS = 60 * 1000; // 1 minute
+
+const DAILY_LIMIT_COUNT = 60; // 60 requests per day (daily allowance)
+const DAILY_LIMIT_WINDOW_MS = 24 * 60 * 60 * 1000; // 24 hours
+
+function cleanMaps() {
+  const now = Date.now();
+  for (const [key, value] of rateLimitMap.entries()) {
+    if (now > value.resetTime) {
+      rateLimitMap.delete(key);
+    }
+  }
+  for (const [key, value] of dailyLimitMap.entries()) {
+    if (now > value.resetTime) {
+      dailyLimitMap.delete(key);
+    }
+  }
+}
+
+function checkRateLimit(ip: string) {
+  cleanMaps();
+  const now = Date.now();
+
+  // 1. Minute Limit check
+  let minData = rateLimitMap.get(ip);
+  if (!minData || now > minData.resetTime) {
+    minData = { count: 0, resetTime: now + RATE_LIMIT_WINDOW_MS };
+    rateLimitMap.set(ip, minData);
+  }
+
+  // 2. Daily Limit check
+  let dailyData = dailyLimitMap.get(ip);
+  if (!dailyData || now > dailyData.resetTime) {
+    dailyData = { count: 0, resetTime: now + DAILY_LIMIT_WINDOW_MS };
+    dailyLimitMap.set(ip, dailyData);
+  }
+
+  const minReset = Math.ceil((minData.resetTime - now) / 1000);
+  const dailyResetHours = Math.ceil((dailyData.resetTime - now) / (60 * 60 * 1000));
+
+  const headers = {
+    "X-RateLimit-Limit": String(RATE_LIMIT_COUNT),
+    "X-RateLimit-Remaining": String(Math.max(0, RATE_LIMIT_COUNT - minData.count - 1)),
+    "X-RateLimit-Reset": String(minReset),
+    "X-DailyLimit-Limit": String(DAILY_LIMIT_COUNT),
+    "X-DailyLimit-Remaining": String(Math.max(0, DAILY_LIMIT_COUNT - dailyData.count - 1)),
+    "X-DailyLimit-Reset-Hours": String(dailyResetHours),
+  };
+
+  if (minData.count >= RATE_LIMIT_COUNT) {
+    return {
+      allowed: false,
+      reason: `Too many requests. Please try again in ${minReset} seconds.`,
+      headers,
+    };
+  }
+
+  if (dailyData.count >= DAILY_LIMIT_COUNT) {
+    return {
+      allowed: false,
+      reason: `Daily prompt limit reached (${DAILY_LIMIT_COUNT} prompts/day). Reset in ${dailyResetHours} hours.`,
+      headers,
+    };
+  }
+
+  minData.count++;
+  dailyData.count++;
+
+  return { allowed: true, headers };
+}
+
 export default async (request: Request, context: Context) => {
   const requestOrigin = request.headers.get("origin") || "";
   const isOriginAllowed = isAllowedOrigin(requestOrigin);
@@ -46,6 +122,24 @@ export default async (request: Request, context: Context) => {
     });
   }
 
+  // 4. Rate Limiting checks (Minute and Daily Allowance)
+  const ip = context.ip || request.headers.get("x-nf-client-connection-ip") || "unknown";
+  const limitResult = checkRateLimit(ip);
+
+  if (!limitResult.allowed) {
+    return new Response(
+      JSON.stringify({ error: limitResult.reason }),
+      {
+        status: 429,
+        headers: {
+          "Content-Type": "application/json",
+          ...corsHeaders,
+          ...limitResult.headers,
+        },
+      }
+    );
+  }
+
   // Parse and prepare LLM Endpoint / Credentials
   let requestBody = await request.text();
   const targetUrl = "https://api.deepseek.com/v1/chat/completions";
@@ -74,6 +168,7 @@ export default async (request: Request, context: Context) => {
         headers: {
           "Content-Type": "application/json",
           ...corsHeaders,
+          ...limitResult.headers,
         },
       },
     );
@@ -97,6 +192,7 @@ export default async (request: Request, context: Context) => {
       headers: {
         "Content-Type": "application/json",
         ...corsHeaders,
+        ...limitResult.headers,
       },
     });
   }
@@ -158,6 +254,7 @@ export default async (request: Request, context: Context) => {
       "Cache-Control": "no-cache",
       "Connection": "keep-alive",
       ...corsHeaders,
+      ...limitResult.headers,
     },
   });
 };
