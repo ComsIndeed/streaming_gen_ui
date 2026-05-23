@@ -85,13 +85,7 @@ class ChatDemoState {
 }
 
 class ChatDemoCubit extends Cubit<ChatDemoState> {
-  final StreamingGenerativeUi generativeUi = StreamingGenerativeUi(
-    registry: Registries.all,
-    customViewIds: const {
-      'canvas-ui':
-          'Renders a dedicated full-screen dynamic mini app, interactive dashboard, or tool requested by the user.',
-    },
-  );
+  late StreamingGenerativeUi generativeUi;
 
   final List<ChatMessage> _history = [];
   ChatAgentService? _agentService;
@@ -108,6 +102,13 @@ class ChatDemoCubit extends Cubit<ChatDemoState> {
           isThinking: false,
         ),
       ) {
+    generativeUi = StreamingGenerativeUi(
+      registry: Registries.forThemes({'apple'}),
+      customViewIds: const {
+        'canvas-ui':
+            'Renders a dedicated full-screen dynamic mini app, interactive dashboard, or tool requested by the user.',
+      },
+    );
     _history.add(ChatMessage.system(systemPrompt));
     generativeUi.addListener(_onGenerativeUiChanged);
   }
@@ -185,6 +186,19 @@ ${generativeUi.systemPrompt}
 
   void toggleRawResponse() {
     emit(state.copyWith(showRawResponse: !state.showRawResponse));
+  }
+
+  /// Updates the active widget registry without replacing the generativeUi instance,
+  /// so existing rendered chat views remain visible. The system prompt in history
+  /// is also updated so subsequent turns only mention the selected themes.
+  void updateRegistry(Set<String> themes, {bool includePrimitives = false}) {
+    generativeUi.updateRegistry(
+      Registries.forThemes(themes, includePrimitives: includePrimitives),
+    );
+    // Re-inject system prompt so the LLM only knows about selected themes.
+    if (_history.isNotEmpty) {
+      _history[0] = ChatMessage.system(systemPrompt);
+    }
   }
 
   void stopResponse() {

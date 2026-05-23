@@ -748,6 +748,22 @@ class _ChatConsoleInputState extends State<ChatConsoleInput> {
   bool _isConsoleHovered = false;
   bool _isAnimatingChatExpansion = false;
 
+  // Design Theme selector state
+  bool _singleThemeMode = true; // true = single, false = multiple
+  String _selectedSingleTheme = 'apple';
+  Set<String> _selectedMultipleThemes = {'apple'};
+  bool _includePrimitives = false;
+
+  static const _allThemes = [
+    ('apple', Icons.phone_iphone_rounded),
+    ('fluent', Icons.window_rounded),
+    ('material', Icons.layers_rounded),
+    ('glassmorphic', Icons.blur_on_rounded),
+    ('neumorphic', Icons.texture_rounded),
+    ('skeumorphic', Icons.style_rounded),
+    ('brutalist', Icons.grid_on_rounded),
+  ];
+
   @override
   void initState() {
     super.initState();
@@ -873,7 +889,7 @@ class _ChatConsoleInputState extends State<ChatConsoleInput> {
                             512.0 + (widget.isChatExpanded ? 64 : 0),
                           )
                         : 512.0 + (widget.isChatExpanded ? 64 : 0)),
-              height: widget.isChatExpanded ? 270.0 : 64.0,
+              height: widget.isChatExpanded ? 330.0 : 64.0,
               child: AnimatedContainer(
                 duration: const Duration(milliseconds: 200),
                 curve: customSnap,
@@ -1070,8 +1086,378 @@ class _ChatConsoleInputState extends State<ChatConsoleInput> {
             ],
           ),
         ),
+        const SizedBox(height: 12),
+        // Design Theme selector
+        Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 12),
+          child: GestureDetector(
+            onTap: () => _showDesignThemeModal(context, theme),
+            child: MouseRegion(
+              cursor: SystemMouseCursors.click,
+              child: AnimatedContainer(
+                duration: const Duration(milliseconds: 150),
+                padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
+                decoration: BoxDecoration(
+                  color: theme.colorScheme.surfaceContainerHighest.withOpacity(0.35),
+                  borderRadius: BorderRadius.circular(14),
+                  border: Border.all(
+                    color: theme.colorScheme.primary.withOpacity(0.18),
+                  ),
+                ),
+                child: Row(
+                  children: [
+                    Icon(
+                      Icons.palette_outlined,
+                      size: 16,
+                      color: theme.colorScheme.primary,
+                    ),
+                    const SizedBox(width: 8),
+                    Text(
+                      'Design Theme',
+                      style: TextStyle(
+                        fontSize: 11,
+                        fontWeight: FontWeight.bold,
+                        letterSpacing: 0.5,
+                        color: theme.colorScheme.onSurface,
+                      ),
+                    ),
+                    const SizedBox(width: 8),
+                    Expanded(
+                      child: Text(
+                        _singleThemeMode
+                            ? _selectedSingleTheme[0].toUpperCase() + _selectedSingleTheme.substring(1)
+                            : '${_selectedMultipleThemes.length} selected',
+                        style: TextStyle(
+                          fontSize: 11,
+                          color: theme.colorScheme.primary,
+                          fontWeight: FontWeight.w500,
+                        ),
+                        overflow: TextOverflow.ellipsis,
+                      ),
+                    ),
+                    if (_includePrimitives) ...[  
+                      Container(
+                        padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                        decoration: BoxDecoration(
+                          color: theme.colorScheme.tertiary.withOpacity(0.15),
+                          borderRadius: BorderRadius.circular(6),
+                        ),
+                        child: Text(
+                          '+primitives',
+                          style: TextStyle(
+                            fontSize: 9,
+                            color: theme.colorScheme.tertiary,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                      ),
+                      const SizedBox(width: 6),
+                    ],
+                    Icon(
+                      Icons.chevron_right_rounded,
+                      size: 16,
+                      color: theme.colorScheme.onSurfaceVariant.withOpacity(0.5),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+          ),
+        ),
       ],
     );
+  }
+
+  void _showDesignThemeModal(BuildContext context, ThemeData theme) {
+    final cubit = context.read<ChatDemoCubit>();
+    showModalBottomSheet(
+      context: context,
+      backgroundColor: Colors.transparent,
+      isScrollControlled: true,
+      builder: (modalContext) {
+        return StatefulBuilder(
+          builder: (context, setModalState) {
+            return Container(
+              constraints: BoxConstraints(
+                maxHeight: MediaQuery.sizeOf(context).height * 0.7,
+              ),
+              decoration: BoxDecoration(
+                color: theme.colorScheme.surfaceContainerLow,
+                borderRadius: const BorderRadius.vertical(top: Radius.circular(28)),
+                border: Border.all(
+                  color: theme.colorScheme.outline.withOpacity(0.1),
+                ),
+              ),
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  // Handle
+                  const SizedBox(height: 12),
+                  Center(
+                    child: Container(
+                      width: 36,
+                      height: 4,
+                      decoration: BoxDecoration(
+                        color: theme.colorScheme.onSurfaceVariant.withOpacity(0.3),
+                        borderRadius: BorderRadius.circular(2),
+                      ),
+                    ),
+                  ),
+                  // Header
+                  Padding(
+                    padding: const EdgeInsets.fromLTRB(20, 16, 20, 8),
+                    child: Row(
+                      children: [
+                        Icon(
+                          Icons.palette_outlined,
+                          color: theme.colorScheme.primary,
+                          size: 22,
+                        ),
+                        const SizedBox(width: 10),
+                        const Text(
+                          'Design Theme',
+                          style: TextStyle(
+                            fontWeight: FontWeight.bold,
+                            fontSize: 18,
+                          ),
+                        ),
+                        const Spacer(),
+                        IconButton.filledTonal(
+                          icon: const Icon(Icons.close_rounded, size: 20),
+                          onPressed: () => Navigator.pop(modalContext),
+                        ),
+                      ],
+                    ),
+                  ),
+                  const Divider(height: 1),
+                  Flexible(
+                    child: SingleChildScrollView(
+                      padding: const EdgeInsets.fromLTRB(20, 20, 20, 32),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          // Mode Toggle: Single vs Multiple
+                          Text(
+                            'SELECTION MODE',
+                            style: TextStyle(
+                              fontSize: 10,
+                              fontWeight: FontWeight.bold,
+                              letterSpacing: 1.5,
+                              color: theme.colorScheme.onSurfaceVariant.withOpacity(0.6),
+                            ),
+                          ),
+                          const SizedBox(height: 10),
+                          Container(
+                            decoration: BoxDecoration(
+                              color: theme.colorScheme.surfaceContainerHighest.withOpacity(0.4),
+                              borderRadius: BorderRadius.circular(16),
+                              border: Border.all(
+                                color: theme.colorScheme.outline.withOpacity(0.08),
+                              ),
+                            ),
+                            child: Column(
+                              children: [
+                                _ThemeModeRadioTile(
+                                  title: 'Single Theme',
+                                  subtitle: 'Use one curated design aesthetic',
+                                  icon: Icons.radio_button_checked_rounded,
+                                  selected: _singleThemeMode,
+                                  onTap: () {
+                                    setModalState(() {});
+                                    setState(() => _singleThemeMode = true);
+                                  },
+                                ),
+                                Divider(
+                                  height: 1,
+                                  indent: 16,
+                                  endIndent: 16,
+                                  color: theme.colorScheme.outline.withOpacity(0.08),
+                                ),
+                                _ThemeModeRadioTile(
+                                  title: 'Multiple Themes',
+                                  subtitle: 'Mix styles from several aesthetics',
+                                  icon: Icons.library_add_check_rounded,
+                                  selected: !_singleThemeMode,
+                                  onTap: () {
+                                    setModalState(() {});
+                                    setState(() => _singleThemeMode = false);
+                                  },
+                                ),
+                              ],
+                            ),
+                          ),
+                          const SizedBox(height: 24),
+                          // Theme chips
+                          Text(
+                            _singleThemeMode ? 'THEME' : 'THEMES',
+                            style: TextStyle(
+                              fontSize: 10,
+                              fontWeight: FontWeight.bold,
+                              letterSpacing: 1.5,
+                              color: theme.colorScheme.onSurfaceVariant.withOpacity(0.6),
+                            ),
+                          ),
+                          const SizedBox(height: 10),
+                          Wrap(
+                            spacing: 8,
+                            runSpacing: 8,
+                            children: _allThemes.map((entry) {
+                              final (themeId, icon) = entry;
+                              final label = themeId[0].toUpperCase() + themeId.substring(1);
+                              final isSelected = _singleThemeMode
+                                  ? _selectedSingleTheme == themeId
+                                  : _selectedMultipleThemes.contains(themeId);
+                              return GestureDetector(
+                                onTap: () {
+                                  if (_singleThemeMode) {
+                                    setModalState(() {});
+                                    setState(() => _selectedSingleTheme = themeId);
+                                  } else {
+                                    setModalState(() {});
+                                    setState(() {
+                                      if (_selectedMultipleThemes.contains(themeId)) {
+                                        if (_selectedMultipleThemes.length > 1) {
+                                          _selectedMultipleThemes = Set.from(_selectedMultipleThemes)..remove(themeId);
+                                        }
+                                      } else {
+                                        _selectedMultipleThemes = Set.from(_selectedMultipleThemes)..add(themeId);
+                                      }
+                                    });
+                                  }
+                                },
+                                child: AnimatedContainer(
+                                  duration: const Duration(milliseconds: 150),
+                                  padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 9),
+                                  decoration: BoxDecoration(
+                                    color: isSelected
+                                        ? theme.colorScheme.primary.withOpacity(0.12)
+                                        : theme.colorScheme.surfaceContainerHighest.withOpacity(0.4),
+                                    borderRadius: BorderRadius.circular(12),
+                                    border: Border.all(
+                                      color: isSelected
+                                          ? theme.colorScheme.primary.withOpacity(0.5)
+                                          : theme.colorScheme.outline.withOpacity(0.1),
+                                      width: isSelected ? 1.5 : 1.0,
+                                    ),
+                                  ),
+                                  child: Row(
+                                    mainAxisSize: MainAxisSize.min,
+                                    children: [
+                                      Icon(
+                                        icon,
+                                        size: 15,
+                                        color: isSelected
+                                            ? theme.colorScheme.primary
+                                            : theme.colorScheme.onSurfaceVariant,
+                                      ),
+                                      const SizedBox(width: 6),
+                                      Text(
+                                        label,
+                                        style: TextStyle(
+                                          fontSize: 13,
+                                          fontWeight: isSelected ? FontWeight.w600 : FontWeight.w400,
+                                          color: isSelected
+                                              ? theme.colorScheme.primary
+                                              : theme.colorScheme.onSurface,
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                              );
+                            }).toList(),
+                          ),
+                          const SizedBox(height: 24),
+                          // Include Primitives checkbox
+                          GestureDetector(
+                            onTap: () {
+                              setModalState(() {});
+                              setState(() => _includePrimitives = !_includePrimitives);
+                            },
+                            child: Container(
+                              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 13),
+                              decoration: BoxDecoration(
+                                color: _includePrimitives
+                                    ? theme.colorScheme.tertiary.withOpacity(0.08)
+                                    : theme.colorScheme.surfaceContainerHighest.withOpacity(0.4),
+                                borderRadius: BorderRadius.circular(16),
+                                border: Border.all(
+                                  color: _includePrimitives
+                                      ? theme.colorScheme.tertiary.withOpacity(0.4)
+                                      : theme.colorScheme.outline.withOpacity(0.08),
+                                ),
+                              ),
+                              child: Row(
+                                children: [
+                                  AnimatedContainer(
+                                    duration: const Duration(milliseconds: 150),
+                                    width: 20,
+                                    height: 20,
+                                    decoration: BoxDecoration(
+                                      color: _includePrimitives
+                                          ? theme.colorScheme.tertiary
+                                          : Colors.transparent,
+                                      borderRadius: BorderRadius.circular(5),
+                                      border: Border.all(
+                                        color: _includePrimitives
+                                            ? theme.colorScheme.tertiary
+                                            : theme.colorScheme.outline.withOpacity(0.4),
+                                        width: 1.5,
+                                      ),
+                                    ),
+                                    child: _includePrimitives
+                                        ? Icon(
+                                            Icons.check_rounded,
+                                            size: 13,
+                                            color: theme.colorScheme.onTertiary,
+                                          )
+                                        : null,
+                                  ),
+                                  const SizedBox(width: 12),
+                                  Expanded(
+                                    child: Column(
+                                      crossAxisAlignment: CrossAxisAlignment.start,
+                                      children: [
+                                        Text(
+                                          'Include Primitives',
+                                          style: TextStyle(
+                                            fontSize: 14,
+                                            fontWeight: FontWeight.w500,
+                                            color: theme.colorScheme.onSurface,
+                                          ),
+                                        ),
+                                        const SizedBox(height: 2),
+                                        Text(
+                                          'Add core layout & text primitives to the registry',
+                                          style: TextStyle(
+                                            fontSize: 11,
+                                            color: theme.colorScheme.onSurfaceVariant.withOpacity(0.6),
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            );
+          },
+        );
+      },
+    ).then((_) {
+      cubit.updateRegistry(
+        _singleThemeMode ? {_selectedSingleTheme} : _selectedMultipleThemes,
+        includePrimitives: _includePrimitives,
+      );
+    });
   }
 
   Widget _buildConsoleUtilityCard({
@@ -1418,6 +1804,100 @@ class _PresetPromptCardState extends State<_PresetPromptCard> {
               ],
             ),
           ),
+        ),
+      ),
+    );
+  }
+}
+
+class _ThemeModeRadioTile extends StatelessWidget {
+  final String title;
+  final String subtitle;
+  final IconData icon;
+  final bool selected;
+  final VoidCallback onTap;
+
+  const _ThemeModeRadioTile({
+    required this.title,
+    required this.subtitle,
+    required this.icon,
+    required this.selected,
+    required this.onTap,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    return GestureDetector(
+      onTap: onTap,
+      behavior: HitTestBehavior.opaque,
+      child: AnimatedContainer(
+        duration: const Duration(milliseconds: 150),
+        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+        decoration: BoxDecoration(
+          color: selected
+              ? theme.colorScheme.primary.withOpacity(0.06)
+              : Colors.transparent,
+          borderRadius: BorderRadius.circular(16),
+        ),
+        child: Row(
+          children: [
+            AnimatedContainer(
+              duration: const Duration(milliseconds: 150),
+              width: 20,
+              height: 20,
+              decoration: BoxDecoration(
+                shape: BoxShape.circle,
+                color: selected
+                    ? theme.colorScheme.primary
+                    : Colors.transparent,
+                border: Border.all(
+                  color: selected
+                      ? theme.colorScheme.primary
+                      : theme.colorScheme.outline.withOpacity(0.4),
+                  width: 2,
+                ),
+              ),
+              child: selected
+                  ? Center(
+                      child: Container(
+                        width: 8,
+                        height: 8,
+                        decoration: BoxDecoration(
+                          shape: BoxShape.circle,
+                          color: theme.colorScheme.onPrimary,
+                        ),
+                      ),
+                    )
+                  : null,
+            ),
+            const SizedBox(width: 14),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    title,
+                    style: TextStyle(
+                      fontSize: 14,
+                      fontWeight: FontWeight.w500,
+                      color: selected
+                          ? theme.colorScheme.primary
+                          : theme.colorScheme.onSurface,
+                    ),
+                  ),
+                  const SizedBox(height: 2),
+                  Text(
+                    subtitle,
+                    style: TextStyle(
+                      fontSize: 11,
+                      color: theme.colorScheme.onSurfaceVariant.withOpacity(0.6),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ],
         ),
       ),
     );

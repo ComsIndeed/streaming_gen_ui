@@ -6,7 +6,7 @@ import 'package:streaming_gen_ui/src/models/generative_ui_config.dart';
 import 'package:streaming_gen_ui/src/widgets/streaming_error_widget.dart';
 
 class StreamingGenerativeUi with ChangeNotifier {
-  final WidgetRegistry registry;
+  WidgetRegistry registry;
   final Map<String, ViewState> _views = {};
   final bool showInternalErrors;
   final GenerativeUiErrorBuilder? errorBuilder;
@@ -53,6 +53,14 @@ class StreamingGenerativeUi with ChangeNotifier {
     this.extraInstructions = const [],
     this.customViewIds,
   });
+
+  /// Swaps the active widget registry in-place. Existing rendered views keep
+  /// their snapshot (widgets already on screen remain visible). Only new
+  /// streams will use the updated registry.
+  void updateRegistry(WidgetRegistry newRegistry) {
+    registry = newRegistry;
+    notifyListeners();
+  }
 
   /// Returns the programmatically compiled system prompt describing all registered widgets,
   /// routing rules, target view IDs, and additional custom instructions.

@@ -23,36 +23,45 @@ class StreamingMedia extends StatelessWidget {
 
           // Empty parameter protection: do not render anything if parameters are missing
           if (url == null || url.isEmpty) {
-            return const SizedBox.shrink();
+            return AnimatedSize(
+              duration: const Duration(milliseconds: 300),
+              curve: const Cubic(0.2, 0.8, 0.2, 1.0),
+              child: const SizedBox.shrink(),
+            );
           }
 
           final fit = _parseBoxFit(fitString);
 
-          return ClipRRect(
-            borderRadius: BorderRadius.circular(borderRadius),
-            child: AspectRatio(
-              aspectRatio: aspectRatio,
-              child: AnimatedSwitcher(
-                duration: const Duration(milliseconds: 300),
-                child: Image.network(
-                  url,
-                  key: ValueKey(url),
-                  fit: fit,
-                  loadingBuilder: (context, child, loadingProgress) {
-                    if (loadingProgress == null) return child;
-                    return const _ShimmerPlaceholder();
-                  },
-                  errorBuilder: (context, error, stackTrace) {
-                    return Container(
-                      color: Theme.of(context).colorScheme.errorContainer,
-                      child: Center(
-                        child: Icon(
-                          Icons.broken_image_outlined,
-                          color: Theme.of(context).colorScheme.onErrorContainer,
+          return AnimatedSize(
+            duration: const Duration(milliseconds: 400),
+            curve: const Cubic(0.2, 0.8, 0.2, 1.0),
+            alignment: Alignment.topCenter,
+            child: ClipRRect(
+              borderRadius: BorderRadius.circular(borderRadius),
+              child: AspectRatio(
+                aspectRatio: aspectRatio,
+                child: AnimatedSwitcher(
+                  duration: const Duration(milliseconds: 300),
+                  child: Image.network(
+                    url,
+                    key: ValueKey(url),
+                    fit: fit,
+                    loadingBuilder: (context, child, loadingProgress) {
+                      if (loadingProgress == null) return child;
+                      return const _ShimmerPlaceholder();
+                    },
+                    errorBuilder: (context, error, stackTrace) {
+                      return Container(
+                        color: Theme.of(context).colorScheme.errorContainer,
+                        child: Center(
+                          child: Icon(
+                            Icons.broken_image_outlined,
+                            color: Theme.of(context).colorScheme.onErrorContainer,
+                          ),
                         ),
-                      ),
-                    );
-                  },
+                      );
+                    },
+                  ),
                 ),
               ),
             ),

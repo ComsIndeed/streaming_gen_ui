@@ -91,6 +91,24 @@ class Registries {
     return WidgetRegistry(widgets: allWidgets);
   }
 
+  /// Builds a registry from a specific set of theme IDs.
+  /// Optionally includes core primitives and core_extended widgets.
+  static WidgetRegistry forThemes(
+    Set<String> themes, {
+    bool includePrimitives = false,
+  }) {
+    final Map<String, WidgetDefinition> widgets = {};
+    if (includePrimitives) {
+      widgets.addAll(primitives.widgets);
+      widgets.addAll(extended.widgets);
+    }
+    for (final theme in themes) {
+      widgets.addAll(_themeRegistry(theme).widgets);
+    }
+    return WidgetRegistry(widgets: widgets);
+  }
+
+
   // ==========================================
   // BACKWARDS-COMPATIBILITY ALIASES
   // ==========================================
