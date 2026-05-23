@@ -1,114 +1,104 @@
 import 'package:streaming_gen_ui/src/models/widget_registry.dart';
 import 'package:streaming_gen_ui/src/widgets/registries/core_registry/core_registry.dart';
 
-/// Central catalog class for built-in registries. Exposes highly segmented
-/// widget sets and supports dynamic union (+) composition.
+/// Central catalog class for built-in registries. Exposes overhauled
+/// segmented widget sets, aesthetic sub-themes, and composition operators (+).
 class Registries {
-  /// Just the raw building blocks. High token cost, maximum flexibility.
+  /// The 10 Core Primitive building blocks (low token footprint, high flexibility).
   static WidgetRegistry get primitives => WidgetRegistry(
-    widgets: {
-      "core:box": coreRegistry["core:box"]!,
-      "core:flex": coreRegistry["core:flex"]!,
-      "core:text": coreRegistry["core:text"]!,
-      "core:column": coreRegistry["core:column"]!,
-      "core:row": coreRegistry["core:row"]!,
-      "core:container": coreRegistry["core:container"]!,
-      "core:badge": coreRegistry["core:badge"]!,
-      "core:progress_ring": coreRegistry["core:progress_ring"]!,
-      "core:alert": coreRegistry["core:alert"]!,
-    },
-  );
+        widgets: {
+          "core:text": coreRegistry["core:text"]!,
+          "core:icon": coreRegistry["core:icon"]!,
+          "core:media": coreRegistry["core:media"]!,
+          "core:markdown": coreRegistry["core:markdown"]!,
+          "core:button": coreRegistry["core:button"]!,
+          "core:container": coreRegistry["core:container"]!,
+          "core:column": coreRegistry["core:column"]!,
+          "core:row": coreRegistry["core:row"]!,
+          "core:textfield": coreRegistry["core:textfield"]!,
+          "core:slider": coreRegistry["core:slider"]!,
+        },
+      );
 
-  /// Stateful user interaction widgets (Button, TextField)
-  static WidgetRegistry get interactive => WidgetRegistry(
-    widgets: {
-      "core:elevated_button": coreRegistry["core:elevated_button"]!,
-      "core:textfield": coreRegistry["core:textfield"]!,
-      "core:slider": coreRegistry["core:slider"]!,
-      "core:segmented_control": coreRegistry["core:segmented_control"]!,
-      "core:shimmer_button": coreRegistry["core:shimmer_button"]!,
-      "core:icon_button_row": coreRegistry["core:icon_button_row"]!,
-      "core:destructive_action_button":
-          coreRegistry["core:destructive_action_button"]!,
-      "ui:stepper_counter": coreRegistry["ui:stepper_counter"]!,
-    },
-  );
+  /// Stateful core extended interaction and progressive stepper layouts.
+  static WidgetRegistry get extended => WidgetRegistry(
+        widgets: {
+          "core_extended:icon_button": coreRegistry["core_extended:icon_button"]!,
+          "core_extended:text_button": coreRegistry["core_extended:text_button"]!,
+          "core_extended:progression_bar": coreRegistry["core_extended:progression_bar"]!,
+          "core_extended:progression_circle": coreRegistry["core_extended:progression_circle"]!,
+          "core_extended:stepper": coreRegistry["core_extended:stepper"]!,
+        },
+      );
 
-  /// The daily drivers. Fast streaming, beautiful defaults.
-  static WidgetRegistry get standardCards => WidgetRegistry(
-    widgets: {
-      "ui:bento_card": coreRegistry["ui:bento_card"]!,
-      "ui:list_tile": coreRegistry["ui:list_tile"]!,
-      "ui:key_value_row": coreRegistry["ui:key_value_row"]!,
-    },
-  );
+  // ==========================================
+  // AESTHETIC THEME REGISTRIES
+  // ==========================================
 
-  /// For chat reasoning timelines and code terminals.
-  static WidgetRegistry get documents => WidgetRegistry(
-    widgets: {
-      "doc:terminal": coreRegistry["doc:terminal"]!,
-      "doc:agent_stepper": coreRegistry["doc:agent_stepper"]!,
-      "ui:timeline_stepper": coreRegistry["ui:timeline_stepper"]!,
-      "doc:log_streamer": coreRegistry["doc:log_streamer"]!,
-    },
-  );
+  /// Material 3 aesthetic UI widget set.
+  static WidgetRegistry get material => _themeRegistry('material');
 
-  /// For dashboards, big numbers, and spreadsheets.
-  static WidgetRegistry get metrics => WidgetRegistry(
-    widgets: {
-      "dash:metric": coreRegistry["dash:metric"]!,
-      "dash:data_table": coreRegistry["dash:data_table"]!,
-      "ui:stats_grid": coreRegistry["ui:stats_grid"]!,
-    },
-  );
+  /// Windows 11 Fluent aesthetic UI widget set.
+  static WidgetRegistry get fluent => _themeRegistry('fluent');
+
+  /// Apple iOS/macOS Squircle aesthetic UI widget set.
+  static WidgetRegistry get apple => _themeRegistry('apple');
+
+  /// Frost-blurred Glassmorphism aesthetic UI widget set.
+  static WidgetRegistry get glassmorphic => _themeRegistry('glassmorphic');
+
+  /// Soft tactile shadow Neumorphism aesthetic UI widget set.
+  static WidgetRegistry get neumorphic => _themeRegistry('neumorphic');
+
+  /// Realistic texture Skeuomorphism aesthetic UI widget set.
+  static WidgetRegistry get skeumorphic => _themeRegistry('skeumorphic');
+
+  /// Flat high-contrast Pop-Art Brutalist aesthetic UI widget set.
+  static WidgetRegistry get brutalist => _themeRegistry('brutalist');
+
+  /// Dynamic helper to extract a theme's widget triplet (card, user_profile, carousel).
+  static WidgetRegistry _themeRegistry(String theme) {
+    return WidgetRegistry(
+      widgets: {
+        "${theme}_ui:card": coreRegistry["${theme}_ui:card"]!,
+        "${theme}_ui:user_profile": coreRegistry["${theme}_ui:user_profile"]!,
+        "${theme}_ui:carousel": coreRegistry["${theme}_ui:carousel"]!,
+      },
+    );
+  }
 
   // ==========================================
   // COMPOSED SUPER-BUNDLES
   // ==========================================
 
-  /// Perfect for a standard ChatGPT-style clone.
-  static WidgetRegistry get chatApp =>
-      documents + standardCards + primitives.only(["core:text", "core:badge"]);
-
-  /// Perfect for an AI admin panel or dashboard tracker.
-  static WidgetRegistry get dashboard =>
-      metrics + standardCards + primitives.only(["core:box", "core:flex"]);
-
-  /// Gives the model the entire widget ecosystem.
-  static WidgetRegistry get all =>
-      primitives + interactive + standardCards + documents + metrics + media;
+  /// The master bundle containing the entire overhauled generative widget catalog.
+  static WidgetRegistry get all {
+    final Map<String, WidgetDefinition> allWidgets = {};
+    allWidgets.addAll(primitives.widgets);
+    allWidgets.addAll(extended.widgets);
+    for (final theme in ['material', 'fluent', 'apple', 'glassmorphic', 'neumorphic', 'skeumorphic', 'brutalist']) {
+      allWidgets.addAll(_themeRegistry(theme).widgets);
+    }
+    return WidgetRegistry(widgets: allWidgets);
+  }
 
   // ==========================================
-  // RETRO-COMPATIBILITY ALIASES
+  // BACKWARDS-COMPATIBILITY ALIASES
   // ==========================================
 
-  /// Base layout components (Column, Row, Container)
+  /// Retro layout components mapping to primitives.
   static WidgetRegistry get layout => WidgetRegistry(
-    widgets: {
-      "core:column": coreRegistry["core:column"]!,
-      "core:row": coreRegistry["core:row"]!,
-      "core:container": coreRegistry["core:container"]!,
-    },
-  );
+        widgets: {
+          "core:column": coreRegistry["core:column"]!,
+          "core:row": coreRegistry["core:row"]!,
+          "core:container": coreRegistry["core:container"]!,
+        },
+      );
 
-  /// The master collection of all standard built-in widgets.
+  /// The master catalog alias.
   static WidgetRegistry get core => all;
 
-  /// Composed Essentials bundle.
+  /// Retro essentials layout block.
   static WidgetRegistry get essentials =>
-      layout +
-      WidgetRegistry(widgets: {"core:text": coreRegistry["core:text"]!});
-
-  // Make this take any media types, actually. Audios, videos, images.
-  static WidgetRegistry get media => WidgetRegistry(
-    widgets: {
-      "media:image": coreRegistry["media:image"]!,
-      "media:3d_stack_carousel": coreRegistry["media:3d_stack_carousel"]!,
-      "media:expanding_accordion_carousel":
-          coreRegistry["media:expanding_accordion_carousel"]!,
-      "media:split_screen_carousel":
-          coreRegistry["media:split_screen_carousel"]!,
-      "doc:voice_visualizer": coreRegistry["doc:voice_visualizer"]!,
-    },
-  );
+      layout + WidgetRegistry(widgets: {"core:text": coreRegistry["core:text"]!});
 }
