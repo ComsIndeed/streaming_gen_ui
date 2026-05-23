@@ -8,11 +8,12 @@ if (!(Test-Path $inputDir)) { New-Item -ItemType Directory -Path $inputDir | Out
 if (!(Test-Path $outputDir)) { New-Item -ItemType Directory -Path $outputDir | Out-Null }
 if (!(Test-Path $archiveDir)) { New-Item -ItemType Directory -Path $archiveDir | Out-Null }
 
-$mediaFiles = Get-ChildItem -Path $inputDir -Include "*.mp4", "*.gif" -File
+$mediaFiles = @(Get-ChildItem -Path $inputDir -File | Where-Object { $_.Extension.ToLower() -in ".mp4", ".gif" })
 
 if ($mediaFiles.Count -eq 0) {
     Write-Host "No MP4 or GIF files found in: $inputDir"
     Write-Host "Please drop your original files into the 'input' folder and run this script again."
+    Write-Host "Current Directory is: $currentDir"
     exit
 }
 
@@ -30,7 +31,8 @@ foreach ($file in $mediaFiles) {
     if ($ext -eq ".mp4") {
         Write-Host "-> Converting MP4 to full-size GIF..."
         ffmpeg -y -loglevel warning -i $file.FullName -vf "fps=15,split[s0][s1];[s0]palettegen[p];[s1][p]paletteuse" $fullSizeGif
-    } elseif ($ext -eq ".gif") {
+    }
+    elseif ($ext -eq ".gif") {
         Write-Host "-> Copying full-size GIF to output..."
         Copy-Item -Path $file.FullName -Destination $fullSizeGif -Force
     }
