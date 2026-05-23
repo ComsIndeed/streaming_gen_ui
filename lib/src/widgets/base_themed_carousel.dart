@@ -71,7 +71,7 @@ class _BaseThemedCarouselState extends State<BaseThemedCarousel> {
     final theme = Theme.of(context);
 
     return SizedBox(
-      height: 220,
+      height: 290,
       child: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
@@ -142,7 +142,7 @@ class _BaseThemedCarouselState extends State<BaseThemedCarousel> {
     final theme = Theme.of(context);
 
     return SizedBox(
-      height: 240,
+      height: 300,
       child: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
@@ -189,6 +189,7 @@ class _BaseThemedCarouselState extends State<BaseThemedCarousel> {
                         curve: Curves.easeOutCubic,
                         child: SizedBox(
                           width: MediaQuery.of(context).size.width * 0.76,
+                          height: 250,
                           child: IgnorePointer(
                             ignoring: relativeIdx != 0, // Click only the topmost card
                             child: StreamingWidget(

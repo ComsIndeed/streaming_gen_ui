@@ -22,8 +22,17 @@ class BaseStreamingImage extends StatefulWidget {
   State<BaseStreamingImage> createState() => _BaseStreamingImageState();
 }
 
-class _BaseStreamingImageState extends State<BaseStreamingImage> with SingleTickerProviderStateMixin {
+class _BaseStreamingImageState extends State<BaseStreamingImage>
+    with SingleTickerProviderStateMixin {
   bool _loaded = false;
+
+  @override
+  void didUpdateWidget(covariant BaseStreamingImage oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (widget.imageUrl != oldWidget.imageUrl) {
+      _loaded = false;
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -60,23 +69,35 @@ class _BaseStreamingImageState extends State<BaseStreamingImage> with SingleTick
         placeholder = Container(
           decoration: BoxDecoration(
             gradient: LinearGradient(
-              colors: [Colors.white.withValues(alpha: 0.08), Colors.white.withValues(alpha: 0.02)],
+              colors: [
+                Colors.white.withValues(alpha: 0.08),
+                Colors.white.withValues(alpha: 0.02),
+              ],
             ),
           ),
           child: const Center(
             child: SizedBox(
               width: 20,
               height: 20,
-              child: CircularProgressIndicator(strokeWidth: 1.5, color: Colors.white),
+              child: CircularProgressIndicator(
+                strokeWidth: 1.5,
+                color: Colors.white,
+              ),
             ),
           ),
         );
         break;
       case 'neumorphic':
         placeholder = Container(
-          color: themeData.brightness == Brightness.dark ? Colors.grey.shade900 : Colors.grey.shade100,
+          color: themeData.brightness == Brightness.dark
+              ? Colors.grey.shade900
+              : Colors.grey.shade100,
           child: Center(
-            child: Icon(Icons.image_outlined, color: Colors.grey.shade400, size: 24),
+            child: Icon(
+              Icons.image_outlined,
+              color: Colors.grey.shade400,
+              size: 24,
+            ),
           ),
         );
         break;
@@ -98,7 +119,11 @@ class _BaseStreamingImageState extends State<BaseStreamingImage> with SingleTick
         placeholder = Container(
           color: const Color(0xFFFFFF00), // Stark brutalist yellow
           child: const Center(
-            child: Icon(Icons.image_search_outlined, color: Colors.black, size: 24),
+            child: Icon(
+              Icons.image_search_outlined,
+              color: Colors.black,
+              size: 24,
+            ),
           ),
         );
         break;
@@ -112,10 +137,7 @@ class _BaseStreamingImageState extends State<BaseStreamingImage> with SingleTick
       widget.imageUrl,
       fit: widget.fit,
       frameBuilder: (context, child, frame, wasSynchronouslyLoaded) {
-        if (wasSynchronouslyLoaded) {
-          return child;
-        }
-        if (frame != null) {
+        if (wasSynchronouslyLoaded || frame != null) {
           WidgetsBinding.instance.addPostFrameCallback((_) {
             if (mounted && !_loaded) {
               setState(() {
@@ -157,10 +179,7 @@ class _BaseStreamingImageState extends State<BaseStreamingImage> with SingleTick
     }
 
     if (widget.aspectRatio != null) {
-      return AspectRatio(
-        aspectRatio: widget.aspectRatio!,
-        child: composite,
-      );
+      return AspectRatio(aspectRatio: widget.aspectRatio!, child: composite);
     }
 
     return composite;
@@ -174,7 +193,8 @@ class _ShimmerPlaceholder extends StatefulWidget {
   State<_ShimmerPlaceholder> createState() => _ShimmerPlaceholderState();
 }
 
-class _ShimmerPlaceholderState extends State<_ShimmerPlaceholder> with SingleTickerProviderStateMixin {
+class _ShimmerPlaceholderState extends State<_ShimmerPlaceholder>
+    with SingleTickerProviderStateMixin {
   late AnimationController _controller;
 
   @override
@@ -223,6 +243,10 @@ class _SlidingGradientTransform extends GradientTransform {
 
   @override
   Matrix4? transform(Rect bounds, {TextDirection? textDirection}) {
-    return Matrix4.translationValues(bounds.width * (slidePercent - 0.5) * 2, 0.0, 0.0);
+    return Matrix4.translationValues(
+      bounds.width * (slidePercent - 0.5) * 2,
+      0.0,
+      0.0,
+    );
   }
 }

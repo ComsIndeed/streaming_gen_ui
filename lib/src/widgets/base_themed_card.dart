@@ -300,7 +300,10 @@ class _BaseThemedCardState extends State<BaseThemedCard> {
       duration: const Duration(milliseconds: 300),
       curve: Curves.easeOutCubic,
       alignment: Alignment.topLeft,
-      child: contentLayout,
+      child: SingleChildScrollView(
+        physics: const BouncingScrollPhysics(),
+        child: contentLayout,
+      ),
     );
   }
 

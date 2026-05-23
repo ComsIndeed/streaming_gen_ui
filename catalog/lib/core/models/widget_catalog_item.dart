@@ -5,10 +5,9 @@ class WidgetCatalogItem {
     final formattedName = namespace
         .split(':')[0]
         .split("_")
-        .map((e) => e[0].toUpperCase() + e.substring(1))
+        .map((e) => e.toLowerCase() == "ui" ? "UI" : (e[0].toUpperCase() + e.substring(1)))
         .join(" ");
 
-    if (formattedName == "Ui") return "UI";
     if (formattedName == "Doc") return "Document";
     if (formattedName == "Dash") return "Dashboard";
 
@@ -18,7 +17,7 @@ class WidgetCatalogItem {
   String get provider => namespace
       .split(':')[0]
       .split("_")
-      .map((e) => e[0].toUpperCase() + e.substring(1))
+      .map((e) => e.toLowerCase() == "ui" ? "UI" : (e[0].toUpperCase() + e.substring(1)))
       .join(" ");
 
   String get displayName => namespace
