@@ -1,7 +1,7 @@
 name: streaming_gen_ui
 description: "A high-performance streaming Generative UI engine for Flutter. Render interactive components reactively as raw LLM streams flow in character-by-character."
-version: 0.1.0
-repository: https://github.com/ComsIndeed/streaming-gen-ui
+version: 0.2.0
+repository: https://github.com/ComsIndeed/streaming_gen_ui
 
 environment:
   sdk: ^3.11.0
