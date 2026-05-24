@@ -2,6 +2,17 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:streaming_gen_ui/streaming_gen_ui.dart';
 
+// ---------------------------------------------------------------------------
+// This example demonstrates the core streaming_gen_ui workflow:
+//
+//   1. Instantiate StreamingGenerativeUi with your chosen registries.
+//   2. Include the auto-generated systemPrompt in your LLM system instructions.
+//   3. Feed the LLM token stream to .stream(stream, viewId: '...').
+//   4. Place .view('...') anywhere in your widget tree to display the output.
+//
+// In production, replace _simulatedLlmStream() with your real LLM stream.
+// ---------------------------------------------------------------------------
+
 void main() {
   runApp(const MyApp());
 }
@@ -12,61 +23,70 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      title: 'Streaming Gen UI Example',
+      title: 'streaming_gen_ui Example',
       theme: ThemeData(
-        colorScheme: ColorScheme.fromSeed(seedColor: Colors.blue),
+        colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
         useMaterial3: true,
       ),
-      home: const StreamingUiScreen(),
+      home: const ChatScreen(),
     );
   }
 }
 
-class StreamingUiScreen extends StatefulWidget {
-  const StreamingUiScreen({super.key});
+class ChatScreen extends StatefulWidget {
+  const ChatScreen({super.key});
 
   @override
-  State<StreamingUiScreen> createState() => _StreamingUiScreenState();
+  State<ChatScreen> createState() => _ChatScreenState();
 }
 
-class _StreamingUiScreenState extends State<StreamingUiScreen> {
-  // 1. Initialize the central controller with registered widgets
+class _ChatScreenState extends State<ChatScreen> {
+  // 1. Create instance — pick the registries you want the LLM to use.
+  //    Registries.material gives you a full set of Material 3 styled UI cards.
+  //    Add Registries.primitives for raw layout/text/button primitives.
   late final StreamingGenerativeUi _genUi;
 
   @override
   void initState() {
     super.initState();
     _genUi = StreamingGenerativeUi(
-      registries: [
-        Registries.core,
-        // Register any custom domain widgets/registries here...
-      ],
+      registries: [Registries.material, Registries.primitives],
     );
+
+    // 2. In production, pass _genUi.systemPrompt to your LLM system prompt:
+    //
+    //   final response = await yourLlm.sendMessageStream(
+    //     message: userMessage,
+    //     systemPrompt: 'You are a helpful assistant.\n${_genUi.systemPrompt}',
+    //   );
+    //   _genUi.stream(response, viewId: 'chat-1');
   }
 
-  void _simulateLlmStream() {
-    final streamController = StreamController<String>();
+  /// Simulates a streaming LLM response that mixes conversational text with
+  /// a generative UI widget declared via an <interface> tag.
+  void _sendMessage() {
+    final controller = StreamController<String>();
 
-    // 2. Feed the streaming text chunks directly into the Generative UI engine
-    _genUi.stream(streamController.stream, viewId: 'welcome-view');
+    // 3. Feed the stream to the engine — it handles tag parsing automatically.
+    _genUi.stream(controller.stream, viewId: 'chat-1');
 
-    // Simulate progressive JSON tag streaming from an LLM
-    const chunks = [
-      'Hello! Here is the layout you requested:\n',
-      '<ui-block>',
-      '{"namespace":"core:container",',
-      '"width":300,"height":150,',
-      '"child":{"namespace":"core:text","content":"Hello from the progressive stream!"}}',
-      '</ui-block>',
-      '\nStream completed successfully!',
-    ];
+    // Simulate character-by-character token emission from an LLM.
+    const response =
+        'Here is a quick profile card for you:\n\n'
+        '<interface>'
+        '{"namespace":"material_ui:card",'
+        '"title":"Flutter Developer",'
+        '"subtitle":"Building reactive UIs with streaming_gen_ui",'
+        '"body":[{"namespace":"core:text","content":"Skills: Dart, Flutter, LLM integration"}]}'
+        '</interface>'
+        '\n\nLet me know if you\'d like any changes!';
 
-    int index = 0;
-    Timer.periodic(const Duration(milliseconds: 400), (timer) {
-      if (index < chunks.length) {
-        streamController.add(chunks[index++]);
+    int i = 0;
+    Timer.periodic(const Duration(milliseconds: 30), (timer) {
+      if (i < response.length) {
+        controller.add(response[i++]);
       } else {
-        streamController.close();
+        controller.close();
         timer.cancel();
       }
     });
@@ -75,35 +95,28 @@ class _StreamingUiScreenState extends State<StreamingUiScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('Streaming Generative UI Demo')),
-      body: Center(
-        child: Padding(
-          padding: const EdgeInsets.all(24.0),
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              ElevatedButton.icon(
-                icon: const Icon(Icons.play_arrow),
-                label: const Text('Simulate LLM Stream'),
-                onPressed: _simulateLlmStream,
-              ),
-              const SizedBox(height: 24),
-              // 3. Display the reactive, progressive generative view
-              Card(
-                elevation: 2,
-                child: Padding(
-                  padding: const EdgeInsets.all(16.0),
-                  child: SizedBox(
-                    width: 320,
-                    height: 200,
-                    child: _genUi.view('welcome-view'),
-                  ),
-                ),
-              ),
-            ],
-          ),
+      appBar: AppBar(title: const Text('streaming_gen_ui Demo')),
+      body: Padding(
+        padding: const EdgeInsets.all(16),
+        child: Column(
+          children: [
+            // 4. Display the reactive view — renders Markdown + widgets in order.
+            Expanded(child: _genUi.view('chat-1')),
+            const SizedBox(height: 12),
+            FilledButton.icon(
+              icon: const Icon(Icons.send),
+              label: const Text('Send example message'),
+              onPressed: _sendMessage,
+            ),
+          ],
         ),
       ),
     );
+  }
+
+  @override
+  void dispose() {
+    _genUi.disposeView('chat-1');
+    super.dispose();
   }
 }

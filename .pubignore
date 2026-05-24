@@ -26,9 +26,15 @@ example/pubspec.lock
 example/.dart_tool/
 example/.metadata
 example/build/
+example/analysis_options.yaml
+example/README.md
 
 # Exclude large media and demo assets
 demos/
+doc/
+netlify/
+netlify.toml
+test/
 
 # Exclude internal developer documentation specifications
 doc/engine.md
