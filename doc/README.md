@@ -1,4 +1,6 @@
-# <center>streaming_gen_ui</center>
+<div align="center">
+
+# Streaming Generative UI
 
 ### The Streaming Generative UI Engine for Flutter
 
@@ -10,9 +12,17 @@ without waiting for a complete JSON response.
 
 ![streaming_gen_ui in action](https://raw.githubusercontent.com/ComsIndeed/streaming_gen_ui/main/doc/gifs/output/chat-demo-1_small.gif)
 
-[GitHub](https://github.com/ComsIndeed/streaming-gen-ui) ·
 [Widget Catalog](https://streaming.vincentsanicolas.me) ·
-[Demo](https://streaming.vincentsanicolas.me/?page=chat)
+[AI Chat Demo](https://streaming.vincentsanicolas.me/?page=chat)
+
+</div>
+
+> ## NOTE:
+>
+> This package only renders text streams from LLMs into Flutter widgets/text. It
+> does not manage conversations, pipelines, or tooling.
+>
+> Just `Stream<String>` in → `Widget` out.
 
 ## Why `streaming_gen_ui`?
 
@@ -33,15 +43,19 @@ without waiting for a complete JSON response.
 - **[Pre-Built Themes](#pre-built-themes)** - Includes pre-built themed widgets.
 - **[Easy Composition](#easy-composition)** - Easily create your own widgets.
 
-> ## ⚠️ THIS PACKAGE IS UNDER DEVELOPMENT.
+> ## ⚠️ Under Active Development
 >
-> - The API will likely change.
-> - It is still unstable.
-> - **Feedback would mean a lot**
+> Things may break. APIs may change. Bugs may occur.
+>
+> But hey, feedback, bug reports, and ideas are genuinely appreciated 💙
 
 ## Features
 
 ### Generative UI
+
+No more walls of text. Mix in some visuals.
+
+![Walls of text vs mixed with Widgets](https://raw.githubusercontent.com/ComsIndeed/streaming_gen_ui/main/doc/gifs/output/comparison-demo_large.gif)
 
 Elevate standard text-based conversational interfaces. Instead of presenting a
 long wall of static text, seamlessly mix in rich, interactive components (like
@@ -53,7 +67,7 @@ application to life.
 No waiting for full schema to generate. We've got incremental parsers, just
 render immediately!
 
-![streaming_gen_ui in action](https://raw.githubusercontent.com/ComsIndeed/streaming_gen_ui/main/doc/gifs/output/mechanics-demo_small.gif)
+![Streaming in action](https://raw.githubusercontent.com/ComsIndeed/streaming_gen_ui/main/doc/gifs/output/clean-mechanics-demo.gif)
 
 Most generative UI packages require you to wait for the complete JSON payload
 before decoding and popping the final widget tree onto the screen.
@@ -73,51 +87,49 @@ watch them update reactively.
 
 ### Easy Display
 
+Both the LLM's markdown and generated widgets can render in order easily,
+progressively displayed.
+
 ![streaming_gen_ui in action](https://raw.githubusercontent.com/ComsIndeed/streaming_gen_ui/main/doc/gifs/output/chat-demo-1_small.gif)
 
-Seamlessly blend rich markdown responses and dynamic interfaces. The streaming
-engine parses `<interface>` tags out of the stream automatically, keeping the
-raw conversational text clean and displaying markdown blocks alongside active
-widgets in chronological order.
+Seamlessly blend markdown responses and interfaces. The streaming engine parses
+`<interface>` tags out of the stream automatically, keeping the response clean
+and displaying markdown blocks alongside active widgets in chronological order.
 
 ### Simple & Flexible APIs
 
 Easy developer experience designed for minimal friction with maximum
-flexibility:
+flexibility.
 
-- Initialize with a simple list of registries:
-  `StreamingGenerativeUi(registries: [Registries.essentials, myRegistry])`
-- Access active views anywhere in your widget tree with
-  `genUi.view('message-id')`
-
-> Simple how? Three steps:
+Simple how? Three steps:
 
 1. Initialize your `StreamingGenerativeUi` class and include registries
-2. Include generated prompt to your LLM `systemInstructions`
+2. Include generated prompt to LLM `systemInstructions`
 3. Feed LLM response to your class via `.stream(stream, id)`.
 4. Display the view via `.view(id)` from your class.
 
-> Flexible how?
+Flexible how?
+
+1. It's just `Stream<String> --> Text + Widgets`.
+2. Place views anywhere, instruct LLM to render somewhere.
+3. Easy custom **streaming** widget creation.
+4. You handle your conversations, persistence, and everything else. This handles
+   the rendering.
 
 ### Platform/Framework Agnostic
 
-No vendor lock-in. Whether you are using Gemini, Claude, ChatGPT, or local
+No vendor lock-in. Whether you are using Gemini, Claude, OpenRouter, or local
 models via Ollama/llama.cpp, the engine works entirely on standard inputs.
 Simply feed a `Stream<String>` of raw tokens in, and get responsive,
 state-managed Flutter `Widget` outputs out.
 
 ### Batteries Included
 
-Comes packed with built-in, beautifully designed, and highly optimized widget
-registries:
+Comes packed with built-in and themed widget registries:
+![Themes Demo](https://raw.githubusercontent.com/ComsIndeed/streaming_gen_ui/main/doc/gifs/output/theme-demo_small.gif)
 
-- **`Registries.layout`**: `core:column`, `core:row`, `core:stack`, `core:wrap`,
-  `core:container`, `core:spacer`, `core:divider`
-- **`Registries.display`**: `core:text`, `core:heading`, `core:badge`,
-  `core:chip`, `core:icon`, `core:avatar`, `core:code_block`
-- **`Registries.cards`**: `core:card`, `core:stat_card`, `core:profile_card`,
-  `core:list_tile`, `core:key_value_card`
-- **`Registries.dashboard`**: `core:metric_tile`, `core:chart_bar`
+And a whole lot more:
+![Widget Catalog Demo](https://raw.githubusercontent.com/ComsIndeed/streaming_gen_ui/main/doc/gifs/output/widget-catalog-demo_large.gif)
 
 ### Pre-Built Themes
 
