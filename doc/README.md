@@ -33,6 +33,12 @@ without waiting for a complete JSON response.
 - **[Pre-Built Themes](#pre-built-themes)** - Includes pre-built themed widgets.
 - **[Easy Composition](#easy-composition)** - Easily create your own widgets.
 
+> ## ⚠️ THIS PACKAGE IS UNDER DEVELOPMENT.
+>
+> - The API will likely change.
+> - It is still unstable.
+> - **Feedback would mean a lot**
+
 ## Features
 
 ### Generative UI
@@ -43,6 +49,9 @@ profile cards, charts, accordion carousels, or metric tiles) that bring your
 application to life.
 
 ### Streaming Support
+
+No waiting for full schema to generate. We've got incremental parsers, just
+render immediately!
 
 ![streaming_gen_ui in action](https://raw.githubusercontent.com/ComsIndeed/streaming_gen_ui/main/doc/gifs/output/mechanics-demo_small.gif)
 
