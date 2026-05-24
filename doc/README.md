@@ -98,8 +98,8 @@ flexibility.
 Simple how? Four steps:
 
 1. Initialize your `StreamingGenerativeUi` class and include registries
-2. Include generated prompt to LLM `systemInstructions`
-3. Feed LLM response to your class via `.stream(stream, id)`.
+2. Include generated prompt to LLM via `systemPrompt`
+3. Feed LLM response to your class via `.stream(stream, viewId: 'id')`.
 4. Display the view via `.view(id)` from your class.
 
 Flexible how?
@@ -141,18 +141,12 @@ maintain!
 
 ## Quick Setup
 
-> ## ⚠️ Under Active Development
->
-> Things may break. APIs may change. Bugs may occur.
->
-> But hey, feedback, bug reports, and ideas are genuinely appreciated 💙
-
 ```dart
 import 'package:streaming_gen_ui/streaming_gen_ui.dart';
 
 // 1. Create instance, use registries (or custom widgets)
 final streamingGenUi = StreamingGenerativeUi(
-  registries: [Registries.material, Registries.core],
+  registries: [Registries.material],
 );
 
 // 2. Include generated prompt in instructions
