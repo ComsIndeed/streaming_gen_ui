@@ -43,12 +43,6 @@ without waiting for a complete JSON response.
 - **[Pre-Built Themes](#pre-built-themes)** - Includes pre-built themed widgets.
 - **[Easy Composition](#easy-composition)** - Easily create your own widgets.
 
-> ## ⚠️ Under Active Development
->
-> Things may break. APIs may change. Bugs may occur.
->
-> But hey, feedback, bug reports, and ideas are genuinely appreciated 💙
-
 ## Features
 
 ### Generative UI
@@ -101,7 +95,7 @@ and displaying markdown blocks alongside active widgets in chronological order.
 Easy developer experience designed for minimal friction with maximum
 flexibility.
 
-Simple how? Three steps:
+Simple how? Four steps:
 
 1. Initialize your `StreamingGenerativeUi` class and include registries
 2. Include generated prompt to LLM `systemInstructions`
@@ -120,18 +114,22 @@ Flexible how?
 
 No vendor lock-in. Whether you are using Gemini, Claude, OpenRouter, or local
 models via Ollama/llama.cpp, the engine works entirely on standard inputs.
-Simply feed a `Stream<String>` of raw tokens in, and get responsive,
-state-managed Flutter `Widget` outputs out.
+Simply feed a `Stream<String>` of raw tokens in, and get streaming Flutter
+`Widget` outputs out.
+
+Use whichever framework, state management, or orchestrator you like.
 
 ### Batteries Included
 
-Comes packed with built-in and themed widget registries:
-![Themes Demo](https://raw.githubusercontent.com/ComsIndeed/streaming_gen_ui/main/doc/gifs/output/theme-demo_small.gif)
+A good starting set of widgets are included, covering layouts, displays, cards,
+and dashboards for different design themes.
 
-And a whole lot more:
 ![Widget Catalog Demo](https://raw.githubusercontent.com/ComsIndeed/streaming_gen_ui/main/doc/gifs/output/widget-catalog-demo_large.gif)
 
 ### Pre-Built Themes
+
+Comes packed with built-in and themed widget registries:
+![Themes Demo](https://raw.githubusercontent.com/ComsIndeed/streaming_gen_ui/main/doc/gifs/output/theme-demo_small.gif)
 
 ### Easy Composition
 
@@ -143,25 +141,31 @@ maintain!
 
 ## Quick Setup
 
+> ## ⚠️ Under Active Development
+>
+> Things may break. APIs may change. Bugs may occur.
+>
+> But hey, feedback, bug reports, and ideas are genuinely appreciated 💙
+
 ```dart
 import 'package:streaming_gen_ui/streaming_gen_ui.dart';
 
-// Create instance, use registries (or custom widgets)
+// 1. Create instance, use registries (or custom widgets)
 final streamingGenUi = StreamingGenerativeUi(
   registries: [Registries.material, Registries.core],
 );
 
-// Include generated prompt in instructions
+// 2. Include generated prompt in instructions
 final responseStream = Llm.sendMessageStream(
   message: 'Most durable laptops on the market?',
   systemPrompt:
       'You are a helpful assistant.\n${streamingGenUi.systemPrompt}',
 );
 
-// Stream response to target view
+// 3. Stream response to target view
 streamingGenUi.stream(responseStream, viewId: 'msg-box-1');
 
-// Render response + widgets in view
+// 4. Render response + widgets in view
 @override
 Widget build(BuildContext context) {
   return Column(
@@ -176,13 +180,6 @@ Widget build(BuildContext context) {
 ## Contributing
 
 Contributions are welcome (even new widgets on the catalog).
-
-1. Check [open issues](https://github.com/ComsIndeed/streaming-gen-ui/issues)
-   before starting
-2. Discuss major changes in an issue first
-3. Run `flutter test` before submitting a PR
-4. New registry widgets should include a `description`, `properties`, and a
-   working `jsonExample`
 
 ---
 
