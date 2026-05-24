@@ -3,6 +3,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:streaming_gen_ui/streaming_gen_ui.dart';
 import 'package:dartantic_ai/dartantic_ai.dart';
 import 'package:streaming_gen_ui_widget_catalog/pages/chat_demo_page/chat_agent_service.dart';
+import 'package:streaming_gen_ui_widget_catalog/core/utilities/stream_text_in_chunks.dart';
 
 enum TextBoxMode { textfield, media, view }
 
@@ -236,10 +237,23 @@ The package is still in early development. Expect bugs and instability. Better c
     try {
       final textStream = _agentService!.streamResponse(text, _history);
 
+      final Stream<String> processedStream;
+      switch (currentStreamingMode.value) {
+        case StreamingMode.streaming:
+          processedStream = textStream;
+          break;
+        case StreamingMode.noWidgetStreaming:
+          processedStream = transformNoWidgetStreaming(textStream);
+          break;
+        case StreamingMode.noStreaming:
+          processedStream = transformNoStreaming(textStream);
+          break;
+      }
+
       _currentResponseController = StreamController<String>();
       final StringBuffer accumulated = StringBuffer();
 
-      _currentStreamSubscription = textStream.listen(
+      _currentStreamSubscription = processedStream.listen(
         (chunk) {
           accumulated.write(chunk);
 

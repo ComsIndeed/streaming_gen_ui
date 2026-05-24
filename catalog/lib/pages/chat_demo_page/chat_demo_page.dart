@@ -5,6 +5,7 @@ import 'package:responsive_framework/responsive_framework.dart';
 import 'package:streaming_gen_ui_widget_catalog/core/app_widgets/elastic_wrapper.dart';
 import 'package:streaming_gen_ui_widget_catalog/pages/chat_demo_page/chat_demo_cubit.dart';
 import 'package:streaming_gen_ui_widget_catalog/widgets/graph_background.dart';
+import 'package:streaming_gen_ui_widget_catalog/core/utilities/stream_text_in_chunks.dart';
 
 class ChatDemoPage extends StatefulWidget {
   final VoidCallback? onBack;
@@ -18,6 +19,7 @@ class _ChatDemoPageState extends State<ChatDemoPage> {
   late final TextEditingController _controller;
   late final FocusNode _focusNode;
   bool _isCanvasBottomSheetOpen = false;
+  int _headerTapCount = 0;
 
   @override
   void initState() {
@@ -354,38 +356,59 @@ class _ChatDemoPageState extends State<ChatDemoPage> {
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
         Expanded(
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              RichText(
-                text: TextSpan(
-                  style: TextStyle(
-                    fontSize: 24,
-                    letterSpacing: -0.5,
-                    color: theme.colorScheme.onSurface,
+          child: GestureDetector(
+            behavior: HitTestBehavior.translucent,
+            onTap: () {
+              _headerTapCount++;
+              if (_headerTapCount >= 5) {
+                showDevOptionsNotifier.value = true;
+              }
+            },
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                RichText(
+                  text: TextSpan(
+                    style: TextStyle(
+                      fontSize: 24,
+                      letterSpacing: -0.5,
+                      color: theme.colorScheme.onSurface,
+                    ),
+                    children: const [
+                      TextSpan(
+                        text: "Streaming ",
+                        style: TextStyle(fontWeight: FontWeight.bold),
+                      ),
+                      TextSpan(
+                        text: "Generative UI",
+                        style: TextStyle(fontWeight: FontWeight.w300),
+                      ),
+                    ],
                   ),
-                  children: const [
-                    TextSpan(
-                      text: "Streaming ",
-                      style: TextStyle(fontWeight: FontWeight.bold),
-                    ),
-                    TextSpan(
-                      text: "Generative UI",
-                      style: TextStyle(fontWeight: FontWeight.w300),
-                    ),
-                  ],
                 ),
-              ),
-              Text(
-                "Chat Demo",
-                style: TextStyle(
-                  fontSize: 14,
-                  fontWeight: FontWeight.bold,
-                  color: theme.colorScheme.primary,
+                Text(
+                  "Chat Demo",
+                  style: TextStyle(
+                    fontSize: 14,
+                    fontWeight: FontWeight.bold,
+                    color: theme.colorScheme.primary,
+                  ),
                 ),
-              ),
-            ],
+              ],
+            ),
           ),
+        ),
+        ValueListenableBuilder<bool>(
+          valueListenable: showDevOptionsNotifier,
+          builder: (context, showDev, _) {
+            if (!showDev) return const SizedBox.shrink();
+            return Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                _buildStreamingModeButton(context),
+              ],
+            );
+          },
         ),
       ],
     );
@@ -405,6 +428,46 @@ class _ChatDemoPageState extends State<ChatDemoPage> {
       );
     }
     return headerContent;
+  }
+
+  Widget _buildStreamingModeButton(BuildContext context) {
+    return ListenableBuilder(
+      listenable: currentStreamingMode,
+      builder: (context, _) {
+        final mode = currentStreamingMode.value;
+        final IconData icon;
+        final Color color;
+        final String tooltip;
+
+        switch (mode) {
+          case StreamingMode.streaming:
+            icon = Icons.waves_rounded;
+            color = Colors.greenAccent;
+            tooltip = "Streaming Mode: Progressive text & widgets";
+            break;
+          case StreamingMode.noWidgetStreaming:
+            icon = Icons.widgets_rounded;
+            color = Colors.orangeAccent;
+            tooltip = "No Widget Stream Mode: Text streams, widgets render whole";
+            break;
+          case StreamingMode.noStreaming:
+            icon = Icons.done_all_rounded;
+            color = Colors.blueAccent;
+            tooltip = "No-Stream Mode: Entire response awaited and rendered whole";
+            break;
+        }
+
+        return IconButton(
+          icon: Icon(icon, color: color),
+          tooltip: tooltip,
+          onPressed: () {
+            final nextMode = StreamingMode.values[
+                (mode.index + 1) % StreamingMode.values.length];
+            currentStreamingMode.value = nextMode;
+          },
+        );
+      },
+    );
   }
 
   /// Renders a critical configuration warning or runtime API error banner

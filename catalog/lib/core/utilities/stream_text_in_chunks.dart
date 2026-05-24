@@ -1,3 +1,96 @@
+import 'package:flutter/foundation.dart';
+
+enum StreamingMode {
+  streaming,
+  noWidgetStreaming,
+  noStreaming,
+}
+
+final currentStreamingMode = ValueNotifier<StreamingMode>(StreamingMode.streaming);
+final showDevOptionsNotifier = ValueNotifier<bool>(false);
+Stream<String> transformNoWidgetStreaming(Stream<String> source) async* {
+  final buffer = StringBuffer();
+  bool insideTag = false;
+  int yieldedIndex = 0;
+  int tagStartIndex = -1;
+
+  await for (final chunk in source) {
+    buffer.write(chunk);
+    
+    while (true) {
+      final currentStr = buffer.toString();
+      
+      if (!insideTag) {
+        // Look for "<interface" starting from yieldedIndex
+        final idx = currentStr.indexOf('<interface', yieldedIndex);
+        if (idx != -1) {
+          // Found the start of a tag!
+          // 1. Yield any text before the tag
+          if (idx > yieldedIndex) {
+            yield currentStr.substring(yieldedIndex, idx);
+          }
+          // 2. Transition state
+          insideTag = true;
+          tagStartIndex = idx;
+          yieldedIndex = idx;
+        } else {
+          // No "<interface" found.
+          // Check for a partial prefix of "<interface" at the end of the string
+          int partialLen = 0;
+          final searchStr = "<interface";
+          for (int len = searchStr.length - 1; len > 0; len--) {
+            final prefix = searchStr.substring(0, len);
+            if (currentStr.endsWith(prefix)) {
+              partialLen = len;
+              break;
+            }
+          }
+          
+          final safeEnd = currentStr.length - partialLen;
+          if (safeEnd > yieldedIndex) {
+            yield currentStr.substring(yieldedIndex, safeEnd);
+            yieldedIndex = safeEnd;
+          }
+          break; // Need more chunks
+        }
+      } else {
+        // We are inside the tag, look for "</interface>" starting from tagStartIndex
+        final idx = currentStr.indexOf('</interface>', tagStartIndex);
+        if (idx != -1) {
+          final endIdx = idx + '</interface>'.length;
+          // Yield the entire tag block as a single chunk!
+          yield currentStr.substring(tagStartIndex, endIdx);
+          
+          // Transition state
+          insideTag = false;
+          tagStartIndex = -1;
+          yieldedIndex = endIdx;
+          // Continue loop to process any text/tags after this one
+        } else {
+          // Tag is not closed yet, buffer and wait for more chunks
+          break;
+        }
+      }
+    }
+  }
+  
+  // After stream finishes, if there is anything left unyielded (e.g. unclosed tag or trailing text), yield it
+  final remaining = buffer.toString();
+  if (yieldedIndex < remaining.length) {
+    yield remaining.substring(yieldedIndex);
+  }
+}
+
+Stream<String> transformNoStreaming(Stream<String> source) async* {
+  final buffer = StringBuffer();
+  await for (final chunk in source) {
+    buffer.write(chunk);
+  }
+  if (buffer.isNotEmpty) {
+    yield buffer.toString();
+  }
+}
+
 /// Utility function to stream text in chunks with configurable timing.
 ///
 /// This is useful for testing the parser with simulated streaming data

@@ -7,6 +7,7 @@ import 'package:streaming_gen_ui_widget_catalog/pages/catalog_page/catalog_card.
 import 'package:streaming_gen_ui_widget_catalog/pages/catalog_page/catalog_search_bar.dart';
 import 'package:streaming_gen_ui_widget_catalog/widgets/graph_background.dart';
 import 'package:streaming_gen_ui_widget_catalog/main.dart';
+import 'package:streaming_gen_ui_widget_catalog/core/utilities/stream_text_in_chunks.dart';
 
 class CatalogPage extends StatefulWidget {
   final VoidCallback? onNavigateToChat;
@@ -22,7 +23,6 @@ class _CatalogPageState extends State<CatalogPage> {
   String? selectedTheme;
   String? selectedWidgetType;
   int _headerTapCount = 0;
-  bool _showDevOptions = false;
 
   @override
   void initState() {
@@ -120,12 +120,10 @@ class _CatalogPageState extends State<CatalogPage> {
                           child: GestureDetector(
                             behavior: HitTestBehavior.translucent,
                             onTap: () {
-                              setState(() {
-                                _headerTapCount++;
-                                if (_headerTapCount >= 5) {
-                                  _showDevOptions = true;
-                                }
-                              });
+                              _headerTapCount++;
+                              if (_headerTapCount >= 5) {
+                                showDevOptionsNotifier.value = true;
+                              }
                             },
                             child: Column(
                               crossAxisAlignment: CrossAxisAlignment.start,
@@ -195,12 +193,21 @@ class _CatalogPageState extends State<CatalogPage> {
                         ),
                         const SizedBox(width: 12),
                         _buildThemeToggleButton(context),
-                        if (_showDevOptions) ...[
-                          const SizedBox(width: 8),
-                          _buildDevSyncButton(context),
-                          const SizedBox(width: 8),
-                          _buildStreamingModeButton(context),
-                        ],
+                        ValueListenableBuilder<bool>(
+                          valueListenable: showDevOptionsNotifier,
+                          builder: (context, showDev, _) {
+                            if (!showDev) return const SizedBox.shrink();
+                            return Row(
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                const SizedBox(width: 8),
+                                _buildDevSyncButton(context),
+                                const SizedBox(width: 8),
+                                _buildStreamingModeButton(context),
+                              ],
+                            );
+                          },
+                        ),
                       ],
                     ),
                     const SizedBox(height: 20),
@@ -345,9 +352,9 @@ class _CatalogPageState extends State<CatalogPage> {
 
   Widget _buildStreamingModeButton(BuildContext context) {
     return ListenableBuilder(
-      listenable: CatalogCard.streamingMode,
+      listenable: currentStreamingMode,
       builder: (context, _) {
-        final mode = CatalogCard.streamingMode.value;
+        final mode = currentStreamingMode.value;
         final IconData icon;
         final Color color;
         final String tooltip;
@@ -376,7 +383,7 @@ class _CatalogPageState extends State<CatalogPage> {
           onPressed: () {
             final nextMode = StreamingMode.values[
                 (mode.index + 1) % StreamingMode.values.length];
-            CatalogCard.streamingMode.value = nextMode;
+            currentStreamingMode.value = nextMode;
           },
         );
       },

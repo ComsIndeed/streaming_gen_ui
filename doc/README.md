@@ -64,6 +64,8 @@ watch them update reactively.
 
 ### Easy Display
 
+![streaming_gen_ui in action](https://raw.githubusercontent.com/ComsIndeed/streaming_gen_ui/main/doc/gifs/output/chat-demo-1_small.gif)
+
 Seamlessly blend rich markdown responses and dynamic interfaces. The streaming
 engine parses `<interface>` tags out of the stream automatically, keeping the
 raw conversational text clean and displaying markdown blocks alongside active
@@ -71,14 +73,22 @@ widgets in chronological order.
 
 ### Simple & Flexible APIs
 
-Modern, intuitive developer experience designed for high discoverability and
-minimal friction:
+Easy developer experience designed for minimal friction with maximum
+flexibility:
 
 - Initialize with a simple list of registries:
   `StreamingGenerativeUi(registries: [Registries.essentials, myRegistry])`
-- Dynamically hot-swap active components using `updateRegistries(...)`
 - Access active views anywhere in your widget tree with
   `genUi.view('message-id')`
+
+> Simple how? Three steps:
+
+1. Initialize your `StreamingGenerativeUi` class and include registries
+2. Include generated prompt to your LLM `systemInstructions`
+3. Feed LLM response to your class via `.stream(stream, id)`.
+4. Display the view via `.view(id)` from your class.
+
+> Flexible how?
 
 ### Platform/Framework Agnostic
 
