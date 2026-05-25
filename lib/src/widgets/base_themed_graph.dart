@@ -33,11 +33,13 @@ class _BaseThemedGraphCardState extends State<BaseThemedGraphCard> {
         stream: mapStream.stream,
         builder: (context, snapshot) {
           final data = snapshot.data ?? const {};
-          final settings = data["themeSettings"] as Map<String, dynamic>? ?? const {};
+          final settings =
+              data["themeSettings"] as Map<String, dynamic>? ?? const {};
 
           final title = data["title"] as String? ?? 'Data Analysis';
           final subtitle = data["subtitle"] as String?;
-          final type = data["type"] as String? ?? 'bar'; // bar, line, pie, table
+          final type =
+              data["type"] as String? ?? 'bar'; // bar, line, pie, table
           final action = data["action"] as String?;
 
           final hasAction = action != null && action.isNotEmpty;
@@ -72,22 +74,22 @@ class _BaseThemedGraphCardState extends State<BaseThemedGraphCard> {
             cardFrame = ClipPath(
               clipper: ShapeBorderClipper(shape: shape),
               child: BackdropFilter(
-                filter: ColorFilter.mode(Colors.black.withValues(alpha: 0.02), BlendMode.dstATop),
-                child: Container(
-                  decoration: decoration,
-                  child: cardContent,
+                filter: ColorFilter.mode(
+                  Colors.black.withValues(alpha: 0.02),
+                  BlendMode.dstATop,
                 ),
+                child: Container(decoration: decoration, child: cardContent),
               ),
             );
           } else if (widget.themeName == 'fluent') {
             cardFrame = ClipPath(
               clipper: ShapeBorderClipper(shape: shape),
               child: BackdropFilter(
-                filter: ColorFilter.mode(Colors.black.withValues(alpha: 0.04), BlendMode.dstATop),
-                child: Container(
-                  decoration: decoration,
-                  child: cardContent,
+                filter: ColorFilter.mode(
+                  Colors.black.withValues(alpha: 0.04),
+                  BlendMode.dstATop,
                 ),
+                child: Container(decoration: decoration, child: cardContent),
               ),
             );
           } else {
@@ -108,7 +110,9 @@ class _BaseThemedGraphCardState extends State<BaseThemedGraphCard> {
               onTapUp: (_) => setState(() => _isPressed = false),
               onTapCancel: () => setState(() => _isPressed = false),
               onTap: () {
-                debugPrint('[GEN_UI:GRAPH_ACTION] Graph card clicked -> $action');
+                debugPrint(
+                  '[GEN_UI:GRAPH_ACTION] Graph card clicked -> $action',
+                );
               },
               child: AnimatedScale(
                 scale: _isPressed ? 0.97 : 1.0,
@@ -136,8 +140,16 @@ class _BaseThemedGraphCardState extends State<BaseThemedGraphCard> {
     PropertyStream rowsProp,
   ) {
     final themeData = Theme.of(context);
-    final titleStyle = ThemeStyleHelper.getTextStyle(widget.themeName, context, isTitle: true);
-    final subStyle = ThemeStyleHelper.getTextStyle(widget.themeName, context, isTitle: false);
+    final titleStyle = ThemeStyleHelper.getTextStyle(
+      widget.themeName,
+      context,
+      isTitle: true,
+    );
+    final subStyle = ThemeStyleHelper.getTextStyle(
+      widget.themeName,
+      context,
+      isTitle: false,
+    );
 
     return Padding(
       padding: const EdgeInsets.all(16.0),
@@ -151,7 +163,9 @@ class _BaseThemedGraphCardState extends State<BaseThemedGraphCard> {
             Text(
               subtitle,
               style: subStyle.copyWith(
-                color: themeData.colorScheme.onSurfaceVariant.withValues(alpha: 0.7),
+                color: themeData.colorScheme.onSurfaceVariant.withValues(
+                  alpha: 0.7,
+                ),
                 fontSize: 12,
               ),
             ),
@@ -183,7 +197,11 @@ class _BaseThemedGraphCardState extends State<BaseThemedGraphCard> {
     );
   }
 
-  Widget _buildBarChart(BuildContext context, List<dynamic> labels, List<dynamic> values) {
+  Widget _buildBarChart(
+    BuildContext context,
+    List<dynamic> labels,
+    List<dynamic> values,
+  ) {
     if (values.isEmpty) {
       return const SizedBox(
         height: 150,
@@ -192,8 +210,14 @@ class _BaseThemedGraphCardState extends State<BaseThemedGraphCard> {
     }
 
     final themeData = Theme.of(context);
-    final numValues = values.map((e) => (e as num).toDouble()).toList();
-    final maxVal = numValues.reduce((a, b) => a > b ? a : b);
+    final numValues = values
+        .where((e) => e != null)
+        .map((e) => (e as num).toDouble())
+        .toList();
+    double maxVal = 0;
+    if (numValues.isNotEmpty) {
+      maxVal = numValues.reduce((a, b) => a > b ? a : b);
+    }
     final double scaleMax = maxVal == 0 ? 1.0 : maxVal * 1.15;
 
     final primaryAccent = widget.themeName == 'brutalist'
@@ -268,7 +292,11 @@ class _BaseThemedGraphCardState extends State<BaseThemedGraphCard> {
     );
   }
 
-  Widget _buildLineChart(BuildContext context, List<dynamic> labels, List<dynamic> values) {
+  Widget _buildLineChart(
+    BuildContext context,
+    List<dynamic> labels,
+    List<dynamic> values,
+  ) {
     if (values.isEmpty) {
       return const SizedBox(
         height: 150,
@@ -297,7 +325,11 @@ class _BaseThemedGraphCardState extends State<BaseThemedGraphCard> {
     );
   }
 
-  Widget _buildPieChart(BuildContext context, List<dynamic> labels, List<dynamic> values) {
+  Widget _buildPieChart(
+    BuildContext context,
+    List<dynamic> labels,
+    List<dynamic> values,
+  ) {
     if (values.isEmpty) {
       return const SizedBox(
         height: 150,
@@ -344,7 +376,9 @@ class _BaseThemedGraphCardState extends State<BaseThemedGraphCard> {
             mainAxisSize: MainAxisSize.min,
             children: List.generate(numValues.length, (index) {
               final val = numValues[index];
-              final label = index < labels.length ? labels[index].toString() : 'Item $index';
+              final label = index < labels.length
+                  ? labels[index].toString()
+                  : 'Item $index';
               final pct = total == 0 ? 0.0 : (val / total) * 100;
               final col = colors[index % colors.length];
 
@@ -357,7 +391,9 @@ class _BaseThemedGraphCardState extends State<BaseThemedGraphCard> {
                       height: 10,
                       decoration: BoxDecoration(
                         color: col,
-                        shape: widget.themeName == 'brutalist' ? BoxShape.rectangle : BoxShape.circle,
+                        shape: widget.themeName == 'brutalist'
+                            ? BoxShape.rectangle
+                            : BoxShape.circle,
                         border: widget.themeName == 'brutalist'
                             ? Border.all(color: Colors.black, width: 1.0)
                             : null,
@@ -367,7 +403,10 @@ class _BaseThemedGraphCardState extends State<BaseThemedGraphCard> {
                     Expanded(
                       child: Text(
                         "$label (${pct.toStringAsFixed(0)}%)",
-                        style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w600),
+                        style: const TextStyle(
+                          fontSize: 12,
+                          fontWeight: FontWeight.w600,
+                        ),
                         maxLines: 1,
                         overflow: TextOverflow.ellipsis,
                       ),
@@ -377,12 +416,16 @@ class _BaseThemedGraphCardState extends State<BaseThemedGraphCard> {
               );
             }),
           ),
-        )
+        ),
       ],
     );
   }
 
-  Widget _buildDataTable(BuildContext context, PropertyStream headersProp, PropertyStream rowsProp) {
+  Widget _buildDataTable(
+    BuildContext context,
+    PropertyStream headersProp,
+    PropertyStream rowsProp,
+  ) {
     final themeData = Theme.of(context);
     final isBrutalist = widget.themeName == 'brutalist';
 
@@ -404,13 +447,19 @@ class _BaseThemedGraphCardState extends State<BaseThemedGraphCard> {
           scrollDirection: Axis.horizontal,
           child: Container(
             decoration: BoxDecoration(
-              border: isBrutalist ? Border.all(color: Colors.black, width: 2.0) : null,
-              borderRadius: isBrutalist ? BorderRadius.zero : BorderRadius.circular(8.0),
+              border: isBrutalist
+                  ? Border.all(color: Colors.black, width: 2.0)
+                  : null,
+              borderRadius: isBrutalist
+                  ? BorderRadius.zero
+                  : BorderRadius.circular(8.0),
             ),
             child: Table(
               defaultColumnWidth: const IntrinsicColumnWidth(),
               border: TableBorder.all(
-                color: isBrutalist ? Colors.black : themeData.colorScheme.outline.withValues(alpha: 0.15),
+                color: isBrutalist
+                    ? Colors.black
+                    : themeData.colorScheme.outline.withValues(alpha: 0.15),
                 width: isBrutalist ? 2.0 : 1.0,
               ),
               children: [
@@ -420,17 +469,24 @@ class _BaseThemedGraphCardState extends State<BaseThemedGraphCard> {
                     decoration: BoxDecoration(
                       color: isBrutalist
                           ? const Color(0xFFFFFF00)
-                          : themeData.colorScheme.primaryContainer.withValues(alpha: 0.4),
+                          : themeData.colorScheme.primaryContainer.withValues(
+                              alpha: 0.4,
+                            ),
                     ),
                     children: headers.map((h) {
                       return Padding(
-                        padding: const EdgeInsets.symmetric(horizontal: 14.0, vertical: 10.0),
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 14.0,
+                          vertical: 10.0,
+                        ),
                         child: Text(
                           h.toString(),
                           style: TextStyle(
                             fontWeight: FontWeight.bold,
                             fontSize: 12,
-                            color: isBrutalist ? Colors.black : themeData.colorScheme.onSurface,
+                            color: isBrutalist
+                                ? Colors.black
+                                : themeData.colorScheme.onSurface,
                           ),
                         ),
                       );
@@ -444,7 +500,10 @@ class _BaseThemedGraphCardState extends State<BaseThemedGraphCard> {
                   return TableRow(
                     children: cells.map((cell) {
                       return Padding(
-                        padding: const EdgeInsets.symmetric(horizontal: 14.0, vertical: 10.0),
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 14.0,
+                          vertical: 10.0,
+                        ),
                         child: Text(
                           cell.toString(),
                           style: const TextStyle(fontSize: 12),
@@ -516,7 +575,8 @@ class _LineChartPainter extends CustomPainter {
     final double padMin = minVal - (spread * 0.1);
     final double finalSpread = padMax - padMin;
 
-    final double stepX = size.width / (values.length > 1 ? values.length - 1 : 1);
+    final double stepX =
+        size.width / (values.length > 1 ? values.length - 1 : 1);
 
     final path = Path();
     final fillPath = Path();
@@ -543,10 +603,13 @@ class _LineChartPainter extends CustomPainter {
     fillPath.close();
 
     // Draw background gradient fill under line
-      if (themeName != 'brutalist') {
+    if (themeName != 'brutalist') {
       final fillPaint = Paint()
         ..shader = LinearGradient(
-          colors: [primaryColor.withValues(alpha: 0.25), primaryColor.withValues(alpha: 0.0)],
+          colors: [
+            primaryColor.withValues(alpha: 0.25),
+            primaryColor.withValues(alpha: 0.0),
+          ],
           begin: Alignment.topCenter,
           end: Alignment.bottomCenter,
         ).createShader(Rect.fromLTWH(0, 0, size.width, size.height));
@@ -602,7 +665,10 @@ class _PieChartPainter extends CustomPainter {
 
     final double center = size.width / 2;
     final double radius = size.width / 2;
-    final rect = Rect.fromCircle(center: Offset(center, center), radius: radius);
+    final rect = Rect.fromCircle(
+      center: Offset(center, center),
+      radius: radius,
+    );
 
     double startAngle = -math.pi / 2;
 
