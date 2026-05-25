@@ -40,6 +40,18 @@
       ]
     },
     {
+      "name": "Mini Models Test App (Debug)",
+      "request": "launch",
+      "type": "dart",
+      "program": "lib/main.dart",
+      "cwd": "playground/project_mini_models",
+      "args": [
+        "-d",
+        "windows",
+        "--dart-define-from-file=../.env"
+      ]
+    },
+    {
       "name": "Catalog App (Web Debug)",
       "request": "launch",
       "type": "dart",
