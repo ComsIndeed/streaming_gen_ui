@@ -14,7 +14,6 @@ without waiting for a complete JSON response.
 
 [Widget Catalog](https://streaming.vincentsanicolas.me) ·
 [AI Chat Demo](https://streaming.vincentsanicolas.me/?page=chat)
-
 </div>
 
 > ## NOTE:

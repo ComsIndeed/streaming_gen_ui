@@ -1,8 +1,10 @@
+import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:gpt_markdown/gpt_markdown.dart';
 import 'package:responsive_framework/responsive_framework.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:streaming_gen_ui_widget_catalog/core/app_widgets/elastic_wrapper.dart';
 import 'package:streaming_gen_ui_widget_catalog/pages/chat_demo_page/chat_demo_cubit.dart';
 import 'package:streaming_gen_ui_widget_catalog/widgets/graph_background.dart';
@@ -237,12 +239,17 @@ class _ChatDemoPageState extends State<ChatDemoPage> {
                           right: showRightPanel ? sizes.width * 0.6 : 0,
                         ),
                         curve: Curves.easeOut,
-                        child: ChatConsoleInput(
-                          isChatExpanded: isChatExpanded,
-                          isCanvasExpanded: showRightPanel,
-                          sizes: sizes,
-                          controller: _controller,
-                          focusNode: _focusNode,
+                        child: Column(
+                          mainAxisSize: .min,
+                          children: [
+                            ChatConsoleInput(
+                              isChatExpanded: isChatExpanded,
+                              isCanvasExpanded: showRightPanel,
+                              sizes: sizes,
+                              controller: _controller,
+                              focusNode: _focusNode,
+                            ),
+                          ],
                         ),
                       ),
                     ),
@@ -687,15 +694,35 @@ class _ChatDemoPageState extends State<ChatDemoPage> {
                 },
               ),
               SizedBox(height: 48),
-              Text(
-                "Dart and the related logo are trademarks of Google LLC. We are not endorsed by or affiliated with Google LLC.",
-                textAlign: TextAlign.center,
-                style: TextStyle(
-                  fontSize: 10,
-                  color: theme.colorScheme.onSurfaceVariant.withValues(
-                    alpha: 0.4,
+              Text.rich(
+                TextSpan(
+                  text:
+                      'Powered by DeepSeek. Do not share sensitive information. ',
+                  style: TextStyle(
+                    fontSize: 10,
+                    color: theme.colorScheme.onSurfaceVariant.withValues(
+                      alpha: 0.6,
+                    ),
                   ),
+                  children: [
+                    TextSpan(
+                      text: 'Privacy Note →',
+                      style: TextStyle(
+                        color: theme.colorScheme.primary,
+                        decoration: TextDecoration.underline,
+                      ),
+                      recognizer: TapGestureRecognizer()
+                        ..onTap = () {
+                          launchUrl(
+                            Uri.parse(
+                              'https://github.com/ComsIndeed/streaming_gen_ui/blob/main/PRIVACY.md',
+                            ),
+                          );
+                        },
+                    ),
+                  ],
                 ),
+                textAlign: TextAlign.center,
               ),
             ],
           ),
@@ -847,6 +874,7 @@ class _ChatConsoleInputState extends State<ChatConsoleInput> {
   bool _isSendButtonHovered = false;
   bool _isConsoleHovered = false;
   bool _isAnimatingChatExpansion = false;
+  bool? _hasAcceptedDisclosure;
 
   // Design Theme selector state
   bool _singleThemeMode = true; // true = single, false = multiple
@@ -868,6 +896,7 @@ class _ChatConsoleInputState extends State<ChatConsoleInput> {
   void initState() {
     super.initState();
     widget.focusNode.addListener(_handleFocusChange);
+    _loadDisclosurePreference();
   }
 
   @override
@@ -896,7 +925,86 @@ class _ChatConsoleInputState extends State<ChatConsoleInput> {
     }
   }
 
-  void _submit() {
+  Future<void> _loadDisclosurePreference() async {
+    final prefs = await SharedPreferences.getInstance();
+    final accepted =
+        prefs.getBool('hasAcceptedDataDisclosure') ?? false;
+    if (!mounted) return;
+    setState(() {
+      _hasAcceptedDisclosure = accepted;
+    });
+  }
+
+  Future<bool> _ensureDisclosureAccepted() async {
+    if (_hasAcceptedDisclosure == true) {
+      return true;
+    }
+
+    final prefs = await SharedPreferences.getInstance();
+    final accepted =
+        prefs.getBool('hasAcceptedDataDisclosure') ?? false;
+    if (accepted) {
+      if (mounted) {
+        setState(() {
+          _hasAcceptedDisclosure = true;
+        });
+      }
+      return true;
+    }
+
+    final didAccept = await _showDisclosureModal();
+    if (didAccept) {
+      await prefs.setBool('hasAcceptedDataDisclosure', true);
+      if (mounted) {
+        setState(() {
+          _hasAcceptedDisclosure = true;
+        });
+      }
+    }
+
+    return didAccept;
+  }
+
+  Future<bool> _showDisclosureModal() async {
+    if (!mounted) return false;
+
+    final theme = Theme.of(context);
+    final result = await showDialog<bool>(
+      context: context,
+      barrierDismissible: false,
+      builder: (dialogContext) {
+        return AlertDialog(
+          title: const Text('Data Disclosure'),
+          content: ConstrainedBox(
+            constraints: const BoxConstraints(maxWidth: 520),
+            child: const Text(
+              'This demo sends your messages to the DeepSeek API for processing. '
+              'DeepSeek may collect and store prompt data on servers in China and may use it to improve their models. '
+              'I do not store your messages. Do not enter personal, sensitive, or confidential information.',
+            ),
+          ),
+          actions: [
+            OutlinedButton(
+              onPressed: () {
+                Navigator.of(dialogContext).pop(false);
+              },
+              child: const Text('Nevermind'),
+            ),
+            FilledButton(
+              onPressed: () {
+                Navigator.of(dialogContext).pop(true);
+              },
+              child: const Text('I Understand'),
+            ),
+          ],
+        );
+      },
+    );
+
+    return result ?? false;
+  }
+
+  Future<void> _submit() async {
     final cubit = context.read<ChatDemoCubit>();
     if (cubit.state.isThinking) {
       cubit.stopResponse();
@@ -904,6 +1012,8 @@ class _ChatConsoleInputState extends State<ChatConsoleInput> {
     }
     final text = widget.controller.text.trim();
     if (text.isNotEmpty) {
+      final accepted = await _ensureDisclosureAccepted();
+      if (!accepted) return;
       cubit.sendMessage(text);
       widget.controller.clear();
     }
@@ -1040,8 +1150,11 @@ class _ChatConsoleInputState extends State<ChatConsoleInput> {
                               : TextField(
                                   controller: widget.controller,
                                   focusNode: widget.focusNode,
-                                  onSubmitted: (_) =>
-                                      state.isThinking ? null : _submit(),
+                                  onSubmitted: (_) {
+                                    if (!state.isThinking) {
+                                      _submit();
+                                    }
+                                  },
                                   textAlignVertical: TextAlignVertical.center,
                                   decoration: const InputDecoration(
                                     hintText: 'Talk to AI',
