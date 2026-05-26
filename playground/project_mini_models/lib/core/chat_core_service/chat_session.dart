@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'dart:convert';
 
+import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 
 import 'chat_message.dart';
@@ -77,11 +78,16 @@ class ChatSession {
 
     final client = http.Client();
     final response = await client.send(request);
+    final responseStream = response.stream.asBroadcastStream().transform(
+      utf8.decoder,
+    );
     final buffer = StringBuffer();
 
+    // logging
+    responseStream.join().then((fullValue) => debugPrint(fullValue));
+
     try {
-      await for (final chunk in response.stream.transform(utf8.decoder)) {
-        // SSE lines may contain multiple "data:" lines in one chunk
+      await for (final chunk in responseStream) {
         for (final line in chunk.split('\n')) {
           final trimmed = line.trim();
           if (!trimmed.startsWith('data: ')) continue;
@@ -115,4 +121,6 @@ class ChatSession {
       messages.add(ChatMessage(role: Role.model, content: fullResponse));
     }
   }
+
+  void clearChat() => messages.clear();
 }
