@@ -48,7 +48,7 @@
       "args": [
         "-d",
         "windows",
-        "--dart-define-from-file=../.env"
+        "--dart-define-from-file=../../.env"
       ]
     },
     {

@@ -1,8 +1,17 @@
 import 'package:flutter/material.dart';
-import 'homepage.dart';
+import 'package:project_mini_models/homepage/homepage_provider.dart';
+import 'package:provider/provider.dart';
+import 'homepage/homepage.dart';
 
 void main() {
-  runApp(const MainApp());
+  runApp(
+    MultiProvider(
+      providers: [
+        ChangeNotifierProvider(create: (context) => HomepageProvider()),
+      ],
+      child: const MainApp(),
+    ),
+  );
 }
 
 class MainApp extends StatelessWidget {
@@ -10,6 +19,10 @@ class MainApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return const MaterialApp(home: HomePage());
+    return MaterialApp(
+      theme: ThemeData.dark(),
+      themeMode: ThemeMode.dark,
+      home: HomePage(),
+    );
   }
 }
