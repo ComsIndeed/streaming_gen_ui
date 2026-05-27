@@ -1,3 +1,4 @@
+import 'dart:convert';
 import 'package:flutter/widgets.dart';
 import 'package:llm_json_stream/llm_json_stream.dart';
 
@@ -18,6 +19,11 @@ class WidgetDefinition {
   });
 }
 
+// TODO: TEMPORARY SETUP FOR TESTING DUAL-STYLE MIGRATION.
+// Antigravity / future agents: This registry modification is a temporary quick solution
+// to modify the exported generated system prompt catalog for the purpose of testing the dot-notation
+// XML format. It filters the catalog to only show Core, CoreExtended, and MaterialUi widgets,
+// and maps their namespaces directly to XML dot-notation tags.
 class WidgetRegistry {
   final Map<String, WidgetDefinition> widgets;
 
@@ -170,8 +176,84 @@ class WidgetRegistry {
     return buffer.toString();
   }
 
+  static String toXmlTagName(String id) {
+    return id
+        .split(':')
+        .map((segment) {
+          return segment
+              .split('_')
+              .map((word) {
+                if (word.isEmpty) return '';
+                if (word == 'ui') return 'Ui';
+                return word[0].toUpperCase() + word.substring(1);
+              })
+              .join('');
+        })
+        .join('.');
+  }
+
+  static String _jsonToXml(dynamic json) {
+    if (json is String) {
+      try {
+        return _jsonToXml(jsonDecode(json));
+      } catch (_) {
+        return json;
+      }
+    }
+    if (json is! Map) {
+      return '';
+    }
+
+    final namespace = json['namespace'] as String?;
+    if (namespace == null) return '';
+
+    final tagName = toXmlTagName(namespace);
+    final attributes = <String>[];
+    final children = <String>[];
+
+    for (final entry in json.entries) {
+      final key = entry.key;
+      final val = entry.value;
+      if (key == 'namespace') continue;
+
+      if (val is Map && val.containsKey('namespace')) {
+        children.add(_jsonToXml(val));
+      } else if (val is List) {
+        bool allWidgets = true;
+        final listChildren = <String>[];
+        for (final item in val) {
+          if (item is Map && item.containsKey('namespace')) {
+            listChildren.add(_jsonToXml(item));
+          } else {
+            allWidgets = false;
+            break;
+          }
+        }
+        if (allWidgets && listChildren.isNotEmpty) {
+          children.addAll(listChildren);
+        } else {
+          final escapedVal = jsonEncode(val).replaceAll('"', '\\"');
+          attributes.add('$key="$escapedVal"');
+        }
+      } else if (val is String) {
+        final escaped = val.replaceAll('\n', '\\n').replaceAll('"', '\\"');
+        attributes.add('$key="$escaped"');
+      } else {
+        attributes.add('$key="$val"');
+      }
+    }
+
+    final attrStr = attributes.isEmpty ? '' : ' ${attributes.join(' ')}';
+    if (children.isEmpty) {
+      return '<$tagName$attrStr />';
+    } else {
+      return '<$tagName$attrStr>${children.join('')}</$tagName>';
+    }
+  }
+
   String get systemPromptFragment {
     final catalog = widgets.entries
+        .take(2)
         .map((entry) {
           final key = entry.key;
           final def = entry.value;
@@ -182,14 +264,14 @@ class WidgetRegistry {
                     .map((p) => '  * `${p.key}`: ${p.value}')
                     .join('\n');
 
-          final example = def.jsonExample;
+          final xmlExample = _jsonToXml(def.jsonExample);
 
           return '''
-#### Component: `$key`
+`<${toXmlTagName(key)} />`
 * **Description:** ${def.description}
 * **Properties:**
 $propsList
-* **Example JSON:** `<interface>$example</interface>`''';
+* **Example XML:** `<interface>$xmlExample</interface>`''';
         })
         .join('\n\n');
 
@@ -204,11 +286,25 @@ Example response:
 ```assistant
 This is me speaking. Now, I will show you something!
 <interface>
-  <Weather city="london" />
-  
+  <MaterialUi.Carousel>
+    <MaterialUi.Weather temp="24.5" condition="sunny" location="San Francisco" size="normal">
+      <MaterialUi.Forecast day="Mon" temp="25" condition="sunny" />
+      <MaterialUi.Forecast day="Tue" temp="23" condition="cloudy" />
+    </MaterialUi.Weather>
+    <MaterialUi.Weather temp="24.5" condition="sunny" location="Manila" size="normal">
+      <MaterialUi.Forecast day="Mon" temp="25" condition="sunny" />
+      <MaterialUi.Forecast day="Tue" temp="23" condition="cloudy" />
+    </MaterialUi.Weather>
+    <MaterialUi.Weather temp="24.5" condition="sunny" location="San Francisco" size="normal">
+      <MaterialUi.Forecast day="Mon" temp="25" condition="sunny" />
+      <MaterialUi.Forecast day="Tue" temp="23" condition="cloudy" />
+    </MaterialUi.Weather>
+  </MaterialUi.Carousel>
+  <MaterialUi.Note type="note" title="Take a shower" content="Don't forget to take a shower" completed="false" tags="["personal", "reminder"] />
+  <MaterialUi.Note type="todo" title="Buy groceries" content="Buy groceries for the week" completed="false" tags="["personal"] />
+  <MaterialUi.Note type="reminder" title="Meeting with Bob" content="Meeting with Bob at 3pm" completed="false" tags="["work"] />
 </interface>
-This is me speaking again. Did that interface I have shown you looked cool?
-
+This is me speaking again. Did that interface I have shown you looked cool? It's got a scrollable carousel with three weather cards, and below the carousel, there are three note cards.
 ```
 
 $catalog

@@ -97,7 +97,9 @@ class HomepageProvider with ChangeNotifier {
   // ------ Textfield ------
 
   // ------ Streaming Gen UI ------
-  final StreamingGenerativeUi genUi = StreamingGenerativeUi(registries: []);
+  final StreamingGenerativeUi genUi = StreamingGenerativeUi(
+    registries: [Registries.material],
+  );
   String? _activeStreamId;
   String? get activeStreamId => _activeStreamId;
 
