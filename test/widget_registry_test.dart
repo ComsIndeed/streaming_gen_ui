@@ -170,4 +170,41 @@ void main() {
       expect(genUi.registry.widgets.containsKey('custom:w2'), isTrue);
     });
   });
+
+  group('StreamingGenerativeUi UI parsing and rendering', () {
+    testWidgets('renders subsequent TextBlocks even if WidgetBlock fails to parse JSON', (WidgetTester tester) async {
+      final reg = WidgetRegistry.fromDefinition(
+        id: 'core:weather',
+        description: 'Weather widget',
+        properties: {'city': 'String'},
+        builder: (context, props) => Container(),
+      );
+
+      final genUi = StreamingGenerativeUi(
+        registries: [reg],
+        showInternalErrors: false,
+      );
+
+      final String streamInput =
+          'Preamble text\n<interface>\n  <Weather city="Manila" />\n</interface>\nAfter-amble text';
+
+      await genUi.stream(Stream.value(streamInput), viewId: 'test_view');
+
+      // Now build the view
+      await tester.pumpWidget(
+        MaterialApp(
+          home: Scaffold(
+            body: genUi.view('test_view'),
+          ),
+        ),
+      );
+
+      await tester.pumpAndSettle();
+
+      // We expect to find 'Preamble text' and 'After-amble text' rendered
+      expect(find.textContaining('Preamble text'), findsOneWidget);
+      expect(find.textContaining('After-amble text'), findsOneWidget);
+    });
+  });
 }
+

@@ -3,6 +3,7 @@ import 'dart:convert';
 
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
+import 'package:ollama_dart/ollama_dart.dart' as ollama;
 
 import 'chat_message.dart';
 import 'model_config.dart';
@@ -50,6 +51,58 @@ class ChatSession {
     // Immediately persist the user message
     messages.add(ChatMessage(role: Role.user, content: content));
 
+    if (model.isOllama) {
+      final ollamaClient = ollama.OllamaClient.withBaseUrl(model.baseUrl);
+      final ollamaMessages = <ollama.ChatMessage>[];
+
+      // Inject instructions as system message
+      if (model.instructions != null) {
+        ollamaMessages.add(ollama.ChatMessage(
+          role: ollama.MessageRole.system,
+          content: model.instructions!,
+        ));
+      }
+
+      // Inject history
+      for (final msg in messages) {
+        ollamaMessages.add(ollama.ChatMessage(
+          role: msg.role == Role.user
+              ? ollama.MessageRole.user
+              : msg.role == Role.model
+                  ? ollama.MessageRole.assistant
+                  : ollama.MessageRole.system,
+          content: msg.content,
+        ));
+      }
+
+      final request = ollama.ChatRequest(
+        model: model.modelName,
+        messages: ollamaMessages,
+        think: const ollama.ThinkValue.enabled(false), // Set to no think
+      );
+
+      final ollamaStream = ollamaClient.chat.createStream(request: request);
+      final buffer = StringBuffer();
+
+      try {
+        await for (final chunk in ollamaStream) {
+          final text = chunk.message?.content;
+          if (text != null && text.isNotEmpty) {
+            buffer.write(text);
+            yield text;
+          }
+        }
+      } finally {
+        ollamaClient.close();
+      }
+
+      final fullResponse = buffer.toString();
+      if (fullResponse.isNotEmpty) {
+        messages.add(ChatMessage(role: Role.model, content: fullResponse));
+      }
+      return; // Stop here!
+    }
+
     // Build the request payload
     final requestMessages = <Map<String, dynamic>>[];
 
@@ -78,13 +131,8 @@ class ChatSession {
 
     final client = http.Client();
     final response = await client.send(request);
-    final responseStream = response.stream.asBroadcastStream().transform(
-      utf8.decoder,
-    );
+    final responseStream = response.stream.transform(utf8.decoder);
     final buffer = StringBuffer();
-
-    // logging
-    responseStream.join().then((fullValue) => debugPrint(fullValue));
 
     try {
       await for (final chunk in responseStream) {
@@ -122,5 +170,5 @@ class ChatSession {
     }
   }
 
-  void clearChat() => messages.clear();
+  void clearChat() => messages.removeWhere((msg) => msg.role != Role.system);
 }

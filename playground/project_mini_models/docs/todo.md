@@ -1,17 +1,25 @@
 # Streaming Gen UI Roadmap & TODOs
 
-This file tracks the next steps and long-term improvements for our streaming Generative UI system.
+This file tracks the next steps and long-term improvements for our streaming
+Generative UI system.
 
 ## 🎯 High-Level Plan / Future Actions
 
 - [ ] **Non-Animated View Renderer (`view()` getter or option)**
-  - Create a new widget getter method or parameter on `StreamingGenerativeUi.view()` to allow rendering without animations (e.g. `animate: false` or a separate `staticView()` method).
-  - This is optimized for displaying historic chat messages that are already done streaming, preventing unnecessary entry/exit transitions and resource usage when scrolling or rebuilding older list items.
-  
-- [ ] **Stream Optimization for Completed History (`stream()` bypass)**
-  - Implement a new direct injection method in `StreamingGenerativeUi` to register a fully completed raw string directly into the ViewState without running the asynchronous tag parser streams.
-  - This bypasses stream setup overhead entirely for historical messages, significantly improving layout speed on initial app load.
+  - Create a new widget getter method or parameter on
+    `StreamingGenerativeUi.view()` to allow rendering without animations (e.g.
+    `animate: false` or a separate `staticView()` method).
+  - This is optimized for displaying historic chat messages that are already
+    done streaming, preventing unnecessary entry/exit transitions and resource
+    usage when scrolling or rebuilding older list items.
 
-- [ ] **Aesthetic Segmented Registries**
-  - Gradually introduce lightweight custom component templates and test them against the simplified XML parsing format.
-  - Optimize the prompt structure to minimize the token footprint of schemas.
+- [ ] XML formatting
+  - [ ] **Strict Dot-Notation Namespaces**: Enforce deterministic tag names matching the provider/namespace structure (e.g., `<Core.Text />` for `core:text`, `<MaterialUi.Card />` for `material_ui:card`, `<CoreExtended.IconButton />` for `core_extended:icon_button`).
+    - *Benefits*: Perfect disk persistence stability (saved XML never breaks), zero collisions, zero complex guessing logic, native to LLM JSX training.
+  - [ ] **Unified Property Resolution**: Properties are strictly parsed from tag attributes using `.getAttributeStream()` and `.getAttributeFuture()`.
+  - [ ] **Tag Nesting Hierarchy**: Inner children are strictly reserved for visual layout nesting (e.g., `<Core.Column><MaterialUi.Card /></Core.Column>`). No dualities/fallback casing.
+  - [ ] **Robust Tag Tolerance**: Seamless parsing of incomplete, streaming tags (`<tag`, `<tag>`, `<tag />`).
+
+
+- [ ] Codeblock "`json`" tolerance
+

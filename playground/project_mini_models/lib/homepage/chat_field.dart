@@ -28,36 +28,79 @@ class _ChatFieldState extends State<ChatField> {
 
   @override
   Widget build(BuildContext context) {
+    final provider = context.watch<HomepageProvider>();
+    final isRaw = provider.showRawView;
+
     return Container(
       decoration: ShapeDecoration(
         color: Theme.of(context).colorScheme.primaryContainer,
         shape: RoundedSuperellipseBorder(
-          borderRadius: BorderRadius.circular(32),
+          borderRadius: BorderRadius.circular(24),
         ),
       ),
       constraints: const BoxConstraints(maxWidth: 480),
       child: Padding(
-        padding: const EdgeInsets.all(8.0),
-        child: Row(
+        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
           children: [
-            IconButton(onPressed: () {}, icon: const Icon(Icons.menu)),
-            IconButton(
-              onPressed: Provider.of<HomepageProvider>(context).clearHistory,
-              icon: const Icon(Icons.clear),
-            ),
-            Expanded(
-              child: TextField(
-                controller: _controller,
-                onSubmitted: (_) => _submit(),
-                decoration: const InputDecoration(
-                  hintText: 'Ask anything...',
-                  border: InputBorder.none,
+            Row(
+              children: [
+                Expanded(
+                  child: TextField(
+                    controller: _controller,
+                    onSubmitted: (_) => _submit(),
+                    decoration: const InputDecoration(
+                      hintText: 'Ask anything...',
+                      border: InputBorder.none,
+                      contentPadding: EdgeInsets.symmetric(horizontal: 8),
+                    ),
+                  ),
                 ),
-              ),
+                IconButton.filled(
+                  onPressed: _submit,
+                  icon: const Icon(Icons.arrow_upward),
+                ),
+              ],
             ),
-            IconButton.filled(
-              onPressed: _submit,
-              icon: const Icon(Icons.arrow_upward),
+            const Divider(height: 8, thickness: 0.5),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+              children: [
+                TextButton.icon(
+                  onPressed: provider.toggleRawView,
+                  icon: Icon(isRaw ? Icons.visibility : Icons.code, size: 16),
+                  label: Text(
+                    isRaw ? "Show UI" : "Show Raw",
+                    style: const TextStyle(fontSize: 12, fontWeight: FontWeight.bold),
+                  ),
+                  style: TextButton.styleFrom(
+                    foregroundColor: Theme.of(context).colorScheme.onPrimaryContainer.withOpacity(0.8),
+                  ),
+                ),
+                TextButton.icon(
+                  onPressed: provider.toggleModelProvider,
+                  icon: Icon(provider.useOllama ? Icons.dns : Icons.cloud, size: 16),
+                  label: Text(
+                    provider.useOllama ? "Ollama" : "Groq",
+                    style: const TextStyle(fontSize: 12, fontWeight: FontWeight.bold),
+                  ),
+                  style: TextButton.styleFrom(
+                    foregroundColor: Theme.of(context).colorScheme.onPrimaryContainer.withOpacity(0.8),
+                  ),
+                ),
+                TextButton.icon(
+                  onPressed: provider.clearHistory,
+                  icon: const Icon(Icons.delete_sweep, size: 16),
+                  label: const Text(
+                    "Clear Chat",
+                    style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold),
+                  ),
+                  style: TextButton.styleFrom(
+                    foregroundColor: Theme.of(context).colorScheme.error.withOpacity(0.8),
+                  ),
+                ),
+              ],
             ),
           ],
         ),

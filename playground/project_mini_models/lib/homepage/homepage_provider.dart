@@ -1,5 +1,6 @@
 import 'dart:io';
 import 'package:flutter/material.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:project_mini_models/core/chat_core_service/chat_core_service.dart';
 import 'package:streaming_gen_ui/streaming_gen_ui.dart';
 
@@ -31,12 +32,66 @@ String _getApiKey() {
 }
 
 class HomepageProvider with ChangeNotifier {
+  HomepageProvider() {
+    _loadRawViewPreference();
+  }
+
   // ------ Panel ------
   bool _showPanel = false;
   bool get showPanel => _showPanel;
   void togglePanel() {
     _showPanel = !_showPanel;
     notifyListeners();
+  }
+
+  // ------ View Toggle ------
+  bool _showRawView = false;
+  bool get showRawView => _showRawView;
+
+  // ------ Model Provider Toggle ------
+  bool _useOllama = false;
+  bool get useOllama => _useOllama;
+
+  static final _groqConfig = ModelConfig(
+    baseUrl: 'https://api.groq.com/openai/v1',
+    modelName: 'llama-3.1-8b-instant',
+    apiKey: _getApiKey(),
+  );
+
+  static final _ollamaConfig = const ModelConfig(
+    baseUrl: 'http://localhost:11434',
+    modelName: 'gemma4:e2b',
+    apiKey: '',
+    isOllama: true,
+  );
+
+  Future<void> _loadRawViewPreference() async {
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      _showRawView = prefs.getBool('show_raw_view') ?? false;
+      _useOllama = prefs.getBool('use_ollama') ?? false;
+      chatSession.changeModel(_useOllama ? _ollamaConfig : _groqConfig);
+      notifyListeners();
+    } catch (_) {}
+  }
+
+  Future<void> toggleRawView() async {
+    _showRawView = !_showRawView;
+    notifyListeners();
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      await prefs.setBool('show_raw_view', _showRawView);
+    } catch (_) {}
+  }
+
+  Future<void> toggleModelProvider() async {
+    _useOllama = !_useOllama;
+    chatSession.changeModel(_useOllama ? _ollamaConfig : _groqConfig);
+    notifyListeners();
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      await prefs.setBool('use_ollama', _useOllama);
+    } catch (_) {}
   }
 
   // ------ Textfield ------
@@ -58,13 +113,9 @@ class HomepageProvider with ChangeNotifier {
   // ------ Chat Session ------
   List<ChatMessage> get history => chatSession.messages;
 
-  final chatSession = ChatSession(
-    systemPrompt: 'You are a helpful assistant.',
-    modelConfig: ModelConfig(
-      baseUrl: 'https://api.groq.com/openai/v1',
-      modelName: 'llama-3.1-8b-instant',
-      apiKey: _getApiKey(),
-    ),
+  late final chatSession = ChatSession(
+    systemPrompt: genUi.systemPrompt,
+    modelConfig: _groqConfig,
   );
 
   Future<void> sendMessage(String message) async {
