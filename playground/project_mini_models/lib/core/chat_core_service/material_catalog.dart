@@ -19,7 +19,7 @@ abstract final class WidgetCatalog {
       WidgetExample(
         '<Base.Column>\n'
         '  <Base.Text content="Hello!" style="heading" />\n'
-        '  <Ui.Note title="Quick note" content="Remember this." />\n'
+        '  <Ui.Memo title="Quick note" content="Remember this." />\n'
         '</Base.Column>',
       ),
     ],
@@ -45,7 +45,9 @@ abstract final class WidgetCatalog {
     tag: 'Base.Text',
     description: 'Inline text block.',
     requiredProps: [WidgetProp('content')],
-    optionalProps: [WidgetProp('style', hint: 'heading|subheading|body|caption')],
+    optionalProps: [
+      WidgetProp('style', hint: 'heading|subheading|body|caption'),
+    ],
     examples: [
       WidgetExample('<Base.Text content="Hello, world!" style="heading" />'),
     ],
@@ -55,20 +57,15 @@ abstract final class WidgetCatalog {
   // Ui — productivity / content
   // ---------------------------------------------------------------------------
 
-  static const note = StreamingWidgetSchema(
+  static const memo = StreamingWidgetSchema(
     group: WidgetGroup.ui,
-    tag: 'Ui.Note',
-    description: 'Freeform note card.',
-    requiredProps: [
-      WidgetProp('title'),
-      WidgetProp('content'),
-    ],
-    optionalProps: [
-      WidgetProp('tags', hint: "['tag1','tag2']"),
-    ],
+    tag: 'Ui.Memo',
+    description: 'Freeform memo card.',
+    requiredProps: [WidgetProp('title'), WidgetProp('content')],
+    optionalProps: [WidgetProp('tags', hint: "['tag1','tag2']")],
     examples: [
       WidgetExample(
-        """<Ui.Note title="Meeting Notes" content="Discussed animations and glassmorphism." tags="['design']" />""",
+        """<Ui.Memo title="Meeting Notes" content="Discussed animations and glassmorphism." tags="['design']" />""",
       ),
     ],
   );
@@ -96,13 +93,8 @@ abstract final class WidgetCatalog {
     group: WidgetGroup.ui,
     tag: 'Ui.Reminder',
     description: 'A time-anchored reminder card.',
-    requiredProps: [
-      WidgetProp('title'),
-      WidgetProp('due'),
-    ],
-    optionalProps: [
-      WidgetProp('content'),
-    ],
+    requiredProps: [WidgetProp('title'), WidgetProp('due')],
+    optionalProps: [WidgetProp('content')],
     examples: [
       WidgetExample(
         '<Ui.Reminder title="Doctor appointment" due="Monday 9am" content="Bring insurance card." />',
@@ -114,10 +106,7 @@ abstract final class WidgetCatalog {
     group: WidgetGroup.ui,
     tag: 'Ui.ContactCard',
     description: 'A person or business contact card.',
-    requiredProps: [
-      WidgetProp('name'),
-      WidgetProp('role'),
-    ],
+    requiredProps: [WidgetProp('name'), WidgetProp('role')],
     optionalProps: [
       WidgetProp('avatarUrl'),
       WidgetProp('email'),
@@ -203,10 +192,7 @@ abstract final class WidgetCatalog {
       WidgetProp('labels', hint: "['Q1','Q2']"),
       WidgetProp('values', hint: '[120,150]'),
     ],
-    optionalProps: [
-      WidgetProp('title'),
-      WidgetProp('subtitle'),
-    ],
+    optionalProps: [WidgetProp('title'), WidgetProp('subtitle')],
     examples: [
       WidgetExample(
         """<Ui.Graph type="bar" title="Quarterly Sales" labels="['Q1','Q2','Q3']" values="[120,150,180]" />""",
@@ -222,10 +208,7 @@ abstract final class WidgetCatalog {
     group: WidgetGroup.ui,
     tag: 'Ui.WebResult',
     description: 'A web search result snippet.',
-    requiredProps: [
-      WidgetProp('title'),
-      WidgetProp('url'),
-    ],
+    requiredProps: [WidgetProp('title'), WidgetProp('url')],
     optionalProps: [
       WidgetProp('snippet'),
       WidgetProp('siteName'),
@@ -241,7 +224,8 @@ abstract final class WidgetCatalog {
   static const itemCard = StreamingWidgetSchema(
     group: WidgetGroup.ui,
     tag: 'Ui.ItemCard',
-    description: 'A rich card for any online listing — product, article, or result.',
+    description:
+        'A rich card for any online listing — product, article, or result.',
     requiredProps: [WidgetProp('title')],
     optionalProps: [
       WidgetProp('price'),
@@ -261,10 +245,7 @@ abstract final class WidgetCatalog {
     group: WidgetGroup.ui,
     tag: 'Ui.Location',
     description: 'Location and navigation card.',
-    requiredProps: [
-      WidgetProp('name'),
-      WidgetProp('address'),
-    ],
+    requiredProps: [WidgetProp('name'), WidgetProp('address')],
     optionalProps: [
       WidgetProp('rating'),
       WidgetProp('distance'),
@@ -288,7 +269,7 @@ abstract final class WidgetCatalog {
   /// Display widgets. Shown in the prompt compressed (no examples).
   static const List<StreamingWidgetSchema> ui = [
     // productivity
-    note, task, reminder, contactCard,
+    memo, task, reminder, contactCard,
     // media
     carousel,
     // data

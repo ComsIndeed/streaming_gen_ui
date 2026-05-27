@@ -22,7 +22,7 @@ abstract final class MaterialPrompts {
       'Like this little example:\n'
       '\n'
       '<interface>\n'
-      '  <Ui.Note title="See?" content="This is a note card rendered inline! '
+      '  <Ui.Memo title="See?" content="This is a memo card rendered inline! '
       'Anything you need — tasks, weather, contacts — I can throw one of these '
       'in." />\n'
       '</interface>\n'
@@ -42,7 +42,7 @@ Example of with interface:
 ```assistant
 Hi there! Here are the notes and tasks you wanted me to write!
 <interface>
-  <Ui.Note title="Reminder" content="Take a break." />
+  <Ui.Memo title="Reminder" content="Take a break." />
   <Ui.Task title="Reply to emails" status="pending" dueDate="Today" />
 </interface>
 Is there anything else I can help you with?
