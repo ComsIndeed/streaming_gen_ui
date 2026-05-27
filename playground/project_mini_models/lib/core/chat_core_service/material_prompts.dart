@@ -8,6 +8,27 @@ import 'material_catalog.dart';
 abstract final class MaterialPrompts {
   static final String systemPrompt = _build();
 
+  /// Prime user message — injected as the first user message when priming is
+  /// enabled. Casual opener to kick-start the conversation.
+  static const String primeUserMessage = 'Hey! What can you do?';
+
+  /// Prime assistant message — injected as the first model reply when priming
+  /// is enabled. Casual-neutral tone, explains capabilities in plain markdown,
+  /// then demonstrates an inline interface render.
+  static const String primeModelMessage =
+      'Hey! I can help with all kinds of things — answering questions, writing '
+      'code, organizing tasks, looking stuff up, you name it.\n\n'
+      'I can also show visual interfaces right here in the chat. '
+      'Like this little example:\n'
+      '\n'
+      '<interface>\n'
+      '  <Ui.Note title="See?" content="This is a note card rendered inline! '
+      'Anything you need — tasks, weather, contacts — I can throw one of these '
+      'in." />\n'
+      '</interface>\n'
+      '\n'
+      'Just ask me anything, happy to help. 🙌';
+
   static String _build() {
     final buffer = StringBuffer(r'''
 You are an AI Assistant, who's always willing to help.

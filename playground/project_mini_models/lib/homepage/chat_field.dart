@@ -30,6 +30,7 @@ class _ChatFieldState extends State<ChatField> {
   Widget build(BuildContext context) {
     final provider = context.watch<HomepageProvider>();
     final isRaw = provider.showRawView;
+    final isPriming = provider.primingEnabled;
 
     return Container(
       decoration: ShapeDecoration(
@@ -72,21 +73,62 @@ class _ChatFieldState extends State<ChatField> {
                   icon: Icon(isRaw ? Icons.visibility : Icons.code, size: 16),
                   label: Text(
                     isRaw ? "Show UI" : "Show Raw",
-                    style: const TextStyle(fontSize: 12, fontWeight: FontWeight.bold),
+                    style: const TextStyle(
+                      fontSize: 12,
+                      fontWeight: FontWeight.bold,
+                    ),
                   ),
                   style: TextButton.styleFrom(
-                    foregroundColor: Theme.of(context).colorScheme.onPrimaryContainer.withOpacity(0.8),
+                    foregroundColor: Theme.of(
+                      context,
+                    ).colorScheme.onPrimaryContainer.withOpacity(0.8),
                   ),
                 ),
                 TextButton.icon(
                   onPressed: provider.toggleModelProvider,
-                  icon: Icon(provider.useOllama ? Icons.dns : Icons.cloud, size: 16),
+                  icon: Icon(
+                    provider.useOllama ? Icons.dns : Icons.cloud,
+                    size: 16,
+                  ),
                   label: Text(
                     provider.useOllama ? "Ollama" : "Groq",
-                    style: const TextStyle(fontSize: 12, fontWeight: FontWeight.bold),
+                    style: const TextStyle(
+                      fontSize: 12,
+                      fontWeight: FontWeight.bold,
+                    ),
                   ),
                   style: TextButton.styleFrom(
-                    foregroundColor: Theme.of(context).colorScheme.onPrimaryContainer.withOpacity(0.8),
+                    foregroundColor: Theme.of(
+                      context,
+                    ).colorScheme.onPrimaryContainer.withOpacity(0.8),
+                  ),
+                ),
+                TextButton.icon(
+                  onPressed: provider.togglePriming,
+                  icon: Icon(
+                    isPriming
+                        ? Icons.auto_awesome
+                        : Icons.auto_awesome_outlined,
+                    size: 16,
+                  ),
+                  label: Text(
+                    "Priming",
+                    style: TextStyle(
+                      fontSize: 12,
+                      fontWeight: FontWeight.bold,
+                      color: isPriming
+                          ? Theme.of(context).colorScheme.primary
+                          : Theme.of(
+                              context,
+                            ).colorScheme.onPrimaryContainer.withOpacity(0.8),
+                    ),
+                  ),
+                  style: TextButton.styleFrom(
+                    foregroundColor: isPriming
+                        ? Theme.of(context).colorScheme.primary
+                        : Theme.of(
+                            context,
+                          ).colorScheme.onPrimaryContainer.withOpacity(0.8),
                   ),
                 ),
                 TextButton.icon(
@@ -97,7 +139,9 @@ class _ChatFieldState extends State<ChatField> {
                     style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold),
                   ),
                   style: TextButton.styleFrom(
-                    foregroundColor: Theme.of(context).colorScheme.error.withOpacity(0.8),
+                    foregroundColor: Theme.of(
+                      context,
+                    ).colorScheme.error.withOpacity(0.8),
                   ),
                 ),
               ],

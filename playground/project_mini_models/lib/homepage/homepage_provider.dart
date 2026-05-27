@@ -51,6 +51,10 @@ class HomepageProvider with ChangeNotifier {
   bool _useOllama = false;
   bool get useOllama => _useOllama;
 
+  // ------ Priming Toggle ------
+  bool _primingEnabled = false;
+  bool get primingEnabled => _primingEnabled;
+
   static final _groqConfig = ModelConfig(
     baseUrl: 'https://api.groq.com/openai/v1',
     modelName: 'llama-3.1-8b-instant',
@@ -64,12 +68,17 @@ class HomepageProvider with ChangeNotifier {
     isOllama: true,
   );
 
+  /// The shared-preferences key for the priming setting for the current provider.
+  String get _primingKey => _useOllama ? 'priming_ollama' : 'priming_groq';
+
   Future<void> _loadPreferences() async {
     try {
       final prefs = await SharedPreferences.getInstance();
       _showRawView = prefs.getBool('show_raw_view') ?? true;
       _useOllama = prefs.getBool('use_ollama') ?? false;
-      chatSession.changeModel(_useOllama ? _ollamaConfig : _groqConfig);
+      _primingEnabled =
+          prefs.getBool(_primingKey) ?? _useOllama; // default on for Ollama
+      _reinitChatSession();
       notifyListeners();
     } catch (_) {}
   }
@@ -85,11 +94,29 @@ class HomepageProvider with ChangeNotifier {
 
   Future<void> toggleModelProvider() async {
     _useOllama = !_useOllama;
+    // Load priming pref for the new provider
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      _primingEnabled = prefs.getBool(_primingKey) ?? _useOllama;
+    } catch (_) {
+      _primingEnabled = _useOllama;
+    }
     chatSession.changeModel(_useOllama ? _ollamaConfig : _groqConfig);
+    _reinitChatSession();
     notifyListeners();
     try {
       final prefs = await SharedPreferences.getInstance();
       await prefs.setBool('use_ollama', _useOllama);
+    } catch (_) {}
+  }
+
+  Future<void> togglePriming() async {
+    _primingEnabled = !_primingEnabled;
+    _reinitChatSession();
+    notifyListeners();
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      await prefs.setBool(_primingKey, _primingEnabled);
     } catch (_) {}
   }
 
@@ -107,6 +134,23 @@ class HomepageProvider with ChangeNotifier {
         'You are a helpful assistant. ${MaterialPrompts.systemPrompt}',
     modelConfig: _groqConfig,
   );
+
+  /// Clears the chat history and rebuilds it from scratch:
+  /// system prompt (always) + prime messages (if priming enabled).
+  void _reinitChatSession() {
+    chatSession.clearChat(); // removes everything except system
+    if (_primingEnabled) {
+      chatSession.messages.add(
+        ChatMessage(role: Role.user, content: MaterialPrompts.primeUserMessage),
+      );
+      chatSession.messages.add(
+        ChatMessage(
+          role: Role.model,
+          content: MaterialPrompts.primeModelMessage,
+        ),
+      );
+    }
+  }
 
   Future<void> sendMessage(String message) async {
     if (message.trim().isEmpty) return;
@@ -131,7 +175,7 @@ class HomepageProvider with ChangeNotifier {
   }
 
   void clearHistory() {
-    chatSession.clearChat();
+    _reinitChatSession();
     _activeStreamId = null;
     _activeStreamText = '';
     notifyListeners();
