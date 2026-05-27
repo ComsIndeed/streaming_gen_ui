@@ -23,3 +23,9 @@ Generative UI system.
 
 - [ ] Codeblock "`json`" tolerance
 
+- [ ] **Contextual Schema Pruning (Split Responsibilities)**
+  - Instead of listing all 12 schemas in the prompt at once, prune schemas dynamically before calling the model based on the user's message context.
+  - Implement a simple keyword or cheap embeddings router to check user input and only inject the specific 1 or 2 component schemas they actually need.
+  - *Benefits*: Prevents choice paralysis for 0.8B models, saves massive token/caching context, and makes schema parsing much more robust.
+
+

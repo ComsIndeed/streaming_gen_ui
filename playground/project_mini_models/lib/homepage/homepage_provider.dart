@@ -59,7 +59,7 @@ class HomepageProvider with ChangeNotifier {
 
   static final _ollamaConfig = const ModelConfig(
     baseUrl: 'http://localhost:11434',
-    modelName: 'gemma4:e2b',
+    modelName: 'qwen3.5:0.8b',
     apiKey: '',
     isOllama: true,
   );
@@ -103,7 +103,8 @@ class HomepageProvider with ChangeNotifier {
   List<ChatMessage> get history => chatSession.messages;
 
   late final chatSession = ChatSession(
-    systemPrompt: 'You are a helpful assistant.',
+    systemPrompt:
+        'You are a helpful assistant. ${MaterialPrompts.systemPrompt}',
     modelConfig: _groqConfig,
   );
 
@@ -136,4 +137,3 @@ class HomepageProvider with ChangeNotifier {
     notifyListeners();
   }
 }
-
