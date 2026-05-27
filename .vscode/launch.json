@@ -2,6 +2,18 @@
   "version": "0.2.0",
   "configurations": [
     {
+      "name": "Project Mini Models (Windows Debug)",
+      "request": "launch",
+      "type": "dart",
+      "program": "lib/main.dart",
+      "cwd": "playground/project_mini_models",
+      "args": [
+        "-d",
+        "windows",
+        "--dart-define-from-file=../../.env"
+      ]
+    },
+    {
       "name": "Catalog App (Windows Debug)",
       "request": "launch",
       "type": "dart",
