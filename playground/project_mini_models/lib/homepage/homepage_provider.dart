@@ -59,7 +59,7 @@ class HomepageProvider with ChangeNotifier {
 
   static final _ollamaConfig = const ModelConfig(
     baseUrl: 'http://localhost:11434',
-    modelName: 'qwen3.5:0.8b',
+    modelName: 'qwen3:0.6b',
     apiKey: '',
     isOllama: true,
   );
