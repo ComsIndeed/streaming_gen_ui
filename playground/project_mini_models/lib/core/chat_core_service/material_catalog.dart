@@ -1,89 +1,203 @@
 import 'streaming_widget_schema.dart';
 
-/// Complete catalog of Material 3 streaming UI widget schemas.
+/// Complete widget catalog for the streaming generative UI system.
 ///
-/// [all] contains every top-level widget the model can directly instantiate.
-/// [children] contains child-only widgets that are nested inside parent tags.
-abstract final class MaterialCatalog {
+/// Widgets are split into two groups:
+/// - [base] — layout primitives (Column, Row, Text). Rendered with examples.
+/// - [ui]   — display widgets (Note, Weather, Graph, etc.). Rendered compressed.
+abstract final class WidgetCatalog {
   // ---------------------------------------------------------------------------
-  // Top-level widgets
+  // Base — layout primitives
   // ---------------------------------------------------------------------------
 
-  static const card = StreamingWidgetSchema(
-    tag: 'MaterialUi.Card',
-    description: 'Standard content card.',
-    requiredProps: [
-      WidgetProp('title'),
-    ],
-    optionalProps: [
-      WidgetProp('subtitle'),
-      WidgetProp('imageUrl'),
-      WidgetProp('action'),
-    ],
+  static const column = StreamingWidgetSchema(
+    group: WidgetGroup.base,
+    tag: 'Base.Column',
+    description: 'Vertical stack. Place any widgets as children.',
+    childTags: ['*'],
     examples: [
       WidgetExample(
-        '<MaterialUi.Card title="Premium Design" subtitle="Next-gen UX" imageUrl="https://..." />',
+        '<Base.Column>\n'
+        '  <Base.Text content="Hello!" style="heading" />\n'
+        '  <Ui.Note title="Quick note" content="Remember this." />\n'
+        '</Base.Column>',
       ),
     ],
   );
 
-  static const userProfile = StreamingWidgetSchema(
-    tag: 'MaterialUi.UserProfile',
-    description: 'User bio and social card.',
+  static const row = StreamingWidgetSchema(
+    group: WidgetGroup.base,
+    tag: 'Base.Row',
+    description: 'Horizontal stack. Place any widgets as children.',
+    childTags: ['*'],
+    examples: [
+      WidgetExample(
+        '<Base.Row>\n'
+        '  <Base.Text content="Left side" />\n'
+        '  <Base.Text content="Right side" />\n'
+        '</Base.Row>',
+      ),
+    ],
+  );
+
+  static const text = StreamingWidgetSchema(
+    group: WidgetGroup.base,
+    tag: 'Base.Text',
+    description: 'Inline text block.',
+    requiredProps: [WidgetProp('content')],
+    optionalProps: [WidgetProp('style', hint: 'heading|subheading|body|caption')],
+    examples: [
+      WidgetExample('<Base.Text content="Hello, world!" style="heading" />'),
+    ],
+  );
+
+  // ---------------------------------------------------------------------------
+  // Ui — productivity / content
+  // ---------------------------------------------------------------------------
+
+  static const note = StreamingWidgetSchema(
+    group: WidgetGroup.ui,
+    tag: 'Ui.Note',
+    description: 'Freeform note card.',
+    requiredProps: [
+      WidgetProp('title'),
+      WidgetProp('content'),
+    ],
+    optionalProps: [
+      WidgetProp('tags', hint: "['tag1','tag2']"),
+    ],
+    examples: [
+      WidgetExample(
+        """<Ui.Note title="Meeting Notes" content="Discussed animations and glassmorphism." tags="['design']" />""",
+      ),
+    ],
+  );
+
+  static const task = StreamingWidgetSchema(
+    group: WidgetGroup.ui,
+    tag: 'Ui.Task',
+    description: 'A single actionable task card.',
+    requiredProps: [
+      WidgetProp('title'),
+      WidgetProp('status', hint: 'pending|done'),
+    ],
+    optionalProps: [
+      WidgetProp('dueDate'),
+      WidgetProp('priority', hint: 'high|medium|low'),
+    ],
+    examples: [
+      WidgetExample(
+        '<Ui.Task title="Finalize UI specs" status="pending" dueDate="Monday" priority="high" />',
+      ),
+    ],
+  );
+
+  static const reminder = StreamingWidgetSchema(
+    group: WidgetGroup.ui,
+    tag: 'Ui.Reminder',
+    description: 'A time-anchored reminder card.',
+    requiredProps: [
+      WidgetProp('title'),
+      WidgetProp('due'),
+    ],
+    optionalProps: [
+      WidgetProp('content'),
+    ],
+    examples: [
+      WidgetExample(
+        '<Ui.Reminder title="Doctor appointment" due="Monday 9am" content="Bring insurance card." />',
+      ),
+    ],
+  );
+
+  static const contactCard = StreamingWidgetSchema(
+    group: WidgetGroup.ui,
+    tag: 'Ui.ContactCard',
+    description: 'A person or business contact card.',
     requiredProps: [
       WidgetProp('name'),
-      WidgetProp('bio'),
+      WidgetProp('role'),
     ],
     optionalProps: [
       WidgetProp('avatarUrl'),
       WidgetProp('email'),
-      WidgetProp('badge'),
+      WidgetProp('phone'),
+      WidgetProp('company'),
     ],
     examples: [
       WidgetExample(
-        '<MaterialUi.UserProfile name="Jane Doe" bio="Creative designer." avatarUrl="https://..." badge="Pro" />',
+        '<Ui.ContactCard name="Jane Doe" role="Lead Designer" email="jane@example.com" company="Acme Co." />',
       ),
     ],
   );
 
+  // ---------------------------------------------------------------------------
+  // Ui — media / display
+  // ---------------------------------------------------------------------------
+
+  static const carouselItem = StreamingWidgetSchema(
+    group: WidgetGroup.ui,
+    tag: 'Ui.CarouselItem',
+    description: 'A single slide inside Ui.Carousel.',
+    requiredProps: [WidgetProp('title')],
+    optionalProps: [WidgetProp('imageUrl'), WidgetProp('description')],
+  );
+
   static const carousel = StreamingWidgetSchema(
-    tag: 'MaterialUi.Carousel',
+    group: WidgetGroup.ui,
+    tag: 'Ui.Carousel',
     description: 'Horizontal item gallery. Nest CarouselItem children.',
-    requiredProps: [
-      WidgetProp('title'),
-    ],
-    childTags: ['MaterialUi.CarouselItem'],
+    requiredProps: [WidgetProp('title')],
+    childTags: ['Ui.CarouselItem'],
     examples: [
       WidgetExample(
-        '<MaterialUi.Carousel title="Featured">\n'
-        '  <MaterialUi.CarouselItem title="Alpha" imageUrl="https://..." />\n'
-        '  <MaterialUi.CarouselItem title="Beta" imageUrl="https://..." />\n'
-        '</MaterialUi.Carousel>',
+        '<Ui.Carousel title="Featured">\n'
+        '  <Ui.CarouselItem title="Alpha" imageUrl="https://..." />\n'
+        '  <Ui.CarouselItem title="Beta" imageUrl="https://..." />\n'
+        '</Ui.Carousel>',
       ),
+    ],
+  );
+
+  // ---------------------------------------------------------------------------
+  // Ui — data / charts
+  // ---------------------------------------------------------------------------
+
+  static const forecast = StreamingWidgetSchema(
+    group: WidgetGroup.ui,
+    tag: 'Ui.Forecast',
+    description: 'A single forecast row inside Ui.Weather.',
+    requiredProps: [
+      WidgetProp('day'),
+      WidgetProp('temp'),
+      WidgetProp('condition', hint: 'sunny|rainy|cloudy|snowy'),
     ],
   );
 
   static const weather = StreamingWidgetSchema(
-    tag: 'MaterialUi.Weather',
-    description: 'Weather card. Optionally nest Forecast children for a forecast row.',
+    group: WidgetGroup.ui,
+    tag: 'Ui.Weather',
+    description: 'Weather card. Optionally nest Ui.Forecast children.',
     requiredProps: [
       WidgetProp('temp'),
       WidgetProp('condition', hint: 'sunny|rainy|cloudy|snowy'),
       WidgetProp('location'),
     ],
+    childTags: ['Ui.Forecast'],
     examples: [
       WidgetExample(
-        '<MaterialUi.Weather temp="24" condition="sunny" location="San Francisco">\n'
-        '  <MaterialUi.Forecast day="Mon" temp="25" condition="sunny" />\n'
-        '  <MaterialUi.Forecast day="Tue" temp="23" condition="cloudy" />\n'
-        '</MaterialUi.Weather>',
+        '<Ui.Weather temp="24" condition="sunny" location="San Francisco">\n'
+        '  <Ui.Forecast day="Mon" temp="25" condition="sunny" />\n'
+        '  <Ui.Forecast day="Tue" temp="23" condition="cloudy" />\n'
+        '</Ui.Weather>',
       ),
     ],
   );
 
   static const graph = StreamingWidgetSchema(
-    tag: 'MaterialUi.Graph',
-    description: 'Chart for visualizing data.',
+    group: WidgetGroup.ui,
+    tag: 'Ui.Graph',
+    description: 'Data chart.',
     requiredProps: [
       WidgetProp('type', hint: 'bar|line|pie'),
       WidgetProp('labels', hint: "['Q1','Q2']"),
@@ -95,14 +209,19 @@ abstract final class MaterialCatalog {
     ],
     examples: [
       WidgetExample(
-        """<MaterialUi.Graph type="bar" title="Quarterly Sales" labels="['Q1','Q2','Q3']" values="[120,150,180]" />""",
+        """<Ui.Graph type="bar" title="Quarterly Sales" labels="['Q1','Q2','Q3']" values="[120,150,180]" />""",
       ),
     ],
   );
 
+  // ---------------------------------------------------------------------------
+  // Ui — search / discovery
+  // ---------------------------------------------------------------------------
+
   static const webResult = StreamingWidgetSchema(
-    tag: 'MaterialUi.WebResult',
-    description: 'Search engine result snippet.',
+    group: WidgetGroup.ui,
+    tag: 'Ui.WebResult',
+    description: 'A web search result snippet.',
     requiredProps: [
       WidgetProp('title'),
       WidgetProp('url'),
@@ -114,20 +233,18 @@ abstract final class MaterialCatalog {
     ],
     examples: [
       WidgetExample(
-        '<MaterialUi.WebResult title="Flutter Package" url="pub.dev" snippet="Cross-platform UI toolkit." siteName="pub.dev" />',
+        '<Ui.WebResult title="Flutter Package" url="pub.dev" snippet="Cross-platform UI toolkit." siteName="pub.dev" />',
       ),
     ],
   );
 
-  static const productResult = StreamingWidgetSchema(
-    tag: 'MaterialUi.ProductResult',
-    description: 'E-commerce product card.',
-    requiredProps: [
-      WidgetProp('title'),
-      WidgetProp('price'),
-    ],
+  static const itemCard = StreamingWidgetSchema(
+    group: WidgetGroup.ui,
+    tag: 'Ui.ItemCard',
+    description: 'A rich card for any online listing — product, article, or result.',
+    requiredProps: [WidgetProp('title')],
     optionalProps: [
-      WidgetProp('originalPrice'),
+      WidgetProp('price'),
       WidgetProp('rating'),
       WidgetProp('imageUrl'),
       WidgetProp('description'),
@@ -135,13 +252,14 @@ abstract final class MaterialCatalog {
     ],
     examples: [
       WidgetExample(
-        '<MaterialUi.ProductResult title="Mechanical Keyboard" price="129.99" rating="4.8" imageUrl="https://..." badge="Sale" />',
+        '<Ui.ItemCard title="Mechanical Keyboard" price="129.99" rating="4.8" imageUrl="https://..." badge="Sale" />',
       ),
     ],
   );
 
   static const location = StreamingWidgetSchema(
-    tag: 'MaterialUi.Location',
+    group: WidgetGroup.ui,
+    tag: 'Ui.Location',
     description: 'Location and navigation card.',
     requiredProps: [
       WidgetProp('name'),
@@ -155,165 +273,33 @@ abstract final class MaterialCatalog {
     ],
     examples: [
       WidgetExample(
-        '<MaterialUi.Location name="Blue Bottle Coffee" address="1355 Market St, SF" distance="0.4 mi" rating="4.5" hours="7am-6pm" />',
+        '<Ui.Location name="Blue Bottle Coffee" address="1355 Market St, SF" distance="0.4 mi" rating="4.5" hours="7am-6pm" />',
       ),
     ],
-  );
-
-  static const todoList = StreamingWidgetSchema(
-    tag: 'MaterialUi.TodoList',
-    description: 'Checklist. Nest TodoItem children.',
-    requiredProps: [
-      WidgetProp('title'),
-    ],
-    childTags: ['MaterialUi.TodoItem'],
-    examples: [
-      WidgetExample(
-        '<MaterialUi.TodoList title="Tasks">\n'
-        '  <MaterialUi.TodoItem text="Buy groceries" completed="false" />\n'
-        '  <MaterialUi.TodoItem text="Call dentist" completed="true" />\n'
-        '</MaterialUi.TodoList>',
-      ),
-    ],
-  );
-
-  static const note = StreamingWidgetSchema(
-    tag: 'MaterialUi.Note',
-    description: 'Standalone note, todo, or reminder card.',
-    requiredProps: [
-      WidgetProp('type', hint: 'note|todo|reminder'),
-      WidgetProp('title'),
-      WidgetProp('content'),
-    ],
-    optionalProps: [
-      WidgetProp('tags', hint: "['tag1','tag2']"),
-      WidgetProp('dueDate'),
-      WidgetProp('priority', hint: 'high|medium|low'),
-    ],
-    examples: [
-      WidgetExample(
-        """<MaterialUi.Note type="note" title="Meeting Notes" content="Discussed dynamic animations." tags="['design','sprint-5']" />""",
-      ),
-    ],
-  );
-
-  static const listResults = StreamingWidgetSchema(
-    tag: 'MaterialUi.ListResults',
-    description: 'File or item directory listing. Nest ListItem children.',
-    requiredProps: [
-      WidgetProp('title'),
-    ],
-    childTags: ['MaterialUi.ListItem'],
-    examples: [
-      WidgetExample(
-        '<MaterialUi.ListResults title="Recent Files">\n'
-        '  <MaterialUi.ListItem title="profile_spec.pdf" subtitle="Design blueprint" icon="pdf" size="2.4 MB" />\n'
-        '  <MaterialUi.ListItem title="hero.png" subtitle="Asset graphic" icon="image" size="1.1 MB" />\n'
-        '</MaterialUi.ListResults>',
-      ),
-    ],
-  );
-
-  static const comparison = StreamingWidgetSchema(
-    tag: 'MaterialUi.Comparison',
-    description: 'Side-by-side product comparison table. Nest ComparisonProduct children.',
-    requiredProps: [
-      WidgetProp('title'),
-      WidgetProp('features', hint: "['Switch','Format']"),
-    ],
-    childTags: ['MaterialUi.ComparisonProduct'],
-    examples: [
-      WidgetExample(
-        """<MaterialUi.Comparison title="Pro Keyboards" features="['Switch','Format']">\n"""
-        '  <MaterialUi.ComparisonProduct name="Apex" price="129" Switch="Brown" Format="75%" />\n'
-        '  <MaterialUi.ComparisonProduct name="Craft" price="149" Switch="Red" Format="100%" />\n'
-        '</MaterialUi.Comparison>',
-      ),
-    ],
-  );
-
-  // ---------------------------------------------------------------------------
-  // Child-only widgets (nested inside parents; not directly instantiated)
-  // ---------------------------------------------------------------------------
-
-  static const carouselItem = StreamingWidgetSchema(
-    tag: 'MaterialUi.CarouselItem',
-    description: 'A single slide inside a Carousel.',
-    requiredProps: [WidgetProp('title')],
-    optionalProps: [WidgetProp('imageUrl'), WidgetProp('description')],
-  );
-
-  static const forecast = StreamingWidgetSchema(
-    tag: 'MaterialUi.Forecast',
-    description: 'A single day forecast row inside a Weather widget.',
-    requiredProps: [
-      WidgetProp('day'),
-      WidgetProp('temp'),
-      WidgetProp('condition', hint: 'sunny|rainy|cloudy|snowy'),
-    ],
-  );
-
-  static const todoItem = StreamingWidgetSchema(
-    tag: 'MaterialUi.TodoItem',
-    description: 'A single checklist item inside a TodoList.',
-    requiredProps: [
-      WidgetProp('text'),
-      WidgetProp('completed', hint: 'true|false'),
-    ],
-    optionalProps: [
-      WidgetProp('dueDate'),
-      WidgetProp('priority', hint: 'high|medium|low'),
-    ],
-  );
-
-  static const listItem = StreamingWidgetSchema(
-    tag: 'MaterialUi.ListItem',
-    description: 'A single entry inside ListResults.',
-    requiredProps: [WidgetProp('title')],
-    optionalProps: [
-      WidgetProp('subtitle'),
-      WidgetProp('icon', hint: 'pdf|image|file|folder'),
-      WidgetProp('date'),
-      WidgetProp('size'),
-    ],
-  );
-
-  static const comparisonProduct = StreamingWidgetSchema(
-    tag: 'MaterialUi.ComparisonProduct',
-    description: 'A product column inside a Comparison table.',
-    requiredProps: [
-      WidgetProp('name'),
-      WidgetProp('price'),
-    ],
-    optionalProps: [WidgetProp('rating')],
   );
 
   // ---------------------------------------------------------------------------
   // Catalog lists
   // ---------------------------------------------------------------------------
 
-  /// All top-level widgets the model can directly instantiate.
-  static const List<StreamingWidgetSchema> all = [
-    card,
-    userProfile,
+  /// Layout primitives. Shown in the prompt with full examples.
+  static const List<StreamingWidgetSchema> base = [column, row, text];
+
+  /// Display widgets. Shown in the prompt compressed (no examples).
+  static const List<StreamingWidgetSchema> ui = [
+    // productivity
+    note, task, reminder, contactCard,
+    // media
     carousel,
-    weather,
-    graph,
-    webResult,
-    productResult,
-    location,
-    todoList,
-    note,
-    listResults,
-    comparison,
+    // data
+    weather, graph,
+    // discovery
+    webResult, itemCard, location,
   ];
 
-  /// Child-only widgets, nested inside their respective parent tags.
-  static const List<StreamingWidgetSchema> children = [
-    carouselItem,
-    forecast,
-    todoItem,
-    listItem,
-    comparisonProduct,
-  ];
+  /// All top-level widgets the model can directly instantiate.
+  static const List<StreamingWidgetSchema> all = [...base, ...ui];
+
+  /// Child-only widgets (nested inside their parent tag; not directly instantiated).
+  static const List<StreamingWidgetSchema> children = [carouselItem, forecast];
 }
