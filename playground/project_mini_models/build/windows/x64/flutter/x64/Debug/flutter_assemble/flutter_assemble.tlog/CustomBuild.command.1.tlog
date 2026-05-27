@@ -1,0 +1,28 @@
+^C:\USERS\TRULY\AAA_WORKSPACE_WINDOWS\FLUTTER_APPS\STREAMING_GEN_UI\PLAYGROUND\PROJECT_MINI_MODELS\BUILD\WINDOWS\X64\CMAKEFILES\993B473E8E6D956A8EF4FF24C7988A6F\FLUTTER_WINDOWS.DLL.RULE
+setlocal
+"C:\Program Files\Microsoft Visual Studio\2022\Community\Common7\IDE\CommonExtensions\Microsoft\CMake\CMake\bin\cmake.exe" -E env FLUTTER_ROOT=C:\Users\Truly\AAA_WORKSPACE_WINDOWS\flutter PROJECT_DIR=C:\Users\Truly\AAA_WORKSPACE_WINDOWS\Flutter_Apps\streaming_gen_ui\playground\project_mini_models FLUTTER_ROOT=C:\Users\Truly\AAA_WORKSPACE_WINDOWS\flutter FLUTTER_EPHEMERAL_DIR=C:\Users\Truly\AAA_WORKSPACE_WINDOWS\Flutter_Apps\streaming_gen_ui\playground\project_mini_models\windows\flutter\ephemeral PROJECT_DIR=C:\Users\Truly\AAA_WORKSPACE_WINDOWS\Flutter_Apps\streaming_gen_ui\playground\project_mini_models FLUTTER_TARGET=C:\Users\Truly\AAA_WORKSPACE_WINDOWS\Flutter_Apps\streaming_gen_ui\playground\project_mini_models\lib\main.dart DART_DEFINES=R0VNSU5JX0FQSV9LRVk9QUl6YVN5Q3M1WVFfNlI0TDVKdjRaa1ZpcTZmUnhvRVllR1NPaDlZ,REVFUFNFRUtfQVBJX0tFWT1zay01OWJiOWZhNDVlMzU0MzFmOWM4MjU3NWE2ZTNjNDM5Mg==,R1JPUV9BUElfS0VZPWdza19vcEN2UXlqUHZweWNtYmhQVTFHZldHZHliM0ZZMDN0VmJvYldhR3NOejFpdmV3aHpEMzlB,RkxVVFRFUl9WRVJTSU9OPTMuNDEuMQ==,RkxVVFRFUl9DSEFOTkVMPXN0YWJsZQ==,RkxVVFRFUl9HSVRfVVJMPWh0dHBzOi8vZ2l0aHViLmNvbS9mbHV0dGVyL2ZsdXR0ZXIuZ2l0,RkxVVFRFUl9GUkFNRVdPUktfUkVWSVNJT049NTgyYTBlN2M1NQ==,RkxVVFRFUl9FTkdJTkVfUkVWSVNJT049MzQ1MmQ3MzViZA==,RkxVVFRFUl9EQVJUX1ZFUlNJT049My4xMS4w DART_OBFUSCATION=false TRACK_WIDGET_CREATION=true TREE_SHAKE_ICONS=false PACKAGE_CONFIG=C:\Users\Truly\AAA_WORKSPACE_WINDOWS\Flutter_Apps\streaming_gen_ui\playground\project_mini_models\.dart_tool\package_config.json C:/Users/Truly/AAA_WORKSPACE_WINDOWS/flutter/packages/flutter_tools/bin/tool_backend.bat windows-x64 Debug
+if %errorlevel% neq 0 goto :cmEnd
+:cmEnd
+endlocal & call :cmErrorLevel %errorlevel% & goto :cmDone
+:cmErrorLevel
+exit /b %1
+:cmDone
+if %errorlevel% neq 0 goto :VCEnd
+^C:\USERS\TRULY\AAA_WORKSPACE_WINDOWS\FLUTTER_APPS\STREAMING_GEN_UI\PLAYGROUND\PROJECT_MINI_MODELS\BUILD\WINDOWS\X64\CMAKEFILES\3D344BF2C409E53E64CAC9D19952BFF7\FLUTTER_ASSEMBLE.RULE
+setlocal
+:cmEnd
+endlocal & call :cmErrorLevel %errorlevel% & goto :cmDone
+:cmErrorLevel
+exit /b %1
+:cmDone
+if %errorlevel% neq 0 goto :VCEnd
+^C:\USERS\TRULY\AAA_WORKSPACE_WINDOWS\FLUTTER_APPS\STREAMING_GEN_UI\PLAYGROUND\PROJECT_MINI_MODELS\WINDOWS\FLUTTER\CMAKELISTS.TXT
+setlocal
+"C:\Program Files\Microsoft Visual Studio\2022\Community\Common7\IDE\CommonExtensions\Microsoft\CMake\CMake\bin\cmake.exe" -SC:/Users/Truly/AAA_WORKSPACE_WINDOWS/Flutter_Apps/streaming_gen_ui/playground/project_mini_models/windows -BC:/Users/Truly/AAA_WORKSPACE_WINDOWS/Flutter_Apps/streaming_gen_ui/playground/project_mini_models/build/windows/x64 --check-stamp-file C:/Users/Truly/AAA_WORKSPACE_WINDOWS/Flutter_Apps/streaming_gen_ui/playground/project_mini_models/build/windows/x64/flutter/CMakeFiles/generate.stamp
+if %errorlevel% neq 0 goto :cmEnd
+:cmEnd
+endlocal & call :cmErrorLevel %errorlevel% & goto :cmDone
+:cmErrorLevel
+exit /b %1
+:cmDone
+if %errorlevel% neq 0 goto :VCEnd

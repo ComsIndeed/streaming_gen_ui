@@ -1,0 +1,25 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="17.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <ClCompile Include="C:\Users\Truly\AAA_WORKSPACE_WINDOWS\Flutter_Apps\streaming_gen_ui\playground\project_mini_models\windows\flutter\ephemeral\cpp_client_wrapper\core_implementations.cc">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="C:\Users\Truly\AAA_WORKSPACE_WINDOWS\Flutter_Apps\streaming_gen_ui\playground\project_mini_models\windows\flutter\ephemeral\cpp_client_wrapper\standard_codec.cc">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="C:\Users\Truly\AAA_WORKSPACE_WINDOWS\Flutter_Apps\streaming_gen_ui\playground\project_mini_models\windows\flutter\ephemeral\cpp_client_wrapper\plugin_registrar.cc">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <CustomBuild Include="C:\Users\Truly\AAA_WORKSPACE_WINDOWS\Flutter_Apps\streaming_gen_ui\playground\project_mini_models\windows\flutter\CMakeLists.txt" />
+  </ItemGroup>
+  <ItemGroup>
+    <Filter Include="CMake Rules">
+      <UniqueIdentifier>{F8DE4AB2-883D-380E-8A76-88BA6D2D38DB}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files">
+      <UniqueIdentifier>{3EB10938-03DD-3926-9B60-36C1312F06A9}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+</Project>
