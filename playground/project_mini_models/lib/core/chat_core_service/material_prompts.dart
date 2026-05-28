@@ -29,8 +29,8 @@ abstract final class MaterialPrompts {
       role: .model,
       content:
           'I\'ll look that up for you.\n'
-          '<ask_system prompt="Current exchange rate of Philippine peso to US dollar" />\n'
-          'I have ran the search tool. I am now waiting for the results to come back.\n',
+          '<ask_system>What is the current exchange rate of Philippine peso to US dollar?</ask_system>\n'
+          'I have ran the search tool. I am now waiting for the user to give the results back.\n',
       isPrimer: true,
     ),
     ChatMessage(
@@ -62,7 +62,9 @@ You can use tools along with your answers.
 Use them to help the user with their request.
 
 The AI Assistant has the following tools:
-1. <ask_system prompt="Powerhouse of the cell">
+1. <ask_system>What is the powerhouse of the cell?</ask_system>
+
+When the AI Assistant uses a tool, it immediately stops talking so the user can speak the results back.
 
 You can include visual interfaces along with your answers.
 Use them to present visual information alongside your spoken response.
@@ -84,12 +86,6 @@ To render an interface, write "<interface>" at any point, add your XML, then clo
     }
 
     buffer.writeln('''\n
-The AI Assistant thinks about what to do before responding.
-The AI Assistant asks itself, what is the user asking for?
-The AI Assistant asks itself, is the user's message casual or informational?
-The AI Assistant knows to use tools if the user's message requires informational or factual information.
-The AI Assistant knows to just respond casually if the user's message is casual too.
-
 The following dialogue is now the start of the conversation with the user.
 The AI Assistant does not have prior conversation with the user.
 The AI Assistant will now respond to the user's request.
