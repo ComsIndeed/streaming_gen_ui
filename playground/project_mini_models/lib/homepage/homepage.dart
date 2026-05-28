@@ -19,7 +19,12 @@ class _HomePageState extends State<HomePage> {
     // Keep all messages in history to render system prompt beautifully at the top
     final chatMessages = provider.history;
     final activeStreamId = provider.activeStreamId;
-    final totalItems = chatMessages.length + (activeStreamId != null ? 1 : 0);
+    final bool hasPrimers = chatMessages.any((m) => m.isPrimer);
+    final dividerIndex = hasPrimers ? chatMessages.length : -1;
+    final totalItems =
+        chatMessages.length +
+        (hasPrimers ? 1 : 0) +
+        (activeStreamId != null ? 1 : 0);
 
     return Stack(
       children: [
@@ -36,10 +41,75 @@ class _HomePageState extends State<HomePage> {
                 ),
                 itemCount: totalItems,
                 itemBuilder: (context, index) {
-                  if (index < chatMessages.length) {
-                    final msg = chatMessages[index];
-                    if (msg.role == Role.system) {
-                      return Container(
+                  // ---- divider after primers ----
+                  if (hasPrimers && index == dividerIndex) {
+                    return Padding(
+                      padding: const EdgeInsets.symmetric(
+                        vertical: 16,
+                        horizontal: 16,
+                      ),
+                      child: Row(
+                        children: [
+                          const Expanded(child: Divider()),
+                          Padding(
+                            padding: const EdgeInsets.symmetric(horizontal: 12),
+                            child: Text(
+                              'Conversation starts here',
+                              style: TextStyle(
+                                fontSize: 11,
+                                fontWeight: FontWeight.w600,
+                                letterSpacing: 0.8,
+                                color: Theme.of(
+                                  context,
+                                ).colorScheme.onSurfaceVariant.withOpacity(0.4),
+                              ),
+                            ),
+                          ),
+                          const Expanded(child: Divider()),
+                        ],
+                      ),
+                    );
+                  }
+
+                  // ---- active stream bubble ----
+                  if (index >= chatMessages.length + (hasPrimers ? 1 : 0)) {
+                    return Align(
+                      alignment: Alignment.centerLeft,
+                      child: Container(
+                        margin: const EdgeInsets.symmetric(vertical: 6),
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 16,
+                          vertical: 10,
+                        ),
+                        decoration: ShapeDecoration(
+                          color: Theme.of(
+                            context,
+                          ).colorScheme.surfaceContainerHighest,
+                          shape: RoundedSuperellipseBorder(
+                            borderRadius: BorderRadius.circular(16),
+                          ),
+                        ),
+                        child: Text(
+                          provider.activeStreamText,
+                          style: TextStyle(
+                            fontSize: 14,
+                            color: Theme.of(
+                              context,
+                            ).colorScheme.onSurfaceVariant,
+                          ),
+                        ),
+                      ),
+                    );
+                  }
+
+                  // ---- normal message ----
+                  final msg = chatMessages[index];
+                  final double opacity = msg.isPrimer ? 0.35 : 1.0;
+
+                  if (msg.role == Role.system) {
+                    return Opacity(
+                      opacity: opacity,
+                      child: Container(
                         margin: const EdgeInsets.symmetric(
                           vertical: 12,
                           horizontal: 8,
@@ -99,9 +169,12 @@ class _HomePageState extends State<HomePage> {
                             ),
                           ],
                         ),
-                      );
-                    } else if (msg.role == Role.user) {
-                      return Padding(
+                      ),
+                    );
+                  } else if (msg.role == Role.user) {
+                    return Opacity(
+                      opacity: opacity,
+                      child: Padding(
                         padding: const EdgeInsets.only(left: 64.0),
                         child: Container(
                           margin: const EdgeInsets.symmetric(vertical: 6),
@@ -126,9 +199,12 @@ class _HomePageState extends State<HomePage> {
                             ),
                           ),
                         ),
-                      );
-                    } else {
-                      return Padding(
+                      ),
+                    );
+                  } else {
+                    return Opacity(
+                      opacity: opacity,
+                      child: Padding(
                         padding: const EdgeInsets.only(right: 64.0),
                         child: Container(
                           margin: const EdgeInsets.symmetric(vertical: 6),
@@ -176,35 +252,6 @@ class _HomePageState extends State<HomePage> {
                                 ),
                               ),
                             ],
-                          ),
-                        ),
-                      );
-                    }
-                  } else {
-                    // Active stream bubble
-                    return Align(
-                      alignment: Alignment.centerLeft,
-                      child: Container(
-                        margin: const EdgeInsets.symmetric(vertical: 6),
-                        padding: const EdgeInsets.symmetric(
-                          horizontal: 16,
-                          vertical: 10,
-                        ),
-                        decoration: ShapeDecoration(
-                          color: Theme.of(
-                            context,
-                          ).colorScheme.surfaceContainerHighest,
-                          shape: RoundedSuperellipseBorder(
-                            borderRadius: BorderRadius.circular(16),
-                          ),
-                        ),
-                        child: Text(
-                          provider.activeStreamText,
-                          style: TextStyle(
-                            fontSize: 14,
-                            color: Theme.of(
-                              context,
-                            ).colorScheme.onSurfaceVariant,
                           ),
                         ),
                       ),

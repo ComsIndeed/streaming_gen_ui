@@ -11,17 +11,19 @@ abstract final class MaterialPrompts {
   static final String systemPrompt = _build();
 
   static const List<ChatMessage> primeMessages = [
-    ChatMessage(role: Role.user, content: 'Hey, assistant?'),
+    ChatMessage(role: Role.user, content: 'Hey, assistant?', isPrimer: true),
     ChatMessage(
       role: .model,
       content:
           'Hi there! I am your AI Assistant. I will help you with anything you need. Just ask me!\n'
           'Before answering, I will first look up the information online for you.\n',
+      isPrimer: true,
     ),
     ChatMessage(
       role: .user,
       content:
           'Sure! What is the value of the Philippine peso against the US dollar right now? (January 14, 2026)', // needs to be a day from now or something
+      isPrimer: true,
     ),
     ChatMessage(
       role: .model,
@@ -29,6 +31,7 @@ abstract final class MaterialPrompts {
           'I\'ll look that up for you.\n'
           '<ask_system prompt="Current exchange rate of Philippine peso to US dollar" />\n'
           'I have ran the search tool. I am now waiting for the results to come back.\n',
+      isPrimer: true,
     ),
     ChatMessage(
       role: Role.user,
@@ -37,6 +40,7 @@ abstract final class MaterialPrompts {
           '<system_results>'
           '<Search output="1 PHP = 0.018 USD" />'
           '</system_results>',
+      isPrimer: true,
     ),
     ChatMessage(
       role: .model,
@@ -46,6 +50,7 @@ abstract final class MaterialPrompts {
           '  <Ui.WebResult title="1 PHP = 0.018 USD" />\n'
           '</interface>\n'
           'Is there anything else I can help you with?',
+      isPrimer: true,
     ),
   ];
 
