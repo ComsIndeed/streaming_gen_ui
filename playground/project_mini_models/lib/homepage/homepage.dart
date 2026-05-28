@@ -111,8 +111,8 @@ class _HomePageState extends State<HomePage> {
                                 ),
                               );
                             } else if (msg.role == Role.user) {
-                              return Align(
-                                alignment: Alignment.centerRight,
+                              return Padding(
+                                padding: const EdgeInsets.only(left: 64.0),
                                 child: Container(
                                   margin: const EdgeInsets.symmetric(
                                     vertical: 6,
@@ -140,44 +140,71 @@ class _HomePageState extends State<HomePage> {
                                 ),
                               );
                             } else {
+                              return Padding(
+                                padding: const EdgeInsets.only(right: 64.0),
+                                child: Container(
+                                  margin: const EdgeInsets.symmetric(
+                                    vertical: 6,
+                                  ),
+                                  padding: const EdgeInsets.symmetric(
+                                    horizontal: 16,
+                                    vertical: 10,
+                                  ),
+                                  decoration: ShapeDecoration(
+                                    color: Theme.of(
+                                      context,
+                                    ).colorScheme.surfaceContainerHighest,
+                                    shape: RoundedSuperellipseBorder(
+                                      borderRadius: BorderRadius.circular(16),
+                                    ),
+                                  ),
+                                  child: Column(
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.start,
+                                    mainAxisSize: MainAxisSize.min,
+                                    children: [
+                                      if (msg.thinking != null &&
+                                          msg.thinking!.isNotEmpty) ...[
+                                        SelectableText(
+                                          msg.thinking!.trimLeft(),
+                                          style: TextStyle(
+                                            fontSize: 13,
+                                            color: Theme.of(context)
+                                                .colorScheme
+                                                .onSurfaceVariant
+                                                .withOpacity(0.35),
+                                            fontStyle: FontStyle.italic,
+                                          ),
+                                        ),
+                                        const Padding(
+                                          padding: EdgeInsets.symmetric(
+                                            vertical: 6,
+                                          ),
+                                          child: Divider(height: 1),
+                                        ),
+                                      ],
+                                      SelectableText(
+                                        msg.content.trimLeft(),
+                                        style: TextStyle(
+                                          fontSize: 14,
+                                          color: Theme.of(
+                                            context,
+                                          ).colorScheme.onSurfaceVariant,
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                              );
+                            }
+                          } else {
+                            // Active stream bubble
                             return Align(
                               alignment: Alignment.centerLeft,
                               child: Container(
-                                margin: const EdgeInsets.symmetric(
-                                  vertical: 6,
-                                ),
+                                margin: const EdgeInsets.symmetric(vertical: 6),
                                 padding: const EdgeInsets.symmetric(
                                   horizontal: 16,
-                                  vertical: 10,
-                                ),
-                                decoration: ShapeDecoration(
-                                  color: Theme.of(
-                                    context,
-                                  ).colorScheme.surfaceContainerHighest,
-                                  shape: RoundedSuperellipseBorder(
-                                    borderRadius: BorderRadius.circular(16),
-                                  ),
-                                ),
-                                child: SelectableText(
-                                  msg.content.trimLeft(),
-                                  style: TextStyle(
-                                    fontSize: 14,
-                                    color: Theme.of(
-                                      context,
-                                    ).colorScheme.onSurfaceVariant,
-                                  ),
-                                ),
-                              ),
-                            );
-                          }
-                        } else {
-                          // Active stream bubble
-                          return Align(
-                            alignment: Alignment.centerLeft,
-                            child: Container(
-                              margin: const EdgeInsets.symmetric(vertical: 6),
-                              padding: const EdgeInsets.symmetric(
-                                horizontal: 16,
                                   vertical: 10,
                                 ),
                                 decoration: ShapeDecoration(

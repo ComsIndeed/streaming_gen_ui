@@ -142,15 +142,7 @@ class HomepageProvider with ChangeNotifier {
   void _reinitChatSession() {
     chatSession.clearChat(); // removes everything except system
     if (_primingEnabled) {
-      chatSession.messages.add(
-        ChatMessage(role: Role.user, content: MaterialPrompts.primeUserMessage),
-      );
-      chatSession.messages.add(
-        ChatMessage(
-          role: Role.model,
-          content: MaterialPrompts.primeModelMessage,
-        ),
-      );
+      MaterialPrompts.primeMessages.forEach(chatSession.messages.add);
     }
   }
 

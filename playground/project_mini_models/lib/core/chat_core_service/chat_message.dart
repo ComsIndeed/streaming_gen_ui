@@ -6,7 +6,10 @@ class ChatMessage {
   final Role role;
   final String content;
 
-  const ChatMessage({required this.role, required this.content});
+  /// Optional thinking/chain-of-thought text (rendered differently in UI).
+  final String? thinking;
+
+  const ChatMessage({required this.role, required this.content, this.thinking});
 
   /// Converts to the API-expected JSON format.
   /// "model" role is mapped to "assistant" for OpenAI compatibility.
@@ -16,5 +19,7 @@ class ChatMessage {
   };
 
   @override
-  String toString() => '[$role]: $content';
+  String toString() => thinking != null
+      ? '[$role] thinking: $thinking\ncontent: $content'
+      : '[$role]: $content';
 }

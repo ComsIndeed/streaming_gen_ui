@@ -1,7 +1,6 @@
 import 'dart:async';
 import 'dart:convert';
 
-import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'package:ollama_dart/ollama_dart.dart' as ollama;
 
@@ -86,18 +85,19 @@ class ChatSession {
       );
 
       final ollamaStream = ollamaClient.chat.createStream(request: request);
-      final buffer = StringBuffer();
+      final contentBuffer = StringBuffer();
+      final thinkingBuffer = StringBuffer();
 
       try {
         await for (final chunk in ollamaStream) {
           final text = chunk.message?.content;
           final thinking = chunk.message?.thinking;
           if (thinking != null && thinking.isNotEmpty) {
-            buffer.write(thinking);
+            thinkingBuffer.write(thinking);
             yield thinking;
           }
           if (text != null && text.isNotEmpty) {
-            buffer.write(text);
+            contentBuffer.write(text);
             yield text;
           }
         }
@@ -105,9 +105,16 @@ class ChatSession {
         ollamaClient.close();
       }
 
-      final fullResponse = buffer.toString();
-      if (fullResponse.isNotEmpty) {
-        messages.add(ChatMessage(role: Role.model, content: fullResponse));
+      final fullContent = contentBuffer.toString();
+      final fullThinking = thinkingBuffer.toString();
+      if (fullContent.isNotEmpty || fullThinking.isNotEmpty) {
+        messages.add(
+          ChatMessage(
+            role: Role.model,
+            content: fullContent,
+            thinking: fullThinking.isNotEmpty ? fullThinking : null,
+          ),
+        );
       }
       return; // Stop here!
     }
