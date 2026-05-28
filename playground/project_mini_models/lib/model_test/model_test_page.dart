@@ -304,20 +304,18 @@ class _ResultCard extends StatelessWidget {
                   ),
               ],
             ),
-            if (isActive &&
-                result.response != null &&
-                result.response!.isNotEmpty)
+            if (result.response != null && result.response!.isNotEmpty)
               Padding(
                 padding: const EdgeInsets.only(top: 8),
                 child: Text(
                   result.response!,
-                  maxLines: 3,
+                  maxLines: isActive ? 3 : 3,
                   overflow: TextOverflow.ellipsis,
                   style: TextStyle(
                     fontSize: 12,
                     color: Theme.of(
                       context,
-                    ).colorScheme.onSurface.withOpacity(0.6),
+                    ).colorScheme.onSurface.withOpacity(isActive ? 0.6 : 0.5),
                   ),
                 ),
               ),

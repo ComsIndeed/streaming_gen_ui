@@ -67,6 +67,13 @@ class ModelTestProvider with ChangeNotifier {
     _currentTestIndex = -1;
     notifyListeners();
 
+    // Single session for the whole conversation chain
+    final session = ChatSession(
+      systemPrompt:
+          systemPrompt ?? 'You are a helpful assistant that answers concisely.',
+      modelConfig: modelConfig,
+    );
+
     for (int i = 0; i < kTestMessages.length; i++) {
       if (!_isRunning) break; // Allow cancellation via reset
       _currentTestIndex = i;
@@ -80,13 +87,6 @@ class ModelTestProvider with ChangeNotifier {
       final responseBuffer = StringBuffer();
 
       try {
-        final session = ChatSession(
-          systemPrompt:
-              systemPrompt ??
-              'You are a helpful assistant that answers concisely.',
-          modelConfig: modelConfig,
-        );
-
         final stream = session.sendMessage(kTestMessages[i]);
         await for (final chunk in stream) {
           ttft ??= stopwatch.elapsed;
