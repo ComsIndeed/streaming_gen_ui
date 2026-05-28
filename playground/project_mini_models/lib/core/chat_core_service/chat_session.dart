@@ -57,28 +57,32 @@ class ChatSession {
 
       // Inject instructions as system message
       if (model.instructions != null) {
-        ollamaMessages.add(ollama.ChatMessage(
-          role: ollama.MessageRole.system,
-          content: model.instructions!,
-        ));
+        ollamaMessages.add(
+          ollama.ChatMessage(
+            role: ollama.MessageRole.system,
+            content: model.instructions!,
+          ),
+        );
       }
 
       // Inject history
       for (final msg in messages) {
-        ollamaMessages.add(ollama.ChatMessage(
-          role: msg.role == Role.user
-              ? ollama.MessageRole.user
-              : msg.role == Role.model
-                  ? ollama.MessageRole.assistant
-                  : ollama.MessageRole.system,
-          content: msg.content,
-        ));
+        ollamaMessages.add(
+          ollama.ChatMessage(
+            role: msg.role == Role.user
+                ? ollama.MessageRole.user
+                : msg.role == Role.model
+                ? ollama.MessageRole.assistant
+                : ollama.MessageRole.system,
+            content: msg.content,
+          ),
+        );
       }
 
       final request = ollama.ChatRequest(
         model: model.modelName,
         messages: ollamaMessages,
-        think: const ollama.ThinkValue.enabled(false), // Set to no think
+        // think: const ollama.ThinkValue.enabled(false), // Set to no think
       );
 
       final ollamaStream = ollamaClient.chat.createStream(request: request);
@@ -87,6 +91,11 @@ class ChatSession {
       try {
         await for (final chunk in ollamaStream) {
           final text = chunk.message?.content;
+          final thinking = chunk.message?.thinking;
+          if (thinking != null && thinking.isNotEmpty) {
+            buffer.write(thinking);
+            yield thinking;
+          }
           if (text != null && text.isNotEmpty) {
             buffer.write(text);
             yield text;

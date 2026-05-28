@@ -55,11 +55,11 @@ class HomepageProvider with ChangeNotifier {
   bool _primingEnabled = false;
   bool get primingEnabled => _primingEnabled;
 
-  static final _groqConfig = ModelConfig(
-    baseUrl: 'https://api.groq.com/openai/v1',
-    modelName: 'llama-3.1-8b-instant',
-    apiKey: _getApiKey(),
-  );
+  // static final _groqConfig = ModelConfig(
+  //   baseUrl: 'https://api.groq.com/openai/v1',
+  //   modelName: 'llama-3.1-8b-instant',
+  //   apiKey: _getApiKey(),
+  // );
 
   static final _ollamaConfig = const ModelConfig(
     baseUrl: 'http://localhost:11434',
@@ -101,7 +101,8 @@ class HomepageProvider with ChangeNotifier {
     } catch (_) {
       _primingEnabled = _useOllama;
     }
-    chatSession.changeModel(_useOllama ? _ollamaConfig : _groqConfig);
+    // chatSession.changeModel(_useOllama ? _ollamaConfig : _groqConfig);
+    chatSession.changeModel(_useOllama ? _ollamaConfig : _ollamaConfig);
     _reinitChatSession();
     notifyListeners();
     try {
@@ -132,7 +133,8 @@ class HomepageProvider with ChangeNotifier {
   late final chatSession = ChatSession(
     systemPrompt:
         'You are a helpful assistant. ${MaterialPrompts.systemPrompt}',
-    modelConfig: _groqConfig,
+    modelConfig: _ollamaConfig,
+    // modelConfig: _groqConfig,
   );
 
   /// Clears the chat history and rebuilds it from scratch:
