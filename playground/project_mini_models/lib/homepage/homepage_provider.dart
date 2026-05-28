@@ -61,11 +61,17 @@ class HomepageProvider with ChangeNotifier {
   //   apiKey: _getApiKey(),
   // );
 
-  static final _ollamaConfig = const ModelConfig(
+  static final ModelConfig ollamaConfig = const ModelConfig(
     baseUrl: 'http://localhost:11434',
     modelName: 'qwen3:0.6b',
     apiKey: '',
     isOllama: true,
+  );
+
+  static final ModelConfig groqConfig = ModelConfig(
+    baseUrl: 'https://api.groq.com/openai/v1',
+    modelName: 'llama-3.1-8b-instant',
+    apiKey: _getApiKey(),
   );
 
   /// The shared-preferences key for the priming setting for the current provider.
@@ -101,8 +107,7 @@ class HomepageProvider with ChangeNotifier {
     } catch (_) {
       _primingEnabled = _useOllama;
     }
-    // chatSession.changeModel(_useOllama ? _ollamaConfig : _groqConfig);
-    chatSession.changeModel(_useOllama ? _ollamaConfig : _ollamaConfig);
+    chatSession.changeModel(_useOllama ? ollamaConfig : groqConfig);
     _reinitChatSession();
     notifyListeners();
     try {
@@ -133,7 +138,7 @@ class HomepageProvider with ChangeNotifier {
   late final chatSession = ChatSession(
     systemPrompt:
         'You are a helpful assistant. ${MaterialPrompts.systemPrompt}',
-    modelConfig: _ollamaConfig,
+    modelConfig: ollamaConfig,
     // modelConfig: _groqConfig,
   );
 
