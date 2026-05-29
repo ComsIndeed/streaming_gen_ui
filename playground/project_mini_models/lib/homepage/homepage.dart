@@ -22,10 +22,10 @@ class _HomePageState extends State<HomePage> {
     final activeStreamId = provider.activeStreamId;
 
     // Partition by flag, not index — system prompt lives in right panel.
-    final primerMessages =
-        chatMessages.where((m) => m.isPrimer).toList();
-    final nonPrimerMessages =
-        chatMessages.where((m) => m.role != Role.system && !m.isPrimer).toList();
+    final primerMessages = chatMessages.where((m) => m.isPrimer).toList();
+    final nonPrimerMessages = chatMessages
+        .where((m) => m.role != Role.system && !m.isPrimer)
+        .toList();
     final hasRealMessages =
         nonPrimerMessages.isNotEmpty || activeStreamId != null;
 
@@ -43,7 +43,11 @@ class _HomePageState extends State<HomePage> {
         return Opacity(
           opacity: opac,
           child: Padding(
-            padding: const EdgeInsets.only(left: 48.0),
+            padding: msg.role == Role.user
+                ? const EdgeInsets.only(left: 48.0)
+                : msg.role == .model
+                ? const EdgeInsets.only(right: 48.0)
+                : EdgeInsets.zero,
             child: Container(
               margin: const EdgeInsets.symmetric(vertical: 4),
               padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
@@ -113,8 +117,9 @@ class _HomePageState extends State<HomePage> {
     }
 
     // ---- Right panel: system prompt (40% of screen when expanded) ----
-    final double rightPanelWidth =
-        provider.showPanel ? MediaQuery.of(context).size.width * 0.40 : 0.0;
+    final double rightPanelWidth = provider.showPanel
+        ? MediaQuery.of(context).size.width * 0.40
+        : 0.0;
 
     return Stack(
       children: [
@@ -144,9 +149,12 @@ class _HomePageState extends State<HomePage> {
                             if (primerSlot > 0) {
                               if (index == cursor) {
                                 return Container(
-                                  margin: const EdgeInsets.symmetric(vertical: 4),
+                                  margin: const EdgeInsets.symmetric(
+                                    vertical: 4,
+                                  ),
                                   decoration: ShapeDecoration(
-                                    color: theme.colorScheme.surfaceContainerLow,
+                                    color:
+                                        theme.colorScheme.surfaceContainerLow,
                                     shape: RoundedSuperellipseBorder(
                                       borderRadius: BorderRadius.circular(16),
                                     ),
@@ -179,10 +187,13 @@ class _HomePageState extends State<HomePage> {
                                         style: TextStyle(
                                           fontSize: 12,
                                           fontWeight: FontWeight.w600,
-                                          color: theme.colorScheme.onSurfaceVariant
+                                          color: theme
+                                              .colorScheme
+                                              .onSurfaceVariant
                                               .withOpacity(0.5),
                                         ),
                                       ),
+                                      expandedCrossAxisAlignment: .stretch,
                                       children: primerMessages
                                           .map(buildPrimerBubble)
                                           .toList(),
@@ -236,13 +247,16 @@ class _HomePageState extends State<HomePage> {
                                 return Padding(
                                   padding: const EdgeInsets.only(left: 64.0),
                                   child: Container(
-                                    margin: const EdgeInsets.symmetric(vertical: 6),
+                                    margin: const EdgeInsets.symmetric(
+                                      vertical: 6,
+                                    ),
                                     padding: const EdgeInsets.symmetric(
                                       horizontal: 16,
                                       vertical: 10,
                                     ),
                                     decoration: ShapeDecoration(
-                                      color: theme.colorScheme.secondaryContainer,
+                                      color:
+                                          theme.colorScheme.secondaryContainer,
                                       shape: RoundedSuperellipseBorder(
                                         borderRadius: BorderRadius.circular(16),
                                       ),
@@ -250,8 +264,9 @@ class _HomePageState extends State<HomePage> {
                                     child: Text(
                                       msg.content,
                                       style: TextStyle(
-                                        color:
-                                            theme.colorScheme.onSecondaryContainer,
+                                        color: theme
+                                            .colorScheme
+                                            .onSecondaryContainer,
                                       ),
                                     ),
                                   ),
@@ -260,20 +275,24 @@ class _HomePageState extends State<HomePage> {
                                 return Padding(
                                   padding: const EdgeInsets.only(right: 64.0),
                                   child: Container(
-                                    margin: const EdgeInsets.symmetric(vertical: 6),
+                                    margin: const EdgeInsets.symmetric(
+                                      vertical: 6,
+                                    ),
                                     padding: const EdgeInsets.symmetric(
                                       horizontal: 16,
                                       vertical: 10,
                                     ),
                                     decoration: ShapeDecoration(
-                                      color:
-                                          theme.colorScheme.surfaceContainerHighest,
+                                      color: theme
+                                          .colorScheme
+                                          .surfaceContainerHighest,
                                       shape: RoundedSuperellipseBorder(
                                         borderRadius: BorderRadius.circular(16),
                                       ),
                                     ),
                                     child: Column(
-                                      crossAxisAlignment: CrossAxisAlignment.start,
+                                      crossAxisAlignment:
+                                          CrossAxisAlignment.start,
                                       mainAxisSize: MainAxisSize.min,
                                       children: [
                                         if (msg.thinking != null &&
@@ -300,8 +319,9 @@ class _HomePageState extends State<HomePage> {
                                           msg.content.trimLeft(),
                                           style: TextStyle(
                                             fontSize: 14,
-                                            color:
-                                                theme.colorScheme.onSurfaceVariant,
+                                            color: theme
+                                                .colorScheme
+                                                .onSurfaceVariant,
                                           ),
                                         ),
                                       ],
@@ -322,7 +342,8 @@ class _HomePageState extends State<HomePage> {
                                   vertical: 10,
                                 ),
                                 decoration: ShapeDecoration(
-                                  color: theme.colorScheme.surfaceContainerHighest,
+                                  color:
+                                      theme.colorScheme.surfaceContainerHighest,
                                   shape: RoundedSuperellipseBorder(
                                     borderRadius: BorderRadius.circular(16),
                                   ),
