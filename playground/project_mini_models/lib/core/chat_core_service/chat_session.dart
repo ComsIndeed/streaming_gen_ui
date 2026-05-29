@@ -48,8 +48,32 @@ class ChatSession {
       );
     }
 
+    final isRealUserMessage = !content.trim().startsWith('<system_results>');
+    if (isRealUserMessage) {
+      // Surgically remove any previous system reminders from historical user messages
+      for (var i = messages.length - 1; i >= 0; i--) {
+        final msg = messages[i];
+        if (msg.role == Role.user && msg.content.contains('<system_reminder>')) {
+          final cleanContent = msg.content.split('<system_reminder>').first.trim();
+          messages[i] = ChatMessage(
+            role: msg.role,
+            content: cleanContent,
+            thinking: msg.thinking,
+            isPrimer: msg.isPrimer,
+          );
+          break; // Only the last one needs clearing
+        }
+      }
+    }
+
+    // Append the reminder to the new user message if it is a real human user query
+    var finalContent = content;
+    if (isRealUserMessage) {
+      finalContent = '$content\n\n<system_reminder>Please remember to use <ask_system> to search the web if you need real-time data to answer the user\'s query.</system_reminder>';
+    }
+
     // Immediately persist the user message
-    messages.add(ChatMessage(role: Role.user, content: content));
+    messages.add(ChatMessage(role: Role.user, content: finalContent));
 
     if (model.isOllama) {
       final ollamaClient = ollama.OllamaClient.withBaseUrl(model.baseUrl);
@@ -187,11 +211,11 @@ class ChatSession {
   }
 
   /// Sends a user message and streams the assistant's response.
-  Stream<String> sendMessage(
-    String content, {
-    ModelConfig? overrideModel,
-  }) {
-    return sendMessageStream(content, overrideModel: overrideModel).map((chunk) => chunk.text);
+  Stream<String> sendMessage(String content, {ModelConfig? overrideModel}) {
+    return sendMessageStream(
+      content,
+      overrideModel: overrideModel,
+    ).map((chunk) => chunk.text);
   }
 
   void clearChat() => messages.removeWhere((msg) => msg.role != Role.system);

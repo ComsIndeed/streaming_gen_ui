@@ -58,7 +58,7 @@ class _HomePageState extends State<HomePage> {
                 ),
               ),
               child: Text(
-                msg.content,
+                msg.content.split('<system_reminder>').first.trim(),
                 style: TextStyle(
                   fontSize: 13,
                   color: theme.colorScheme.onSecondaryContainer,
@@ -262,7 +262,7 @@ class _HomePageState extends State<HomePage> {
                                       ),
                                     ),
                                     child: Text(
-                                      msg.content,
+                                      msg.content.split('<system_reminder>').first.trim(),
                                       style: TextStyle(
                                         color: theme
                                             .colorScheme
