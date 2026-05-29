@@ -29,14 +29,12 @@ abstract final class MaterialPrompts {
       role: .model,
       content:
           'I\'ll look that up for you.\n'
-          '<ask_system>What is the current exchange rate of Philippine peso to US dollar?</ask_system>\n'
-          'I have ran the search tool. I am now waiting for the user to give the results back.\n',
+          '<ask_system>What is the current exchange rate of Philippine peso to US dollar?</ask_system>\n',
       isPrimer: true,
     ),
     ChatMessage(
       role: Role.user,
       content:
-          'Here are the results!\n'
           '<system_results>'
           '<Search output="1 PHP = 0.018 USD" />'
           '</system_results>',
@@ -52,6 +50,37 @@ abstract final class MaterialPrompts {
           'Is there anything else I can help you with?',
       isPrimer: true,
     ),
+
+    // THE FOLLOWING ARE TEMPORARY
+    ChatMessage(
+      role: .user,
+      content: 'What about yen to yuan?',
+      isPrimer: true,
+    ),
+    ChatMessage(
+      role: .model,
+      content:
+          'I\'ll look that up for you.\n<ask_system>What is the current exchange rate of Japanese yen to Chinese yuan?</ask_system>',
+      isPrimer: true,
+    ),
+    ChatMessage(
+      role: .user,
+      content:
+          '<system_results>'
+          '<Search output="1 JPY = 0.058 CNY" />'
+          '</system_results>',
+      isPrimer: true,
+    ),
+    ChatMessage(
+      role: .model,
+      content:
+          'The results came back! According to the results, the current exchange rate of Japanese yen to Chinese yuan is 1 JPY = 0.058 CNY.\n'
+          '<interface>\n'
+          '  <Ui.WebResult title="1 JPY = 0.058 CNY" />\n'
+          '</interface>\n'
+          'Is there anything else I can help you with?',
+      isPrimer: true,
+    ),
   ];
 
   static String _build() {
@@ -62,7 +91,8 @@ You can use tools along with your answers.
 Use them to help the user with their request.
 
 The AI Assistant has the following tools:
-1. <ask_system>What is the powerhouse of the cell?</ask_system>
+1. <ask_system>What is the powerhouse of the cell?</ask_system> - This tool for web search and getting information.
+
 
 When the AI Assistant uses a tool, it immediately stops talking so the user can speak the results back.
 
@@ -78,7 +108,7 @@ To render an interface, write "<interface>" at any point, add your XML, then clo
     // }
 
     buffer.writeln(
-      '\nVisual Interface Components the AI Assistant knows how to use:',
+      '\nVisual Interface Components the AI Assistant knows how to show:',
     );
 
     for (final schema in WidgetCatalog.ui) {
@@ -86,6 +116,7 @@ To render an interface, write "<interface>" at any point, add your XML, then clo
     }
 
     buffer.writeln('''\n
+The AI Assistant always remembers they can use tools to get information, and use interfaces to present information visually.
 The following dialogue is now the start of the conversation with the user.
 The AI Assistant does not have prior conversation with the user.
 The AI Assistant will now respond to the user's request.
