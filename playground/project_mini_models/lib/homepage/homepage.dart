@@ -124,115 +124,197 @@ class _HomePageState extends State<HomePage> {
             children: [
               // Chat list
               Expanded(
-                child: Center(
-                  child: ConstrainedBox(
-                    constraints: const BoxConstraints(maxWidth: 720),
-                    child: ListView.builder(
-                      padding: const EdgeInsets.only(
-                        bottom: 128,
-                        left: 16,
-                        right: 16,
-                        top: 16,
-                      ),
-                      itemCount: totalItems,
-                      itemBuilder: (context, index) {
-                        int cursor = 0;
+                child: Stack(
+                  children: [
+                    Center(
+                      child: ConstrainedBox(
+                        constraints: const BoxConstraints(maxWidth: 720),
+                        child: ListView.builder(
+                          padding: const EdgeInsets.only(
+                            bottom: 128,
+                            left: 16,
+                            right: 16,
+                            top: 16,
+                          ),
+                          itemCount: totalItems,
+                          itemBuilder: (context, index) {
+                            int cursor = 0;
 
-                        // ---- 1. Collapsible primers (system prompt moved to right panel) ----
-                        if (primerSlot > 0) {
-                          if (index == cursor) {
-                            return Container(
-                              margin: const EdgeInsets.symmetric(vertical: 4),
-                              decoration: ShapeDecoration(
-                                color: theme.colorScheme.surfaceContainerLow,
-                                shape: RoundedSuperellipseBorder(
-                                  borderRadius: BorderRadius.circular(16),
-                                ),
-                              ),
-                              child: ClipRRect(
-                                borderRadius: BorderRadius.circular(16),
-                                child: ExpansionTile(
-                                  initiallyExpanded: _primersExpanded,
-                                  onExpansionChanged: (v) =>
-                                      setState(() => _primersExpanded = v),
-                                  tilePadding: const EdgeInsets.symmetric(
-                                    horizontal: 16,
-                                    vertical: 6,
-                                  ),
-                                  childrenPadding: const EdgeInsets.only(
-                                    left: 8,
-                                    right: 8,
-                                    bottom: 8,
-                                  ),
-                                  leading: Icon(
-                                    _primersExpanded
-                                        ? Icons.auto_awesome
-                                        : Icons.auto_awesome_outlined,
-                                    size: 18,
-                                    color: theme.colorScheme.primary
-                                        .withOpacity(0.5),
-                                  ),
-                                  title: Text(
-                                    'Primers (${primerMessages.length} injected messages)',
-                                    style: TextStyle(
-                                      fontSize: 12,
-                                      fontWeight: FontWeight.w600,
-                                      color: theme.colorScheme.onSurfaceVariant
-                                          .withOpacity(0.5),
+                            // ---- 1. Collapsible primers ----
+                            if (primerSlot > 0) {
+                              if (index == cursor) {
+                                return Container(
+                                  margin: const EdgeInsets.symmetric(vertical: 4),
+                                  decoration: ShapeDecoration(
+                                    color: theme.colorScheme.surfaceContainerLow,
+                                    shape: RoundedSuperellipseBorder(
+                                      borderRadius: BorderRadius.circular(16),
                                     ),
                                   ),
-                                  children: primerMessages
-                                      .map(buildPrimerBubble)
-                                      .toList(),
-                                ),
-                              ),
-                            );
-                          }
-                          cursor++;
-                        }
+                                  child: ClipRRect(
+                                    borderRadius: BorderRadius.circular(16),
+                                    child: ExpansionTile(
+                                      initiallyExpanded: _primersExpanded,
+                                      onExpansionChanged: (v) =>
+                                          setState(() => _primersExpanded = v),
+                                      tilePadding: const EdgeInsets.symmetric(
+                                        horizontal: 16,
+                                        vertical: 6,
+                                      ),
+                                      childrenPadding: const EdgeInsets.only(
+                                        left: 8,
+                                        right: 8,
+                                        bottom: 8,
+                                      ),
+                                      leading: Icon(
+                                        _primersExpanded
+                                            ? Icons.auto_awesome
+                                            : Icons.auto_awesome_outlined,
+                                        size: 18,
+                                        color: theme.colorScheme.primary
+                                            .withOpacity(0.5),
+                                      ),
+                                      title: Text(
+                                        'Primers (${primerMessages.length} injected messages)',
+                                        style: TextStyle(
+                                          fontSize: 12,
+                                          fontWeight: FontWeight.w600,
+                                          color: theme.colorScheme.onSurfaceVariant
+                                              .withOpacity(0.5),
+                                        ),
+                                      ),
+                                      children: primerMessages
+                                          .map(buildPrimerBubble)
+                                          .toList(),
+                                    ),
+                                  ),
+                                );
+                              }
+                              cursor++;
+                            }
 
-                        // ---- 2. Divider ----
-                        if (dividerSlot > 0) {
-                          if (index == cursor) {
-                            return Padding(
-                              padding: const EdgeInsets.symmetric(
-                                vertical: 12,
-                                horizontal: 8,
-                              ),
-                              child: Row(
-                                children: [
-                                  const Expanded(child: Divider()),
-                                  Padding(
+                            // ---- 2. Divider ----
+                            if (dividerSlot > 0) {
+                              if (index == cursor) {
+                                return Padding(
+                                  padding: const EdgeInsets.symmetric(
+                                    vertical: 12,
+                                    horizontal: 8,
+                                  ),
+                                  child: Row(
+                                    children: [
+                                      const Expanded(child: Divider()),
+                                      Padding(
+                                        padding: const EdgeInsets.symmetric(
+                                          horizontal: 12,
+                                        ),
+                                        child: Text(
+                                          'Conversation starts here',
+                                          style: TextStyle(
+                                            fontSize: 11,
+                                            fontWeight: FontWeight.w600,
+                                            letterSpacing: 0.8,
+                                            color: theme
+                                                .colorScheme
+                                                .onSurfaceVariant
+                                                .withOpacity(0.4),
+                                          ),
+                                        ),
+                                      ),
+                                      const Expanded(child: Divider()),
+                                    ],
+                                  ),
+                                );
+                              }
+                              cursor++;
+                            }
+
+                            // ---- 3. Real messages ----
+                            if (index < cursor + realSlot) {
+                              final msg = nonPrimerMessages[index - cursor];
+                              if (msg.role == Role.user) {
+                                return Padding(
+                                  padding: const EdgeInsets.only(left: 64.0),
+                                  child: Container(
+                                    margin: const EdgeInsets.symmetric(vertical: 6),
                                     padding: const EdgeInsets.symmetric(
-                                      horizontal: 12,
+                                      horizontal: 16,
+                                      vertical: 10,
+                                    ),
+                                    decoration: ShapeDecoration(
+                                      color: theme.colorScheme.secondaryContainer,
+                                      shape: RoundedSuperellipseBorder(
+                                        borderRadius: BorderRadius.circular(16),
+                                      ),
                                     ),
                                     child: Text(
-                                      'Conversation starts here',
+                                      msg.content,
                                       style: TextStyle(
-                                        fontSize: 11,
-                                        fontWeight: FontWeight.w600,
-                                        letterSpacing: 0.8,
-                                        color: theme
-                                            .colorScheme
-                                            .onSurfaceVariant
-                                            .withOpacity(0.4),
+                                        color:
+                                            theme.colorScheme.onSecondaryContainer,
                                       ),
                                     ),
                                   ),
-                                  const Expanded(child: Divider()),
-                                ],
-                              ),
-                            );
-                          }
-                          cursor++;
-                        }
+                                );
+                              } else {
+                                return Padding(
+                                  padding: const EdgeInsets.only(right: 64.0),
+                                  child: Container(
+                                    margin: const EdgeInsets.symmetric(vertical: 6),
+                                    padding: const EdgeInsets.symmetric(
+                                      horizontal: 16,
+                                      vertical: 10,
+                                    ),
+                                    decoration: ShapeDecoration(
+                                      color:
+                                          theme.colorScheme.surfaceContainerHighest,
+                                      shape: RoundedSuperellipseBorder(
+                                        borderRadius: BorderRadius.circular(16),
+                                      ),
+                                    ),
+                                    child: Column(
+                                      crossAxisAlignment: CrossAxisAlignment.start,
+                                      mainAxisSize: MainAxisSize.min,
+                                      children: [
+                                        if (msg.thinking != null &&
+                                            msg.thinking!.isNotEmpty) ...[
+                                          SelectableText(
+                                            msg.thinking!.trimLeft(),
+                                            style: TextStyle(
+                                              fontSize: 13,
+                                              color: theme
+                                                  .colorScheme
+                                                  .onSurfaceVariant
+                                                  .withOpacity(0.35),
+                                              fontStyle: FontStyle.italic,
+                                            ),
+                                          ),
+                                          const Padding(
+                                            padding: EdgeInsets.symmetric(
+                                              vertical: 6,
+                                            ),
+                                            child: Divider(height: 1),
+                                          ),
+                                        ],
+                                        SelectableText(
+                                          msg.content.trimLeft(),
+                                          style: TextStyle(
+                                            fontSize: 14,
+                                            color:
+                                                theme.colorScheme.onSurfaceVariant,
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                  ),
+                                );
+                              }
+                            }
+                            cursor += realSlot;
 
-                        // ---- 3. Real messages ----
-                        if (index < cursor + realSlot) {
-                          final msg = nonPrimerMessages[index - cursor];
-                          if (msg.role == Role.user) {
-                            return Padding(
-                              padding: const EdgeInsets.only(left: 64.0),
+                            // ---- 4. Active stream ----
+                            return Align(
+                              alignment: Alignment.centerLeft,
                               child: Container(
                                 margin: const EdgeInsets.symmetric(vertical: 6),
                                 padding: const EdgeInsets.symmetric(
@@ -240,103 +322,33 @@ class _HomePageState extends State<HomePage> {
                                   vertical: 10,
                                 ),
                                 decoration: ShapeDecoration(
-                                  color: theme.colorScheme.secondaryContainer,
+                                  color: theme.colorScheme.surfaceContainerHighest,
                                   shape: RoundedSuperellipseBorder(
                                     borderRadius: BorderRadius.circular(16),
                                   ),
                                 ),
                                 child: Text(
-                                  msg.content,
+                                  provider.activeStreamText,
                                   style: TextStyle(
-                                    color:
-                                        theme.colorScheme.onSecondaryContainer,
+                                    fontSize: 14,
+                                    color: theme.colorScheme.onSurfaceVariant,
                                   ),
                                 ),
                               ),
                             );
-                          } else {
-                            return Padding(
-                              padding: const EdgeInsets.only(right: 64.0),
-                              child: Container(
-                                margin: const EdgeInsets.symmetric(vertical: 6),
-                                padding: const EdgeInsets.symmetric(
-                                  horizontal: 16,
-                                  vertical: 10,
-                                ),
-                                decoration: ShapeDecoration(
-                                  color:
-                                      theme.colorScheme.surfaceContainerHighest,
-                                  shape: RoundedSuperellipseBorder(
-                                    borderRadius: BorderRadius.circular(16),
-                                  ),
-                                ),
-                                child: Column(
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  mainAxisSize: MainAxisSize.min,
-                                  children: [
-                                    if (msg.thinking != null &&
-                                        msg.thinking!.isNotEmpty) ...[
-                                      SelectableText(
-                                        msg.thinking!.trimLeft(),
-                                        style: TextStyle(
-                                          fontSize: 13,
-                                          color: theme
-                                              .colorScheme
-                                              .onSurfaceVariant
-                                              .withOpacity(0.35),
-                                          fontStyle: FontStyle.italic,
-                                        ),
-                                      ),
-                                      const Padding(
-                                        padding: EdgeInsets.symmetric(
-                                          vertical: 6,
-                                        ),
-                                        child: Divider(height: 1),
-                                      ),
-                                    ],
-                                    SelectableText(
-                                      msg.content.trimLeft(),
-                                      style: TextStyle(
-                                        fontSize: 14,
-                                        color:
-                                            theme.colorScheme.onSurfaceVariant,
-                                      ),
-                                    ),
-                                  ],
-                                ),
-                              ),
-                            );
-                          }
-                        }
-                        cursor += realSlot;
-
-                        // ---- 4. Active stream ----
-                        return Align(
-                          alignment: Alignment.centerLeft,
-                          child: Container(
-                            margin: const EdgeInsets.symmetric(vertical: 6),
-                            padding: const EdgeInsets.symmetric(
-                              horizontal: 16,
-                              vertical: 10,
-                            ),
-                            decoration: ShapeDecoration(
-                              color: theme.colorScheme.surfaceContainerHighest,
-                              shape: RoundedSuperellipseBorder(
-                                borderRadius: BorderRadius.circular(16),
-                              ),
-                            ),
-                            child: Text(
-                              provider.activeStreamText,
-                              style: TextStyle(
-                                fontSize: 14,
-                                color: theme.colorScheme.onSurfaceVariant,
-                              ),
-                            ),
-                          ),
-                        );
-                      },
+                          },
+                        ),
+                      ),
                     ),
-                  ),
+                    // Chat field — part of left panel
+                    Align(
+                      alignment: Alignment.bottomCenter,
+                      child: Padding(
+                        padding: const EdgeInsets.all(16.0),
+                        child: const ChatField(),
+                      ),
+                    ),
+                  ],
                 ),
               ),
 
@@ -387,15 +399,6 @@ class _HomePageState extends State<HomePage> {
             ),
             tooltip: 'Toggle system prompt panel',
             onPressed: () => provider.togglePanel(),
-          ),
-        ),
-
-        // ---- Chat field ----
-        Align(
-          alignment: Alignment.bottomCenter,
-          child: Padding(
-            padding: const EdgeInsets.all(16.0),
-            child: const ChatField(),
           ),
         ),
       ],
