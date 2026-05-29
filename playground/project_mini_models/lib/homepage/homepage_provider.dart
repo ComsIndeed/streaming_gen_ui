@@ -36,7 +36,7 @@ class HomepageProvider with ChangeNotifier {
   }
 
   // ------ Panel ------
-  bool _showPanel = false;
+  bool _showPanel = true;
   bool get showPanel => _showPanel;
   void togglePanel() {
     _showPanel = !_showPanel;
