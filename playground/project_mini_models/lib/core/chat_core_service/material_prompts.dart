@@ -1,7 +1,5 @@
 import 'package:project_mini_models/core/chat_core_service/chat_core_service.dart';
 
-import 'material_catalog.dart';
-
 /// Builds the system prompt for streaming generative UI injection.
 ///
 /// The catalog section is compiled from [WidgetCatalog]:
