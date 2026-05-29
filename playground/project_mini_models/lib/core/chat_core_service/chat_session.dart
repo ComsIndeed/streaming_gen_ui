@@ -8,6 +8,13 @@ import 'package:ollama_dart/ollama_dart.dart' as ollama;
 import 'chat_message.dart';
 import 'model_config.dart';
 
+/// A chunk of streamed text containing whether the text is a thinking/reasoning token.
+class ChatStreamChunk {
+  final String text;
+  final bool isThinking;
+  const ChatStreamChunk({required this.text, this.isThinking = false});
+}
+
 /// A chat session that stores conversation history and sends messages
 /// to an OpenAI-compatible API with streaming enabled by default.
 class ChatSession {
@@ -29,15 +36,8 @@ class ChatSession {
     defaultModel = config;
   }
 
-  /// Sends a user message and streams the assistant's response.
-  ///
-  /// The [content] is immediately added to [messages] as a user message.
-  /// The model used is [overrideModel] if provided, otherwise [defaultModel].
-  /// Throws [StateError] if no model is configured.
-  ///
-  /// Yields tokens as they arrive. When the stream completes, the full
-  /// assistant response is appended to [messages].
-  Stream<String> sendMessage(
+  /// Sends a user message and streams the assistant's response as typed [ChatStreamChunk] instances.
+  Stream<ChatStreamChunk> sendMessageStream(
     String content, {
     ModelConfig? overrideModel,
   }) async* {
@@ -82,7 +82,6 @@ class ChatSession {
       final request = ollama.ChatRequest(
         model: model.modelName,
         messages: ollamaMessages,
-        // think: const ollama.ThinkValue.enabled(false), // Set to no think
       );
 
       final ollamaStream = ollamaClient.chat.createStream(request: request);
@@ -95,11 +94,11 @@ class ChatSession {
           final thinking = chunk.message?.thinking;
           if (thinking != null && thinking.isNotEmpty) {
             thinkingBuffer.write(thinking);
-            yield thinking;
+            yield ChatStreamChunk(text: thinking, isThinking: true);
           }
           if (text != null && text.isNotEmpty) {
             contentBuffer.write(text);
-            yield text;
+            yield ChatStreamChunk(text: text, isThinking: false);
           }
         }
       } finally {
@@ -169,7 +168,7 @@ class ChatSession {
             final content = delta?['content'] as String?;
             if (content != null && content.isNotEmpty) {
               buffer.write(content);
-              yield content;
+              yield ChatStreamChunk(text: content, isThinking: false);
             }
           } catch (_) {
             // Skip malformed SSE lines
@@ -185,6 +184,14 @@ class ChatSession {
     if (fullResponse.isNotEmpty) {
       messages.add(ChatMessage(role: Role.model, content: fullResponse));
     }
+  }
+
+  /// Sends a user message and streams the assistant's response.
+  Stream<String> sendMessage(
+    String content, {
+    ModelConfig? overrideModel,
+  }) {
+    return sendMessageStream(content, overrideModel: overrideModel).map((chunk) => chunk.text);
   }
 
   void clearChat() => messages.removeWhere((msg) => msg.role != Role.system);

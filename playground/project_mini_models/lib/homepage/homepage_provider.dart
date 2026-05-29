@@ -1,6 +1,8 @@
 import 'dart:io';
+import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:llm_tag_parser/llm_tag_parser.dart';
 import 'package:project_mini_models/core/chat_core_service/chat_core_service.dart';
 
 String _getApiKey() {
@@ -158,18 +160,49 @@ class HomepageProvider with ChangeNotifier {
     _activeStreamId = 'active';
     notifyListeners();
 
+    String? foundQuery;
+    final chunkController = StreamController<String>();
+    final parser = LlmTagParser(
+      stream: chunkController.stream,
+      tags: [
+        LlmTag(open: '<ask_system>', close: '</ask_system>'),
+      ],
+    );
+
+    final parserSubscription = parser.within('<ask_system>').instances.listen((node) {
+      node.future.then((value) {
+        foundQuery = value.trim();
+      });
+    });
+
     try {
-      final stream = chatSession.sendMessage(message);
+      final stream = chatSession.sendMessageStream(message);
       await for (final chunk in stream) {
-        _activeStreamText += chunk;
+        _activeStreamText += chunk.text;
+        if (!chunk.isThinking) {
+          chunkController.add(chunk.text);
+        }
         notifyListeners();
       }
     } catch (e) {
       debugPrint('Error sending message: $e');
     } finally {
+      await chunkController.close();
+      await parserSubscription.cancel();
+
       _activeStreamId = null;
       _activeStreamText = '';
       notifyListeners();
+    }
+
+    if (foundQuery != null && foundQuery!.isNotEmpty) {
+      final query = foundQuery!;
+      debugPrint('Intercepted <ask_system> tool query: "$query"');
+      
+      final systemResults = await fetchDuckDuckGoSearch(query);
+      debugPrint('Generated system results:\n$systemResults');
+
+      await sendMessage(systemResults);
     }
   }
 

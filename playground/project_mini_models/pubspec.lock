@@ -41,6 +41,14 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "1.19.1"
+  csslib:
+    dependency: transitive
+    description:
+      name: csslib
+      sha256: "09bad715f418841f976c77db72d5398dc1253c21fb9c0c7f0b0b985860b2d58e"
+      url: "https://pub.dev"
+    source: hosted
+    version: "1.0.2"
   fake_async:
     dependency: transitive
     description:
@@ -88,6 +96,14 @@ packages:
     description: flutter
     source: sdk
     version: "0.0.0"
+  html:
+    dependency: "direct main"
+    description:
+      name: html
+      sha256: "6d1264f2dffa1b1101c25a91dff0dc2daee4c18e87cd8538729773c073dbf602"
+      url: "https://pub.dev"
+    source: hosted
+    version: "0.15.6"
   http:
     dependency: "direct main"
     description:
@@ -145,13 +161,13 @@ packages:
     source: hosted
     version: "1.0.0"
   llm_tag_parser:
-    dependency: transitive
+    dependency: "direct main"
     description:
       name: llm_tag_parser
-      sha256: fd02af0a5381684c199528a63b629b00bfbf688c95a9cf4b277522563d0296a2
+      sha256: "194549e9e280c4dd82f5ab51d122b40114885f735ac91af92482e12252e12032"
       url: "https://pub.dev"
     source: hosted
-    version: "0.1.2"
+    version: "0.2.1"
   logging:
     dependency: transitive
     description:
