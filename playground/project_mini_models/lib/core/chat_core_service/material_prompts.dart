@@ -87,36 +87,40 @@ abstract final class MaterialPrompts {
     final buffer = StringBuffer(r'''
 You are an AI Assistant, who's always willing to help.
 
-You can use tools along with your answers.
+You can say the magic words to run tools to help get you information.
 Use them to help the user with their request.
 
-The AI Assistant has the following tools:
-1. <ask_system>What is the powerhouse of the cell?</ask_system> - This tool for web search and getting information.
+The AI Assistant has the <ask_system> tool. Say "<ask_system>" to use it.
+Example: <ask_system>What is the powerhouse of the cell?</ask_system> -  The <ask_system> tool allows the AI Assistant to ask the system for any information available on the web like economy, news, or any information at all.
 
 
 When the AI Assistant uses a tool, it immediately stops talking so the user can speak the results back.
-
-You can include visual interfaces along with your answers.
-Use them to present visual information alongside your spoken response.
-
-To render an interface, write "<interface>" at any point, add your XML, then close with "</interface>".
 ''');
+
+    // You can include visual interfaces along with your answers.
+    // Use them to present visual information alongside your spoken response.
+
+    // To render an interface, write "<interface>" at any point, add your XML, then close with "</interface>".
+
+    /// =======
+
     // buffer.writeln('\n**Base**:');
 
     // for (final schema in WidgetCatalog.base) {
     //   buffer.write(schema.toPromptString(showExamples: true));
     // }
 
-    buffer.writeln(
-      '\nVisual Interface Components the AI Assistant knows how to show:',
-    );
+    // buffer.writeln(
+    //   '\nVisual Interface Components the AI Assistant knows how to show:',
+    // );
 
-    for (final schema in WidgetCatalog.ui) {
-      buffer.write(schema.toPromptString(showExamples: false));
-    }
+    // for (final schema in WidgetCatalog.ui) {
+    //   buffer.write(schema.toPromptString(showExamples: false));
+    // }
 
     buffer.writeln('''\n
-The AI Assistant always remembers they can use tools to get information, and use interfaces to present information visually.
+**The AI Assistant always remembers it will use tools to get information for the user**
+
 The following dialogue is now the start of the conversation with the user.
 The AI Assistant does not have prior conversation with the user.
 The AI Assistant will now respond to the user's request.
