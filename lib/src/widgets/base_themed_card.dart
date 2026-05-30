@@ -92,6 +92,7 @@ class _BaseThemedCardState extends State<BaseThemedCard> {
                 // Card contents
                 final cardContent = _buildCardContent(
                   context,
+                  widget.props,
                   title,
                   subtitle,
                   imageUrl,
@@ -168,6 +169,7 @@ class _BaseThemedCardState extends State<BaseThemedCard> {
 
   Widget _buildCardContent(
     BuildContext context,
+    PropertyStream props,
     String? title,
     String? subtitle,
     String? imageUrl,
@@ -222,9 +224,10 @@ class _BaseThemedCardState extends State<BaseThemedCard> {
 
     // Build the media block if present
     Widget? mediaBlock;
-    if (imageUrl != null && imageUrl.isNotEmpty) {
+    if (imageUrl != null) {
       mediaBlock = BaseStreamingImage(
-        imageUrl: imageUrl,
+        props: props,
+        propertyName: 'imageUrl',
         themeName: widget.themeName,
         borderRadius: 0,
         fit: BoxFit.cover,

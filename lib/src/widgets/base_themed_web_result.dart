@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:llm_json_stream/llm_json_stream.dart';
 import 'package:streaming_gen_ui/src/widgets/theme_style_helper.dart';
 import 'package:streaming_gen_ui/src/widgets/core/streaming_entrance.dart';
+import 'package:streaming_gen_ui/src/widgets/base_streaming_image.dart';
 
 /// A premium search/web query result layout supporting M3, Fluent, Apple,
 /// Glassmorphic, Neumorphic, Skeuomorphic, and Neo-Brutalist design systems.
@@ -62,6 +63,7 @@ class _BaseThemedWebResultCardState extends State<BaseThemedWebResultCard> {
             alignment: Alignment.topLeft,
             child: _buildCardContent(
               context,
+              widget.props,
               title,
               url,
               snippet,
@@ -132,6 +134,7 @@ class _BaseThemedWebResultCardState extends State<BaseThemedWebResultCard> {
 
   Widget _buildCardContent(
     BuildContext context,
+    PropertyStream props,
     String title,
     String url,
     String snippet,
@@ -155,14 +158,19 @@ class _BaseThemedWebResultCardState extends State<BaseThemedWebResultCard> {
           if (siteDisplay.isNotEmpty) ...[
             Row(
               children: [
-                if (faviconUrl != null && faviconUrl.isNotEmpty) ...[
+                if (faviconUrl != null) ...[
                   ClipRRect(
                     borderRadius: BorderRadius.circular(4),
-                    child: Image.network(
-                      faviconUrl,
+                    child: SizedBox(
                       width: 16,
                       height: 16,
-                      errorBuilder: (context, error, stackTrace) => const Icon(Icons.public, size: 16),
+                      child: BaseStreamingImage(
+                        props: props,
+                        propertyName: 'faviconUrl',
+                        themeName: widget.themeName,
+                        borderRadius: 0,
+                        fit: BoxFit.contain,
+                      ),
                     ),
                   ),
                   const SizedBox(width: 8),

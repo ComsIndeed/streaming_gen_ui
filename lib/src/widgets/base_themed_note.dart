@@ -70,6 +70,7 @@ class _BaseThemedNoteCardState extends State<BaseThemedNoteCard> {
             alignment: Alignment.topLeft,
             child: _buildCardContent(
               context,
+              widget.props,
               type,
               title,
               content,
@@ -143,6 +144,7 @@ class _BaseThemedNoteCardState extends State<BaseThemedNoteCard> {
 
   Widget _buildCardContent(
     BuildContext context,
+    PropertyStream props,
     String type,
     String title,
     String content,
@@ -192,11 +194,12 @@ class _BaseThemedNoteCardState extends State<BaseThemedNoteCard> {
         mainAxisSize: MainAxisSize.min,
         children: [
           // Banner hero image slot if present
-          if (imageUrl != null && imageUrl.isNotEmpty)
+          if (imageUrl != null)
             Padding(
               padding: const EdgeInsets.only(bottom: 12.0),
               child: BaseStreamingImage(
-                imageUrl: imageUrl,
+                props: props,
+                propertyName: 'imageUrl',
                 themeName: widget.themeName,
                 borderRadius: isBrutalist ? 0 : 8.0,
                 aspectRatio: 2.2,

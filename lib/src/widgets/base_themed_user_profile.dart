@@ -88,6 +88,7 @@ class _BaseThemedUserProfileState extends State<BaseThemedUserProfile> {
 
                 final cardContent = _buildProfileContent(
                   context,
+                  widget.props,
                   name,
                   role,
                   website,
@@ -144,6 +145,7 @@ class _BaseThemedUserProfileState extends State<BaseThemedUserProfile> {
 
   Widget _buildProfileContent(
     BuildContext context,
+    PropertyStream props,
     String? name,
     String? role,
     String? website,
@@ -158,13 +160,14 @@ class _BaseThemedUserProfileState extends State<BaseThemedUserProfile> {
 
     // Build offline-safe avatar bubble
     Widget avatarWidget;
-    if (avatarUrl != null && avatarUrl.isNotEmpty) {
+    if (avatarUrl != null) {
       avatarWidget = ClipOval(
         child: SizedBox(
           width: 72,
           height: 72,
           child: BaseStreamingImage(
-            imageUrl: avatarUrl,
+            props: props,
+            propertyName: 'avatarUrl',
             themeName: widget.themeName,
             borderRadius: 0,
             fit: BoxFit.cover,

@@ -65,6 +65,7 @@ class _BaseThemedProductResultCardState extends State<BaseThemedProductResultCar
             alignment: Alignment.topLeft,
             child: _buildCardContent(
               context,
+              widget.props,
               title,
               price,
               originalPrice,
@@ -137,6 +138,7 @@ class _BaseThemedProductResultCardState extends State<BaseThemedProductResultCar
 
   Widget _buildCardContent(
     BuildContext context,
+    PropertyStream props,
     String title,
     dynamic price,
     dynamic originalPrice,
@@ -166,13 +168,14 @@ class _BaseThemedProductResultCardState extends State<BaseThemedProductResultCar
       mainAxisSize: MainAxisSize.min,
       children: [
         // Product Hero Image block
-        if (imageUrl != null && imageUrl.isNotEmpty)
+        if (imageUrl != null)
           Stack(
             children: [
               AspectRatio(
                 aspectRatio: 1.6,
                 child: BaseStreamingImage(
-                  imageUrl: imageUrl,
+                  props: props,
+                  propertyName: 'imageUrl',
                   themeName: widget.themeName,
                   borderRadius: 0,
                   fit: BoxFit.cover,

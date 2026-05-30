@@ -1,9 +1,11 @@
 import 'package:flutter/material.dart';
+import 'package:llm_json_stream/llm_json_stream.dart';
 
 /// A premium, theme-aware streaming image loader that handles placeholders,
 /// fading transitions, and custom theme ornaments.
 class BaseStreamingImage extends StatefulWidget {
-  final String imageUrl;
+  final PropertyStream props;
+  final String propertyName;
   final String themeName;
   final double borderRadius;
   final double? aspectRatio;
@@ -11,7 +13,8 @@ class BaseStreamingImage extends StatefulWidget {
 
   const BaseStreamingImage({
     super.key,
-    required this.imageUrl,
+    required this.props,
+    this.propertyName = 'imageUrl',
     required this.themeName,
     this.borderRadius = 8.0,
     this.aspectRatio,
@@ -25,13 +28,26 @@ class BaseStreamingImage extends StatefulWidget {
 class _BaseStreamingImageState extends State<BaseStreamingImage>
     with SingleTickerProviderStateMixin {
   bool _loaded = false;
+  late Future<String> _urlFuture;
+
+  @override
+  void initState() {
+    super.initState();
+    _initFuture();
+  }
 
   @override
   void didUpdateWidget(covariant BaseStreamingImage oldWidget) {
     super.didUpdateWidget(oldWidget);
-    if (widget.imageUrl != oldWidget.imageUrl) {
+    if (!identical(widget.props, oldWidget.props) ||
+        widget.propertyName != oldWidget.propertyName) {
       _loaded = false;
+      _initFuture();
     }
+  }
+
+  void _initFuture() {
+    _urlFuture = widget.props.asMap.getStringProperty(widget.propertyName).future;
   }
 
   @override
@@ -133,56 +149,79 @@ class _BaseStreamingImageState extends State<BaseStreamingImage>
         break;
     }
 
-    Widget imageWidget = Image.network(
-      widget.imageUrl,
-      fit: widget.fit,
-      frameBuilder: (context, child, frame, wasSynchronouslyLoaded) {
-        if (wasSynchronouslyLoaded || frame != null) {
-          WidgetsBinding.instance.addPostFrameCallback((_) {
-            if (mounted && !_loaded) {
-              setState(() {
-                _loaded = true;
-              });
-            }
-          });
-          return child;
+    return FutureBuilder<String>(
+      future: _urlFuture,
+      builder: (context, snapshot) {
+        if (snapshot.connectionState != ConnectionState.done ||
+            !snapshot.hasData ||
+            snapshot.data!.isEmpty) {
+          Widget composite = placeholder;
+          if (widget.borderRadius > 0) {
+            composite = ClipRRect(
+              borderRadius: BorderRadius.circular(widget.borderRadius),
+              child: composite,
+            );
+          }
+          if (widget.aspectRatio != null) {
+            return AspectRatio(aspectRatio: widget.aspectRatio!, child: composite);
+          }
+          return composite;
         }
-        return const SizedBox.shrink();
-      },
-      errorBuilder: (context, error, stackTrace) => Container(
-        color: Colors.grey.withValues(alpha: 0.1),
-        child: const Center(
-          child: Icon(Icons.error_outline, size: 20, color: Colors.red),
-        ),
-      ),
-    );
 
-    Widget composite = Stack(
-      children: [
-        Positioned.fill(child: placeholder),
-        Positioned.fill(
-          child: AnimatedOpacity(
-            opacity: _loaded ? 1.0 : 0.0,
-            duration: const Duration(milliseconds: 350),
-            curve: Curves.easeInOut,
-            child: imageWidget,
+        final imageUrl = snapshot.data!;
+
+        Widget imageWidget = Image.network(
+          imageUrl,
+          fit: widget.fit,
+          frameBuilder: (context, child, frame, wasSynchronouslyLoaded) {
+            if (wasSynchronouslyLoaded || frame != null) {
+              WidgetsBinding.instance.addPostFrameCallback((_) {
+                if (mounted && !_loaded) {
+                  setState(() {
+                    _loaded = true;
+                  });
+                }
+              });
+              return child;
+            }
+            return const SizedBox.shrink();
+          },
+          errorBuilder: (context, error, stackTrace) => Container(
+            color: Colors.grey.withValues(alpha: 0.1),
+            child: const Center(
+              child: Icon(Icons.error_outline, size: 20, color: Colors.red),
+            ),
           ),
-        ),
-      ],
+        );
+
+        Widget composite = Stack(
+          children: [
+            Positioned.fill(child: placeholder),
+            Positioned.fill(
+              child: AnimatedOpacity(
+                opacity: _loaded ? 1.0 : 0.0,
+                duration: const Duration(milliseconds: 350),
+                curve: Curves.easeInOut,
+                child: imageWidget,
+              ),
+            ),
+          ],
+        );
+
+        if (widget.borderRadius > 0) {
+          composite = ClipRRect(
+            borderRadius: BorderRadius.circular(widget.borderRadius),
+            child: composite,
+          );
+        }
+
+        if (widget.aspectRatio != null) {
+          return AspectRatio(aspectRatio: widget.aspectRatio!, child: composite);
+        }
+
+        return composite;
+      },
     );
-
-    if (widget.borderRadius > 0) {
-      composite = ClipRRect(
-        borderRadius: BorderRadius.circular(widget.borderRadius),
-        child: composite,
-      );
-    }
-
-    if (widget.aspectRatio != null) {
-      return AspectRatio(aspectRatio: widget.aspectRatio!, child: composite);
-    }
-
-    return composite;
   }
 }
 

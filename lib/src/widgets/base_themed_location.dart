@@ -67,6 +67,7 @@ class _BaseThemedLocationCardState extends State<BaseThemedLocationCard> {
             alignment: Alignment.topLeft,
             child: _buildCardContent(
               context,
+              widget.props,
               name,
               address,
               latitude,
@@ -140,6 +141,7 @@ class _BaseThemedLocationCardState extends State<BaseThemedLocationCard> {
 
   Widget _buildCardContent(
     BuildContext context,
+    PropertyStream props,
     String name,
     String address,
     double? latitude,
@@ -159,11 +161,12 @@ class _BaseThemedLocationCardState extends State<BaseThemedLocationCard> {
       crossAxisAlignment: CrossAxisAlignment.start,
       mainAxisSize: MainAxisSize.min,
       children: [
-        if (imageUrl != null && imageUrl.isNotEmpty)
+        if (imageUrl != null)
           AspectRatio(
             aspectRatio: 1.8,
             child: BaseStreamingImage(
-              imageUrl: imageUrl,
+              props: props,
+              propertyName: 'imageUrl',
               themeName: widget.themeName,
               borderRadius: 0,
               fit: BoxFit.cover,
