@@ -17,7 +17,8 @@ class BaseThemedWebResultCard extends StatefulWidget {
   });
 
   @override
-  State<BaseThemedWebResultCard> createState() => _BaseThemedWebResultCardState();
+  State<BaseThemedWebResultCard> createState() =>
+      _BaseThemedWebResultCardState();
 }
 
 class _BaseThemedWebResultCardState extends State<BaseThemedWebResultCard> {
@@ -32,7 +33,8 @@ class _BaseThemedWebResultCardState extends State<BaseThemedWebResultCard> {
         stream: mapStream.stream,
         builder: (context, snapshot) {
           final data = snapshot.data ?? const {};
-          final settings = data["themeSettings"] as Map<String, dynamic>? ?? const {};
+          final settings =
+              data["themeSettings"] as Map<String, dynamic>? ?? const {};
 
           final title = data["title"] as String? ?? 'Search Query Result';
           final url = data["url"] as String? ?? '';
@@ -79,22 +81,22 @@ class _BaseThemedWebResultCardState extends State<BaseThemedWebResultCard> {
             cardFrame = ClipPath(
               clipper: ShapeBorderClipper(shape: shape),
               child: BackdropFilter(
-                filter: ColorFilter.mode(Colors.black.withValues(alpha: 0.02), BlendMode.dstATop),
-                child: Container(
-                  decoration: decoration,
-                  child: cardContent,
+                filter: ColorFilter.mode(
+                  Colors.black.withValues(alpha: 0.02),
+                  BlendMode.dstATop,
                 ),
+                child: Container(decoration: decoration, child: cardContent),
               ),
             );
           } else if (widget.themeName == 'fluent') {
             cardFrame = ClipPath(
               clipper: ShapeBorderClipper(shape: shape),
               child: BackdropFilter(
-                filter: ColorFilter.mode(Colors.black.withValues(alpha: 0.04), BlendMode.dstATop),
-                child: Container(
-                  decoration: decoration,
-                  child: cardContent,
+                filter: ColorFilter.mode(
+                  Colors.black.withValues(alpha: 0.04),
+                  BlendMode.dstATop,
                 ),
+                child: Container(decoration: decoration, child: cardContent),
               ),
             );
           } else {
@@ -115,7 +117,9 @@ class _BaseThemedWebResultCardState extends State<BaseThemedWebResultCard> {
               onTapUp: (_) => setState(() => _isPressed = false),
               onTapCancel: () => setState(() => _isPressed = false),
               onTap: () {
-                debugPrint('[GEN_UI:WEB_ACTION] Clicked Web Result URL -> ${action ?? url}');
+                debugPrint(
+                  '[GEN_UI:WEB_ACTION] Clicked Web Result URL -> ${action ?? url}',
+                );
               },
               child: AnimatedScale(
                 scale: _isPressed ? 0.97 : 1.0,
@@ -143,10 +147,19 @@ class _BaseThemedWebResultCardState extends State<BaseThemedWebResultCard> {
     String? publishDate,
   ) {
     final themeData = Theme.of(context);
-    final titleStyle = ThemeStyleHelper.getTextStyle(widget.themeName, context, isTitle: true);
-    final subStyle = ThemeStyleHelper.getTextStyle(widget.themeName, context, isTitle: false);
+    final titleStyle = ThemeStyleHelper.getTextStyle(
+      widget.themeName,
+      context,
+      isTitle: true,
+    );
+    final subStyle = ThemeStyleHelper.getTextStyle(
+      widget.themeName,
+      context,
+      isTitle: false,
+    );
 
-    final siteDisplay = siteName ?? (url.isNotEmpty ? Uri.tryParse(url)?.host ?? url : '');
+    final siteDisplay =
+        siteName ?? (url.isNotEmpty ? Uri.tryParse(url)?.host ?? url : '');
 
     return Padding(
       padding: const EdgeInsets.all(16.0),
@@ -197,7 +210,8 @@ class _BaseThemedWebResultCardState extends State<BaseThemedWebResultCard> {
                           url,
                           style: TextStyle(
                             fontSize: 10,
-                            color: themeData.colorScheme.onSurfaceVariant.withValues(alpha: 0.6),
+                            color: themeData.colorScheme.onSurfaceVariant
+                                .withValues(alpha: 0.6),
                           ),
                           maxLines: 1,
                           overflow: TextOverflow.ellipsis,
@@ -216,9 +230,13 @@ class _BaseThemedWebResultCardState extends State<BaseThemedWebResultCard> {
               fontSize: 16,
               color: widget.themeName == 'brutalist'
                   ? Colors.black
-                  : (widget.themeName == 'apple' ? Colors.blue.shade700 : themeData.colorScheme.primary),
+                  : (widget.themeName == 'apple'
+                        ? Colors.blue.shade700
+                        : themeData.colorScheme.primary),
               decoration: TextDecoration.underline,
-              decorationColor: widget.themeName == 'brutalist' ? Colors.black : null,
+              decorationColor: widget.themeName == 'brutalist'
+                  ? Colors.black
+                  : null,
             ),
             maxLines: 2,
             overflow: TextOverflow.ellipsis,
@@ -243,7 +261,9 @@ class _BaseThemedWebResultCardState extends State<BaseThemedWebResultCard> {
                   snippet,
                   style: subStyle.copyWith(
                     fontSize: 13,
-                    color: themeData.colorScheme.onSurface.withValues(alpha: 0.85),
+                    color: themeData.colorScheme.onSurface.withValues(
+                      alpha: 0.85,
+                    ),
                   ),
                   maxLines: 3,
                   overflow: TextOverflow.ellipsis,

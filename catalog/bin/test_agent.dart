@@ -19,12 +19,12 @@ class ThinkingDisabledHttpClient extends http.BaseClient {
         if (bodyJson is Map<String, dynamic>) {
           // Inject "thinking": {"type": "disabled"}
           bodyJson['thinking'] = {'type': 'disabled'};
-          
+
           // Also make sure to remove 'reasoning_effort' if present
           bodyJson.remove('reasoning_effort');
-          
+
           final newBodyString = jsonEncode(bodyJson);
-          
+
           // Create a new request with the updated body
           final newRequest = http.Request(request.method, request.url)
             ..headers.addAll(request.headers)
@@ -50,9 +50,7 @@ class DeduplicatedOpenAIChatModel extends OpenAIChatModel {
     super.baseUrl,
     super.headers,
     http.Client? client,
-  }) : super(
-          client: ThinkingDisabledHttpClient(client ?? http.Client()),
-        );
+  }) : super(client: ThinkingDisabledHttpClient(client ?? http.Client()));
 
   @override
   Stream<ChatResult<ChatMessage>> sendStream(
@@ -60,28 +58,32 @@ class DeduplicatedOpenAIChatModel extends OpenAIChatModel {
     OpenAIChatOptions? options,
     Schema? outputSchema,
   }) {
-    return super.sendStream(messages, options: options, outputSchema: outputSchema).map((chunk) {
-      if (chunk.messages.isNotEmpty && chunk.output.parts.isNotEmpty) {
-        final completeMessage = chunk.messages.first;
-        final hasToolCalls = completeMessage.parts.any((part) => part is ToolPart);
-        if (hasToolCalls) {
-          // Clear the text parts in output to prevent the orchestrator from streaming the accumulated text again.
-          final emptyOutput = ChatMessage(
-            role: ChatMessageRole.model,
-            parts: const [],
-          );
-          return ChatResult<ChatMessage>(
-            id: chunk.id,
-            output: emptyOutput,
-            messages: chunk.messages,
-            finishReason: chunk.finishReason,
-            metadata: chunk.metadata,
-            usage: chunk.usage,
-          );
-        }
-      }
-      return chunk;
-    });
+    return super
+        .sendStream(messages, options: options, outputSchema: outputSchema)
+        .map((chunk) {
+          if (chunk.messages.isNotEmpty && chunk.output.parts.isNotEmpty) {
+            final completeMessage = chunk.messages.first;
+            final hasToolCalls = completeMessage.parts.any(
+              (part) => part is ToolPart,
+            );
+            if (hasToolCalls) {
+              // Clear the text parts in output to prevent the orchestrator from streaming the accumulated text again.
+              final emptyOutput = ChatMessage(
+                role: ChatMessageRole.model,
+                parts: const [],
+              );
+              return ChatResult<ChatMessage>(
+                id: chunk.id,
+                output: emptyOutput,
+                messages: chunk.messages,
+                finishReason: chunk.finishReason,
+                metadata: chunk.metadata,
+                usage: chunk.usage,
+              );
+            }
+          }
+          return chunk;
+        });
   }
 }
 
@@ -171,11 +173,16 @@ void main() async {
   );
 
   final history = <ChatMessage>[
-    ChatMessage.system('You are a helpful assistant. Use tools when needed. If a tool runs, show a weather card like <interface viewId="ai-1">{"namespace":"weather:forecast_card","cityName":"Paris","temperature":"22 C"}</interface>'),
+    ChatMessage.system(
+      'You are a helpful assistant. Use tools when needed. If a tool runs, show a weather card like <interface viewId="ai-1">{"namespace":"weather:forecast_card","cityName":"Paris","temperature":"22 C"}</interface>',
+    ),
   ];
 
   print('Sending: "What is the weather in Paris?"');
-  final stream = agent.sendStream('What is the weather in Paris?', history: history);
+  final stream = agent.sendStream(
+    'What is the weather in Paris?',
+    history: history,
+  );
 
   var chunkCount = 0;
   var accumulatedOutput = '';

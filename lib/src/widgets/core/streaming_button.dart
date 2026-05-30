@@ -35,9 +35,15 @@ class _StreamingButtonState extends State<StreamingButton> {
               action.isNotEmpty;
 
           return GestureDetector(
-            onTapDown: isEnabled ? (_) => setState(() => _isPressed = true) : null,
-            onTapUp: isEnabled ? (_) => setState(() => _isPressed = false) : null,
-            onTapCancel: isEnabled ? () => setState(() => _isPressed = false) : null,
+            onTapDown: isEnabled
+                ? (_) => setState(() => _isPressed = true)
+                : null,
+            onTapUp: isEnabled
+                ? (_) => setState(() => _isPressed = false)
+                : null,
+            onTapCancel: isEnabled
+                ? () => setState(() => _isPressed = false)
+                : null,
             onTap: isEnabled
                 ? () {
                     debugPrint('[GEN_UI:ACTION] Button tapped -> $action');
@@ -50,19 +56,28 @@ class _StreamingButtonState extends State<StreamingButton> {
               child: AnimatedContainer(
                 duration: const Duration(milliseconds: 300),
                 curve: const Cubic(0.2, 0.8, 0.2, 1.0),
-                padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 20,
+                  vertical: 12,
+                ),
                 decoration: BoxDecoration(
                   color: isEnabled
                       ? theme.colorScheme.primary
-                      : theme.colorScheme.surfaceContainerHigh.withValues(alpha: 0.6),
+                      : theme.colorScheme.surfaceContainerHigh.withValues(
+                          alpha: 0.6,
+                        ),
                   borderRadius: BorderRadius.circular(isEnabled ? 12 : 8),
                   border: Border.all(
-                    color: isEnabled ? Colors.transparent : theme.colorScheme.outline.withValues(alpha: 0.12),
+                    color: isEnabled
+                        ? Colors.transparent
+                        : theme.colorScheme.outline.withValues(alpha: 0.12),
                   ),
                   boxShadow: isEnabled
                       ? [
                           BoxShadow(
-                            color: theme.colorScheme.primary.withValues(alpha: 0.16),
+                            color: theme.colorScheme.primary.withValues(
+                              alpha: 0.16,
+                            ),
                             blurRadius: 10,
                             offset: const Offset(0, 4),
                           ),

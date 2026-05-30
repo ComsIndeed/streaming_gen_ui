@@ -23,6 +23,129 @@ class BaseThemedGraphCard extends StatefulWidget {
 
 class _BaseThemedGraphCardState extends State<BaseThemedGraphCard> {
   bool _isPressed = false;
+  final List<String> _streamingLabels = [];
+  final List<double> _streamingValues = [];
+  final List<String> _streamingHeaders = [];
+  final List<List<dynamic>> _streamingRows = [];
+
+  @override
+  void initState() {
+    super.initState();
+    _initStreamingListeners();
+  }
+
+  @override
+  void didUpdateWidget(covariant BaseThemedGraphCard oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (!identical(widget.props, oldWidget.props)) {
+      _initStreamingListeners();
+    }
+  }
+
+  void _initStreamingListeners() {
+    _streamingLabels.clear();
+    _streamingValues.clear();
+    _streamingHeaders.clear();
+    _streamingRows.clear();
+
+    final labelsProp = widget.props.asMap.getListProperty("labels");
+    final valuesProp = widget.props.asMap.getListProperty("values");
+    final headersProp = widget.props.asMap.getListProperty("headers");
+    final rowsProp = widget.props.asMap.getListProperty("rows");
+
+    labelsProp.onElement((element, index) {
+      if (element is StringPropertyStream) {
+        element.stream.listen((val) {
+          if (mounted) {
+            setState(() {
+              while (_streamingLabels.length <= index) {
+                _streamingLabels.add('');
+              }
+              _streamingLabels[index] = val;
+            });
+          }
+        });
+      }
+    });
+
+    valuesProp.onElement((element, index) {
+      if (element is NumberPropertyStream) {
+        element.stream.listen((val) {
+          if (mounted) {
+            setState(() {
+              while (_streamingValues.length <= index) {
+                _streamingValues.add(0.0);
+              }
+              _streamingValues[index] = val.toDouble();
+            });
+          }
+        });
+      }
+    });
+
+    headersProp.onElement((element, index) {
+      if (element is StringPropertyStream) {
+        element.stream.listen((val) {
+          if (mounted) {
+            setState(() {
+              while (_streamingHeaders.length <= index) {
+                _streamingHeaders.add('');
+              }
+              _streamingHeaders[index] = val;
+            });
+          }
+        });
+      }
+    });
+
+    rowsProp.onElement((rowElement, rowIndex) {
+      if (rowElement is ListPropertyStream) {
+        if (mounted) {
+          setState(() {
+            while (_streamingRows.length <= rowIndex) {
+              _streamingRows.add([]);
+            }
+          });
+        }
+        rowElement.onElement((cellElement, cellIndex) {
+          if (cellElement is StringPropertyStream) {
+            cellElement.stream.listen((val) {
+              if (mounted) {
+                setState(() {
+                  while (_streamingRows[rowIndex].length <= cellIndex) {
+                    _streamingRows[rowIndex].add('');
+                  }
+                  _streamingRows[rowIndex][cellIndex] = val;
+                });
+              }
+            });
+          } else if (cellElement is NumberPropertyStream) {
+            cellElement.stream.listen((val) {
+              if (mounted) {
+                setState(() {
+                  while (_streamingRows[rowIndex].length <= cellIndex) {
+                    _streamingRows[rowIndex].add(0.0);
+                  }
+                  _streamingRows[rowIndex][cellIndex] = val;
+                });
+              }
+            });
+          } else if (cellElement is BooleanPropertyStream) {
+            cellElement.stream.listen((val) {
+              if (mounted) {
+                setState(() {
+                  while (_streamingRows[rowIndex].length <= cellIndex) {
+                    _streamingRows[rowIndex].add(false);
+                  }
+                  _streamingRows[rowIndex][cellIndex] = val;
+                });
+              }
+            });
+          }
+        });
+      }
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -62,8 +185,6 @@ class _BaseThemedGraphCardState extends State<BaseThemedGraphCard> {
             title,
             subtitle,
             type,
-            mapStream.getListProperty("labels"),
-            mapStream.getListProperty("values"),
             mapStream.getListProperty("headers"),
             mapStream.getListProperty("rows"),
           );
@@ -134,8 +255,6 @@ class _BaseThemedGraphCardState extends State<BaseThemedGraphCard> {
     String title,
     String? subtitle,
     String type,
-    PropertyStream labelsProp,
-    PropertyStream valuesProp,
     PropertyStream headersProp,
     PropertyStream rowsProp,
   ) {
@@ -171,30 +290,29 @@ class _BaseThemedGraphCardState extends State<BaseThemedGraphCard> {
             ),
           ],
           const SizedBox(height: 16),
-          // Streaming layout for dynamic graph types
-          StreamBuilder2<List<dynamic>, List<dynamic>>(
-            streamA: labelsProp.asList.stream,
-            streamB: valuesProp.asList.stream,
-            builder: (context, labels, values) {
-              final safeLabels = labels ?? const [];
-              final safeValues = values ?? const [];
-
-              switch (type.toLowerCase()) {
-                case 'line':
-                  return _buildLineChart(context, safeLabels, safeValues);
-                case 'pie':
-                  return _buildPieChart(context, safeLabels, safeValues);
-                case 'table':
-                  return _buildDataTable(context, headersProp, rowsProp);
-                case 'bar':
-                default:
-                  return _buildBarChart(context, safeLabels, safeValues);
-              }
-            },
-          ),
+          _buildActiveChart(context, type, headersProp, rowsProp),
         ],
       ),
     );
+  }
+
+  Widget _buildActiveChart(
+    BuildContext context,
+    String type,
+    PropertyStream headersProp,
+    PropertyStream rowsProp,
+  ) {
+    switch (type.toLowerCase()) {
+      case 'line':
+        return _buildLineChart(context, _streamingLabels, _streamingValues);
+      case 'pie':
+        return _buildPieChart(context, _streamingLabels, _streamingValues);
+      case 'table':
+        return _buildDataTable(context, headersProp, rowsProp);
+      case 'bar':
+      default:
+        return _buildBarChart(context, _streamingLabels, _streamingValues);
+    }
   }
 
   Widget _buildBarChart(
@@ -227,57 +345,75 @@ class _BaseThemedGraphCardState extends State<BaseThemedGraphCard> {
           final pct = val / scaleMax;
           final label = index < labels.length ? labels[index].toString() : '';
 
-          return Expanded(
-            child: Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 4.0),
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.end,
-                children: [
-                  Expanded(
-                    child: Align(
-                      alignment: Alignment.bottomCenter,
-                      child: FractionallySizedBox(
-                        heightFactor: pct.clamp(0.02, 1.0),
-                        child: AnimatedContainer(
-                          duration: const Duration(milliseconds: 300),
-                          curve: Curves.easeOutBack,
-                          decoration: BoxDecoration(
-                            color: primaryAccent,
-                            borderRadius: widget.themeName == 'brutalist'
-                                ? BorderRadius.zero
-                                : BorderRadius.circular(4),
-                            border: widget.themeName == 'brutalist'
-                                ? Border.all(color: Colors.black, width: 2.0)
-                                : null,
+          return TweenAnimationBuilder<double>(
+            key: ValueKey('bar-$index'),
+            tween: Tween<double>(begin: 0.0, end: 1.0),
+            duration: const Duration(milliseconds: 600),
+            curve: Curves.easeOutBack,
+            builder: (context, animValue, child) {
+              return Expanded(
+                flex: (animValue * 100).clamp(1, 100).toInt(),
+                child: Opacity(
+                  opacity: animValue.clamp(0.0, 1.0),
+                  child: Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 4.0),
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.end,
+                      children: [
+                        Expanded(
+                          child: Align(
+                            alignment: Alignment.bottomCenter,
+                            child: AnimatedFractionallySizedBox(
+                              duration: const Duration(milliseconds: 400),
+                              curve: Curves.easeOutCubic,
+                              heightFactor: (pct * animValue).clamp(0.0, 1.0),
+                              alignment: Alignment.bottomCenter,
+                              child: AnimatedContainer(
+                                duration: const Duration(milliseconds: 300),
+                                curve: Curves.easeOutBack,
+                                decoration: BoxDecoration(
+                                  color: primaryAccent,
+                                  borderRadius: widget.themeName == 'brutalist'
+                                      ? BorderRadius.zero
+                                      : BorderRadius.circular(4),
+                                  border: widget.themeName == 'brutalist'
+                                      ? Border.all(
+                                          color: Colors.black,
+                                          width: 2.0,
+                                        )
+                                      : null,
+                                ),
+                              ),
+                            ),
                           ),
                         ),
-                      ),
+                        const SizedBox(height: 6),
+                        Text(
+                          val.toStringAsFixed(0),
+                          style: TextStyle(
+                            fontSize: 10,
+                            fontWeight: FontWeight.bold,
+                            color: themeData.colorScheme.onSurface,
+                          ),
+                        ),
+                        if (label.isNotEmpty) ...[
+                          const SizedBox(height: 2),
+                          Text(
+                            label,
+                            style: TextStyle(
+                              fontSize: 9,
+                              color: themeData.colorScheme.onSurfaceVariant,
+                            ),
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
+                          ),
+                        ],
+                      ],
                     ),
                   ),
-                  const SizedBox(height: 6),
-                  Text(
-                    val.toStringAsFixed(0),
-                    style: TextStyle(
-                      fontSize: 10,
-                      fontWeight: FontWeight.bold,
-                      color: themeData.colorScheme.onSurface,
-                    ),
-                  ),
-                  if (label.isNotEmpty) ...[
-                    const SizedBox(height: 2),
-                    Text(
-                      label,
-                      style: TextStyle(
-                        fontSize: 9,
-                        color: themeData.colorScheme.onSurfaceVariant,
-                      ),
-                      maxLines: 1,
-                      overflow: TextOverflow.ellipsis,
-                    ),
-                  ],
-                ],
-              ),
-            ),
+                ),
+              );
+            },
           );
         }),
       ),
@@ -423,94 +559,82 @@ class _BaseThemedGraphCardState extends State<BaseThemedGraphCard> {
     final themeData = Theme.of(context);
     final isBrutalist = widget.themeName == 'brutalist';
 
-    return StreamBuilder2<List<dynamic>, List<dynamic>>(
-      streamA: headersProp.asList.stream,
-      streamB: rowsProp.asList.stream,
-      builder: (context, headersSnapshot, rowsSnapshot) {
-        final headers = headersSnapshot ?? const [];
-        final rows = rowsSnapshot ?? const [];
+    if (_streamingHeaders.isEmpty && _streamingRows.isEmpty) {
+      return const SizedBox(
+        height: 100,
+        child: Center(child: Text('Awaiting table data...')),
+      );
+    }
 
-        if (headers.isEmpty && rows.isEmpty) {
-          return const SizedBox(
-            height: 100,
-            child: Center(child: Text('Awaiting table data...')),
-          );
-        }
-
-        return SingleChildScrollView(
-          scrollDirection: Axis.horizontal,
-          child: Container(
-            decoration: BoxDecoration(
-              border: isBrutalist
-                  ? Border.all(color: Colors.black, width: 2.0)
-                  : null,
-              borderRadius: isBrutalist
-                  ? BorderRadius.zero
-                  : BorderRadius.circular(8.0),
-            ),
-            child: Table(
-              defaultColumnWidth: const IntrinsicColumnWidth(),
-              border: TableBorder.all(
-                color: isBrutalist
-                    ? Colors.black
-                    : themeData.colorScheme.outline.withValues(alpha: 0.15),
-                width: isBrutalist ? 2.0 : 1.0,
-              ),
-              children: [
-                // Header row
-                if (headers.isNotEmpty)
-                  TableRow(
-                    decoration: BoxDecoration(
-                      color: isBrutalist
-                          ? const Color(0xFFFFFF00)
-                          : themeData.colorScheme.primaryContainer.withValues(
-                              alpha: 0.4,
-                            ),
-                    ),
-                    children: headers.map((h) {
-                      return Padding(
-                        padding: const EdgeInsets.symmetric(
-                          horizontal: 14.0,
-                          vertical: 10.0,
-                        ),
-                        child: Text(
-                          h.toString(),
-                          style: TextStyle(
-                            fontWeight: FontWeight.bold,
-                            fontSize: 12,
-                            color: isBrutalist
-                                ? Colors.black
-                                : themeData.colorScheme.onSurface,
-                          ),
-                        ),
-                      );
-                    }).toList(),
-                  ),
-                // Data rows
-                ...rows.map((row) {
-                  final List<dynamic> cells = row is List
-                      ? row
-                      : (row is Map ? row.values.toList() : [row.toString()]);
-                  return TableRow(
-                    children: cells.map((cell) {
-                      return Padding(
-                        padding: const EdgeInsets.symmetric(
-                          horizontal: 14.0,
-                          vertical: 10.0,
-                        ),
-                        child: Text(
-                          cell.toString(),
-                          style: const TextStyle(fontSize: 12),
-                        ),
-                      );
-                    }).toList(),
-                  );
-                }),
-              ],
-            ),
+    return SingleChildScrollView(
+      scrollDirection: Axis.horizontal,
+      child: Container(
+        decoration: BoxDecoration(
+          border: isBrutalist
+              ? Border.all(color: Colors.black, width: 2.0)
+              : null,
+          borderRadius: isBrutalist
+              ? BorderRadius.zero
+              : BorderRadius.circular(8.0),
+        ),
+        child: Table(
+          defaultColumnWidth: const IntrinsicColumnWidth(),
+          border: TableBorder.all(
+            color: isBrutalist
+                ? Colors.black
+                : themeData.colorScheme.outline.withValues(alpha: 0.15),
+            width: isBrutalist ? 2.0 : 1.0,
           ),
-        );
-      },
+          children: [
+            // Header row
+            if (_streamingHeaders.isNotEmpty)
+              TableRow(
+                decoration: BoxDecoration(
+                  color: isBrutalist
+                      ? const Color(0xFFFFFF00)
+                      : themeData.colorScheme.primaryContainer.withValues(
+                          alpha: 0.4,
+                        ),
+                ),
+                children: _streamingHeaders.map((h) {
+                  return Padding(
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 14.0,
+                      vertical: 10.0,
+                    ),
+                    child: Text(
+                      h,
+                      style: TextStyle(
+                        fontWeight: FontWeight.bold,
+                        fontSize: 12,
+                        color: isBrutalist
+                            ? Colors.black
+                            : themeData.colorScheme.onSurface,
+                      ),
+                    ),
+                  );
+                }).toList(),
+              ),
+            // Data rows
+            ..._streamingRows.map((row) {
+              return TableRow(
+                children: row.map((cell) {
+                  return Padding(
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 14.0,
+                      vertical: 10.0,
+                    ),
+                    child: Text(
+                      cell.toString(),
+                      style: const TextStyle(fontSize: 12),
+                    ),
+                  );
+                }).toList(),
+              );
+            }),
+          ],
+        ),
+      ),
     );
   }
 }

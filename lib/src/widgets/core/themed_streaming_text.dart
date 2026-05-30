@@ -83,13 +83,13 @@ class _ThemedStreamingTextState extends State<ThemedStreamingText>
         _tokens = newTokens;
 
         _controller!.stop();
-        _animation = Tween<double>(
-          begin: oldTokens.length.toDouble(),
-          end: newTokens.length.toDouble(),
-        ).animate(CurvedAnimation(
-          parent: _controller!,
-          curve: Curves.easeOutCubic,
-        ));
+        _animation =
+            Tween<double>(
+              begin: oldTokens.length.toDouble(),
+              end: newTokens.length.toDouble(),
+            ).animate(
+              CurvedAnimation(parent: _controller!, curve: Curves.easeOutCubic),
+            );
         _controller!.forward(from: 0.0);
       } else {
         // Complete reset or non-contiguous change
@@ -97,13 +97,16 @@ class _ThemedStreamingTextState extends State<ThemedStreamingText>
         if (oldWidget.text.isEmpty && widget.text.isNotEmpty) {
           // Animate from scratch
           _controller!.stop();
-          _animation = Tween<double>(
-            begin: 0.0,
-            end: newTokens.length.toDouble(),
-          ).animate(CurvedAnimation(
-            parent: _controller!,
-            curve: Curves.easeOutCubic,
-          ));
+          _animation =
+              Tween<double>(
+                begin: 0.0,
+                end: newTokens.length.toDouble(),
+              ).animate(
+                CurvedAnimation(
+                  parent: _controller!,
+                  curve: Curves.easeOutCubic,
+                ),
+              );
           _controller!.forward(from: 0.0);
         } else {
           // Instant jump
@@ -151,7 +154,12 @@ class _ThemedStreamingTextState extends State<ThemedStreamingText>
     return (_revealIndex - index).clamp(0.0, 1.0);
   }
 
-  Widget _buildAnimatedWord(String token, double t, TextStyle style, TextStreamingEffect effect) {
+  Widget _buildAnimatedWord(
+    String token,
+    double t,
+    TextStyle style,
+    TextStreamingEffect effect,
+  ) {
     if (t >= 1.0) {
       return Text(token, style: style);
     }
@@ -163,10 +171,7 @@ class _ThemedStreamingTextState extends State<ThemedStreamingText>
 
     switch (effect) {
       case TextStreamingEffect.fade:
-        return Opacity(
-          opacity: t,
-          child: child,
-        );
+        return Opacity(opacity: t, child: child);
       case TextStreamingEffect.slide:
         return Opacity(
           opacity: t,
@@ -184,7 +189,9 @@ class _ThemedStreamingTextState extends State<ThemedStreamingText>
             style: style.copyWith(
               shadows: [
                 Shadow(
-                  color: style.color?.withValues(alpha: 0.6 * t) ?? Colors.blue.withValues(alpha: 0.6 * t),
+                  color:
+                      style.color?.withValues(alpha: 0.6 * t) ??
+                      Colors.blue.withValues(alpha: 0.6 * t),
                   blurRadius: blurSigma * 2.5,
                 ),
               ],
@@ -218,8 +225,13 @@ class _ThemedStreamingTextState extends State<ThemedStreamingText>
       // Character-based typewriter
       final charCount = widget.text.length;
       final currentTokensLength = _tokens.length;
-      final progressRatio = currentTokensLength > 0 ? _revealIndex / currentTokensLength : 1.0;
-      final currentLength = (charCount * progressRatio).round().clamp(0, charCount);
+      final progressRatio = currentTokensLength > 0
+          ? _revealIndex / currentTokensLength
+          : 1.0;
+      final currentLength = (charCount * progressRatio).round().clamp(
+        0,
+        charCount,
+      );
       final visibleText = widget.text.substring(0, currentLength);
       final isAnimating = currentLength < charCount;
 
@@ -234,7 +246,9 @@ class _ThemedStreamingTextState extends State<ThemedStreamingText>
             if (isAnimating)
               WidgetSpan(
                 alignment: PlaceholderAlignment.middle,
-                child: _BlinkingCursor(color: defaultStyle.color ?? Colors.black),
+                child: _BlinkingCursor(
+                  color: defaultStyle.color ?? Colors.black,
+                ),
               ),
           ],
         ),
@@ -276,7 +290,8 @@ class _BlinkingCursor extends StatefulWidget {
   State<_BlinkingCursor> createState() => _BlinkingCursorState();
 }
 
-class _BlinkingCursorState extends State<_BlinkingCursor> with SingleTickerProviderStateMixin {
+class _BlinkingCursorState extends State<_BlinkingCursor>
+    with SingleTickerProviderStateMixin {
   late AnimationController _blinkController;
 
   @override

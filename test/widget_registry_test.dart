@@ -13,10 +13,7 @@ void main() {
           'radius': 'double - avatar size',
         },
         builder: (context, props) => CircleAvatar(
-          child: StreamingText(
-            props: props,
-            propertyName: 'imageUrl',
-          ),
+          child: StreamingText(props: props, propertyName: 'imageUrl'),
         ),
       );
 
@@ -51,17 +48,20 @@ void main() {
       expect(def.jsonExample.contains('isFavorite'), isTrue);
     });
 
-    test('accepts optional empty properties and generates generic JSON example', () {
-      final registry = WidgetRegistry.fromDefinition(
-        id: 'custom:simple',
-        description: 'No properties required',
-        builder: (context, props) => const SizedBox(),
-      );
+    test(
+      'accepts optional empty properties and generates generic JSON example',
+      () {
+        final registry = WidgetRegistry.fromDefinition(
+          id: 'custom:simple',
+          description: 'No properties required',
+          builder: (context, props) => const SizedBox(),
+        );
 
-      final def = registry.widgets['custom:simple']!;
-      expect(def.properties, isEmpty);
-      expect(def.jsonExample, equals('{"namespace":"custom:simple"}'));
-    });
+        final def = registry.widgets['custom:simple']!;
+        expect(def.properties, isEmpty);
+        expect(def.jsonExample, equals('{"namespace":"custom:simple"}'));
+      },
+    );
   });
 
   group('Intelligent Default Mock-JSON Generator', () {
@@ -99,10 +99,13 @@ void main() {
       );
 
       final jsonStr = registry.widgets['custom:mock_test']!.jsonExample;
-      
+
       // Verify expected field types and formats in generated JSON
       expect(jsonStr.contains('"url":"https://example.com/image.png"'), isTrue);
-      expect(jsonStr.contains('"avatar":"https://example.com/image.png"'), isTrue);
+      expect(
+        jsonStr.contains('"avatar":"https://example.com/image.png"'),
+        isTrue,
+      );
       expect(jsonStr.contains('"rating":4.8'), isTrue);
       expect(jsonStr.contains('"score":4.8'), isTrue);
       expect(jsonStr.contains('"count":42'), isTrue);
@@ -113,8 +116,18 @@ void main() {
       expect(jsonStr.contains('"active":true'), isTrue);
       expect(jsonStr.contains('"enabled":true'), isTrue);
       expect(jsonStr.contains('"title":"Discover Premium Design"'), isTrue);
-      expect(jsonStr.contains('"description":"This is a beautiful, interactive card component built with streaming_gen_ui."'), isTrue);
-      expect(jsonStr.contains('"content":"This is a beautiful, interactive card component built with streaming_gen_ui."'), isTrue);
+      expect(
+        jsonStr.contains(
+          '"description":"This is a beautiful, interactive card component built with streaming_gen_ui."',
+        ),
+        isTrue,
+      );
+      expect(
+        jsonStr.contains(
+          '"content":"This is a beautiful, interactive card component built with streaming_gen_ui."',
+        ),
+        isTrue,
+      );
       expect(jsonStr.contains('"name":"John Doe"'), isTrue);
       expect(jsonStr.contains('"user":"John Doe"'), isTrue);
       expect(jsonStr.contains('"status":"active"'), isTrue);

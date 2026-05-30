@@ -23,6 +23,7 @@ class _CatalogPageState extends State<CatalogPage> {
   String? selectedTheme;
   String? selectedWidgetType;
   int _headerTapCount = 0;
+  bool _fitLayout = false;
 
   @override
   void initState() {
@@ -135,8 +136,10 @@ class _CatalogPageState extends State<CatalogPage> {
                                       fontWeight: FontWeight.w400,
                                       color: theme.colorScheme.onSurface,
                                       letterSpacing: -0.8,
-                                      fontFamily:
-                                          theme.textTheme.titleLarge?.fontFamily,
+                                      fontFamily: theme
+                                          .textTheme
+                                          .titleLarge
+                                          ?.fontFamily,
                                     ),
                                     children: const [
                                       TextSpan(
@@ -193,6 +196,7 @@ class _CatalogPageState extends State<CatalogPage> {
                         ),
                         const SizedBox(width: 12),
                         _buildThemeToggleButton(context),
+                        _buildLayoutToggleButton(context),
                         ValueListenableBuilder<bool>(
                           valueListenable: showDevOptionsNotifier,
                           builder: (context, showDev, _) {
@@ -280,17 +284,17 @@ class _CatalogPageState extends State<CatalogPage> {
                     )
                   : SliverGrid.builder(
                       gridDelegate: isMobile
-                          ? const SliverGridDelegateWithFixedCrossAxisCount(
-                              crossAxisCount: 2,
-                              mainAxisExtent: 170,
+                          ? SliverGridDelegateWithFixedCrossAxisCount(
+                              crossAxisCount: _fitLayout ? 3 : 2,
+                              mainAxisExtent: _fitLayout ? 120 : 170,
+                              crossAxisSpacing: 8,
+                              mainAxisSpacing: 8,
+                            )
+                          : SliverGridDelegateWithMaxCrossAxisExtent(
+                              maxCrossAxisExtent: _fitLayout ? 200 : 320,
+                              mainAxisExtent: _fitLayout ? 220 : 340,
                               crossAxisSpacing: 12,
                               mainAxisSpacing: 12,
-                            )
-                          : const SliverGridDelegateWithMaxCrossAxisExtent(
-                              maxCrossAxisExtent: 320,
-                              mainAxisExtent: 340,
-                              crossAxisSpacing: 16,
-                              mainAxisSpacing: 16,
                               childAspectRatio: 1,
                             ),
                       itemCount: filteredItems.length,
@@ -337,12 +341,28 @@ class _CatalogPageState extends State<CatalogPage> {
     );
   }
 
+  Widget _buildLayoutToggleButton(BuildContext context) {
+    final theme = Theme.of(context);
+
+    return IconButton(
+      icon: Icon(
+        _fitLayout ? Icons.zoom_in_rounded : Icons.zoom_out_rounded,
+        color: theme.colorScheme.onSurfaceVariant.withValues(alpha: 0.7),
+      ),
+      tooltip: _fitLayout
+          ? "Switch to Large Grid Layout"
+          : "Switch to Compact Layout (Show More)",
+      onPressed: () {
+        setState(() {
+          _fitLayout = !_fitLayout;
+        });
+      },
+    );
+  }
+
   Widget _buildDevSyncButton(BuildContext context) {
     return IconButton(
-      icon: const Icon(
-        Icons.sync_rounded,
-        color: Colors.redAccent,
-      ),
+      icon: const Icon(Icons.sync_rounded, color: Colors.redAccent),
       tooltip: "Synchronize all widget streams",
       onPressed: () {
         CatalogCard.resetSignal.value++;
@@ -368,12 +388,14 @@ class _CatalogPageState extends State<CatalogPage> {
           case StreamingMode.noWidgetStreaming:
             icon = Icons.widgets_rounded;
             color = Colors.orangeAccent;
-            tooltip = "No Widget Stream Mode: Text streams, widgets render whole";
+            tooltip =
+                "No Widget Stream Mode: Text streams, widgets render whole";
             break;
           case StreamingMode.noStreaming:
             icon = Icons.done_all_rounded;
             color = Colors.blueAccent;
-            tooltip = "No-Stream Mode: Entire response awaited and rendered whole";
+            tooltip =
+                "No-Stream Mode: Entire response awaited and rendered whole";
             break;
         }
 
@@ -381,8 +403,8 @@ class _CatalogPageState extends State<CatalogPage> {
           icon: Icon(icon, color: color),
           tooltip: tooltip,
           onPressed: () {
-            final nextMode = StreamingMode.values[
-                (mode.index + 1) % StreamingMode.values.length];
+            final nextMode = StreamingMode
+                .values[(mode.index + 1) % StreamingMode.values.length];
             currentStreamingMode.value = nextMode;
           },
         );

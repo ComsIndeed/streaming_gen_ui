@@ -47,7 +47,9 @@ class _BaseStreamingImageState extends State<BaseStreamingImage>
   }
 
   void _initFuture() {
-    _urlFuture = widget.props.asMap.getStringProperty(widget.propertyName).future;
+    _urlFuture = widget.props.asMap
+        .getStringProperty(widget.propertyName)
+        .future;
   }
 
   @override
@@ -163,7 +165,10 @@ class _BaseStreamingImageState extends State<BaseStreamingImage>
             );
           }
           if (widget.aspectRatio != null) {
-            return AspectRatio(aspectRatio: widget.aspectRatio!, child: composite);
+            return AspectRatio(
+              aspectRatio: widget.aspectRatio!,
+              child: composite,
+            );
           }
           return composite;
         }
@@ -216,7 +221,10 @@ class _BaseStreamingImageState extends State<BaseStreamingImage>
         }
 
         if (widget.aspectRatio != null) {
-          return AspectRatio(aspectRatio: widget.aspectRatio!, child: composite);
+          return AspectRatio(
+            aspectRatio: widget.aspectRatio!,
+            child: composite,
+          );
         }
 
         return composite;

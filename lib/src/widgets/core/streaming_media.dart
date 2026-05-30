@@ -18,8 +18,10 @@ class StreamingMedia extends StatelessWidget {
         builder: (context, snapshot) {
           final data = snapshot.data ?? const {};
           final url = data["url"] as String?;
-          final aspectRatio = (data["aspectRatio"] as num?)?.toDouble() ?? 1.777;
-          final borderRadius = (data["borderRadius"] as num?)?.toDouble() ?? 12.0;
+          final aspectRatio =
+              (data["aspectRatio"] as num?)?.toDouble() ?? 1.777;
+          final borderRadius =
+              (data["borderRadius"] as num?)?.toDouble() ?? 12.0;
           final fitString = data["fit"] as String? ?? 'cover';
 
           // Empty parameter protection: do not render anything if parameters are missing

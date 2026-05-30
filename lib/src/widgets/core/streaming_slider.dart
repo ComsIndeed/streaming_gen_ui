@@ -77,7 +77,8 @@ class _StreamingSliderState extends State<StreamingSlider> {
                     future: labelFuture,
                     builder: (context, labelSnapshot) {
                       final isDone =
-                          labelSnapshot.connectionState == ConnectionState.done &&
+                          labelSnapshot.connectionState ==
+                              ConnectionState.done &&
                           labelSnapshot.hasData;
                       final initial = isDone ? labelSnapshot.data! : '';
 
@@ -88,7 +89,10 @@ class _StreamingSliderState extends State<StreamingSlider> {
                           if (labelText.isEmpty) return const SizedBox.shrink();
 
                           return Padding(
-                            padding: const EdgeInsets.only(bottom: 6.0, left: 4.0),
+                            padding: const EdgeInsets.only(
+                              bottom: 6.0,
+                              left: 4.0,
+                            ),
                             child: Row(
                               mainAxisAlignment: MainAxisAlignment.spaceBetween,
                               children: [
@@ -102,11 +106,17 @@ class _StreamingSliderState extends State<StreamingSlider> {
                                 ),
                                 AnimatedContainer(
                                   duration: const Duration(milliseconds: 150),
-                                  padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                                  padding: const EdgeInsets.symmetric(
+                                    horizontal: 6,
+                                    vertical: 2,
+                                  ),
                                   decoration: BoxDecoration(
                                     color: isEnabled
-                                        ? theme.colorScheme.primaryContainer.withValues(alpha: 0.4)
-                                        : theme.colorScheme.surfaceContainerHigh,
+                                        ? theme.colorScheme.primaryContainer
+                                              .withValues(alpha: 0.4)
+                                        : theme
+                                              .colorScheme
+                                              .surfaceContainerHigh,
                                     borderRadius: BorderRadius.circular(6),
                                   ),
                                   child: Text(
@@ -134,7 +144,9 @@ class _StreamingSliderState extends State<StreamingSlider> {
                         min.toStringAsFixed(0),
                         style: TextStyle(
                           fontSize: 12,
-                          color: theme.colorScheme.onSurfaceVariant.withValues(alpha: 0.5),
+                          color: theme.colorScheme.onSurfaceVariant.withValues(
+                            alpha: 0.5,
+                          ),
                         ),
                       ),
                       Expanded(
@@ -142,20 +154,32 @@ class _StreamingSliderState extends State<StreamingSlider> {
                           data: theme.sliderTheme.copyWith(
                             activeTrackColor: isEnabled
                                 ? theme.colorScheme.primary
-                                : theme.colorScheme.outline.withValues(alpha: 0.12),
-                            inactiveTrackColor: theme.colorScheme.outline.withValues(alpha: 0.06),
-                            disabledActiveTrackColor: theme.colorScheme.outline.withValues(alpha: 0.12),
-                            disabledInactiveTrackColor: theme.colorScheme.outline.withValues(alpha: 0.06),
+                                : theme.colorScheme.outline.withValues(
+                                    alpha: 0.12,
+                                  ),
+                            inactiveTrackColor: theme.colorScheme.outline
+                                .withValues(alpha: 0.06),
+                            disabledActiveTrackColor: theme.colorScheme.outline
+                                .withValues(alpha: 0.12),
+                            disabledInactiveTrackColor: theme
+                                .colorScheme
+                                .outline
+                                .withValues(alpha: 0.06),
                             thumbColor: isEnabled
                                 ? theme.colorScheme.primary
-                                : theme.colorScheme.outline.withValues(alpha: 0.24),
-                            disabledThumbColor: theme.colorScheme.outline.withValues(alpha: 0.24),
+                                : theme.colorScheme.outline.withValues(
+                                    alpha: 0.24,
+                                  ),
+                            disabledThumbColor: theme.colorScheme.outline
+                                .withValues(alpha: 0.24),
                             trackHeight: 4,
                             thumbShape: RoundSliderThumbShape(
                               enabledThumbRadius: isEnabled ? 8 : 6,
                               disabledThumbRadius: 6,
                             ),
-                            overlayColor: theme.colorScheme.primary.withValues(alpha: 0.12),
+                            overlayColor: theme.colorScheme.primary.withValues(
+                              alpha: 0.12,
+                            ),
                           ),
                           child: Slider(
                             min: min,
@@ -170,7 +194,9 @@ class _StreamingSliderState extends State<StreamingSlider> {
                                 : null,
                             onChangeEnd: isEnabled
                                 ? (val) {
-                                    debugPrint('[GEN_UI:SLIDER] Value changed to: $val -> $action');
+                                    debugPrint(
+                                      '[GEN_UI:SLIDER] Value changed to: $val -> $action',
+                                    );
                                   }
                                 : null,
                           ),
@@ -180,7 +206,9 @@ class _StreamingSliderState extends State<StreamingSlider> {
                         max.toStringAsFixed(0),
                         style: TextStyle(
                           fontSize: 12,
-                          color: theme.colorScheme.onSurfaceVariant.withValues(alpha: 0.5),
+                          color: theme.colorScheme.onSurfaceVariant.withValues(
+                            alpha: 0.5,
+                          ),
                         ),
                       ),
                     ],

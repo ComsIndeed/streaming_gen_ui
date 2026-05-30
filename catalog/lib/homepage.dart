@@ -110,7 +110,9 @@ class _HomepageState extends State<Homepage> {
                       shape: RoundedSuperellipseBorder(
                         borderRadius: BorderRadius.circular(20),
                         side: BorderSide(
-                          color: theme.colorScheme.outline.withValues(alpha: 0.06),
+                          color: theme.colorScheme.outline.withValues(
+                            alpha: 0.06,
+                          ),
                         ),
                       ),
                       color: theme.colorScheme.surfaceContainerHighest
@@ -129,11 +131,13 @@ class _HomepageState extends State<Homepage> {
                               shape: RoundedSuperellipseBorder(
                                 borderRadius: BorderRadius.circular(16),
                               ),
-                              color: theme.colorScheme.primary.withValues(alpha: 0.85),
+                              color: theme.colorScheme.primary.withValues(
+                                alpha: 0.85,
+                              ),
                               shadows: [
                                 BoxShadow(
-                                  color: theme.colorScheme.primary.withValues(alpha: 
-                                    0.12,
+                                  color: theme.colorScheme.primary.withValues(
+                                    alpha: 0.12,
                                   ),
                                   blurRadius: 4,
                                   offset: const Offset(0, 2),

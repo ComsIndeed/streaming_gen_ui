@@ -6,30 +6,32 @@ import 'package:streaming_gen_ui/src/widgets/registries/core_registry/core_regis
 class Registries {
   /// The 10 Core Primitive building blocks (low token footprint, high flexibility).
   static WidgetRegistry get primitives => WidgetRegistry(
-        widgets: {
-          "core:text": coreRegistry["core:text"]!,
-          "core:icon": coreRegistry["core:icon"]!,
-          "core:media": coreRegistry["core:media"]!,
-          "core:markdown": coreRegistry["core:markdown"]!,
-          "core:button": coreRegistry["core:button"]!,
-          "core:container": coreRegistry["core:container"]!,
-          "core:column": coreRegistry["core:column"]!,
-          "core:row": coreRegistry["core:row"]!,
-          "core:textfield": coreRegistry["core:textfield"]!,
-          "core:slider": coreRegistry["core:slider"]!,
-        },
-      );
+    widgets: {
+      "core:text": coreRegistry["core:text"]!,
+      "core:icon": coreRegistry["core:icon"]!,
+      "core:media": coreRegistry["core:media"]!,
+      "core:markdown": coreRegistry["core:markdown"]!,
+      "core:button": coreRegistry["core:button"]!,
+      "core:container": coreRegistry["core:container"]!,
+      "core:column": coreRegistry["core:column"]!,
+      "core:row": coreRegistry["core:row"]!,
+      "core:textfield": coreRegistry["core:textfield"]!,
+      "core:slider": coreRegistry["core:slider"]!,
+    },
+  );
 
   /// Stateful core extended interaction and progressive stepper layouts.
   static WidgetRegistry get extended => WidgetRegistry(
-        widgets: {
-          "core_extended:icon_button": coreRegistry["core_extended:icon_button"]!,
-          "core_extended:text_button": coreRegistry["core_extended:text_button"]!,
-          "core_extended:progression_bar": coreRegistry["core_extended:progression_bar"]!,
-          "core_extended:progression_circle": coreRegistry["core_extended:progression_circle"]!,
-          "core_extended:stepper": coreRegistry["core_extended:stepper"]!,
-        },
-      );
+    widgets: {
+      "core_extended:icon_button": coreRegistry["core_extended:icon_button"]!,
+      "core_extended:text_button": coreRegistry["core_extended:text_button"]!,
+      "core_extended:progression_bar":
+          coreRegistry["core_extended:progression_bar"]!,
+      "core_extended:progression_circle":
+          coreRegistry["core_extended:progression_circle"]!,
+      "core_extended:stepper": coreRegistry["core_extended:stepper"]!,
+    },
+  );
 
   // ==========================================
   // AESTHETIC THEME REGISTRIES
@@ -66,7 +68,8 @@ class Registries {
         "${theme}_ui:weather": coreRegistry["${theme}_ui:weather"]!,
         "${theme}_ui:graph": coreRegistry["${theme}_ui:graph"]!,
         "${theme}_ui:web_result": coreRegistry["${theme}_ui:web_result"]!,
-        "${theme}_ui:product_result": coreRegistry["${theme}_ui:product_result"]!,
+        "${theme}_ui:product_result":
+            coreRegistry["${theme}_ui:product_result"]!,
         "${theme}_ui:location": coreRegistry["${theme}_ui:location"]!,
         "${theme}_ui:list_results": coreRegistry["${theme}_ui:list_results"]!,
         "${theme}_ui:todo_list": coreRegistry["${theme}_ui:todo_list"]!,
@@ -85,7 +88,15 @@ class Registries {
     final Map<String, WidgetDefinition> allWidgets = {};
     allWidgets.addAll(primitives.widgets);
     allWidgets.addAll(extended.widgets);
-    for (final theme in ['material', 'fluent', 'apple', 'glassmorphic', 'neumorphic', 'skeumorphic', 'brutalist']) {
+    for (final theme in [
+      'material',
+      'fluent',
+      'apple',
+      'glassmorphic',
+      'neumorphic',
+      'skeumorphic',
+      'brutalist',
+    ]) {
       allWidgets.addAll(_themeRegistry(theme).widgets);
     }
     return WidgetRegistry(widgets: allWidgets);
@@ -108,24 +119,24 @@ class Registries {
     return WidgetRegistry(widgets: widgets);
   }
 
-
   // ==========================================
   // BACKWARDS-COMPATIBILITY ALIASES
   // ==========================================
 
   /// Retro layout components mapping to primitives.
   static WidgetRegistry get layout => WidgetRegistry(
-        widgets: {
-          "core:column": coreRegistry["core:column"]!,
-          "core:row": coreRegistry["core:row"]!,
-          "core:container": coreRegistry["core:container"]!,
-        },
-      );
+    widgets: {
+      "core:column": coreRegistry["core:column"]!,
+      "core:row": coreRegistry["core:row"]!,
+      "core:container": coreRegistry["core:container"]!,
+    },
+  );
 
   /// The master catalog alias.
   static WidgetRegistry get core => all;
 
   /// Retro essentials layout block.
   static WidgetRegistry get essentials =>
-      layout + WidgetRegistry(widgets: {"core:text": coreRegistry["core:text"]!});
+      layout +
+      WidgetRegistry(widgets: {"core:text": coreRegistry["core:text"]!});
 }

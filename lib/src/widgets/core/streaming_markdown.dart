@@ -7,7 +7,8 @@ import 'package:streaming_gen_ui/src/widgets/core/streaming_entrance.dart';
 /// custom markdown builders (to swap in flutter_markdown or markdown_widget).
 class StreamingMarkdown extends StatefulWidget {
   final PropertyStream props;
-  final Widget Function(BuildContext context, String rawMarkdown)? markdownBuilder;
+  final Widget Function(BuildContext context, String rawMarkdown)?
+  markdownBuilder;
 
   const StreamingMarkdown({
     super.key,
@@ -51,7 +52,9 @@ class _StreamingMarkdownState extends State<StreamingMarkdown> {
       child: FutureBuilder<String>(
         future: _textFuture,
         builder: (context, snapshot) {
-          final isDone = snapshot.connectionState == ConnectionState.done && snapshot.hasData;
+          final isDone =
+              snapshot.connectionState == ConnectionState.done &&
+              snapshot.hasData;
           final currentInitial = isDone ? snapshot.data! : '';
 
           return AccumulatingStringStreamBuilder(

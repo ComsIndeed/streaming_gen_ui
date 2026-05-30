@@ -21,7 +21,8 @@ class StreamingProgressionBar extends StatelessWidget {
           final value = (data["value"] as num?)?.toDouble();
           final colorHex = data["color"] as String?;
           final height = (data["height"] as num?)?.toDouble() ?? 4.0;
-          final borderRadius = (data["borderRadius"] as num?)?.toDouble() ?? 4.0;
+          final borderRadius =
+              (data["borderRadius"] as num?)?.toDouble() ?? 4.0;
 
           final color = _parseColor(colorHex) ?? theme.colorScheme.primary;
 
@@ -31,7 +32,9 @@ class StreamingProgressionBar extends StatelessWidget {
               height: height,
               child: LinearProgressIndicator(
                 value: value,
-                backgroundColor: theme.colorScheme.outline.withValues(alpha: 0.06),
+                backgroundColor: theme.colorScheme.outline.withValues(
+                  alpha: 0.06,
+                ),
                 valueColor: AlwaysStoppedAnimation<Color>(color),
               ),
             ),

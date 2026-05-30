@@ -34,7 +34,8 @@ class _BaseThemedTodoCardState extends State<BaseThemedTodoCard> {
         stream: mapStream.stream,
         builder: (context, snapshot) {
           final data = snapshot.data ?? const {};
-          final settings = data["themeSettings"] as Map<String, dynamic>? ?? const {};
+          final settings =
+              data["themeSettings"] as Map<String, dynamic>? ?? const {};
 
           final title = data["title"] as String? ?? 'Pending Tasks';
           final action = data["action"] as String?;
@@ -71,22 +72,22 @@ class _BaseThemedTodoCardState extends State<BaseThemedTodoCard> {
             cardFrame = ClipPath(
               clipper: ShapeBorderClipper(shape: shape),
               child: BackdropFilter(
-                filter: ColorFilter.mode(Colors.black.withValues(alpha: 0.02), BlendMode.dstATop),
-                child: Container(
-                  decoration: decoration,
-                  child: cardContent,
+                filter: ColorFilter.mode(
+                  Colors.black.withValues(alpha: 0.02),
+                  BlendMode.dstATop,
                 ),
+                child: Container(decoration: decoration, child: cardContent),
               ),
             );
           } else if (widget.themeName == 'fluent') {
             cardFrame = ClipPath(
               clipper: ShapeBorderClipper(shape: shape),
               child: BackdropFilter(
-                filter: ColorFilter.mode(Colors.black.withValues(alpha: 0.04), BlendMode.dstATop),
-                child: Container(
-                  decoration: decoration,
-                  child: cardContent,
+                filter: ColorFilter.mode(
+                  Colors.black.withValues(alpha: 0.04),
+                  BlendMode.dstATop,
                 ),
+                child: Container(decoration: decoration, child: cardContent),
               ),
             );
           } else {
@@ -107,7 +108,9 @@ class _BaseThemedTodoCardState extends State<BaseThemedTodoCard> {
               onTapUp: (_) => setState(() => _isPressed = false),
               onTapCancel: () => setState(() => _isPressed = false),
               onTap: () {
-                debugPrint('[GEN_UI:TODO_LIST_ACTION] Todo Card clicked -> $action');
+                debugPrint(
+                  '[GEN_UI:TODO_LIST_ACTION] Todo Card clicked -> $action',
+                );
               },
               child: AnimatedScale(
                 scale: _isPressed ? 0.97 : 1.0,
@@ -131,8 +134,16 @@ class _BaseThemedTodoCardState extends State<BaseThemedTodoCard> {
   ) {
     final themeData = Theme.of(context);
     final isBrutalist = widget.themeName == 'brutalist';
-    final titleStyle = ThemeStyleHelper.getTextStyle(widget.themeName, context, isTitle: true);
-    final subStyle = ThemeStyleHelper.getTextStyle(widget.themeName, context, isTitle: false);
+    final titleStyle = ThemeStyleHelper.getTextStyle(
+      widget.themeName,
+      context,
+      isTitle: true,
+    );
+    final subStyle = ThemeStyleHelper.getTextStyle(
+      widget.themeName,
+      context,
+      isTitle: false,
+    );
 
     // Get color based on priority
     Color getPriorityColor(String? priority) {
@@ -204,7 +215,9 @@ class _BaseThemedTodoCardState extends State<BaseThemedTodoCard> {
                       setState(() {
                         _localCompleted[index] = !completed;
                       });
-                      debugPrint('[GEN_UI:TODO_TOGGLE] Task index $index toggled -> ${!completed}');
+                      debugPrint(
+                        '[GEN_UI:TODO_TOGGLE] Task index $index toggled -> ${!completed}',
+                      );
                     },
                     child: Padding(
                       padding: const EdgeInsets.symmetric(vertical: 6.0),
@@ -216,11 +229,17 @@ class _BaseThemedTodoCardState extends State<BaseThemedTodoCard> {
                             height: 22,
                             decoration: BoxDecoration(
                               color: completed
-                                  ? (isBrutalist ? const Color(0xFF00FF00) : themeData.colorScheme.primary)
+                                  ? (isBrutalist
+                                        ? const Color(0xFF00FF00)
+                                        : themeData.colorScheme.primary)
                                   : Colors.transparent,
-                              borderRadius: isBrutalist ? BorderRadius.zero : BorderRadius.circular(4),
+                              borderRadius: isBrutalist
+                                  ? BorderRadius.zero
+                                  : BorderRadius.circular(4),
                               border: Border.all(
-                                color: isBrutalist ? Colors.black : themeData.colorScheme.outline,
+                                color: isBrutalist
+                                    ? Colors.black
+                                    : themeData.colorScheme.outline,
                                 width: 2.0,
                               ),
                             ),
@@ -228,7 +247,9 @@ class _BaseThemedTodoCardState extends State<BaseThemedTodoCard> {
                                 ? Icon(
                                     Icons.check,
                                     size: 14,
-                                    color: isBrutalist ? Colors.black : themeData.colorScheme.onPrimary,
+                                    color: isBrutalist
+                                        ? Colors.black
+                                        : themeData.colorScheme.onPrimary,
                                   )
                                 : null,
                           ),
@@ -242,9 +263,12 @@ class _BaseThemedTodoCardState extends State<BaseThemedTodoCard> {
                                   themeName: widget.themeName,
                                   style: subStyle.copyWith(
                                     fontSize: 13,
-                                    decoration: completed ? TextDecoration.lineThrough : null,
+                                    decoration: completed
+                                        ? TextDecoration.lineThrough
+                                        : null,
                                     color: completed
-                                        ? themeData.colorScheme.onSurfaceVariant.withValues(alpha: 0.5)
+                                        ? themeData.colorScheme.onSurfaceVariant
+                                              .withValues(alpha: 0.5)
                                         : themeData.colorScheme.onSurface,
                                   ),
                                   maxLines: 2,
@@ -256,7 +280,10 @@ class _BaseThemedTodoCardState extends State<BaseThemedTodoCard> {
                                     "Due: $dueDate",
                                     style: TextStyle(
                                       fontSize: 10,
-                                      color: themeData.colorScheme.onSurfaceVariant.withValues(alpha: 0.6),
+                                      color: themeData
+                                          .colorScheme
+                                          .onSurfaceVariant
+                                          .withValues(alpha: 0.6),
                                     ),
                                   ),
                                 ],
@@ -269,16 +296,28 @@ class _BaseThemedTodoCardState extends State<BaseThemedTodoCard> {
                             Container(
                               decoration: BoxDecoration(
                                 color: priorityColor.withValues(alpha: 0.15),
-                                borderRadius: isBrutalist ? BorderRadius.zero : BorderRadius.circular(4),
-                                border: isBrutalist ? Border.all(color: Colors.black, width: 1.0) : null,
+                                borderRadius: isBrutalist
+                                    ? BorderRadius.zero
+                                    : BorderRadius.circular(4),
+                                border: isBrutalist
+                                    ? Border.all(
+                                        color: Colors.black,
+                                        width: 1.0,
+                                      )
+                                    : null,
                               ),
-                              padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                              padding: const EdgeInsets.symmetric(
+                                horizontal: 6,
+                                vertical: 2,
+                              ),
                               child: Text(
                                 priority.toUpperCase(),
                                 style: TextStyle(
                                   fontSize: 8,
                                   fontWeight: FontWeight.bold,
-                                  color: isBrutalist ? Colors.black : priorityColor,
+                                  color: isBrutalist
+                                      ? Colors.black
+                                      : priorityColor,
                                 ),
                               ),
                             ),

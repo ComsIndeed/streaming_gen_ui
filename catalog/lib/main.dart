@@ -13,7 +13,9 @@ void main() {
   );
 }
 
-final ValueNotifier<ThemeMode> themeNotifier = ValueNotifier<ThemeMode>(ThemeMode.system);
+final ValueNotifier<ThemeMode> themeNotifier = ValueNotifier<ThemeMode>(
+  ThemeMode.system,
+);
 
 class MainApp extends StatelessWidget {
   const MainApp({super.key});

@@ -46,10 +46,12 @@ class _StreamingTextFieldState extends State<StreamingTextField> {
         stream: _textFieldStream,
         builder: (context, snapshot) {
           final data = snapshot.data ?? const {};
-          final hintText = data["placeholder"] as String? ?? data["hintText"] as String?;
+          final hintText =
+              data["placeholder"] as String? ?? data["hintText"] as String?;
           final labelText = data["labelText"] as String?;
           final colorHex = data["color"] as String?;
-          final fillColor = _parseColor(colorHex) ?? theme.colorScheme.surfaceContainerLow;
+          final fillColor =
+              _parseColor(colorHex) ?? theme.colorScheme.surfaceContainerLow;
           final hideIcon = data["hideIcon"] as bool? ?? false;
 
           return FutureBuilder<String>(
@@ -73,13 +75,20 @@ class _StreamingTextFieldState extends State<StreamingTextField> {
                     color: theme.colorScheme.onSurface.withValues(alpha: 0.35),
                     fontSize: 14,
                   ),
-                  labelText: (labelText != null && labelText.isNotEmpty) ? labelText : null,
+                  labelText: (labelText != null && labelText.isNotEmpty)
+                      ? labelText
+                      : null,
                   labelStyle: TextStyle(color: theme.colorScheme.primary),
                   filled: true,
                   fillColor: isEnabled
                       ? fillColor
-                      : theme.colorScheme.surfaceContainerLowest.withValues(alpha: 0.4),
-                  contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+                      : theme.colorScheme.surfaceContainerLowest.withValues(
+                          alpha: 0.4,
+                        ),
+                  contentPadding: const EdgeInsets.symmetric(
+                    horizontal: 16,
+                    vertical: 14,
+                  ),
                   prefixIcon: hideIcon
                       ? null
                       : Icon(
@@ -87,7 +96,9 @@ class _StreamingTextFieldState extends State<StreamingTextField> {
                           size: 18,
                           color: isEnabled
                               ? theme.colorScheme.primary
-                              : theme.colorScheme.onSurface.withValues(alpha: 0.2),
+                              : theme.colorScheme.onSurface.withValues(
+                                  alpha: 0.2,
+                                ),
                         ),
                   border: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(12),
@@ -117,7 +128,9 @@ class _StreamingTextFieldState extends State<StreamingTextField> {
                 ),
                 onSubmitted: isEnabled
                     ? (value) {
-                        debugPrint('[GEN_UI:TEXTFIELD] Submitted: "$value" -> $action');
+                        debugPrint(
+                          '[GEN_UI:TEXTFIELD] Submitted: "$value" -> $action',
+                        );
                       }
                     : null,
               );

@@ -22,7 +22,11 @@ class ThemeStyleHelper {
   }
 
   /// Resolves the design card geometry based on selected theme prefix.
-  static ShapeBorder getCardShape(String theme, double? borderRadiusOverride, BuildContext context) {
+  static ShapeBorder getCardShape(
+    String theme,
+    double? borderRadiusOverride,
+    BuildContext context,
+  ) {
     final themeData = Theme.of(context);
     switch (theme) {
       case 'apple':
@@ -36,10 +40,7 @@ class ThemeStyleHelper {
       case 'brutalist':
         return RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(borderRadiusOverride ?? 0.0),
-          side: const BorderSide(
-            color: Colors.black,
-            width: 3.0,
-          ),
+          side: const BorderSide(color: Colors.black, width: 3.0),
         );
       case 'fluent':
         return RoundedRectangleBorder(
@@ -64,10 +65,7 @@ class ThemeStyleHelper {
       case 'skeumorphic':
         return RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(borderRadiusOverride ?? 12.0),
-          side: BorderSide(
-            color: Colors.grey.shade400,
-            width: 1.5,
-          ),
+          side: BorderSide(color: Colors.grey.shade400, width: 1.5),
         );
       case 'material':
       default:
@@ -94,21 +92,26 @@ class ThemeStyleHelper {
     final primaryColorOverride = settings["primaryColor"] as String?;
     final cardBgOverride = settings["backgroundColor"] as String?;
 
-    final primaryColor = parseColor(primaryColorOverride, themeData.colorScheme.primary);
-    final defaultBg = isDark ? themeData.colorScheme.surfaceContainerHigh : Colors.white;
+    final primaryColor = parseColor(
+      primaryColorOverride,
+      themeData.colorScheme.primary,
+    );
+    final defaultBg = isDark
+        ? themeData.colorScheme.surfaceContainerHigh
+        : Colors.white;
     final cardBg = parseColor(cardBgOverride, defaultBg);
 
     switch (theme) {
       case 'brutalist':
         // Pop highlight style
         final highlightHex = settings["highlightColor"] as String?;
-        final highlight = parseColor(highlightHex, const Color(0xFFFFFF00)); // Hot Yellow
+        final highlight = parseColor(
+          highlightHex,
+          const Color(0xFFFFFF00),
+        ); // Hot Yellow
         return BoxDecoration(
           color: isPressed ? primaryColor : highlight,
-          border: Border.all(
-            color: Colors.black,
-            width: 3.0,
-          ),
+          border: Border.all(color: Colors.black, width: 3.0),
           boxShadow: isPressed
               ? []
               : [
@@ -123,12 +126,17 @@ class ThemeStyleHelper {
       case 'neumorphic':
         // Soft physical pillowy bevel shadows rising from canvas
         final surfaceColor = cardBgOverride != null
-            ? parseColor(cardBgOverride, isDark ? const Color(0xFF1E1E24) : Colors.grey.shade200)
+            ? parseColor(
+                cardBgOverride,
+                isDark ? const Color(0xFF1E1E24) : Colors.grey.shade200,
+              )
             : (isDark ? const Color(0xFF1E1E24) : Colors.grey.shade200);
 
         return BoxDecoration(
           color: surfaceColor,
-          borderRadius: BorderRadius.circular(settings["borderRadius"] as double? ?? 24.0),
+          borderRadius: BorderRadius.circular(
+            settings["borderRadius"] as double? ?? 24.0,
+          ),
           boxShadow: isPressed
               ? [
                   BoxShadow(
@@ -137,7 +145,9 @@ class ThemeStyleHelper {
                     blurRadius: 4,
                   ),
                   BoxShadow(
-                    color: isDark ? Colors.white.withOpacity(0.04) : Colors.white.withOpacity(0.9),
+                    color: isDark
+                        ? Colors.white.withOpacity(0.04)
+                        : Colors.white.withOpacity(0.9),
                     offset: const Offset(-2, -2),
                     blurRadius: 4,
                   ),
@@ -149,7 +159,9 @@ class ThemeStyleHelper {
                     blurRadius: 12,
                   ),
                   BoxShadow(
-                    color: isDark ? Colors.white.withOpacity(0.05) : Colors.white,
+                    color: isDark
+                        ? Colors.white.withOpacity(0.05)
+                        : Colors.white,
                     offset: const Offset(-6, -6),
                     blurRadius: 12,
                   ),
@@ -159,7 +171,9 @@ class ThemeStyleHelper {
       case 'glassmorphic':
         return BoxDecoration(
           color: Colors.white.withValues(alpha: 0.06),
-          borderRadius: BorderRadius.circular(settings["borderRadius"] as double? ?? 16.0),
+          borderRadius: BorderRadius.circular(
+            settings["borderRadius"] as double? ?? 16.0,
+          ),
           gradient: LinearGradient(
             begin: Alignment.topLeft,
             end: Alignment.bottomRight,
@@ -172,8 +186,12 @@ class ThemeStyleHelper {
 
       case 'fluent':
         return BoxDecoration(
-          color: isDark ? Colors.black.withValues(alpha: 0.3) : Colors.white.withValues(alpha: 0.4),
-          borderRadius: BorderRadius.circular(settings["borderRadius"] as double? ?? 8.0),
+          color: isDark
+              ? Colors.black.withValues(alpha: 0.3)
+              : Colors.white.withValues(alpha: 0.4),
+          borderRadius: BorderRadius.circular(
+            settings["borderRadius"] as double? ?? 8.0,
+          ),
           border: Border.all(
             color: Colors.white.withValues(alpha: 0.08),
             width: 1.0,
@@ -181,20 +199,27 @@ class ThemeStyleHelper {
         );
 
       case 'skeumorphic':
-        final cardBgColorStart = isDark ? Colors.grey.shade800 : Colors.grey.shade100;
-        final cardBgColorEnd = isDark ? const Color(0xFF121212) : Colors.grey.shade300;
-        final highlightColor = isDark ? Colors.white.withValues(alpha: 0.12) : Colors.white.withValues(alpha: 0.8);
-        final shadowColor = isDark ? Colors.black.withValues(alpha: 0.6) : Colors.black.withValues(alpha: 0.3);
+        final cardBgColorStart = isDark
+            ? Colors.grey.shade800
+            : Colors.grey.shade100;
+        final cardBgColorEnd = isDark
+            ? const Color(0xFF121212)
+            : Colors.grey.shade300;
+        final highlightColor = isDark
+            ? Colors.white.withValues(alpha: 0.12)
+            : Colors.white.withValues(alpha: 0.8);
+        final shadowColor = isDark
+            ? Colors.black.withValues(alpha: 0.6)
+            : Colors.black.withValues(alpha: 0.3);
         return BoxDecoration(
           gradient: LinearGradient(
             begin: Alignment.topCenter,
             end: Alignment.bottomCenter,
-            colors: [
-              cardBgColorStart,
-              cardBgColorEnd,
-            ],
+            colors: [cardBgColorStart, cardBgColorEnd],
           ),
-          borderRadius: BorderRadius.circular(settings["borderRadius"] as double? ?? 12.0),
+          borderRadius: BorderRadius.circular(
+            settings["borderRadius"] as double? ?? 12.0,
+          ),
           border: Border.all(
             color: isDark ? Colors.grey.shade900 : Colors.grey.shade400,
             width: 2.0,
@@ -220,7 +245,9 @@ class ThemeStyleHelper {
       default:
         return BoxDecoration(
           color: cardBg,
-          borderRadius: BorderRadius.circular(settings["borderRadius"] as double? ?? 16.0),
+          borderRadius: BorderRadius.circular(
+            settings["borderRadius"] as double? ?? 16.0,
+          ),
           boxShadow: [
             BoxShadow(
               color: Colors.black.withValues(alpha: 0.04),
@@ -233,7 +260,11 @@ class ThemeStyleHelper {
   }
 
   /// Typography styling standard for title/subtitle under themes.
-  static TextStyle getTextStyle(String theme, BuildContext context, {bool isTitle = true}) {
+  static TextStyle getTextStyle(
+    String theme,
+    BuildContext context, {
+    bool isTitle = true,
+  }) {
     final themeData = Theme.of(context);
     switch (theme) {
       case 'brutalist':
@@ -259,7 +290,9 @@ class ThemeStyleHelper {
           color: isDark ? Colors.white : Colors.grey.shade900,
           shadows: [
             Shadow(
-              color: isDark ? Colors.black.withOpacity(0.8) : Colors.white.withOpacity(0.8),
+              color: isDark
+                  ? Colors.black.withOpacity(0.8)
+                  : Colors.white.withOpacity(0.8),
               offset: Offset(0, isDark ? -1.0 : 1.0),
               blurRadius: 1,
             ),
@@ -308,7 +341,10 @@ class RoundedSuperellipseBorder extends OutlinedBorder {
   }
 
   @override
-  RoundedSuperellipseBorder copyWith({BorderSide? side, BorderRadius? borderRadius}) {
+  RoundedSuperellipseBorder copyWith({
+    BorderSide? side,
+    BorderRadius? borderRadius,
+  }) {
     return RoundedSuperellipseBorder(
       side: side ?? this.side,
       borderRadius: borderRadius ?? this.borderRadius,
@@ -339,27 +375,39 @@ class RoundedSuperellipseBorder extends OutlinedBorder {
     path.moveTo(left + radius, top);
     path.lineTo(left + width - radius, top);
     path.cubicTo(
-      left + width - radius * 0.45, top,
-      left + width, top + radius * 0.45,
-      left + width, top + radius,
+      left + width - radius * 0.45,
+      top,
+      left + width,
+      top + radius * 0.45,
+      left + width,
+      top + radius,
     );
     path.lineTo(left + width, top + height - radius);
     path.cubicTo(
-      left + width, top + height - radius * 0.45,
-      left + width - radius * 0.45, top + height,
-      left + width - radius, top + height,
+      left + width,
+      top + height - radius * 0.45,
+      left + width - radius * 0.45,
+      top + height,
+      left + width - radius,
+      top + height,
     );
     path.lineTo(left + radius, top + height);
     path.cubicTo(
-      left + radius * 0.45, top + height,
-      left, top + height - radius * 0.45,
-      left, top + height - radius,
+      left + radius * 0.45,
+      top + height,
+      left,
+      top + height - radius * 0.45,
+      left,
+      top + height - radius,
     );
     path.lineTo(left, top + radius);
     path.cubicTo(
-      left, top + radius * 0.45,
-      left + radius * 0.45, top,
-      left + radius, top,
+      left,
+      top + radius * 0.45,
+      left + radius * 0.45,
+      top,
+      left + radius,
+      top,
     );
     path.close();
     return path;

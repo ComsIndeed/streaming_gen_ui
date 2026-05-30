@@ -33,7 +33,8 @@ class _BaseThemedCardState extends State<BaseThemedCard> {
         stream: mapStream.stream,
         builder: (context, snapshot) {
           final data = snapshot.data ?? const {};
-          final settings = data["themeSettings"] as Map<String, dynamic>? ?? const {};
+          final settings =
+              data["themeSettings"] as Map<String, dynamic>? ?? const {};
 
           final title = data["title"] as String?;
           final subtitle = data["subtitle"] as String?;
@@ -47,22 +48,22 @@ class _BaseThemedCardState extends State<BaseThemedCard> {
 
           final themeData = Theme.of(context);
           final isDark = themeData.brightness == Brightness.dark;
-          
+
           final textStyleColor = widget.themeName == 'brutalist'
               ? Colors.black
               : widget.themeName == 'skeumorphic'
-                  ? (isDark ? Colors.white : Colors.grey.shade900)
-                  : widget.themeName == 'neumorphic'
-                      ? (isDark ? Colors.grey.shade100 : Colors.grey.shade900)
-                      : themeData.colorScheme.onSurface;
+              ? (isDark ? Colors.white : Colors.grey.shade900)
+              : widget.themeName == 'neumorphic'
+              ? (isDark ? Colors.grey.shade100 : Colors.grey.shade900)
+              : themeData.colorScheme.onSurface;
 
           final subtitleColor = widget.themeName == 'brutalist'
               ? Colors.black.withOpacity(0.7)
               : widget.themeName == 'skeumorphic'
-                  ? (isDark ? Colors.grey.shade300 : Colors.grey.shade700)
-                  : widget.themeName == 'neumorphic'
-                      ? (isDark ? Colors.grey.shade400 : Colors.grey.shade600)
-                      : themeData.colorScheme.onSurfaceVariant.withOpacity(0.7);
+              ? (isDark ? Colors.grey.shade300 : Colors.grey.shade700)
+              : widget.themeName == 'neumorphic'
+              ? (isDark ? Colors.grey.shade400 : Colors.grey.shade600)
+              : themeData.colorScheme.onSurfaceVariant.withOpacity(0.7);
 
           final localTheme = themeData.copyWith(
             colorScheme: themeData.colorScheme.copyWith(
@@ -109,7 +110,10 @@ class _BaseThemedCardState extends State<BaseThemedCard> {
                   cardFrame = ClipPath(
                     clipper: ShapeBorderClipper(shape: shape),
                     child: BackdropFilter(
-                      filter: ColorFilter.mode(Colors.black.withValues(alpha: 0.02), BlendMode.dstATop),
+                      filter: ColorFilter.mode(
+                        Colors.black.withValues(alpha: 0.02),
+                        BlendMode.dstATop,
+                      ),
                       child: Container(
                         decoration: decoration,
                         child: cardContent,
@@ -121,7 +125,10 @@ class _BaseThemedCardState extends State<BaseThemedCard> {
                   cardFrame = ClipPath(
                     clipper: ShapeBorderClipper(shape: shape),
                     child: BackdropFilter(
-                      filter: ColorFilter.mode(Colors.black.withValues(alpha: 0.04), BlendMode.dstATop),
+                      filter: ColorFilter.mode(
+                        Colors.black.withValues(alpha: 0.04),
+                        BlendMode.dstATop,
+                      ),
                       child: Container(
                         decoration: decoration,
                         child: cardContent,
@@ -147,10 +154,14 @@ class _BaseThemedCardState extends State<BaseThemedCard> {
                     onTapUp: (_) => setState(() => _isPressed = false),
                     onTapCancel: () => setState(() => _isPressed = false),
                     onTap: () {
-                      debugPrint('[GEN_UI:CARD_ACTION] Card clicked -> $action');
+                      debugPrint(
+                        '[GEN_UI:CARD_ACTION] Card clicked -> $action',
+                      );
                     },
                     child: AnimatedScale(
-                      scale: _isPressed ? 0.97 : 1.0, // Emil tactile pressed scale
+                      scale: _isPressed
+                          ? 0.97
+                          : 1.0, // Emil tactile pressed scale
                       duration: const Duration(milliseconds: 100),
                       curve: Curves.easeOutCubic,
                       child: cardFrame,
@@ -178,8 +189,16 @@ class _BaseThemedCardState extends State<BaseThemedCard> {
     String statusStyle,
     PropertyStream bodyProp,
   ) {
-    final titleStyle = ThemeStyleHelper.getTextStyle(widget.themeName, context, isTitle: true);
-    final subStyle = ThemeStyleHelper.getTextStyle(widget.themeName, context, isTitle: false);
+    final titleStyle = ThemeStyleHelper.getTextStyle(
+      widget.themeName,
+      context,
+      isTitle: true,
+    );
+    final subStyle = ThemeStyleHelper.getTextStyle(
+      widget.themeName,
+      context,
+      isTitle: false,
+    );
 
     // Build the visual text metadata block
     final textMetaBlock = Column(
@@ -285,10 +304,7 @@ class _BaseThemedCardState extends State<BaseThemedCard> {
         // Top or bottom positions
         final colChildren = [
           if (imagePos == 'top')
-            AspectRatio(
-              aspectRatio: 2.0,
-              child: mediaBlock,
-            ),
+            AspectRatio(aspectRatio: 2.0, child: mediaBlock),
           Padding(
             padding: innerPadding,
             child: Column(
@@ -302,10 +318,7 @@ class _BaseThemedCardState extends State<BaseThemedCard> {
             ),
           ),
           if (imagePos == 'bottom')
-            AspectRatio(
-              aspectRatio: 2.0,
-              child: mediaBlock,
-            ),
+            AspectRatio(aspectRatio: 2.0, child: mediaBlock),
         ];
 
         contentLayout = Column(

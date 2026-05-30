@@ -43,8 +43,8 @@ class CatalogCategories extends StatelessWidget {
                 ),
                 color: isSelected
                     ? theme.colorScheme.primary
-                    : theme.colorScheme.surfaceContainerHighest.withValues(alpha: 
-                        0.4,
+                    : theme.colorScheme.surfaceContainerHighest.withValues(
+                        alpha: 0.4,
                       ),
                 clipBehavior: Clip.antiAlias,
                 child: InkWell(

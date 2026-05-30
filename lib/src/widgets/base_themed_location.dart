@@ -33,7 +33,8 @@ class _BaseThemedLocationCardState extends State<BaseThemedLocationCard> {
         stream: mapStream.stream,
         builder: (context, snapshot) {
           final data = snapshot.data ?? const {};
-          final settings = data["themeSettings"] as Map<String, dynamic>? ?? const {};
+          final settings =
+              data["themeSettings"] as Map<String, dynamic>? ?? const {};
 
           final name = data["name"] as String? ?? 'Scenic Location';
           final address = data["address"] as String? ?? '';
@@ -86,22 +87,22 @@ class _BaseThemedLocationCardState extends State<BaseThemedLocationCard> {
             cardFrame = ClipPath(
               clipper: ShapeBorderClipper(shape: shape),
               child: BackdropFilter(
-                filter: ColorFilter.mode(Colors.black.withValues(alpha: 0.02), BlendMode.dstATop),
-                child: Container(
-                  decoration: decoration,
-                  child: cardContent,
+                filter: ColorFilter.mode(
+                  Colors.black.withValues(alpha: 0.02),
+                  BlendMode.dstATop,
                 ),
+                child: Container(decoration: decoration, child: cardContent),
               ),
             );
           } else if (widget.themeName == 'fluent') {
             cardFrame = ClipPath(
               clipper: ShapeBorderClipper(shape: shape),
               child: BackdropFilter(
-                filter: ColorFilter.mode(Colors.black.withValues(alpha: 0.04), BlendMode.dstATop),
-                child: Container(
-                  decoration: decoration,
-                  child: cardContent,
+                filter: ColorFilter.mode(
+                  Colors.black.withValues(alpha: 0.04),
+                  BlendMode.dstATop,
                 ),
+                child: Container(decoration: decoration, child: cardContent),
               ),
             );
           } else {
@@ -122,7 +123,9 @@ class _BaseThemedLocationCardState extends State<BaseThemedLocationCard> {
               onTapUp: (_) => setState(() => _isPressed = false),
               onTapCancel: () => setState(() => _isPressed = false),
               onTap: () {
-                debugPrint('[GEN_UI:LOCATION_ACTION] Location card clicked -> $action');
+                debugPrint(
+                  '[GEN_UI:LOCATION_ACTION] Location card clicked -> $action',
+                );
               },
               child: AnimatedScale(
                 scale: _isPressed ? 0.97 : 1.0,
@@ -154,8 +157,16 @@ class _BaseThemedLocationCardState extends State<BaseThemedLocationCard> {
   ) {
     final themeData = Theme.of(context);
     final isBrutalist = widget.themeName == 'brutalist';
-    final titleStyle = ThemeStyleHelper.getTextStyle(widget.themeName, context, isTitle: true);
-    final subStyle = ThemeStyleHelper.getTextStyle(widget.themeName, context, isTitle: false);
+    final titleStyle = ThemeStyleHelper.getTextStyle(
+      widget.themeName,
+      context,
+      isTitle: true,
+    );
+    final subStyle = ThemeStyleHelper.getTextStyle(
+      widget.themeName,
+      context,
+      isTitle: false,
+    );
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -183,7 +194,9 @@ class _BaseThemedLocationCardState extends State<BaseThemedLocationCard> {
                 children: [
                   Icon(
                     Icons.location_on,
-                    color: isBrutalist ? Colors.black : themeData.colorScheme.primary,
+                    color: isBrutalist
+                        ? Colors.black
+                        : themeData.colorScheme.primary,
                     size: 24,
                   ),
                   const SizedBox(width: 8),
@@ -208,7 +221,7 @@ class _BaseThemedLocationCardState extends State<BaseThemedLocationCard> {
                               color: themeData.colorScheme.primary,
                             ),
                           ),
-                        ]
+                        ],
                       ],
                     ),
                   ),
@@ -220,7 +233,9 @@ class _BaseThemedLocationCardState extends State<BaseThemedLocationCard> {
                   address,
                   themeName: widget.themeName,
                   style: subStyle.copyWith(
-                    color: themeData.colorScheme.onSurfaceVariant.withValues(alpha: 0.9),
+                    color: themeData.colorScheme.onSurfaceVariant.withValues(
+                      alpha: 0.9,
+                    ),
                     fontSize: 13,
                   ),
                   maxLines: 2,
@@ -234,7 +249,9 @@ class _BaseThemedLocationCardState extends State<BaseThemedLocationCard> {
                       children: List.generate(5, (index) {
                         return Icon(
                           rating > index ? Icons.star : Icons.star_border,
-                          color: isBrutalist ? Colors.black : const Color(0xFFFFB300),
+                          color: isBrutalist
+                              ? Colors.black
+                              : const Color(0xFFFFB300),
                           size: 16,
                         );
                       }),
@@ -242,7 +259,10 @@ class _BaseThemedLocationCardState extends State<BaseThemedLocationCard> {
                     const SizedBox(width: 8),
                     Text(
                       rating.toStringAsFixed(1),
-                      style: subStyle.copyWith(fontWeight: FontWeight.bold, fontSize: 12),
+                      style: subStyle.copyWith(
+                        fontWeight: FontWeight.bold,
+                        fontSize: 12,
+                      ),
                     ),
                   ],
                 ),
@@ -250,12 +270,19 @@ class _BaseThemedLocationCardState extends State<BaseThemedLocationCard> {
               const SizedBox(height: 12),
               // Meta details (Phone & Hours)
               if (phone != null || hours != null) ...[
-                Divider(color: themeData.colorScheme.outline.withValues(alpha: 0.12), height: 1),
+                Divider(
+                  color: themeData.colorScheme.outline.withValues(alpha: 0.12),
+                  height: 1,
+                ),
                 const SizedBox(height: 12),
                 if (hours != null && hours.isNotEmpty)
                   Row(
                     children: [
-                      Icon(Icons.access_time, size: 14, color: themeData.colorScheme.onSurfaceVariant),
+                      Icon(
+                        Icons.access_time,
+                        size: 14,
+                        color: themeData.colorScheme.onSurfaceVariant,
+                      ),
                       const SizedBox(width: 6),
                       Text(
                         hours,
@@ -270,7 +297,11 @@ class _BaseThemedLocationCardState extends State<BaseThemedLocationCard> {
                   const SizedBox(height: 6),
                   Row(
                     children: [
-                      Icon(Icons.phone, size: 14, color: themeData.colorScheme.onSurfaceVariant),
+                      Icon(
+                        Icons.phone,
+                        size: 14,
+                        color: themeData.colorScheme.onSurfaceVariant,
+                      ),
                       const SizedBox(width: 6),
                       Text(
                         phone,
@@ -290,21 +321,29 @@ class _BaseThemedLocationCardState extends State<BaseThemedLocationCard> {
                   Expanded(
                     child: OutlinedButton.icon(
                       onPressed: () {
-                        debugPrint('[GEN_UI:LOCATION_DIR] Direct path map -> lat:$latitude lon:$longitude');
+                        debugPrint(
+                          '[GEN_UI:LOCATION_DIR] Direct path map -> lat:$latitude lon:$longitude',
+                        );
                       },
                       style: OutlinedButton.styleFrom(
                         side: BorderSide(
-                          color: isBrutalist ? Colors.black : themeData.colorScheme.primary,
+                          color: isBrutalist
+                              ? Colors.black
+                              : themeData.colorScheme.primary,
                           width: isBrutalist ? 2.0 : 1.0,
                         ),
                         shape: RoundedRectangleBorder(
-                          borderRadius: isBrutalist ? BorderRadius.zero : BorderRadius.circular(8),
+                          borderRadius: isBrutalist
+                              ? BorderRadius.zero
+                              : BorderRadius.circular(8),
                         ),
                         padding: const EdgeInsets.symmetric(vertical: 12),
                       ),
                       icon: Icon(
                         Icons.directions_outlined,
-                        color: isBrutalist ? Colors.black : themeData.colorScheme.primary,
+                        color: isBrutalist
+                            ? Colors.black
+                            : themeData.colorScheme.primary,
                         size: 16,
                       ),
                       label: Text(
@@ -312,7 +351,9 @@ class _BaseThemedLocationCardState extends State<BaseThemedLocationCard> {
                         style: subStyle.copyWith(
                           fontSize: 13,
                           fontWeight: FontWeight.bold,
-                          color: isBrutalist ? Colors.black : themeData.colorScheme.primary,
+                          color: isBrutalist
+                              ? Colors.black
+                              : themeData.colorScheme.primary,
                         ),
                       ),
                     ),
@@ -321,21 +362,36 @@ class _BaseThemedLocationCardState extends State<BaseThemedLocationCard> {
                   Expanded(
                     child: ElevatedButton.icon(
                       onPressed: () {
-                        debugPrint('[GEN_UI:LOCATION_SHARE] Share details: $name');
+                        debugPrint(
+                          '[GEN_UI:LOCATION_SHARE] Share details: $name',
+                        );
                       },
                       style: ElevatedButton.styleFrom(
-                        backgroundColor: isBrutalist ? const Color(0xFFFFFF00) : themeData.colorScheme.primary,
-                        foregroundColor: isBrutalist ? Colors.black : themeData.colorScheme.onPrimary,
+                        backgroundColor: isBrutalist
+                            ? const Color(0xFFFFFF00)
+                            : themeData.colorScheme.primary,
+                        foregroundColor: isBrutalist
+                            ? Colors.black
+                            : themeData.colorScheme.onPrimary,
                         elevation: isBrutalist ? 0 : 1,
                         shape: RoundedRectangleBorder(
-                          borderRadius: isBrutalist ? BorderRadius.zero : BorderRadius.circular(8),
-                          side: isBrutalist ? const BorderSide(color: Colors.black, width: 2.0) : BorderSide.none,
+                          borderRadius: isBrutalist
+                              ? BorderRadius.zero
+                              : BorderRadius.circular(8),
+                          side: isBrutalist
+                              ? const BorderSide(
+                                  color: Colors.black,
+                                  width: 2.0,
+                                )
+                              : BorderSide.none,
                         ),
                         padding: const EdgeInsets.symmetric(vertical: 12),
                       ),
                       icon: Icon(
                         Icons.share_outlined,
-                        color: isBrutalist ? Colors.black : themeData.colorScheme.onPrimary,
+                        color: isBrutalist
+                            ? Colors.black
+                            : themeData.colorScheme.onPrimary,
                         size: 16,
                       ),
                       label: Text(
@@ -343,7 +399,9 @@ class _BaseThemedLocationCardState extends State<BaseThemedLocationCard> {
                         style: subStyle.copyWith(
                           fontSize: 13,
                           fontWeight: FontWeight.bold,
-                          color: isBrutalist ? Colors.black : themeData.colorScheme.onPrimary,
+                          color: isBrutalist
+                              ? Colors.black
+                              : themeData.colorScheme.onPrimary,
                         ),
                       ),
                     ),

@@ -61,7 +61,9 @@ class _GraphPainter extends CustomPainter {
 
     final majorPaint = Paint()
       ..color = gridColor
-          .withValues(alpha: (gridColor.a * 2.5).clamp(0.0, 1.0)) // Make major lines more visible
+          .withValues(
+            alpha: (gridColor.a * 2.5).clamp(0.0, 1.0),
+          ) // Make major lines more visible
       ..strokeWidth = 1.0;
 
     // Draw vertical lines

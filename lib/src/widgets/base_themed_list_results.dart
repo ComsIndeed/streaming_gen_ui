@@ -16,7 +16,8 @@ class BaseThemedListResultsCard extends StatefulWidget {
   });
 
   @override
-  State<BaseThemedListResultsCard> createState() => _BaseThemedListResultsCardState();
+  State<BaseThemedListResultsCard> createState() =>
+      _BaseThemedListResultsCardState();
 }
 
 class _BaseThemedListResultsCardState extends State<BaseThemedListResultsCard> {
@@ -31,7 +32,8 @@ class _BaseThemedListResultsCardState extends State<BaseThemedListResultsCard> {
         stream: mapStream.stream,
         builder: (context, snapshot) {
           final data = snapshot.data ?? const {};
-          final settings = data["themeSettings"] as Map<String, dynamic>? ?? const {};
+          final settings =
+              data["themeSettings"] as Map<String, dynamic>? ?? const {};
 
           final title = data["title"] as String? ?? 'Recent Files';
           final action = data["action"] as String?;
@@ -68,22 +70,22 @@ class _BaseThemedListResultsCardState extends State<BaseThemedListResultsCard> {
             cardFrame = ClipPath(
               clipper: ShapeBorderClipper(shape: shape),
               child: BackdropFilter(
-                filter: ColorFilter.mode(Colors.black.withValues(alpha: 0.02), BlendMode.dstATop),
-                child: Container(
-                  decoration: decoration,
-                  child: cardContent,
+                filter: ColorFilter.mode(
+                  Colors.black.withValues(alpha: 0.02),
+                  BlendMode.dstATop,
                 ),
+                child: Container(decoration: decoration, child: cardContent),
               ),
             );
           } else if (widget.themeName == 'fluent') {
             cardFrame = ClipPath(
               clipper: ShapeBorderClipper(shape: shape),
               child: BackdropFilter(
-                filter: ColorFilter.mode(Colors.black.withValues(alpha: 0.04), BlendMode.dstATop),
-                child: Container(
-                  decoration: decoration,
-                  child: cardContent,
+                filter: ColorFilter.mode(
+                  Colors.black.withValues(alpha: 0.04),
+                  BlendMode.dstATop,
                 ),
+                child: Container(decoration: decoration, child: cardContent),
               ),
             );
           } else {
@@ -104,7 +106,9 @@ class _BaseThemedListResultsCardState extends State<BaseThemedListResultsCard> {
               onTapUp: (_) => setState(() => _isPressed = false),
               onTapCancel: () => setState(() => _isPressed = false),
               onTap: () {
-                debugPrint('[GEN_UI:LIST_ACTION] List results card clicked -> $action');
+                debugPrint(
+                  '[GEN_UI:LIST_ACTION] List results card clicked -> $action',
+                );
               },
               child: AnimatedScale(
                 scale: _isPressed ? 0.97 : 1.0,
@@ -128,8 +132,16 @@ class _BaseThemedListResultsCardState extends State<BaseThemedListResultsCard> {
   ) {
     final themeData = Theme.of(context);
     final isBrutalist = widget.themeName == 'brutalist';
-    final titleStyle = ThemeStyleHelper.getTextStyle(widget.themeName, context, isTitle: true);
-    final subStyle = ThemeStyleHelper.getTextStyle(widget.themeName, context, isTitle: false);
+    final titleStyle = ThemeStyleHelper.getTextStyle(
+      widget.themeName,
+      context,
+      isTitle: true,
+    );
+    final subStyle = ThemeStyleHelper.getTextStyle(
+      widget.themeName,
+      context,
+      isTitle: false,
+    );
 
     // Dynamic map of common icon names to IconData
     IconData getFileIcon(String? iconName) {
@@ -177,10 +189,7 @@ class _BaseThemedListResultsCardState extends State<BaseThemedListResultsCard> {
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              Text(
-                title,
-                style: titleStyle.copyWith(fontSize: 16),
-              ),
+              Text(title, style: titleStyle.copyWith(fontSize: 16)),
               const Icon(Icons.arrow_forward_ios, size: 12),
             ],
           ),
@@ -231,14 +240,21 @@ class _BaseThemedListResultsCardState extends State<BaseThemedListResultsCard> {
                         decoration: BoxDecoration(
                           color: isBrutalist
                               ? const Color(0xFF00FFFF)
-                              : themeData.colorScheme.surfaceContainerHighest.withValues(alpha: 0.4),
-                          borderRadius: isBrutalist ? BorderRadius.zero : BorderRadius.circular(8),
-                          border: isBrutalist ? Border.all(color: Colors.black, width: 1.5) : null,
+                              : themeData.colorScheme.surfaceContainerHighest
+                                    .withValues(alpha: 0.4),
+                          borderRadius: isBrutalist
+                              ? BorderRadius.zero
+                              : BorderRadius.circular(8),
+                          border: isBrutalist
+                              ? Border.all(color: Colors.black, width: 1.5)
+                              : null,
                         ),
                         child: Icon(
                           rowIcon,
                           size: 20,
-                          color: isBrutalist ? Colors.black : themeData.colorScheme.primary,
+                          color: isBrutalist
+                              ? Colors.black
+                              : themeData.colorScheme.primary,
                         ),
                       ),
                       const SizedBox(width: 12),
@@ -256,18 +272,20 @@ class _BaseThemedListResultsCardState extends State<BaseThemedListResultsCard> {
                               maxLines: 1,
                               overflow: TextOverflow.ellipsis,
                             ),
-                            if (itemSubtitle != null && itemSubtitle.isNotEmpty) ...[
+                            if (itemSubtitle != null &&
+                                itemSubtitle.isNotEmpty) ...[
                               const SizedBox(height: 2),
                               Text(
                                 itemSubtitle,
                                 style: subStyle.copyWith(
                                   fontSize: 11,
-                                  color: themeData.colorScheme.onSurfaceVariant.withValues(alpha: 0.7),
+                                  color: themeData.colorScheme.onSurfaceVariant
+                                      .withValues(alpha: 0.7),
                                 ),
                                 maxLines: 1,
                                 overflow: TextOverflow.ellipsis,
                               ),
-                            ]
+                            ],
                           ],
                         ),
                       ),
@@ -282,7 +300,8 @@ class _BaseThemedListResultsCardState extends State<BaseThemedListResultsCard> {
                               itemDate,
                               style: TextStyle(
                                 fontSize: 10,
-                                color: themeData.colorScheme.onSurfaceVariant.withValues(alpha: 0.6),
+                                color: themeData.colorScheme.onSurfaceVariant
+                                    .withValues(alpha: 0.6),
                               ),
                             ),
                           if (itemSize != null && itemSize.isNotEmpty) ...[
@@ -292,7 +311,8 @@ class _BaseThemedListResultsCardState extends State<BaseThemedListResultsCard> {
                               style: TextStyle(
                                 fontSize: 10,
                                 fontWeight: FontWeight.bold,
-                                color: themeData.colorScheme.onSurfaceVariant.withValues(alpha: 0.8),
+                                color: themeData.colorScheme.onSurfaceVariant
+                                    .withValues(alpha: 0.8),
                               ),
                             ),
                           ],
@@ -302,17 +322,29 @@ class _BaseThemedListResultsCardState extends State<BaseThemedListResultsCard> {
                               decoration: BoxDecoration(
                                 color: isBrutalist
                                     ? const Color(0xFF00FF00)
-                                    : themeData.colorScheme.primaryContainer.withValues(alpha: 0.4),
-                                borderRadius: isBrutalist ? BorderRadius.zero : BorderRadius.circular(4),
-                                border: isBrutalist ? Border.all(color: Colors.black, width: 1.0) : null,
+                                    : themeData.colorScheme.primaryContainer
+                                          .withValues(alpha: 0.4),
+                                borderRadius: isBrutalist
+                                    ? BorderRadius.zero
+                                    : BorderRadius.circular(4),
+                                border: isBrutalist
+                                    ? Border.all(
+                                        color: Colors.black,
+                                        width: 1.0,
+                                      )
+                                    : null,
                               ),
-                              padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                              padding: const EdgeInsets.symmetric(
+                                horizontal: 6,
+                                vertical: 2,
+                              ),
                               child: Text(
                                 itemStatus.toUpperCase(),
                                 style: TextStyle(
                                   fontSize: 8,
                                   fontWeight: FontWeight.bold,
-                                  color: themeData.colorScheme.onPrimaryContainer,
+                                  color:
+                                      themeData.colorScheme.onPrimaryContainer,
                                 ),
                               ),
                             ),

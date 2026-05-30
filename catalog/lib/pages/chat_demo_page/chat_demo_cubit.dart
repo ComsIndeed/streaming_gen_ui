@@ -104,7 +104,9 @@ class ChatDemoCubit extends Cubit<ChatDemoState> {
         ),
       ) {
     generativeUi = StreamingGenerativeUi(
-      registries: [Registries.forThemes({'apple'})],
+      registries: [
+        Registries.forThemes({'apple'}),
+      ],
       customViewIds: const {
         'canvas-ui':
             'Renders a dedicated full-screen dynamic mini app, interactive dashboard, or tool requested by the user.',

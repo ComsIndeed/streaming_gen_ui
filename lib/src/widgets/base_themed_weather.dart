@@ -32,7 +32,8 @@ class _BaseThemedWeatherCardState extends State<BaseThemedWeatherCard> {
         stream: mapStream.stream,
         builder: (context, snapshot) {
           final data = snapshot.data ?? const {};
-          final settings = data["themeSettings"] as Map<String, dynamic>? ?? const {};
+          final settings =
+              data["themeSettings"] as Map<String, dynamic>? ?? const {};
 
           final temp = data["temp"] as num?;
           final condition = data["condition"] as String? ?? 'sunny';
@@ -80,22 +81,22 @@ class _BaseThemedWeatherCardState extends State<BaseThemedWeatherCard> {
             cardFrame = ClipPath(
               clipper: ShapeBorderClipper(shape: shape),
               child: BackdropFilter(
-                filter: ColorFilter.mode(Colors.black.withValues(alpha: 0.02), BlendMode.dstATop),
-                child: Container(
-                  decoration: decoration,
-                  child: cardContent,
+                filter: ColorFilter.mode(
+                  Colors.black.withValues(alpha: 0.02),
+                  BlendMode.dstATop,
                 ),
+                child: Container(decoration: decoration, child: cardContent),
               ),
             );
           } else if (widget.themeName == 'fluent') {
             cardFrame = ClipPath(
               clipper: ShapeBorderClipper(shape: shape),
               child: BackdropFilter(
-                filter: ColorFilter.mode(Colors.black.withValues(alpha: 0.04), BlendMode.dstATop),
-                child: Container(
-                  decoration: decoration,
-                  child: cardContent,
+                filter: ColorFilter.mode(
+                  Colors.black.withValues(alpha: 0.04),
+                  BlendMode.dstATop,
                 ),
+                child: Container(decoration: decoration, child: cardContent),
               ),
             );
           } else {
@@ -116,7 +117,9 @@ class _BaseThemedWeatherCardState extends State<BaseThemedWeatherCard> {
               onTapUp: (_) => setState(() => _isPressed = false),
               onTapCancel: () => setState(() => _isPressed = false),
               onTap: () {
-                debugPrint('[GEN_UI:WEATHER_ACTION] Weather card clicked -> $action');
+                debugPrint(
+                  '[GEN_UI:WEATHER_ACTION] Weather card clicked -> $action',
+                );
               },
               child: AnimatedScale(
                 scale: _isPressed ? 0.97 : 1.0,
@@ -151,7 +154,9 @@ class _BaseThemedWeatherCardState extends State<BaseThemedWeatherCard> {
     Color weatherAccentColor;
     IconData weatherIcon;
 
-    if (condLower.contains('rain') || condLower.contains('storm') || condLower.contains('drizzle')) {
+    if (condLower.contains('rain') ||
+        condLower.contains('storm') ||
+        condLower.contains('drizzle')) {
       weatherGradient = const LinearGradient(
         colors: [Color(0xFF2C3E50), Color(0xFF3498DB)],
         begin: Alignment.topLeft,
@@ -159,7 +164,9 @@ class _BaseThemedWeatherCardState extends State<BaseThemedWeatherCard> {
       );
       weatherAccentColor = const Color(0xFF64B5F6);
       weatherIcon = Icons.thunderstorm_outlined;
-    } else if (condLower.contains('cloud') || condLower.contains('fog') || condLower.contains('mist')) {
+    } else if (condLower.contains('cloud') ||
+        condLower.contains('fog') ||
+        condLower.contains('mist')) {
       weatherGradient = const LinearGradient(
         colors: [Color(0xFF616161), Color(0xFF9E9E9E)],
         begin: Alignment.topLeft,
@@ -167,7 +174,9 @@ class _BaseThemedWeatherCardState extends State<BaseThemedWeatherCard> {
       );
       weatherAccentColor = const Color(0xFFB0BEC5);
       weatherIcon = Icons.cloud_outlined;
-    } else if (condLower.contains('snow') || condLower.contains('ice') || condLower.contains('freeze')) {
+    } else if (condLower.contains('snow') ||
+        condLower.contains('ice') ||
+        condLower.contains('freeze')) {
       weatherGradient = const LinearGradient(
         colors: [Color(0xFFE0F7FA), Color(0xFF80DEEA)],
         begin: Alignment.topLeft,
@@ -186,15 +195,21 @@ class _BaseThemedWeatherCardState extends State<BaseThemedWeatherCard> {
       weatherIcon = Icons.wb_sunny_outlined;
     }
 
-    final textTitleStyle = ThemeStyleHelper.getTextStyle(widget.themeName, context, isTitle: true);
-    final textSubStyle = ThemeStyleHelper.getTextStyle(widget.themeName, context, isTitle: false);
+    final textTitleStyle = ThemeStyleHelper.getTextStyle(
+      widget.themeName,
+      context,
+      isTitle: true,
+    );
+    final textSubStyle = ThemeStyleHelper.getTextStyle(
+      widget.themeName,
+      context,
+      isTitle: false,
+    );
 
     // If Brutalist, keep it stark black-and-white or hot yellow solid background
     final weatherBg = isBrutalist
         ? null
-        : Container(
-            decoration: BoxDecoration(gradient: weatherGradient),
-          );
+        : Container(decoration: BoxDecoration(gradient: weatherGradient));
 
     final textContrastColor = isBrutalist ? Colors.black : Colors.white;
 
@@ -210,7 +225,10 @@ class _BaseThemedWeatherCardState extends State<BaseThemedWeatherCard> {
               child: Container(color: Colors.black.withValues(alpha: 0.15)),
             ),
           Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 12.0),
+            padding: const EdgeInsets.symmetric(
+              horizontal: 16.0,
+              vertical: 12.0,
+            ),
             child: Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
@@ -256,7 +274,7 @@ class _BaseThemedWeatherCardState extends State<BaseThemedWeatherCard> {
                       ),
                     ),
                   ],
-                )
+                ),
               ],
             ),
           ),
@@ -365,19 +383,25 @@ class _BaseThemedWeatherCardState extends State<BaseThemedWeatherCard> {
                   return Column(
                     children: [
                       const SizedBox(height: 16),
-                      Divider(color: textContrastColor.withValues(alpha: 0.2), height: 1),
+                      Divider(
+                        color: textContrastColor.withValues(alpha: 0.2),
+                        height: 1,
+                      ),
                       const SizedBox(height: 12),
                       Row(
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: list.map((item) {
-                          final itemMap = item as Map<String, dynamic>? ?? const {};
+                          final itemMap =
+                              item as Map<String, dynamic>? ?? const {};
                           final day = itemMap["day"] as String? ?? '';
                           final dayTemp = itemMap["temp"] as num?;
-                          final dayCond = itemMap["condition"] as String? ?? 'sunny';
+                          final dayCond =
+                              itemMap["condition"] as String? ?? 'sunny';
 
                           IconData miniIcon;
                           final condL = dayCond.toLowerCase();
-                          if (condL.contains('rain') || condL.contains('storm')) {
+                          if (condL.contains('rain') ||
+                              condL.contains('storm')) {
                             miniIcon = Icons.thunderstorm_outlined;
                           } else if (condL.contains('cloud')) {
                             miniIcon = Icons.cloud_outlined;
@@ -393,7 +417,9 @@ class _BaseThemedWeatherCardState extends State<BaseThemedWeatherCard> {
                               Text(
                                 day,
                                 style: textSubStyle.copyWith(
-                                  color: textContrastColor.withValues(alpha: 0.9),
+                                  color: textContrastColor.withValues(
+                                    alpha: 0.9,
+                                  ),
                                   fontSize: 12,
                                   fontWeight: FontWeight.w600,
                                 ),
@@ -401,12 +427,16 @@ class _BaseThemedWeatherCardState extends State<BaseThemedWeatherCard> {
                               const SizedBox(height: 6),
                               Icon(
                                 miniIcon,
-                                color: isBrutalist ? Colors.black : weatherAccentColor,
+                                color: isBrutalist
+                                    ? Colors.black
+                                    : weatherAccentColor,
                                 size: 20,
                               ),
                               const SizedBox(height: 6),
                               Text(
-                                dayTemp != null ? "${dayTemp.toStringAsFixed(0)}°" : "--°",
+                                dayTemp != null
+                                    ? "${dayTemp.toStringAsFixed(0)}°"
+                                    : "--°",
                                 style: textTitleStyle.copyWith(
                                   color: textContrastColor,
                                   fontSize: 14,

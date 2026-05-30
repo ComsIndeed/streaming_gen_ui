@@ -32,7 +32,8 @@ class _BaseThemedUserProfileState extends State<BaseThemedUserProfile> {
         stream: mapStream.stream,
         builder: (context, snapshot) {
           final data = snapshot.data ?? const {};
-          final settings = data["themeSettings"] as Map<String, dynamic>? ?? const {};
+          final settings =
+              data["themeSettings"] as Map<String, dynamic>? ?? const {};
 
           final name = data["name"] as String?;
           final role = data["role"] as String?;
@@ -45,22 +46,22 @@ class _BaseThemedUserProfileState extends State<BaseThemedUserProfile> {
 
           final themeData = Theme.of(context);
           final isDark = themeData.brightness == Brightness.dark;
-          
+
           final textStyleColor = widget.themeName == 'brutalist'
               ? Colors.black
               : widget.themeName == 'skeumorphic'
-                  ? (isDark ? Colors.white : Colors.grey.shade900)
-                  : widget.themeName == 'neumorphic'
-                      ? (isDark ? Colors.grey.shade100 : Colors.grey.shade900)
-                      : themeData.colorScheme.onSurface;
+              ? (isDark ? Colors.white : Colors.grey.shade900)
+              : widget.themeName == 'neumorphic'
+              ? (isDark ? Colors.grey.shade100 : Colors.grey.shade900)
+              : themeData.colorScheme.onSurface;
 
           final subtitleColor = widget.themeName == 'brutalist'
               ? Colors.black.withOpacity(0.7)
               : widget.themeName == 'skeumorphic'
-                  ? (isDark ? Colors.grey.shade300 : Colors.grey.shade700)
-                  : widget.themeName == 'neumorphic'
-                      ? (isDark ? Colors.grey.shade400 : Colors.grey.shade600)
-                      : themeData.colorScheme.onSurfaceVariant.withOpacity(0.7);
+              ? (isDark ? Colors.grey.shade300 : Colors.grey.shade700)
+              : widget.themeName == 'neumorphic'
+              ? (isDark ? Colors.grey.shade400 : Colors.grey.shade600)
+              : themeData.colorScheme.onSurfaceVariant.withOpacity(0.7);
 
           final localTheme = themeData.copyWith(
             colorScheme: themeData.colorScheme.copyWith(
@@ -104,7 +105,10 @@ class _BaseThemedUserProfileState extends State<BaseThemedUserProfile> {
                   frame = ClipPath(
                     clipper: ShapeBorderClipper(shape: shape),
                     child: BackdropFilter(
-                      filter: ColorFilter.mode(Colors.black.withValues(alpha: 0.02), BlendMode.dstATop),
+                      filter: ColorFilter.mode(
+                        Colors.black.withValues(alpha: 0.02),
+                        BlendMode.dstATop,
+                      ),
                       child: Container(
                         decoration: decoration,
                         child: cardContent,
@@ -115,7 +119,10 @@ class _BaseThemedUserProfileState extends State<BaseThemedUserProfile> {
                   frame = ClipPath(
                     clipper: ShapeBorderClipper(shape: shape),
                     child: BackdropFilter(
-                      filter: ColorFilter.mode(Colors.black.withValues(alpha: 0.04), BlendMode.dstATop),
+                      filter: ColorFilter.mode(
+                        Colors.black.withValues(alpha: 0.04),
+                        BlendMode.dstATop,
+                      ),
                       child: Container(
                         decoration: decoration,
                         child: cardContent,
@@ -155,8 +162,16 @@ class _BaseThemedUserProfileState extends State<BaseThemedUserProfile> {
     String? action,
   ) {
     final theme = Theme.of(context);
-    final titleStyle = ThemeStyleHelper.getTextStyle(widget.themeName, context, isTitle: true);
-    final subStyle = ThemeStyleHelper.getTextStyle(widget.themeName, context, isTitle: false);
+    final titleStyle = ThemeStyleHelper.getTextStyle(
+      widget.themeName,
+      context,
+      isTitle: true,
+    );
+    final subStyle = ThemeStyleHelper.getTextStyle(
+      widget.themeName,
+      context,
+      isTitle: false,
+    );
 
     // Build offline-safe avatar bubble
     Widget avatarWidget;
@@ -184,10 +199,7 @@ class _BaseThemedUserProfileState extends State<BaseThemedUserProfile> {
           gradient: LinearGradient(
             begin: Alignment.topLeft,
             end: Alignment.bottomRight,
-            colors: [
-              theme.colorScheme.primary,
-              theme.colorScheme.secondary,
-            ],
+            colors: [theme.colorScheme.primary, theme.colorScheme.secondary],
           ),
           boxShadow: [
             BoxShadow(
@@ -198,11 +210,7 @@ class _BaseThemedUserProfileState extends State<BaseThemedUserProfile> {
           ],
         ),
         child: const Center(
-          child: Icon(
-            Icons.person,
-            color: Colors.white,
-            size: 36,
-          ),
+          child: Icon(Icons.person, color: Colors.white, size: 36),
         ),
       );
     }
@@ -269,12 +277,19 @@ class _BaseThemedUserProfileState extends State<BaseThemedUserProfile> {
               children: List.generate(skills.length, (index) {
                 final skillText = skills[index].toString();
                 return Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 10,
+                    vertical: 4,
+                  ),
                   decoration: BoxDecoration(
                     color: widget.themeName == 'brutalist'
                         ? const Color(0xFF00FFFF) // Cyan
-                        : theme.colorScheme.primaryContainer.withValues(alpha: 0.3),
-                    borderRadius: BorderRadius.circular(widget.themeName == 'brutalist' ? 0.0 : 8.0),
+                        : theme.colorScheme.primaryContainer.withValues(
+                            alpha: 0.3,
+                          ),
+                    borderRadius: BorderRadius.circular(
+                      widget.themeName == 'brutalist' ? 0.0 : 8.0,
+                    ),
                     border: Border.all(
                       color: widget.themeName == 'brutalist'
                           ? Colors.black
@@ -287,8 +302,12 @@ class _BaseThemedUserProfileState extends State<BaseThemedUserProfile> {
                     style: TextStyle(
                       fontSize: 11,
                       fontWeight: FontWeight.w600,
-                      fontFamily: widget.themeName == 'brutalist' ? 'monospace' : null,
-                      color: widget.themeName == 'brutalist' ? Colors.black : theme.colorScheme.primary,
+                      fontFamily: widget.themeName == 'brutalist'
+                          ? 'monospace'
+                          : null,
+                      color: widget.themeName == 'brutalist'
+                          ? Colors.black
+                          : theme.colorScheme.primary,
                     ),
                   ),
                 );
@@ -305,14 +324,12 @@ class _BaseThemedUserProfileState extends State<BaseThemedUserProfile> {
               child: Row(
                 mainAxisSize: MainAxisSize.min,
                 children: [
-                  Icon(
-                    Icons.link,
-                    size: 16,
-                    color: theme.colorScheme.primary,
-                  ),
+                  Icon(Icons.link, size: 16, color: theme.colorScheme.primary),
                   const SizedBox(width: 6),
                   Text(
-                    website.replaceAll('https://', '').replaceAll('http://', ''),
+                    website
+                        .replaceAll('https://', '')
+                        .replaceAll('http://', ''),
                     style: TextStyle(
                       fontSize: 13,
                       fontWeight: FontWeight.w500,
@@ -333,21 +350,30 @@ class _BaseThemedUserProfileState extends State<BaseThemedUserProfile> {
                 onTapUp: (_) => setState(() => _isPressed = false),
                 onTapCancel: () => setState(() => _isPressed = false),
                 onTap: () {
-                  debugPrint('[GEN_UI:PROFILE_ACTION] Callback triggered -> $action');
+                  debugPrint(
+                    '[GEN_UI:PROFILE_ACTION] Callback triggered -> $action',
+                  );
                 },
                 child: AnimatedScale(
                   scale: _isPressed ? 0.97 : 1.0,
                   duration: const Duration(milliseconds: 100),
                   curve: Curves.easeOutCubic,
                   child: Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 16,
+                      vertical: 10,
+                    ),
                     decoration: BoxDecoration(
                       color: widget.themeName == 'brutalist'
                           ? const Color(0xFFFF00FF) // Hot Pink
                           : theme.colorScheme.primary,
-                      borderRadius: BorderRadius.circular(widget.themeName == 'brutalist' ? 0.0 : 8.0),
+                      borderRadius: BorderRadius.circular(
+                        widget.themeName == 'brutalist' ? 0.0 : 8.0,
+                      ),
                       border: Border.all(
-                        color: widget.themeName == 'brutalist' ? Colors.black : Colors.transparent,
+                        color: widget.themeName == 'brutalist'
+                            ? Colors.black
+                            : Colors.transparent,
                         width: widget.themeName == 'brutalist' ? 2.0 : 0.0,
                       ),
                     ),
@@ -356,8 +382,12 @@ class _BaseThemedUserProfileState extends State<BaseThemedUserProfile> {
                       style: TextStyle(
                         fontSize: 12,
                         fontWeight: FontWeight.bold,
-                        fontFamily: widget.themeName == 'brutalist' ? 'monospace' : null,
-                        color: widget.themeName == 'brutalist' ? Colors.black : theme.colorScheme.onPrimary,
+                        fontFamily: widget.themeName == 'brutalist'
+                            ? 'monospace'
+                            : null,
+                        color: widget.themeName == 'brutalist'
+                            ? Colors.black
+                            : theme.colorScheme.onPrimary,
                       ),
                     ),
                   ),

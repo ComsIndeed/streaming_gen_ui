@@ -36,7 +36,8 @@ class StreamingColumn extends StatelessWidget {
         return AnimatedSize(
           duration: const Duration(milliseconds: 300),
           curve: Curves.easeOutCubic,
-          alignment: Alignment.topCenter, // Lock alignment vertically to top-center to prevent jitter
+          alignment: Alignment
+              .topCenter, // Lock alignment vertically to top-center to prevent jitter
           child: Column(
             mainAxisSize: MainAxisSize.min,
             crossAxisAlignment: CrossAxisAlignment.start,

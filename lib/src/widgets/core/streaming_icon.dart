@@ -24,13 +24,10 @@ class StreamingIcon extends StatelessWidget {
           }
 
           final iconData = _mapIcon(iconName);
-          final color = _parseColor(colorHex) ?? Theme.of(context).colorScheme.primary;
+          final color =
+              _parseColor(colorHex) ?? Theme.of(context).colorScheme.primary;
 
-          return Icon(
-            iconData,
-            size: size,
-            color: color,
-          );
+          return Icon(iconData, size: size, color: color);
         },
       ),
     );

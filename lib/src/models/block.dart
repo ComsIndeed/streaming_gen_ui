@@ -166,10 +166,7 @@ class WidgetBlock extends Block {
         pushBuildTrace(name, propsString);
         try {
           final child = widgetDefinition.builder(context, rootProps);
-          return StreamingWidgetWrapper(
-            namespace: name,
-            child: child,
-          );
+          return StreamingWidgetWrapper(namespace: name, child: child);
         } catch (e, stack) {
           logGenUiError(
             namespace: name,

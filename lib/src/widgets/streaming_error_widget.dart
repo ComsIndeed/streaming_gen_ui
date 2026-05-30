@@ -152,7 +152,10 @@ class _StreamingErrorWidgetState extends State<StreamingErrorWidget>
                       ],
                     ),
                     const SizedBox(height: 12),
-                    Container(height: 1, color: Colors.white.withValues(alpha: 0.2)),
+                    Container(
+                      height: 1,
+                      color: Colors.white.withValues(alpha: 0.2),
+                    ),
                     const SizedBox(height: 12),
                     const Text(
                       'ERROR DETAILS:',
@@ -285,7 +288,9 @@ void ensureGlobalErrorBuilderInitialized() {
     if (isGenUi) {
       var namespace = activeBuildNamespace;
       if (namespace == 'Unknown') {
-        final match = RegExp('StreamingWidgetWrapper\\(namespace:\\s*["\']?([^"\'\\s)]+)').firstMatch(detailsString);
+        final match = RegExp(
+          'StreamingWidgetWrapper\\(namespace:\\s*["\']?([^"\'\\s)]+)',
+        ).firstMatch(detailsString);
         if (match != null) {
           namespace = match.group(1)!;
         }

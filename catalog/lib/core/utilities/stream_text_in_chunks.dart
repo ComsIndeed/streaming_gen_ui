@@ -1,12 +1,10 @@
 import 'package:flutter/foundation.dart';
 
-enum StreamingMode {
-  streaming,
-  noWidgetStreaming,
-  noStreaming,
-}
+enum StreamingMode { streaming, noWidgetStreaming, noStreaming }
 
-final currentStreamingMode = ValueNotifier<StreamingMode>(StreamingMode.streaming);
+final currentStreamingMode = ValueNotifier<StreamingMode>(
+  StreamingMode.streaming,
+);
 final showDevOptionsNotifier = ValueNotifier<bool>(false);
 Stream<String> transformNoWidgetStreaming(Stream<String> source) async* {
   final buffer = StringBuffer();
@@ -16,10 +14,10 @@ Stream<String> transformNoWidgetStreaming(Stream<String> source) async* {
 
   await for (final chunk in source) {
     buffer.write(chunk);
-    
+
     while (true) {
       final currentStr = buffer.toString();
-      
+
       if (!insideTag) {
         // Look for "<interface" starting from yieldedIndex
         final idx = currentStr.indexOf('<interface', yieldedIndex);
@@ -45,7 +43,7 @@ Stream<String> transformNoWidgetStreaming(Stream<String> source) async* {
               break;
             }
           }
-          
+
           final safeEnd = currentStr.length - partialLen;
           if (safeEnd > yieldedIndex) {
             yield currentStr.substring(yieldedIndex, safeEnd);
@@ -60,7 +58,7 @@ Stream<String> transformNoWidgetStreaming(Stream<String> source) async* {
           final endIdx = idx + '</interface>'.length;
           // Yield the entire tag block as a single chunk!
           yield currentStr.substring(tagStartIndex, endIdx);
-          
+
           // Transition state
           insideTag = false;
           tagStartIndex = -1;
@@ -73,7 +71,7 @@ Stream<String> transformNoWidgetStreaming(Stream<String> source) async* {
       }
     }
   }
-  
+
   // After stream finishes, if there is anything left unyielded (e.g. unclosed tag or trailing text), yield it
   final remaining = buffer.toString();
   if (yieldedIndex < remaining.length) {

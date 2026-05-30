@@ -36,7 +36,8 @@ class StreamingRow extends StatelessWidget {
         return AnimatedSize(
           duration: const Duration(milliseconds: 300),
           curve: Curves.easeOutCubic,
-          alignment: Alignment.centerLeft, // Lock alignment horizontally to center-left to prevent jitter
+          alignment: Alignment
+              .centerLeft, // Lock alignment horizontally to center-left to prevent jitter
           child: Row(
             mainAxisSize: MainAxisSize.min,
             crossAxisAlignment: CrossAxisAlignment.center,

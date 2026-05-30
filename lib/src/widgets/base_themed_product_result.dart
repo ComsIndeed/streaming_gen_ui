@@ -18,10 +18,12 @@ class BaseThemedProductResultCard extends StatefulWidget {
   });
 
   @override
-  State<BaseThemedProductResultCard> createState() => _BaseThemedProductResultCardState();
+  State<BaseThemedProductResultCard> createState() =>
+      _BaseThemedProductResultCardState();
 }
 
-class _BaseThemedProductResultCardState extends State<BaseThemedProductResultCard> {
+class _BaseThemedProductResultCardState
+    extends State<BaseThemedProductResultCard> {
   bool _isPressed = false;
 
   @override
@@ -33,7 +35,8 @@ class _BaseThemedProductResultCardState extends State<BaseThemedProductResultCar
         stream: mapStream.stream,
         builder: (context, snapshot) {
           final data = snapshot.data ?? const {};
-          final settings = data["themeSettings"] as Map<String, dynamic>? ?? const {};
+          final settings =
+              data["themeSettings"] as Map<String, dynamic>? ?? const {};
 
           final title = data["title"] as String? ?? 'Premium Product';
           final price = data["price"] as dynamic;
@@ -83,22 +86,22 @@ class _BaseThemedProductResultCardState extends State<BaseThemedProductResultCar
             cardFrame = ClipPath(
               clipper: ShapeBorderClipper(shape: shape),
               child: BackdropFilter(
-                filter: ColorFilter.mode(Colors.black.withValues(alpha: 0.02), BlendMode.dstATop),
-                child: Container(
-                  decoration: decoration,
-                  child: cardContent,
+                filter: ColorFilter.mode(
+                  Colors.black.withValues(alpha: 0.02),
+                  BlendMode.dstATop,
                 ),
+                child: Container(decoration: decoration, child: cardContent),
               ),
             );
           } else if (widget.themeName == 'fluent') {
             cardFrame = ClipPath(
               clipper: ShapeBorderClipper(shape: shape),
               child: BackdropFilter(
-                filter: ColorFilter.mode(Colors.black.withValues(alpha: 0.04), BlendMode.dstATop),
-                child: Container(
-                  decoration: decoration,
-                  child: cardContent,
+                filter: ColorFilter.mode(
+                  Colors.black.withValues(alpha: 0.04),
+                  BlendMode.dstATop,
                 ),
+                child: Container(decoration: decoration, child: cardContent),
               ),
             );
           } else {
@@ -119,7 +122,9 @@ class _BaseThemedProductResultCardState extends State<BaseThemedProductResultCar
               onTapUp: (_) => setState(() => _isPressed = false),
               onTapCancel: () => setState(() => _isPressed = false),
               onTap: () {
-                debugPrint('[GEN_UI:PRODUCT_ACTION] Product card clicked -> $action');
+                debugPrint(
+                  '[GEN_UI:PRODUCT_ACTION] Product card clicked -> $action',
+                );
               },
               child: AnimatedScale(
                 scale: _isPressed ? 0.97 : 1.0,
@@ -150,8 +155,16 @@ class _BaseThemedProductResultCardState extends State<BaseThemedProductResultCar
   ) {
     final themeData = Theme.of(context);
     final isBrutalist = widget.themeName == 'brutalist';
-    final titleStyle = ThemeStyleHelper.getTextStyle(widget.themeName, context, isTitle: true);
-    final subStyle = ThemeStyleHelper.getTextStyle(widget.themeName, context, isTitle: false);
+    final titleStyle = ThemeStyleHelper.getTextStyle(
+      widget.themeName,
+      context,
+      isTitle: true,
+    );
+    final subStyle = ThemeStyleHelper.getTextStyle(
+      widget.themeName,
+      context,
+      isTitle: false,
+    );
 
     // Format prices safely
     String formatPrice(dynamic p) {
@@ -188,15 +201,26 @@ class _BaseThemedProductResultCardState extends State<BaseThemedProductResultCar
                   left: 12,
                   child: Container(
                     decoration: BoxDecoration(
-                      color: isBrutalist ? const Color(0xFFFFFF00) : themeData.colorScheme.primary,
-                      borderRadius: isBrutalist ? BorderRadius.zero : BorderRadius.circular(4),
-                      border: isBrutalist ? Border.all(color: Colors.black, width: 2.0) : null,
+                      color: isBrutalist
+                          ? const Color(0xFFFFFF00)
+                          : themeData.colorScheme.primary,
+                      borderRadius: isBrutalist
+                          ? BorderRadius.zero
+                          : BorderRadius.circular(4),
+                      border: isBrutalist
+                          ? Border.all(color: Colors.black, width: 2.0)
+                          : null,
                     ),
-                    padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 8,
+                      vertical: 4,
+                    ),
                     child: Text(
                       badge.toUpperCase(),
                       style: TextStyle(
-                        color: isBrutalist ? Colors.black : themeData.colorScheme.onPrimary,
+                        color: isBrutalist
+                            ? Colors.black
+                            : themeData.colorScheme.onPrimary,
                         fontSize: 10,
                         fontWeight: FontWeight.bold,
                         letterSpacing: 1.0,
@@ -234,7 +258,9 @@ class _BaseThemedProductResultCardState extends State<BaseThemedProductResultCar
                         final starFilled = rating > index;
                         return Icon(
                           starFilled ? Icons.star : Icons.star_border,
-                          color: isBrutalist ? Colors.black : const Color(0xFFFFB300),
+                          color: isBrutalist
+                              ? Colors.black
+                              : const Color(0xFFFFB300),
                           size: 16,
                         );
                       }),
@@ -242,7 +268,10 @@ class _BaseThemedProductResultCardState extends State<BaseThemedProductResultCar
                     const SizedBox(width: 8),
                     Text(
                       rating.toStringAsFixed(1),
-                      style: subStyle.copyWith(fontWeight: FontWeight.bold, fontSize: 13),
+                      style: subStyle.copyWith(
+                        fontWeight: FontWeight.bold,
+                        fontSize: 13,
+                      ),
                     ),
                   ],
                 ),
@@ -253,7 +282,9 @@ class _BaseThemedProductResultCardState extends State<BaseThemedProductResultCar
                   description,
                   themeName: widget.themeName,
                   style: subStyle.copyWith(
-                    color: themeData.colorScheme.onSurfaceVariant.withValues(alpha: 0.85),
+                    color: themeData.colorScheme.onSurfaceVariant.withValues(
+                      alpha: 0.85,
+                    ),
                     fontSize: 13,
                   ),
                   maxLines: 3,
@@ -277,11 +308,21 @@ class _BaseThemedProductResultCardState extends State<BaseThemedProductResultCar
                         children: list.map((item) {
                           return Container(
                             decoration: BoxDecoration(
-                              color: themeData.colorScheme.surfaceContainerHighest.withValues(alpha: 0.5),
-                              borderRadius: isBrutalist ? BorderRadius.zero : BorderRadius.circular(6),
-                              border: isBrutalist ? Border.all(color: Colors.black, width: 1.5) : null,
+                              color: themeData
+                                  .colorScheme
+                                  .surfaceContainerHighest
+                                  .withValues(alpha: 0.5),
+                              borderRadius: isBrutalist
+                                  ? BorderRadius.zero
+                                  : BorderRadius.circular(6),
+                              border: isBrutalist
+                                  ? Border.all(color: Colors.black, width: 1.5)
+                                  : null,
                             ),
-                            padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                            padding: const EdgeInsets.symmetric(
+                              horizontal: 10,
+                              vertical: 4,
+                            ),
                             child: Text(
                               item.toString(),
                               style: TextStyle(
@@ -316,7 +357,9 @@ class _BaseThemedProductResultCardState extends State<BaseThemedProductResultCar
                           priceStr,
                           style: titleStyle.copyWith(
                             fontSize: 22,
-                            color: isBrutalist ? Colors.black : themeData.colorScheme.primary,
+                            color: isBrutalist
+                                ? Colors.black
+                                : themeData.colorScheme.primary,
                           ),
                         ),
                       if (origPriceStr.isNotEmpty) ...[
@@ -325,7 +368,8 @@ class _BaseThemedProductResultCardState extends State<BaseThemedProductResultCar
                           origPriceStr,
                           style: TextStyle(
                             fontSize: 14,
-                            color: themeData.colorScheme.onSurfaceVariant.withValues(alpha: 0.6),
+                            color: themeData.colorScheme.onSurfaceVariant
+                                .withValues(alpha: 0.6),
                             decoration: TextDecoration.lineThrough,
                           ),
                         ),
@@ -338,21 +382,34 @@ class _BaseThemedProductResultCardState extends State<BaseThemedProductResultCar
                       debugPrint('[GEN_UI:PRODUCT_CTA] Buy item click: $title');
                     },
                     style: ElevatedButton.styleFrom(
-                      backgroundColor: isBrutalist ? const Color(0xFFFFFF00) : themeData.colorScheme.primary,
-                      foregroundColor: isBrutalist ? Colors.black : themeData.colorScheme.onPrimary,
+                      backgroundColor: isBrutalist
+                          ? const Color(0xFFFFFF00)
+                          : themeData.colorScheme.primary,
+                      foregroundColor: isBrutalist
+                          ? Colors.black
+                          : themeData.colorScheme.onPrimary,
                       elevation: isBrutalist ? 0 : 2,
                       shape: RoundedRectangleBorder(
-                        borderRadius: isBrutalist ? BorderRadius.zero : BorderRadius.circular(8),
-                        side: isBrutalist ? const BorderSide(color: Colors.black, width: 2.0) : BorderSide.none,
+                        borderRadius: isBrutalist
+                            ? BorderRadius.zero
+                            : BorderRadius.circular(8),
+                        side: isBrutalist
+                            ? const BorderSide(color: Colors.black, width: 2.0)
+                            : BorderSide.none,
                       ),
-                      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 16,
+                        vertical: 10,
+                      ),
                     ),
                     child: Text(
                       'View Details',
                       style: subStyle.copyWith(
                         fontWeight: FontWeight.bold,
                         fontSize: 13,
-                        color: isBrutalist ? Colors.black : themeData.colorScheme.onPrimary,
+                        color: isBrutalist
+                            ? Colors.black
+                            : themeData.colorScheme.onPrimary,
                       ),
                     ),
                   ),

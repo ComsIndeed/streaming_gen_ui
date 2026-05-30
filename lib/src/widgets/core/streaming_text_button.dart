@@ -37,22 +37,33 @@ class _StreamingTextButtonState extends State<StreamingTextButton> {
           return FutureBuilder<String>(
             future: textProp.future,
             builder: (context, textSnapshot) {
-              final isDone = textSnapshot.connectionState == ConnectionState.done && textSnapshot.hasData;
+              final isDone =
+                  textSnapshot.connectionState == ConnectionState.done &&
+                  textSnapshot.hasData;
               final initial = isDone ? textSnapshot.data! : '';
 
               return AccumulatingStringStreamBuilder(
                 stream: textProp.stream,
                 initialValue: initial,
                 builder: (context, textVal) {
-                  if (textVal.isEmpty) return const SizedBox.shrink(); // Empty parameter protection
+                  if (textVal.isEmpty)
+                    return const SizedBox.shrink(); // Empty parameter protection
 
                   return GestureDetector(
-                    onTapDown: isEnabled ? (_) => setState(() => _isPressed = true) : null,
-                    onTapUp: isEnabled ? (_) => setState(() => _isPressed = false) : null,
-                    onTapCancel: isEnabled ? () => setState(() => _isPressed = false) : null,
+                    onTapDown: isEnabled
+                        ? (_) => setState(() => _isPressed = true)
+                        : null,
+                    onTapUp: isEnabled
+                        ? (_) => setState(() => _isPressed = false)
+                        : null,
+                    onTapCancel: isEnabled
+                        ? () => setState(() => _isPressed = false)
+                        : null,
                     onTap: isEnabled
                         ? () {
-                            debugPrint('[GEN_UI:ACTION] TextButton tapped -> $action');
+                            debugPrint(
+                              '[GEN_UI:ACTION] TextButton tapped -> $action',
+                            );
                           }
                         : null,
                     child: AnimatedScale(
@@ -60,13 +71,18 @@ class _StreamingTextButtonState extends State<StreamingTextButton> {
                       duration: const Duration(milliseconds: 100),
                       curve: Curves.easeOutCubic,
                       child: Padding(
-                        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 12,
+                          vertical: 8,
+                        ),
                         child: Text(
                           textVal,
                           style: TextStyle(
                             color: isEnabled
                                 ? theme.colorScheme.primary
-                                : theme.colorScheme.onSurface.withValues(alpha: 0.3),
+                                : theme.colorScheme.onSurface.withValues(
+                                    alpha: 0.3,
+                                  ),
                             fontWeight: FontWeight.w600,
                             fontSize: 14,
                             decoration: TextDecoration.underline,

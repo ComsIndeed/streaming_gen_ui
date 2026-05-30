@@ -159,7 +159,8 @@ class _BaseThemedCarouselState extends State<BaseThemedCarousel> {
                 // Swipe right -> previous
                 else if (details.primaryVelocity! > 0) {
                   setState(() {
-                    _currentIndex = (_currentIndex - 1 + list.length) % list.length;
+                    _currentIndex =
+                        (_currentIndex - 1 + list.length) % list.length;
                   });
                 }
               },
@@ -173,7 +174,9 @@ class _BaseThemedCarouselState extends State<BaseThemedCarousel> {
 
                   final offsetMultiplier = relativeIdx;
                   final scaleMultiplier = 1.0 - (0.05 * relativeIdx);
-                  final opacity = relativeIdx == 0 ? 1.0 : (relativeIdx == 1 ? 0.7 : 0.4);
+                  final opacity = relativeIdx == 0
+                      ? 1.0
+                      : (relativeIdx == 1 ? 0.7 : 0.4);
 
                   return AnimatedPositioned(
                     duration: const Duration(milliseconds: 300),
@@ -191,7 +194,8 @@ class _BaseThemedCarouselState extends State<BaseThemedCarousel> {
                           width: MediaQuery.of(context).size.width * 0.76,
                           height: 250,
                           child: IgnorePointer(
-                            ignoring: relativeIdx != 0, // Click only the topmost card
+                            ignoring:
+                                relativeIdx != 0, // Click only the topmost card
                             child: StreamingWidget(
                               props: itemsProperty.getMapProperty('[$index]'),
                             ),

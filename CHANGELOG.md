@@ -1,3 +1,17 @@
+## 0.2.1
+
+### New Features
+
+- **Progressive Graph Bar Rendering** — The bargraph widget now uses the `.onElement` stream listener on the values and labels lists, progressively rendering elements and animating bars immediately as numbers start appearing, rather than waiting for the entire list to finish.
+
+### Bug Fixes
+
+- Fixed **Graph Null/Type Cast Exception** — Handled `type 'Null' is not a subtype of type 'num' in type cast` crash on list properties during active streams by using robust `.whereType<num>()` filtering.
+- Fixed **Streaming Image Network URL API Errors** — `BaseStreamingImage` now accepts a `PropertyStream` and asynchronously awaits the fully resolved/completed `imageUrl` stream via `FutureBuilder`, preventing crashes caused by intermediate, partially streamed invalid URLs.
+- Updated **Widget Catalog Integration Instructions** — Fixed old arithmetic `+` registry constructor instructions to utilize the correct list-based `.only()` filters.
+
+---
+
 ## 0.2.0
 
 ### Breaking Changes

@@ -35,9 +35,11 @@ class _BaseThemedNoteCardState extends State<BaseThemedNoteCard> {
         stream: mapStream.stream,
         builder: (context, snapshot) {
           final data = snapshot.data ?? const {};
-          final settings = data["themeSettings"] as Map<String, dynamic>? ?? const {};
+          final settings =
+              data["themeSettings"] as Map<String, dynamic>? ?? const {};
 
-          final type = data["type"] as String? ?? 'note'; // note, todo, reminder
+          final type =
+              data["type"] as String? ?? 'note'; // note, todo, reminder
           final title = data["title"] as String? ?? 'Quick Note';
           final content = data["content"] as String? ?? '';
           final rawCompleted = data["completed"] as bool? ?? false;
@@ -49,7 +51,9 @@ class _BaseThemedNoteCardState extends State<BaseThemedNoteCard> {
 
           final hasAction = action != null && action.isNotEmpty;
 
-          final completed = _completionOverridden ? _localCompleted : rawCompleted;
+          final completed = _completionOverridden
+              ? _localCompleted
+              : rawCompleted;
 
           final decoration = ThemeStyleHelper.getCardDecoration(
             widget.themeName,
@@ -89,22 +93,22 @@ class _BaseThemedNoteCardState extends State<BaseThemedNoteCard> {
             cardFrame = ClipPath(
               clipper: ShapeBorderClipper(shape: shape),
               child: BackdropFilter(
-                filter: ColorFilter.mode(Colors.black.withValues(alpha: 0.02), BlendMode.dstATop),
-                child: Container(
-                  decoration: decoration,
-                  child: cardContent,
+                filter: ColorFilter.mode(
+                  Colors.black.withValues(alpha: 0.02),
+                  BlendMode.dstATop,
                 ),
+                child: Container(decoration: decoration, child: cardContent),
               ),
             );
           } else if (widget.themeName == 'fluent') {
             cardFrame = ClipPath(
               clipper: ShapeBorderClipper(shape: shape),
               child: BackdropFilter(
-                filter: ColorFilter.mode(Colors.black.withValues(alpha: 0.04), BlendMode.dstATop),
-                child: Container(
-                  decoration: decoration,
-                  child: cardContent,
+                filter: ColorFilter.mode(
+                  Colors.black.withValues(alpha: 0.04),
+                  BlendMode.dstATop,
                 ),
+                child: Container(decoration: decoration, child: cardContent),
               ),
             );
           } else {
@@ -157,8 +161,16 @@ class _BaseThemedNoteCardState extends State<BaseThemedNoteCard> {
   ) {
     final themeData = Theme.of(context);
     final isBrutalist = widget.themeName == 'brutalist';
-    final titleStyle = ThemeStyleHelper.getTextStyle(widget.themeName, context, isTitle: true);
-    final subStyle = ThemeStyleHelper.getTextStyle(widget.themeName, context, isTitle: false);
+    final titleStyle = ThemeStyleHelper.getTextStyle(
+      widget.themeName,
+      context,
+      isTitle: true,
+    );
+    final subStyle = ThemeStyleHelper.getTextStyle(
+      widget.themeName,
+      context,
+      isTitle: false,
+    );
 
     // Dynamic icon representing the note category
     IconData getNoteIcon() {
@@ -212,7 +224,9 @@ class _BaseThemedNoteCardState extends State<BaseThemedNoteCard> {
               Icon(
                 getNoteIcon(),
                 size: 20,
-                color: isBrutalist ? Colors.black : themeData.colorScheme.primary,
+                color: isBrutalist
+                    ? Colors.black
+                    : themeData.colorScheme.primary,
               ),
               const SizedBox(width: 8),
               Expanded(
@@ -251,7 +265,8 @@ class _BaseThemedNoteCardState extends State<BaseThemedNoteCard> {
               ),
             ),
           // Interactive toggle for Standalone Todo/Reminders
-          if (type.toLowerCase() == 'todo' || type.toLowerCase() == 'reminder') ...[
+          if (type.toLowerCase() == 'todo' ||
+              type.toLowerCase() == 'reminder') ...[
             const SizedBox(height: 12),
             InkWell(
               onTap: () {
@@ -259,7 +274,9 @@ class _BaseThemedNoteCardState extends State<BaseThemedNoteCard> {
                   _completionOverridden = true;
                   _localCompleted = !completed;
                 });
-                debugPrint('[GEN_UI:NOTE_TODO_TOGGLE] Task state toggled -> ${!completed}');
+                debugPrint(
+                  '[GEN_UI:NOTE_TODO_TOGGLE] Task state toggled -> ${!completed}',
+                );
               },
               child: Row(
                 mainAxisSize: MainAxisSize.min,
@@ -269,11 +286,17 @@ class _BaseThemedNoteCardState extends State<BaseThemedNoteCard> {
                     height: 20,
                     decoration: BoxDecoration(
                       color: completed
-                          ? (isBrutalist ? const Color(0xFF00FF00) : themeData.colorScheme.primary)
+                          ? (isBrutalist
+                                ? const Color(0xFF00FF00)
+                                : themeData.colorScheme.primary)
                           : Colors.transparent,
-                      borderRadius: isBrutalist ? BorderRadius.zero : BorderRadius.circular(4),
+                      borderRadius: isBrutalist
+                          ? BorderRadius.zero
+                          : BorderRadius.circular(4),
                       border: Border.all(
-                        color: isBrutalist ? Colors.black : themeData.colorScheme.outline,
+                        color: isBrutalist
+                            ? Colors.black
+                            : themeData.colorScheme.outline,
                         width: 2.0,
                       ),
                     ),
@@ -281,7 +304,9 @@ class _BaseThemedNoteCardState extends State<BaseThemedNoteCard> {
                         ? Icon(
                             Icons.check,
                             size: 12,
-                            color: isBrutalist ? Colors.black : themeData.colorScheme.onPrimary,
+                            color: isBrutalist
+                                ? Colors.black
+                                : themeData.colorScheme.onPrimary,
                           )
                         : null,
                   ),
@@ -314,11 +339,19 @@ class _BaseThemedNoteCardState extends State<BaseThemedNoteCard> {
                     children: list.map((tag) {
                       return Container(
                         decoration: BoxDecoration(
-                          color: themeData.colorScheme.secondaryContainer.withValues(alpha: 0.4),
-                          borderRadius: isBrutalist ? BorderRadius.zero : BorderRadius.circular(4),
-                          border: isBrutalist ? Border.all(color: Colors.black, width: 1.0) : null,
+                          color: themeData.colorScheme.secondaryContainer
+                              .withValues(alpha: 0.4),
+                          borderRadius: isBrutalist
+                              ? BorderRadius.zero
+                              : BorderRadius.circular(4),
+                          border: isBrutalist
+                              ? Border.all(color: Colors.black, width: 1.0)
+                              : null,
                         ),
-                        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 8,
+                          vertical: 3,
+                        ),
                         child: Text(
                           "#$tag",
                           style: TextStyle(
@@ -337,7 +370,10 @@ class _BaseThemedNoteCardState extends State<BaseThemedNoteCard> {
           // Footer due-date and lastModified rows
           if (dueDate != null || lastModified != null) ...[
             const SizedBox(height: 12),
-            Divider(color: themeData.colorScheme.outline.withValues(alpha: 0.08), height: 1),
+            Divider(
+              color: themeData.colorScheme.outline.withValues(alpha: 0.08),
+              height: 1,
+            ),
             const SizedBox(height: 8),
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -345,13 +381,19 @@ class _BaseThemedNoteCardState extends State<BaseThemedNoteCard> {
                 if (dueDate != null && dueDate.isNotEmpty)
                   Row(
                     children: [
-                      Icon(Icons.calendar_today, size: 10, color: themeData.colorScheme.onSurfaceVariant.withValues(alpha: 0.6)),
+                      Icon(
+                        Icons.calendar_today,
+                        size: 10,
+                        color: themeData.colorScheme.onSurfaceVariant
+                            .withValues(alpha: 0.6),
+                      ),
                       const SizedBox(width: 4),
                       Text(
                         "Due: $dueDate",
                         style: TextStyle(
                           fontSize: 10,
-                          color: themeData.colorScheme.onSurfaceVariant.withValues(alpha: 0.6),
+                          color: themeData.colorScheme.onSurfaceVariant
+                              .withValues(alpha: 0.6),
                         ),
                       ),
                     ],
@@ -361,7 +403,9 @@ class _BaseThemedNoteCardState extends State<BaseThemedNoteCard> {
                     "Modified: $lastModified",
                     style: TextStyle(
                       fontSize: 10,
-                      color: themeData.colorScheme.onSurfaceVariant.withValues(alpha: 0.6),
+                      color: themeData.colorScheme.onSurfaceVariant.withValues(
+                        alpha: 0.6,
+                      ),
                     ),
                   ),
               ],

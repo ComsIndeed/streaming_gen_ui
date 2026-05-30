@@ -723,13 +723,14 @@ class _ChatScreenState extends State<ChatScreen> {
                       ? Theme.of(
                           context,
                         ).colorScheme.primaryContainer.withValues(alpha: 0.5)
-                      : Theme.of(
-                          context,
-                        ).colorScheme.surfaceContainerHighest.withValues(alpha: 0.5),
+                      : Theme.of(context).colorScheme.surfaceContainerHighest
+                            .withValues(alpha: 0.5),
                   borderRadius: BorderRadius.circular(24),
                   border: Border.all(
                     color: _lockScrollToBottom
-                        ? Theme.of(context).colorScheme.primary.withValues(alpha: 0.3)
+                        ? Theme.of(
+                            context,
+                          ).colorScheme.primary.withValues(alpha: 0.3)
                         : Theme.of(
                             context,
                           ).colorScheme.outline.withValues(alpha: 0.2),

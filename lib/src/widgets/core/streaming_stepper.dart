@@ -72,7 +72,9 @@ class _StreamingStepperState extends State<StreamingStepper> {
                             radius: 12,
                             backgroundColor: isOpen
                                 ? theme.colorScheme.primary
-                                : theme.colorScheme.outline.withValues(alpha: 0.12),
+                                : theme.colorScheme.outline.withValues(
+                                    alpha: 0.12,
+                                  ),
                             child: Text(
                               '${index + 1}',
                               style: TextStyle(
@@ -92,11 +94,17 @@ class _StreamingStepperState extends State<StreamingStepper> {
                               color: theme.colorScheme.onSurface,
                             ),
                           ),
-                          subtitle: (description != null && description.isNotEmpty)
-                              ? Text(description, style: const TextStyle(fontSize: 11))
+                          subtitle:
+                              (description != null && description.isNotEmpty)
+                              ? Text(
+                                  description,
+                                  style: const TextStyle(fontSize: 11),
+                                )
                               : null,
                           trailing: Icon(
-                            isOpen ? Icons.keyboard_arrow_up : Icons.keyboard_arrow_down,
+                            isOpen
+                                ? Icons.keyboard_arrow_up
+                                : Icons.keyboard_arrow_down,
                             size: 18,
                             color: theme.colorScheme.onSurfaceVariant,
                           ),
@@ -127,7 +135,10 @@ class _StreamingStepperState extends State<StreamingStepper> {
                                           _activeStepIndex = index + 1;
                                         });
                                       },
-                                      child: const Text('Next Step', style: TextStyle(fontSize: 12)),
+                                      child: const Text(
+                                        'Next Step',
+                                        style: TextStyle(fontSize: 12),
+                                      ),
                                     ),
                                   ),
                               ],

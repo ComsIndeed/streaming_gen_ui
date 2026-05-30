@@ -138,8 +138,9 @@ class _CustomUserProfileCardState extends State<CustomUserProfileCard> {
                                 style: TextStyle(
                                   fontSize: 13,
                                   // ignore: deprecated_member_use
-                                  color: theme.colorScheme.onSurface
-                                      .withValues(alpha: 0.6),
+                                  color: theme.colorScheme.onSurface.withValues(
+                                    alpha: 0.6,
+                                  ),
                                   fontWeight: FontWeight.w500,
                                 ),
                               ),
@@ -244,8 +245,8 @@ class CustomHotelCard extends StatelessWidget {
                                 size: 14,
                                 color: hasRating
                                     ? Colors.white
-                                    : theme.colorScheme.onSurface.withValues(alpha: 
-                                        0.3,
+                                    : theme.colorScheme.onSurface.withValues(
+                                        alpha: 0.3,
                                       ),
                               ),
                               const SizedBox(width: 4),
@@ -254,8 +255,8 @@ class CustomHotelCard extends StatelessWidget {
                                 style: TextStyle(
                                   color: hasRating
                                       ? Colors.white
-                                      : theme.colorScheme.onSurface.withValues(alpha: 
-                                          0.4,
+                                      : theme.colorScheme.onSurface.withValues(
+                                          alpha: 0.4,
                                         ),
                                   fontSize: 12,
                                   fontWeight: FontWeight.bold,

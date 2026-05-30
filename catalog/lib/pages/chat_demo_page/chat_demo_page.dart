@@ -927,8 +927,7 @@ class _ChatConsoleInputState extends State<ChatConsoleInput> {
 
   Future<void> _loadDisclosurePreference() async {
     final prefs = await SharedPreferences.getInstance();
-    final accepted =
-        prefs.getBool('hasAcceptedDataDisclosure') ?? false;
+    final accepted = prefs.getBool('hasAcceptedDataDisclosure') ?? false;
     if (!mounted) return;
     setState(() {
       _hasAcceptedDisclosure = accepted;
@@ -941,8 +940,7 @@ class _ChatConsoleInputState extends State<ChatConsoleInput> {
     }
 
     final prefs = await SharedPreferences.getInstance();
-    final accepted =
-        prefs.getBool('hasAcceptedDataDisclosure') ?? false;
+    final accepted = prefs.getBool('hasAcceptedDataDisclosure') ?? false;
     if (accepted) {
       if (mounted) {
         setState(() {
@@ -968,7 +966,6 @@ class _ChatConsoleInputState extends State<ChatConsoleInput> {
   Future<bool> _showDisclosureModal() async {
     if (!mounted) return false;
 
-    final theme = Theme.of(context);
     final result = await showDialog<bool>(
       context: context,
       barrierDismissible: false,

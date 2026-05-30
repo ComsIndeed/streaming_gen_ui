@@ -26,7 +26,8 @@ class StreamingContainer extends StatelessWidget {
           final width = (data["width"] as num?)?.toDouble();
           final height = (data["height"] as num?)?.toDouble();
           final paddingVal = (data["padding"] as num?)?.toDouble() ?? 16.0;
-          final borderRadiusVal = (data["borderRadius"] as num?)?.toDouble() ?? 16.0;
+          final borderRadiusVal =
+              (data["borderRadius"] as num?)?.toDouble() ?? 16.0;
 
           final parsedColor = _parseColor(colorHex);
 
@@ -36,10 +37,14 @@ class StreamingContainer extends StatelessWidget {
             width: width,
             height: height,
             decoration: BoxDecoration(
-              color: parsedColor ?? Theme.of(context).colorScheme.surfaceContainerHigh,
+              color:
+                  parsedColor ??
+                  Theme.of(context).colorScheme.surfaceContainerHigh,
               borderRadius: BorderRadius.circular(borderRadiusVal),
               border: Border.all(
-                color: Theme.of(context).colorScheme.outline.withValues(alpha: 0.08),
+                color: Theme.of(
+                  context,
+                ).colorScheme.outline.withValues(alpha: 0.08),
               ),
               boxShadow: [
                 BoxShadow(

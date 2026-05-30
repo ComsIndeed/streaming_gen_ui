@@ -35,7 +35,9 @@ class _HomeScreenState extends State<HomeScreen> {
         WidgetRegistry(widgets: customRegistry),
       ],
     );
-    _selectedExample = mockExamples.firstWhere((ex) => ex.category == _selectedCategory);
+    _selectedExample = mockExamples.firstWhere(
+      (ex) => ex.category == _selectedCategory,
+    );
   }
 
   @override
@@ -48,7 +50,9 @@ class _HomeScreenState extends State<HomeScreen> {
   void _onCategoryChanged(String category) {
     setState(() {
       _selectedCategory = category;
-      _selectedExample = mockExamples.firstWhere((ex) => ex.category == category);
+      _selectedExample = mockExamples.firstWhere(
+        (ex) => ex.category == category,
+      );
       _terminalText = ''; // Clear terminal preview
     });
   }
@@ -184,71 +188,89 @@ class _HomeScreenState extends State<HomeScreen> {
     while (i < len) {
       final int interfaceStart = text.indexOf('<interface', i);
       if (interfaceStart == -1) {
-        spans.add(TextSpan(
-          text: text.substring(i),
-          style: const TextStyle(color: Color(0xFFCCCCCC)), // Light grey for normal text
-        ));
+        spans.add(
+          TextSpan(
+            text: text.substring(i),
+            style: const TextStyle(
+              color: Color(0xFFCCCCCC),
+            ), // Light grey for normal text
+          ),
+        );
         break;
       }
 
       if (interfaceStart > i) {
-        spans.add(TextSpan(
-          text: text.substring(i, interfaceStart),
-          style: const TextStyle(color: Color(0xFFCCCCCC)), // Light grey for normal text
-        ));
+        spans.add(
+          TextSpan(
+            text: text.substring(i, interfaceStart),
+            style: const TextStyle(
+              color: Color(0xFFCCCCCC),
+            ), // Light grey for normal text
+          ),
+        );
       }
 
       final int tagEnd = text.indexOf('>', interfaceStart);
       if (tagEnd == -1) {
-        spans.add(TextSpan(
-          text: text.substring(interfaceStart),
+        spans.add(
+          TextSpan(
+            text: text.substring(interfaceStart),
+            style: const TextStyle(
+              color: Color(0xFFFF5F56), // Red for interface tags
+              fontWeight: FontWeight.bold,
+            ),
+          ),
+        );
+        break;
+      }
+
+      spans.add(
+        TextSpan(
+          text: text.substring(interfaceStart, tagEnd + 1),
           style: const TextStyle(
             color: Color(0xFFFF5F56), // Red for interface tags
             fontWeight: FontWeight.bold,
           ),
-        ));
-        break;
-      }
-
-      spans.add(TextSpan(
-        text: text.substring(interfaceStart, tagEnd + 1),
-        style: const TextStyle(
-          color: Color(0xFFFF5F56), // Red for interface tags
-          fontWeight: FontWeight.bold,
         ),
-      ));
+      );
 
       i = tagEnd + 1;
 
       final int closingTagStart = text.indexOf('</interface>', i);
       if (closingTagStart == -1) {
-        spans.add(TextSpan(
-          text: text.substring(i),
-          style: const TextStyle(
-            color: Color(0xFF27C93F), // Green for JSON
-            fontFamily: 'monospace',
+        spans.add(
+          TextSpan(
+            text: text.substring(i),
+            style: const TextStyle(
+              color: Color(0xFF27C93F), // Green for JSON
+              fontFamily: 'monospace',
+            ),
           ),
-        ));
+        );
         break;
       }
 
       if (closingTagStart > i) {
-        spans.add(TextSpan(
-          text: text.substring(i, closingTagStart),
-          style: const TextStyle(
-            color: Color(0xFF27C93F), // Green for JSON
-            fontFamily: 'monospace',
+        spans.add(
+          TextSpan(
+            text: text.substring(i, closingTagStart),
+            style: const TextStyle(
+              color: Color(0xFF27C93F), // Green for JSON
+              fontFamily: 'monospace',
+            ),
           ),
-        ));
+        );
       }
 
-      spans.add(const TextSpan(
-        text: '</interface>',
-        style: TextStyle(
-          color: Color(0xFFFF5F56), // Red for interface tags
-          fontWeight: FontWeight.bold,
+      spans.add(
+        const TextSpan(
+          text: '</interface>',
+          style: TextStyle(
+            color: Color(0xFFFF5F56), // Red for interface tags
+            fontWeight: FontWeight.bold,
+          ),
         ),
-      ));
+      );
 
       i = closingTagStart + '</interface>'.length;
     }
@@ -278,7 +300,8 @@ class _HomeScreenState extends State<HomeScreen> {
           ),
         ),
         body: TabBarView(
-          physics: const NeverScrollableScrollPhysics(), // Prevent swipe-slide gesture conflicts
+          physics:
+              const NeverScrollableScrollPhysics(), // Prevent swipe-slide gesture conflicts
           children: [
             // Tab 1: Simulation Playground
             Column(
@@ -290,7 +313,9 @@ class _HomeScreenState extends State<HomeScreen> {
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(16),
                     side: BorderSide(
-                      color: Theme.of(context).colorScheme.outline.withValues(alpha: 0.08),
+                      color: Theme.of(
+                        context,
+                      ).colorScheme.outline.withValues(alpha: 0.08),
                       width: 1.5,
                     ),
                   ),
@@ -319,20 +344,39 @@ class _HomeScreenState extends State<HomeScreen> {
                                   DropdownButtonFormField<String>(
                                     value: _selectedCategory,
                                     decoration: InputDecoration(
-                                      contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-                                      border: OutlineInputBorder(borderRadius: BorderRadius.circular(8)),
+                                      contentPadding:
+                                          const EdgeInsets.symmetric(
+                                            horizontal: 12,
+                                            vertical: 8,
+                                          ),
+                                      border: OutlineInputBorder(
+                                        borderRadius: BorderRadius.circular(8),
+                                      ),
                                     ),
-                                    items: ['Core Mechanics', 'Batteries Included', 'Pre-Built Themes', 'Custom Composition'].map((cat) {
-                                      return DropdownMenuItem<String>(
-                                        value: cat,
-                                        child: Text(cat, style: const TextStyle(fontSize: 13)),
-                                      );
-                                    }).toList(),
-                                    onChanged: _isStreaming ? null : (val) {
-                                      if (val != null) {
-                                        _onCategoryChanged(val);
-                                      }
-                                    },
+                                    items:
+                                        [
+                                          'Core Mechanics',
+                                          'Batteries Included',
+                                          'Pre-Built Themes',
+                                          'Custom Composition',
+                                        ].map((cat) {
+                                          return DropdownMenuItem<String>(
+                                            value: cat,
+                                            child: Text(
+                                              cat,
+                                              style: const TextStyle(
+                                                fontSize: 13,
+                                              ),
+                                            ),
+                                          );
+                                        }).toList(),
+                                    onChanged: _isStreaming
+                                        ? null
+                                        : (val) {
+                                            if (val != null) {
+                                              _onCategoryChanged(val);
+                                            }
+                                          },
                                   ),
                                 ],
                               ),
@@ -356,20 +400,40 @@ class _HomeScreenState extends State<HomeScreen> {
                                   DropdownButtonFormField<ExampleData>(
                                     value: _selectedExample,
                                     decoration: InputDecoration(
-                                      contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-                                      border: OutlineInputBorder(borderRadius: BorderRadius.circular(8)),
+                                      contentPadding:
+                                          const EdgeInsets.symmetric(
+                                            horizontal: 12,
+                                            vertical: 8,
+                                          ),
+                                      border: OutlineInputBorder(
+                                        borderRadius: BorderRadius.circular(8),
+                                      ),
                                     ),
-                                    items: mockExamples.where((ex) => ex.category == _selectedCategory).map((ex) {
-                                      return DropdownMenuItem<ExampleData>(
-                                        value: ex,
-                                        child: Text(ex.name, style: const TextStyle(fontSize: 13), overflow: TextOverflow.ellipsis),
-                                      );
-                                    }).toList(),
-                                    onChanged: _isStreaming ? null : (val) {
-                                      if (val != null) {
-                                        _onExampleChanged(val);
-                                      }
-                                    },
+                                    items: mockExamples
+                                        .where(
+                                          (ex) =>
+                                              ex.category == _selectedCategory,
+                                        )
+                                        .map((ex) {
+                                          return DropdownMenuItem<ExampleData>(
+                                            value: ex,
+                                            child: Text(
+                                              ex.name,
+                                              style: const TextStyle(
+                                                fontSize: 13,
+                                              ),
+                                              overflow: TextOverflow.ellipsis,
+                                            ),
+                                          );
+                                        })
+                                        .toList(),
+                                    onChanged: _isStreaming
+                                        ? null
+                                        : (val) {
+                                            if (val != null) {
+                                              _onExampleChanged(val);
+                                            }
+                                          },
                                   ),
                                 ],
                               ),
@@ -385,23 +449,31 @@ class _HomeScreenState extends State<HomeScreen> {
                                 children: [
                                   const Text(
                                     "Delay: ",
-                                    style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold),
+                                    style: TextStyle(
+                                      fontSize: 12,
+                                      fontWeight: FontWeight.bold,
+                                    ),
                                   ),
                                   Expanded(
                                     child: Slider(
                                       min: 10,
                                       max: 300,
                                       value: _speedMs,
-                                      onChanged: _isStreaming ? null : (val) {
-                                        setState(() {
-                                          _speedMs = val;
-                                        });
-                                      },
+                                      onChanged: _isStreaming
+                                          ? null
+                                          : (val) {
+                                              setState(() {
+                                                _speedMs = val;
+                                              });
+                                            },
                                     ),
                                   ),
                                   Text(
                                     "${_speedMs.round()}ms",
-                                    style: const TextStyle(fontSize: 12, fontFamily: 'monospace'),
+                                    style: const TextStyle(
+                                      fontSize: 12,
+                                      fontFamily: 'monospace',
+                                    ),
                                   ),
                                 ],
                               ),
@@ -413,23 +485,31 @@ class _HomeScreenState extends State<HomeScreen> {
                                 children: [
                                   const Text(
                                     "Chunk: ",
-                                    style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold),
+                                    style: TextStyle(
+                                      fontSize: 12,
+                                      fontWeight: FontWeight.bold,
+                                    ),
                                   ),
                                   Expanded(
                                     child: Slider(
                                       min: 1,
                                       max: 20,
                                       value: _chunkSize,
-                                      onChanged: _isStreaming ? null : (val) {
-                                        setState(() {
-                                          _chunkSize = val;
-                                        });
-                                      },
+                                      onChanged: _isStreaming
+                                          ? null
+                                          : (val) {
+                                              setState(() {
+                                                _chunkSize = val;
+                                              });
+                                            },
                                     ),
                                   ),
                                   Text(
                                     "${_chunkSize.round()} char",
-                                    style: const TextStyle(fontSize: 12, fontFamily: 'monospace'),
+                                    style: const TextStyle(
+                                      fontSize: 12,
+                                      fontFamily: 'monospace',
+                                    ),
                                   ),
                                 ],
                               ),
@@ -440,42 +520,78 @@ class _HomeScreenState extends State<HomeScreen> {
                               mainAxisSize: MainAxisSize.min,
                               children: [
                                 ElevatedButton.icon(
-                                  onPressed: !_isStreaming ? _startSimulation : _pauseOrResumeSimulation,
+                                  onPressed: !_isStreaming
+                                      ? _startSimulation
+                                      : _pauseOrResumeSimulation,
                                   style: ElevatedButton.styleFrom(
                                     backgroundColor: !_isStreaming
                                         ? Theme.of(context).colorScheme.primary
-                                        : (_isPaused ? Colors.amber.shade700 : Theme.of(context).colorScheme.secondary),
+                                        : (_isPaused
+                                              ? Colors.amber.shade700
+                                              : Theme.of(
+                                                  context,
+                                                ).colorScheme.secondary),
                                     foregroundColor: Colors.white,
-                                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+                                    shape: RoundedRectangleBorder(
+                                      borderRadius: BorderRadius.circular(8),
+                                    ),
                                   ),
                                   icon: Icon(
                                     !_isStreaming
                                         ? Icons.play_arrow_rounded
-                                        : (_isPaused ? Icons.play_arrow_rounded : Icons.pause_rounded),
+                                        : (_isPaused
+                                              ? Icons.play_arrow_rounded
+                                              : Icons.pause_rounded),
                                     size: 16,
                                   ),
                                   label: Text(
-                                    !_isStreaming ? 'Start' : (_isPaused ? 'Resume' : 'Pause'),
-                                    style: const TextStyle(fontSize: 12, fontWeight: FontWeight.bold),
+                                    !_isStreaming
+                                        ? 'Start'
+                                        : (_isPaused ? 'Resume' : 'Pause'),
+                                    style: const TextStyle(
+                                      fontSize: 12,
+                                      fontWeight: FontWeight.bold,
+                                    ),
                                   ),
                                 ),
                                 const SizedBox(width: 8),
                                 OutlinedButton.icon(
-                                  onPressed: _isStreaming ? _stopSimulation : null,
+                                  onPressed: _isStreaming
+                                      ? _stopSimulation
+                                      : null,
                                   style: OutlinedButton.styleFrom(
-                                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+                                    shape: RoundedRectangleBorder(
+                                      borderRadius: BorderRadius.circular(8),
+                                    ),
                                   ),
-                                  icon: const Icon(Icons.stop_rounded, size: 16),
-                                  label: const Text("Stop", style: TextStyle(fontSize: 12)),
+                                  icon: const Icon(
+                                    Icons.stop_rounded,
+                                    size: 16,
+                                  ),
+                                  label: const Text(
+                                    "Stop",
+                                    style: TextStyle(fontSize: 12),
+                                  ),
                                 ),
                                 const SizedBox(width: 8),
                                 OutlinedButton.icon(
-                                  onPressed: _isStreaming || _terminalText.isNotEmpty ? _resetSimulation : null,
+                                  onPressed:
+                                      _isStreaming || _terminalText.isNotEmpty
+                                      ? _resetSimulation
+                                      : null,
                                   style: OutlinedButton.styleFrom(
-                                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+                                    shape: RoundedRectangleBorder(
+                                      borderRadius: BorderRadius.circular(8),
+                                    ),
                                   ),
-                                  icon: const Icon(Icons.replay_rounded, size: 16),
-                                  label: const Text("Reset", style: TextStyle(fontSize: 12)),
+                                  icon: const Icon(
+                                    Icons.replay_rounded,
+                                    size: 16,
+                                  ),
+                                  label: const Text(
+                                    "Reset",
+                                    style: TextStyle(fontSize: 12),
+                                  ),
                                 ),
                               ],
                             ),
@@ -515,12 +631,19 @@ class _HomeScreenState extends State<HomeScreen> {
                               children: [
                                 // Terminal Header
                                 Container(
-                                  padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+                                  padding: const EdgeInsets.symmetric(
+                                    horizontal: 16,
+                                    vertical: 10,
+                                  ),
                                   decoration: BoxDecoration(
                                     color: const Color(0xFF1C1C1C),
-                                    borderRadius: const BorderRadius.vertical(top: Radius.circular(15)),
+                                    borderRadius: const BorderRadius.vertical(
+                                      top: Radius.circular(15),
+                                    ),
                                     border: Border.all(
-                                      color: Colors.white.withValues(alpha: 0.04),
+                                      color: Colors.white.withValues(
+                                        alpha: 0.04,
+                                      ),
                                       width: 1,
                                     ),
                                   ),
@@ -529,11 +652,32 @@ class _HomeScreenState extends State<HomeScreen> {
                                       // Window control dots
                                       Row(
                                         children: [
-                                          Container(width: 10, height: 10, decoration: const BoxDecoration(color: Color(0xFFFF5F56), shape: BoxShape.circle)),
+                                          Container(
+                                            width: 10,
+                                            height: 10,
+                                            decoration: const BoxDecoration(
+                                              color: Color(0xFFFF5F56),
+                                              shape: BoxShape.circle,
+                                            ),
+                                          ),
                                           const SizedBox(width: 6),
-                                          Container(width: 10, height: 10, decoration: const BoxDecoration(color: Color(0xFFFFBD2E), shape: BoxShape.circle)),
+                                          Container(
+                                            width: 10,
+                                            height: 10,
+                                            decoration: const BoxDecoration(
+                                              color: Color(0xFFFFBD2E),
+                                              shape: BoxShape.circle,
+                                            ),
+                                          ),
                                           const SizedBox(width: 6),
-                                          Container(width: 10, height: 10, decoration: const BoxDecoration(color: Color(0xFF27C93F), shape: BoxShape.circle)),
+                                          Container(
+                                            width: 10,
+                                            height: 10,
+                                            decoration: const BoxDecoration(
+                                              color: Color(0xFF27C93F),
+                                              shape: BoxShape.circle,
+                                            ),
+                                          ),
                                         ],
                                       ),
                                       const Expanded(
@@ -549,7 +693,9 @@ class _HomeScreenState extends State<HomeScreen> {
                                           ),
                                         ),
                                       ),
-                                      const SizedBox(width: 42), // Spacer to balance dots
+                                      const SizedBox(
+                                        width: 42,
+                                      ), // Spacer to balance dots
                                     ],
                                   ),
                                 ),
@@ -565,7 +711,9 @@ class _HomeScreenState extends State<HomeScreen> {
                                             fontSize: 13.0,
                                             height: 1.5,
                                           ),
-                                          children: _parseAndHighlight(_terminalText),
+                                          children: _parseAndHighlight(
+                                            _terminalText,
+                                          ),
                                         ),
                                       ),
                                     ),
@@ -580,10 +728,14 @@ class _HomeScreenState extends State<HomeScreen> {
                         Expanded(
                           child: Container(
                             decoration: BoxDecoration(
-                              color: Theme.of(context).colorScheme.surfaceContainerLow,
+                              color: Theme.of(
+                                context,
+                              ).colorScheme.surfaceContainerLow,
                               borderRadius: BorderRadius.circular(16),
                               border: Border.all(
-                                color: Theme.of(context).colorScheme.outline.withValues(alpha: 0.08),
+                                color: Theme.of(
+                                  context,
+                                ).colorScheme.outline.withValues(alpha: 0.08),
                                 width: 1.5,
                               ),
                             ),
@@ -592,23 +744,34 @@ class _HomeScreenState extends State<HomeScreen> {
                               children: [
                                 // Canvas Header
                                 Container(
-                                  padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+                                  padding: const EdgeInsets.symmetric(
+                                    horizontal: 16,
+                                    vertical: 10,
+                                  ),
                                   decoration: BoxDecoration(
-                                    color: Theme.of(context).colorScheme.surfaceContainer,
-                                    borderRadius: const BorderRadius.vertical(top: Radius.circular(15)),
+                                    color: Theme.of(
+                                      context,
+                                    ).colorScheme.surfaceContainer,
+                                    borderRadius: const BorderRadius.vertical(
+                                      top: Radius.circular(15),
+                                    ),
                                   ),
                                   child: Row(
                                     children: [
                                       Icon(
                                         Icons.layers_outlined,
                                         size: 14,
-                                        color: Theme.of(context).colorScheme.onSurfaceVariant,
+                                        color: Theme.of(
+                                          context,
+                                        ).colorScheme.onSurfaceVariant,
                                       ),
                                       const SizedBox(width: 8),
                                       Text(
                                         "VISUAL CANVAS OUTPUT",
                                         style: TextStyle(
-                                          color: Theme.of(context).colorScheme.onSurfaceVariant,
+                                          color: Theme.of(
+                                            context,
+                                          ).colorScheme.onSurfaceVariant,
                                           fontSize: 10,
                                           fontWeight: FontWeight.bold,
                                           letterSpacing: 1.5,
@@ -623,7 +786,9 @@ class _HomeScreenState extends State<HomeScreen> {
                                     padding: const EdgeInsets.all(24.0),
                                     child: Center(
                                       child: ConstrainedBox(
-                                        constraints: const BoxConstraints(maxWidth: 400),
+                                        constraints: const BoxConstraints(
+                                          maxWidth: 400,
+                                        ),
                                         child: _genUi.view('playground-view'),
                                       ),
                                     ),

@@ -578,7 +578,9 @@ class _PreviewPageState extends State<PreviewPage> {
                         shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(18),
                           side: BorderSide(
-                            color: theme.colorScheme.outline.withValues(alpha: 0.12),
+                            color: theme.colorScheme.outline.withValues(
+                              alpha: 0.12,
+                            ),
                           ),
                         ),
                         elevation: 1,
@@ -621,7 +623,9 @@ class _PreviewPageState extends State<PreviewPage> {
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(14),
                       side: BorderSide(
-                        color: theme.colorScheme.outline.withValues(alpha: 0.12),
+                        color: theme.colorScheme.outline.withValues(
+                          alpha: 0.12,
+                        ),
                       ),
                     ),
                   ),
@@ -665,7 +669,9 @@ class _PreviewPageState extends State<PreviewPage> {
                         ? Icons.description_rounded
                         : Icons.code_rounded,
                     size: 14,
-                    color: theme.colorScheme.onSurfaceVariant.withValues(alpha: 0.7),
+                    color: theme.colorScheme.onSurfaceVariant.withValues(
+                      alpha: 0.7,
+                    ),
                   ),
                   const SizedBox(width: 8),
                   Text(
@@ -674,8 +680,8 @@ class _PreviewPageState extends State<PreviewPage> {
                       fontFamily: 'monospace',
                       fontSize: 12,
                       fontWeight: FontWeight.w600,
-                      color: theme.colorScheme.onSurfaceVariant.withValues(alpha: 
-                        0.9,
+                      color: theme.colorScheme.onSurfaceVariant.withValues(
+                        alpha: 0.9,
                       ),
                     ),
                   ),
@@ -791,7 +797,7 @@ class _PreviewPageState extends State<PreviewPage> {
           ),
           const SizedBox(height: 4),
           Text(
-            "Use the + operator on Registries.all, filtered to only the widget you need.",
+            "Extract only the widget you need using the list-based .only() filter.",
             style: TextStyle(
               fontSize: 12,
               color: theme.colorScheme.onSurfaceVariant.withValues(alpha: 0.8),
@@ -802,15 +808,17 @@ class _PreviewPageState extends State<PreviewPage> {
             fileName: "registration.dart",
             code:
                 "import 'package:streaming_gen_ui/streaming_gen_ui.dart';\n\n"
-                "final myRegistry = WidgetRegistry()\n"
-                "  + Registries.all.only('${widget.catalogItem.namespace}');",
+                "final myRegistry = Registries.all.only([\n"
+                "  '${widget.catalogItem.namespace}',\n"
+                "]);",
             theme: theme,
             onCopy: () async {
               final messenger = ScaffoldMessenger.of(context);
               final snippet =
                   "import 'package:streaming_gen_ui/streaming_gen_ui.dart';\n\n"
-                  "final myRegistry = WidgetRegistry()\n"
-                  "  + Registries.all.only('${widget.catalogItem.namespace}');";
+                  "final myRegistry = Registries.all.only([\n"
+                  "  '${widget.catalogItem.namespace}',\n"
+                  "]);";
               await Clipboard.setData(ClipboardData(text: snippet));
               messenger.showSnackBar(
                 const SnackBar(
@@ -1177,8 +1185,8 @@ class _PreviewPageState extends State<PreviewPage> {
                                   Container(
                                     width: 1,
                                     height: 18,
-                                    color: theme.colorScheme.outline.withValues(alpha: 
-                                      0.2,
+                                    color: theme.colorScheme.outline.withValues(
+                                      alpha: 0.2,
                                     ),
                                   ),
                                 ],
@@ -1188,10 +1196,10 @@ class _PreviewPageState extends State<PreviewPage> {
                                 IconButton(
                                   visualDensity: VisualDensity.compact,
                                   iconSize: isMobile ? 14 : 16,
-                                  padding: isMobile ? const EdgeInsets.all(2) : const EdgeInsets.all(8),
-                                  icon: const Icon(
-                                    Icons.remove_rounded,
-                                  ),
+                                  padding: isMobile
+                                      ? const EdgeInsets.all(2)
+                                      : const EdgeInsets.all(8),
+                                  icon: const Icon(Icons.remove_rounded),
                                   tooltip: "Decrease Chunk Size",
                                   onPressed: () {
                                     if (_chunkSize > 1) {
@@ -1213,7 +1221,9 @@ class _PreviewPageState extends State<PreviewPage> {
                                 IconButton(
                                   visualDensity: VisualDensity.compact,
                                   iconSize: isMobile ? 14 : 16,
-                                  padding: isMobile ? const EdgeInsets.all(2) : const EdgeInsets.all(8),
+                                  padding: isMobile
+                                      ? const EdgeInsets.all(2)
+                                      : const EdgeInsets.all(8),
                                   icon: const Icon(Icons.add_rounded),
                                   tooltip: "Increase Chunk Size",
                                   onPressed: () {
@@ -1229,8 +1239,8 @@ class _PreviewPageState extends State<PreviewPage> {
                                 Container(
                                   width: 1,
                                   height: 18,
-                                  color: theme.colorScheme.outline.withValues(alpha: 
-                                    0.2,
+                                  color: theme.colorScheme.outline.withValues(
+                                    alpha: 0.2,
                                   ),
                                 ),
                                 const SizedBox(width: 4),
@@ -1239,10 +1249,10 @@ class _PreviewPageState extends State<PreviewPage> {
                                 IconButton(
                                   visualDensity: VisualDensity.compact,
                                   iconSize: isMobile ? 14 : 16,
-                                  padding: isMobile ? const EdgeInsets.all(2) : const EdgeInsets.all(8),
-                                  icon: const Icon(
-                                    Icons.remove_rounded,
-                                  ),
+                                  padding: isMobile
+                                      ? const EdgeInsets.all(2)
+                                      : const EdgeInsets.all(8),
+                                  icon: const Icon(Icons.remove_rounded),
                                   tooltip: "Speed Up Stream (Reduce Interval)",
                                   onPressed: () {
                                     if (_intervalMs > 50) {
@@ -1264,7 +1274,9 @@ class _PreviewPageState extends State<PreviewPage> {
                                 IconButton(
                                   visualDensity: VisualDensity.compact,
                                   iconSize: isMobile ? 14 : 16,
-                                  padding: isMobile ? const EdgeInsets.all(2) : const EdgeInsets.all(8),
+                                  padding: isMobile
+                                      ? const EdgeInsets.all(2)
+                                      : const EdgeInsets.all(8),
                                   icon: const Icon(Icons.add_rounded),
                                   tooltip:
                                       "Slow Down Stream (Increase Interval)",
@@ -1281,8 +1293,8 @@ class _PreviewPageState extends State<PreviewPage> {
                                 Container(
                                   width: 1,
                                   height: 18,
-                                  color: theme.colorScheme.outline.withValues(alpha: 
-                                    0.2,
+                                  color: theme.colorScheme.outline.withValues(
+                                    alpha: 0.2,
                                   ),
                                 ),
                                 const SizedBox(width: 6),
@@ -1291,7 +1303,9 @@ class _PreviewPageState extends State<PreviewPage> {
                                 IconButton(
                                   visualDensity: VisualDensity.compact,
                                   iconSize: isMobile ? 14 : 18,
-                                  padding: isMobile ? const EdgeInsets.all(2) : const EdgeInsets.all(8),
+                                  padding: isMobile
+                                      ? const EdgeInsets.all(2)
+                                      : const EdgeInsets.all(8),
                                   tooltip: _isPaused
                                       ? "Resume Streaming"
                                       : "Pause Streaming",
@@ -1307,11 +1321,11 @@ class _PreviewPageState extends State<PreviewPage> {
                                 IconButton(
                                   visualDensity: VisualDensity.compact,
                                   iconSize: isMobile ? 14 : 18,
-                                  padding: isMobile ? const EdgeInsets.all(2) : const EdgeInsets.all(8),
+                                  padding: isMobile
+                                      ? const EdgeInsets.all(2)
+                                      : const EdgeInsets.all(8),
                                   tooltip: "Restart Stream",
-                                  icon: const Icon(
-                                    Icons.replay_rounded,
-                                  ),
+                                  icon: const Icon(Icons.replay_rounded),
                                   onPressed: _resetStream,
                                 ),
                               ],
@@ -1452,13 +1466,13 @@ class _BreathingDotState extends State<BreathingDot>
           height: 8,
           decoration: BoxDecoration(
             shape: BoxShape.circle,
-            color: Colors.lightBlueAccent.withValues(alpha: 
-              0.3 + (0.7 * _controller.value),
+            color: Colors.lightBlueAccent.withValues(
+              alpha: 0.3 + (0.7 * _controller.value),
             ),
             boxShadow: [
               BoxShadow(
-                color: Colors.lightBlueAccent.withValues(alpha: 
-                  0.3 * _controller.value,
+                color: Colors.lightBlueAccent.withValues(
+                  alpha: 0.3 * _controller.value,
                 ),
                 blurRadius: 4 + (6 * _controller.value),
                 spreadRadius: 2 * _controller.value,
@@ -1560,7 +1574,9 @@ class _PropertiesHeaderToggleState extends State<_PropertiesHeaderToggle> {
               ),
               boxShadow: [
                 BoxShadow(
-                  color: Colors.black.withValues(alpha: _isHovered ? 0.08 : 0.03),
+                  color: Colors.black.withValues(
+                    alpha: _isHovered ? 0.08 : 0.03,
+                  ),
                   blurRadius: _isHovered ? 8 : 3,
                   offset: Offset(0, _isHovered ? 4 : 1),
                 ),
@@ -1582,8 +1598,8 @@ class _PropertiesHeaderToggleState extends State<_PropertiesHeaderToggle> {
                     style: TextStyle(
                       fontSize: 15,
                       fontWeight: FontWeight.w600,
-                      color: theme.colorScheme.onSurfaceVariant.withValues(alpha: 
-                        _isHovered ? 1.0 : 0.9,
+                      color: theme.colorScheme.onSurfaceVariant.withValues(
+                        alpha: _isHovered ? 1.0 : 0.9,
                       ),
                       letterSpacing: 0.3,
                     ),
@@ -1619,8 +1635,8 @@ class _PropertiesHeaderToggleState extends State<_PropertiesHeaderToggle> {
                   child: Icon(
                     Icons.keyboard_arrow_down_rounded,
                     size: 20,
-                    color: theme.colorScheme.onSurfaceVariant.withValues(alpha: 
-                      _isHovered ? 0.8 : 0.6,
+                    color: theme.colorScheme.onSurfaceVariant.withValues(
+                      alpha: _isHovered ? 0.8 : 0.6,
                     ),
                   ),
                 ),

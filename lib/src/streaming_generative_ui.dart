@@ -56,10 +56,7 @@ class StreamingGenerativeUi with ChangeNotifier {
     this.config = const GenerativeUiConfig(),
     this.extraInstructions = const [],
     this.customViewIds,
-  }) : registry = registries.fold(
-          WidgetRegistry(widgets: {}),
-          (a, b) => a + b,
-        );
+  }) : registry = registries.fold(WidgetRegistry(widgets: {}), (a, b) => a + b);
 
   /// Swaps the active widget registry in-place. Existing rendered views keep
   /// their snapshot (widgets already on screen remain visible). Only new
@@ -72,10 +69,7 @@ class StreamingGenerativeUi with ChangeNotifier {
   /// Swaps the active widget registries in-place. Existing rendered views keep
   /// their snapshot. Only new streams will use the updated registries.
   void updateRegistries(List<WidgetRegistry> newRegistries) {
-    registry = newRegistries.fold(
-      WidgetRegistry(widgets: {}),
-      (a, b) => a + b,
-    );
+    registry = newRegistries.fold(WidgetRegistry(widgets: {}), (a, b) => a + b);
     notifyListeners();
   }
 

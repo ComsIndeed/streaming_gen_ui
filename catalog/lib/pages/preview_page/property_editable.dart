@@ -93,7 +93,9 @@ class _PropertyEditableState extends State<PropertyEditable> {
       decoration: ShapeDecoration(
         shape: RoundedSuperellipseBorder(
           borderRadius: BorderRadius.circular(16),
-          side: BorderSide(color: theme.colorScheme.outline.withValues(alpha: 0.08)),
+          side: BorderSide(
+            color: theme.colorScheme.outline.withValues(alpha: 0.08),
+          ),
         ),
         color: theme.colorScheme.surfaceContainerLow.withValues(alpha: 0.4),
       ),
@@ -120,8 +122,8 @@ class _PropertyEditableState extends State<PropertyEditable> {
                     propertyDesc,
                     style: TextStyle(
                       fontSize: 12,
-                      color: theme.colorScheme.onSurfaceVariant.withValues(alpha: 
-                        0.7,
+                      color: theme.colorScheme.onSurfaceVariant.withValues(
+                        alpha: 0.7,
                       ),
                     ),
                   ),
@@ -417,7 +419,9 @@ class _PropertyEditableState extends State<PropertyEditable> {
           ),
         ),
         filled: true,
-        fillColor: theme.colorScheme.surfaceContainerHighest.withValues(alpha: 0.2),
+        fillColor: theme.colorScheme.surfaceContainerHighest.withValues(
+          alpha: 0.2,
+        ),
         contentPadding: const EdgeInsets.all(12),
       ),
     );
@@ -507,7 +511,9 @@ class _PropertyEditableState extends State<PropertyEditable> {
       value: val,
       title: const Text("Enable Mode", style: TextStyle(fontSize: 14)),
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-      tileColor: theme.colorScheme.surfaceContainerHighest.withValues(alpha: 0.15),
+      tileColor: theme.colorScheme.surfaceContainerHighest.withValues(
+        alpha: 0.15,
+      ),
       contentPadding: const EdgeInsets.symmetric(horizontal: 16),
       onChanged: (newVal) => _updateValue(newVal),
     );
