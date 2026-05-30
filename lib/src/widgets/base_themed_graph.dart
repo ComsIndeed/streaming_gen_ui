@@ -202,22 +202,14 @@ class _BaseThemedGraphCardState extends State<BaseThemedGraphCard> {
     List<dynamic> labels,
     List<dynamic> values,
   ) {
-    if (values.isEmpty) {
-      return const SizedBox(
-        height: 150,
-        child: Center(child: Text('Awaiting streaming data...')),
-      );
+    final numValues = values.whereType<num>().map((e) => e.toDouble()).toList();
+
+    if (numValues.isEmpty) {
+      return const SizedBox(height: 150);
     }
 
     final themeData = Theme.of(context);
-    final numValues = values
-        .where((e) => e != null)
-        .map((e) => (e as num).toDouble())
-        .toList();
-    double maxVal = 0;
-    if (numValues.isNotEmpty) {
-      maxVal = numValues.reduce((a, b) => a > b ? a : b);
-    }
+    double maxVal = numValues.reduce((a, b) => a > b ? a : b);
     final double scaleMax = maxVal == 0 ? 1.0 : maxVal * 1.15;
 
     final primaryAccent = widget.themeName == 'brutalist'
@@ -297,7 +289,9 @@ class _BaseThemedGraphCardState extends State<BaseThemedGraphCard> {
     List<dynamic> labels,
     List<dynamic> values,
   ) {
-    if (values.isEmpty) {
+    final numValues = values.whereType<num>().map((e) => e.toDouble()).toList();
+
+    if (numValues.isEmpty) {
       return const SizedBox(
         height: 150,
         child: Center(child: Text('Awaiting streaming data...')),
@@ -305,7 +299,6 @@ class _BaseThemedGraphCardState extends State<BaseThemedGraphCard> {
     }
 
     final themeData = Theme.of(context);
-    final numValues = values.map((e) => (e as num).toDouble()).toList();
 
     return SizedBox(
       height: 160,
@@ -330,14 +323,15 @@ class _BaseThemedGraphCardState extends State<BaseThemedGraphCard> {
     List<dynamic> labels,
     List<dynamic> values,
   ) {
-    if (values.isEmpty) {
+    final numValues = values.whereType<num>().map((e) => e.toDouble()).toList();
+
+    if (numValues.isEmpty) {
       return const SizedBox(
         height: 150,
         child: Center(child: Text('Awaiting streaming data...')),
       );
     }
 
-    final numValues = values.map((e) => (e as num).toDouble()).toList();
     final double total = numValues.reduce((a, b) => a + b);
 
     final colors = widget.themeName == 'brutalist'
