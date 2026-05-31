@@ -540,7 +540,7 @@ class _ChatDemoPageState extends State<ChatDemoPage> {
       child: Container(
         constraints: const BoxConstraints(maxWidth: 720),
         child: ScrollConfiguration(
-          behavior: ScrollConfiguration.of(context).copyWith(scrollbars: false),
+          behavior: ScrollConfiguration.of(context).copyWith(scrollbars: true),
           child: ListView.builder(
             reverse: true,
             itemCount: state.messages.length,
