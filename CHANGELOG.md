@@ -1,4 +1,20 @@
+## 0.2.2
+
+### Performance Improvements & Optimization
+
+- **Zero-Frame Synchronous Hydration (`AdaptiveStreamBuilder`)** — Replaces standard `StreamBuilder` in all themed cards. Avoids the 1-frame async microtask rendering delay by synchronously listening to immediate cached stream emissions and falling back to provider-level properties map on frame 1, eliminating mounting flickers and layout shifts when viewing completed/historical messages.
+- **Adaptive Height Snapping (`AdaptiveAnimatedSize`)** — Replaces standard `AnimatedSize` across cards and layout structures. If a card is completed or animations are disabled, it immediately snaps to the final layout boundaries on frame 1, completely resolving the animation loop layout crash (`RenderAnimatedSize was mutated in its own performLayout implementation`) during fast list scroll operations.
+- **Synchronous Future-Bypassing (`WidgetBlock`)** — Avoids asynchronous `FutureBuilder` lookup for resolved widget namespaces once the LLM stream completes.
+- **Flat Multi-Stream Coordination (`AdaptiveMultiStreamBuilder`)** — Utility to flatly coordinate and merge multiple property streams without nesting.
+
+### Bug Fixes
+
+- Fixed demo list scroll jank by re-enabling scrollbars and locking rendering boundaries in the catalog chat page.
+
+---
+
 ## 0.2.1
+
 
 ### New Features
 
