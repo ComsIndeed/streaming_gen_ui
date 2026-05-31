@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:llm_json_stream/llm_json_stream.dart';
 import 'package:streaming_gen_ui/src/widgets/streaming_widget.dart';
 import 'package:streaming_gen_ui/src/widgets/core/streaming_entrance.dart';
+import 'package:streaming_gen_ui/src/widgets/adaptive_stream_builder.dart';
 
 /// A premium, shared media and widget slider supporting horizontal page-snapping
 /// viewport slides and 3D layered stacking cards deck.
@@ -41,7 +42,7 @@ class _BaseThemedCarouselState extends State<BaseThemedCarousel> {
     final itemsProperty = mapStream.getListProperty("items");
 
     return StreamingEntrance(
-      child: StreamBuilder<Map<String, dynamic>>(
+      child: AdaptiveStreamBuilder<Map<String, dynamic>>(
         stream: mapStream.stream,
         builder: (context, snapshot) {
           final data = snapshot.data ?? const {};

@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:llm_json_stream/llm_json_stream.dart';
 import 'package:streaming_gen_ui/src/widgets/streaming_widget.dart';
 import 'package:streaming_gen_ui/src/widgets/core/streaming_entrance.dart';
+import 'package:streaming_gen_ui/src/widgets/core/adaptive_animated_size.dart';
 
 /// A layout component that dynamically displays nested children vertically
 /// as they stream in progressively.
@@ -33,9 +34,7 @@ class StreamingColumn extends StatelessWidget {
           ),
         );
 
-        return AnimatedSize(
-          duration: const Duration(milliseconds: 300),
-          curve: Curves.easeOutCubic,
+        return AdaptiveAnimatedSize(
           alignment: Alignment
               .topCenter, // Lock alignment vertically to top-center to prevent jitter
           child: Column(

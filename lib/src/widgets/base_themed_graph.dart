@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:llm_json_stream/llm_json_stream.dart';
 import 'package:streaming_gen_ui/src/widgets/theme_style_helper.dart';
 import 'package:streaming_gen_ui/src/widgets/core/streaming_entrance.dart';
+import 'package:streaming_gen_ui/src/widgets/adaptive_stream_builder.dart';
 
 /// A premium, responsive data visualization card supporting M3, Fluent, Apple,
 /// Glassmorphic, Neumorphic, Skeuomorphic, and Neo-Brutalist design aesthetics.
@@ -152,7 +153,7 @@ class _BaseThemedGraphCardState extends State<BaseThemedGraphCard> {
     final mapStream = widget.props.asMap;
 
     return StreamingEntrance(
-      child: StreamBuilder<Map<String, dynamic>>(
+      child: AdaptiveStreamBuilder<Map<String, dynamic>>(
         stream: mapStream.stream,
         builder: (context, snapshot) {
           final data = snapshot.data ?? const {};

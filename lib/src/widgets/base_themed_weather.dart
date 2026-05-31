@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:llm_json_stream/llm_json_stream.dart';
 import 'package:streaming_gen_ui/src/widgets/theme_style_helper.dart';
 import 'package:streaming_gen_ui/src/widgets/core/streaming_entrance.dart';
+import 'package:streaming_gen_ui/src/widgets/adaptive_stream_builder.dart';
+import 'package:streaming_gen_ui/src/widgets/core/adaptive_animated_size.dart';
 import 'package:streaming_gen_ui/src/widgets/core/themed_streaming_text.dart';
 
 /// A premium themed Weather Card supporting M3, Fluent, Apple, Glassmorphic,
@@ -28,7 +30,7 @@ class _BaseThemedWeatherCardState extends State<BaseThemedWeatherCard> {
     final mapStream = widget.props.asMap;
 
     return StreamingEntrance(
-      child: StreamBuilder<Map<String, dynamic>>(
+      child: AdaptiveStreamBuilder<Map<String, dynamic>>(
         stream: mapStream.stream,
         builder: (context, snapshot) {
           final data = snapshot.data ?? const {};
@@ -59,9 +61,7 @@ class _BaseThemedWeatherCardState extends State<BaseThemedWeatherCard> {
             context,
           );
 
-          final cardContent = AnimatedSize(
-            duration: const Duration(milliseconds: 300),
-            curve: Curves.easeOutCubic,
+          final cardContent = AdaptiveAnimatedSize(
             alignment: Alignment.topLeft,
             child: _buildCardContent(
               context,

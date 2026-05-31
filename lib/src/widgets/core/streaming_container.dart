@@ -31,6 +31,38 @@ class StreamingContainer extends StatelessWidget {
 
           final parsedColor = _parseColor(colorHex);
 
+          final disableAnimations =
+              StreamingUiProvider.maybeOf(context)?.disableAnimations ?? false;
+
+          if (disableAnimations) {
+            return Container(
+              width: width,
+              height: height,
+              decoration: BoxDecoration(
+                color:
+                    parsedColor ??
+                    Theme.of(context).colorScheme.surfaceContainerHigh,
+                borderRadius: BorderRadius.circular(borderRadiusVal),
+                border: Border.all(
+                  color: Theme.of(
+                    context,
+                  ).colorScheme.outline.withValues(alpha: 0.08),
+                ),
+                boxShadow: [
+                  BoxShadow(
+                    color: Colors.black.withValues(alpha: 0.04),
+                    blurRadius: 12,
+                    offset: const Offset(0, 6),
+                  ),
+                ],
+              ),
+              child: Padding(
+                padding: EdgeInsets.all(paddingVal),
+                child: StreamingWidget(props: childProp),
+              ),
+            );
+          }
+
           return AnimatedContainer(
             duration: const Duration(milliseconds: 300),
             curve: const Cubic(0.2, 0.8, 0.2, 1.0),

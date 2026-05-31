@@ -4,6 +4,8 @@ import 'package:streaming_gen_ui/src/widgets/streaming_widget.dart';
 import 'package:streaming_gen_ui/src/widgets/theme_style_helper.dart';
 import 'package:streaming_gen_ui/src/widgets/core/streaming_entrance.dart';
 import 'package:streaming_gen_ui/src/widgets/base_streaming_image.dart';
+import 'package:streaming_gen_ui/src/widgets/adaptive_stream_builder.dart';
+import 'package:streaming_gen_ui/src/widgets/core/adaptive_animated_size.dart';
 
 /// A premium, highly customizable shared card engine supporting M3, Fluent, Apple,
 /// Glassmorphism, Neumorphism, Skeuomorphism, and Neo-Brutalist aesthetics.
@@ -29,7 +31,7 @@ class _BaseThemedCardState extends State<BaseThemedCard> {
     final mapStream = widget.props.asMap;
 
     return StreamingEntrance(
-      child: StreamBuilder<Map<String, dynamic>>(
+      child: AdaptiveStreamBuilder<Map<String, dynamic>>(
         stream: mapStream.stream,
         builder: (context, snapshot) {
           final data = snapshot.data ?? const {};
@@ -343,10 +345,8 @@ class _BaseThemedCardState extends State<BaseThemedCard> {
       );
     }
 
-    // Organic height expansions wrapped in AnimatedSize (The Stable Alignment Rule)
-    return AnimatedSize(
-      duration: const Duration(milliseconds: 300),
-      curve: Curves.easeOutCubic,
+    // Organic height expansions wrapped in AdaptiveAnimatedSize (The Stable Alignment Rule)
+    return AdaptiveAnimatedSize(
       alignment: Alignment.topLeft,
       child: SingleChildScrollView(
         physics: const BouncingScrollPhysics(),

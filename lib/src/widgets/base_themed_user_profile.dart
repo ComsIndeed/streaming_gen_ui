@@ -3,6 +3,8 @@ import 'package:llm_json_stream/llm_json_stream.dart';
 import 'package:streaming_gen_ui/src/widgets/theme_style_helper.dart';
 import 'package:streaming_gen_ui/src/widgets/core/streaming_entrance.dart';
 import 'package:streaming_gen_ui/src/widgets/base_streaming_image.dart';
+import 'package:streaming_gen_ui/src/widgets/adaptive_stream_builder.dart';
+import 'package:streaming_gen_ui/src/widgets/core/adaptive_animated_size.dart';
 
 /// A premium, shared Profile Card widget that displays contacts and portfolios,
 /// providing offline-safe vector avatar fallbacks for privacy and premium styling.
@@ -28,7 +30,7 @@ class _BaseThemedUserProfileState extends State<BaseThemedUserProfile> {
     final mapStream = widget.props.asMap;
 
     return StreamingEntrance(
-      child: StreamBuilder<Map<String, dynamic>>(
+      child: AdaptiveStreamBuilder<Map<String, dynamic>>(
         stream: mapStream.stream,
         builder: (context, snapshot) {
           final data = snapshot.data ?? const {};
@@ -399,9 +401,7 @@ class _BaseThemedUserProfileState extends State<BaseThemedUserProfile> {
       ),
     );
 
-    return AnimatedSize(
-      duration: const Duration(milliseconds: 300),
-      curve: Curves.easeOutCubic,
+    return AdaptiveAnimatedSize(
       alignment: Alignment.topLeft,
       child: contentLayout,
     );

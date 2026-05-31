@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:llm_json_stream/llm_json_stream.dart';
 import 'package:streaming_gen_ui/src/widgets/core/streaming_entrance.dart';
 import 'package:streaming_gen_ui/src/widgets/base_streaming_image.dart';
+import 'package:streaming_gen_ui/src/widgets/core/adaptive_animated_size.dart';
 
 /// Aspect-ratio locked, progressive media renderer that pulses an offline
 /// shimmer placeholder and cross-fades loaded network images over 300ms.
@@ -26,18 +27,14 @@ class StreamingMedia extends StatelessWidget {
 
           // Empty parameter protection: do not render anything if parameters are missing
           if (url == null) {
-            return AnimatedSize(
-              duration: const Duration(milliseconds: 300),
-              curve: const Cubic(0.2, 0.8, 0.2, 1.0),
-              child: const SizedBox.shrink(),
+            return const AdaptiveAnimatedSize(
+              child: SizedBox.shrink(),
             );
           }
 
           final fit = _parseBoxFit(fitString);
 
-          return AnimatedSize(
-            duration: const Duration(milliseconds: 400),
-            curve: const Cubic(0.2, 0.8, 0.2, 1.0),
+          return AdaptiveAnimatedSize(
             alignment: Alignment.topCenter,
             child: BaseStreamingImage(
               props: props,

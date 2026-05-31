@@ -1,4 +1,5 @@
 import 'package:flutter/widgets.dart';
+import 'package:streaming_gen_ui/src/widgets/streaming_widget.dart';
 
 /// A premium entrance wrapper that automatically fades and scales in a widget
 /// from 0.96 to 1.0 using a signature Standard Snap cubic curve.
@@ -14,9 +15,13 @@ class StreamingEntrance extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final disableAnimations =
+        StreamingUiProvider.maybeOf(context)?.disableAnimations ?? false;
+    final activeDuration = disableAnimations ? Duration.zero : duration;
+
     return TweenAnimationBuilder<double>(
       tween: Tween<double>(begin: 0.0, end: 1.0),
-      duration: duration,
+      duration: activeDuration,
       curve: const Cubic(0.2, 0.8, 0.2, 1.0), // Standard Snap Curve
       builder: (context, value, child) {
         return Opacity(
