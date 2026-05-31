@@ -55,6 +55,7 @@ class ViewState with ChangeNotifier {
     if (_blocks.isNotEmpty) {
       _debugLog('closeActiveBlock: closing block ${_blocks.last.runtimeType}');
       _blocks.last.close();
+      notifyListeners();
     }
   }
 

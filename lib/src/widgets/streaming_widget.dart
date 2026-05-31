@@ -11,6 +11,8 @@ class StreamingUiProvider extends InheritedWidget {
   final bool showInternalErrors;
   final GenerativeUiErrorBuilder? errorBuilder;
   final GenerativeUiConfig config;
+  final bool disableAnimations;
+  final Map<String, dynamic>? latestProperties;
 
   const StreamingUiProvider({
     super.key,
@@ -18,6 +20,8 @@ class StreamingUiProvider extends InheritedWidget {
     required this.showInternalErrors,
     this.errorBuilder,
     this.config = const GenerativeUiConfig(),
+    this.disableAnimations = false,
+    this.latestProperties,
     required super.child,
   });
 
@@ -42,7 +46,9 @@ class StreamingUiProvider extends InheritedWidget {
       registry != oldWidget.registry ||
       showInternalErrors != oldWidget.showInternalErrors ||
       errorBuilder != oldWidget.errorBuilder ||
-      config != oldWidget.config;
+      config != oldWidget.config ||
+      disableAnimations != oldWidget.disableAnimations ||
+      latestProperties != oldWidget.latestProperties;
 }
 
 /// A reactive widget that dynamically resolves and displays a nested widget

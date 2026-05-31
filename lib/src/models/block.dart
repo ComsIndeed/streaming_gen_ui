@@ -2,6 +2,8 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:llm_json_stream/llm_json_stream.dart';
 import 'package:streaming_gen_ui/src/models/widget_registry.dart';
+import 'package:streaming_gen_ui/src/models/generative_ui_config.dart';
+import 'package:streaming_gen_ui/src/widgets/streaming_widget.dart';
 import 'package:streaming_gen_ui/src/widgets/accumulating_string_stream_builder.dart';
 import 'package:streaming_gen_ui/src/widgets/streaming_error_widget.dart';
 
@@ -21,6 +23,7 @@ sealed class Block {
   final StreamController<String> _controller =
       StreamController<String>.broadcast();
   bool _isClosed = false;
+  bool get isClosed => _isClosed;
 
   Block({required this.registry}) {
     _debugLog('Block created: $runtimeType');
@@ -118,6 +121,9 @@ class WidgetBlock extends Block {
   final bool showInternalErrors;
   final GenerativeUiErrorBuilder? errorBuilder;
 
+  String? _resolvedName;
+  Map<String, dynamic>? _latestMap;
+
   WidgetBlock({
     required super.registry,
     this.showInternalErrors = true,
@@ -128,7 +134,60 @@ class WidgetBlock extends Block {
     // Note: The spec uses "namespace" as the identifier key.
     _nameFuture = parser.getStringProperty("namespace").future;
     rootProps = parser.getMapProperty('');
+
+    _nameFuture.then((name) {
+      _resolvedName = name;
+    }).catchError((_) {});
+
+    rootProps.asMap.stream.listen((map) {
+      _latestMap = map;
+    }, onError: (_) {});
+
     _debugLog('WidgetBlock constructor end. rootProps initialized.');
+  }
+
+  Widget _buildSubtree(BuildContext context, String name) {
+    final widgetDefinition = registry.widgets[name];
+
+    if (widgetDefinition == null) {
+      return StreamingErrorWidget(
+        error: 'Widget "$name" not found in registry',
+        showInternalErrors: showInternalErrors,
+        customBuilder: errorBuilder,
+      );
+    }
+
+    final propsString = rootProps.toString();
+    pushBuildTrace(name, propsString);
+    try {
+      final child = widgetDefinition.builder(context, rootProps);
+      final parentProvider = StreamingUiProvider.maybeOf(context);
+      final configToUse = parentProvider?.config ?? const GenerativeUiConfig();
+
+      return StreamingUiProvider(
+        registry: registry,
+        showInternalErrors: showInternalErrors,
+        errorBuilder: errorBuilder,
+        config: configToUse,
+        disableAnimations: isClosed,
+        latestProperties: _latestMap,
+        child: StreamingWidgetWrapper(namespace: name, child: child),
+      );
+    } catch (e, stack) {
+      logGenUiError(
+        namespace: name,
+        error: e.toString(),
+        properties: propsString,
+        stack: stack,
+      );
+      return StreamingErrorWidget(
+        error: 'Rendering Error ($name): $e\n$stack',
+        showInternalErrors: showInternalErrors,
+        customBuilder: errorBuilder,
+      );
+    } finally {
+      popBuildTrace();
+    }
   }
 
   @override
@@ -136,6 +195,10 @@ class WidgetBlock extends Block {
     BuildContext context, {
     Widget Function(BuildContext context, String text)? textBlockBuilder,
   }) {
+    if (_resolvedName != null) {
+      return _buildSubtree(context, _resolvedName!);
+    }
+
     return FutureBuilder<String>(
       future: _nameFuture,
       builder: (context, snapshot) {
@@ -152,36 +215,7 @@ class WidgetBlock extends Block {
         }
 
         final name = snapshot.data!;
-        final widgetDefinition = registry.widgets[name];
-
-        if (widgetDefinition == null) {
-          return StreamingErrorWidget(
-            error: 'Widget "$name" not found in registry',
-            showInternalErrors: showInternalErrors,
-            customBuilder: errorBuilder,
-          );
-        }
-
-        final propsString = rootProps.toString();
-        pushBuildTrace(name, propsString);
-        try {
-          final child = widgetDefinition.builder(context, rootProps);
-          return StreamingWidgetWrapper(namespace: name, child: child);
-        } catch (e, stack) {
-          logGenUiError(
-            namespace: name,
-            error: e.toString(),
-            properties: propsString,
-            stack: stack,
-          );
-          return StreamingErrorWidget(
-            error: 'Rendering Error ($name): $e\n$stack',
-            showInternalErrors: showInternalErrors,
-            customBuilder: errorBuilder,
-          );
-        } finally {
-          popBuildTrace();
-        }
+        return _buildSubtree(context, name);
       },
     );
   }

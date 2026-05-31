@@ -9,3 +9,6 @@ export 'src/widgets/core/streaming_entrance.dart';
 export 'src/widgets/registries/registries.dart';
 export 'src/widgets/streaming_widget.dart';
 export 'src/widgets/streaming_error_widget.dart';
+export 'src/widgets/core/adaptive_animated_size.dart';
+export 'src/widgets/adaptive_stream_builder.dart';
+export 'src/widgets/adaptive_multi_stream_builder.dart';
