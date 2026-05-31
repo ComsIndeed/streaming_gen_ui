@@ -4,6 +4,7 @@ import 'package:llm_json_stream/llm_json_stream.dart';
 import 'package:streaming_gen_ui/src/widgets/theme_style_helper.dart';
 import 'package:streaming_gen_ui/src/widgets/core/streaming_entrance.dart';
 import 'package:streaming_gen_ui/src/widgets/adaptive_stream_builder.dart';
+import 'package:streaming_gen_ui/src/widgets/streaming_widget.dart';
 
 /// A premium, responsive data visualization card supporting M3, Fluent, Apple,
 /// Glassmorphic, Neumorphic, Skeuomorphic, and Neo-Brutalist design aesthetics.
@@ -33,6 +34,38 @@ class _BaseThemedGraphCardState extends State<BaseThemedGraphCard> {
   void initState() {
     super.initState();
     _initStreamingListeners();
+
+    // Synchronous hydration check for completed graphs
+    final element =
+        context.getElementForInheritedWidgetOfExactType<StreamingUiProvider>();
+    final provider = element?.widget as StreamingUiProvider?;
+    if (provider != null && provider.disableAnimations) {
+      final data = provider.latestProperties;
+      if (data != null) {
+        final labels = data["labels"] as List<dynamic>?;
+        if (labels != null) {
+          _streamingLabels.addAll(labels.map((e) => e.toString()));
+        }
+        final values = data["values"] as List<dynamic>?;
+        if (values != null) {
+          _streamingValues.addAll(
+            values.whereType<num>().map((e) => e.toDouble()),
+          );
+        }
+        final headers = data["headers"] as List<dynamic>?;
+        if (headers != null) {
+          _streamingHeaders.addAll(headers.map((e) => e.toString()));
+        }
+        final rows = data["rows"] as List<dynamic>?;
+        if (rows != null) {
+          for (final row in rows) {
+            if (row is List<dynamic>) {
+              _streamingRows.add(List<dynamic>.from(row));
+            }
+          }
+        }
+      }
+    }
   }
 
   @override

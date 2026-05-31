@@ -102,6 +102,14 @@ class TextBlock extends Block {
     BuildContext context, {
     Widget Function(BuildContext context, String text)? textBlockBuilder,
   }) {
+    if (isClosed) {
+      final fullText = _chunks.join('');
+      if (textBlockBuilder != null) {
+        return textBlockBuilder(context, fullText);
+      }
+      return Text(fullText);
+    }
+
     return AccumulatingStringStreamBuilder(
       stream: stream,
       builder: (context, accumulated) {

@@ -25,6 +25,7 @@ class BaseThemedNoteCard extends StatefulWidget {
 
 class _BaseThemedNoteCardState extends State<BaseThemedNoteCard> {
   bool _isPressed = false;
+  Map<String, dynamic> _latestData = const {};
   bool _localCompleted = false;
   bool _completionOverridden = false;
 
@@ -37,6 +38,7 @@ class _BaseThemedNoteCardState extends State<BaseThemedNoteCard> {
         stream: mapStream.stream,
         builder: (context, snapshot) {
           final data = snapshot.data ?? const {};
+          _latestData = data;
           final settings =
               data["themeSettings"] as Map<String, dynamic>? ?? const {};
 
@@ -324,10 +326,9 @@ class _BaseThemedNoteCardState extends State<BaseThemedNoteCard> {
             ),
           ],
           // Streaming Tags Row
-          StreamBuilder<List<dynamic>>(
-            stream: tagsProp.asList.stream,
-            builder: (context, snapshot) {
-              final list = snapshot.data ?? const [];
+          Builder(
+            builder: (context) {
+              final list = _latestData["tags"] as List<dynamic>? ?? const [];
               if (list.isEmpty) return const SizedBox.shrink();
 
               return Column(

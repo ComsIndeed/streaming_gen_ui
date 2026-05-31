@@ -13,6 +13,33 @@ class StreamingColumn extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final element =
+        context.getElementForInheritedWidgetOfExactType<StreamingUiProvider>();
+    final provider = element?.widget as StreamingUiProvider?;
+    final isClosed = provider?.disableAnimations ?? false;
+
+    if (isClosed) {
+      final list = provider?.latestProperties?["children"] as List<dynamic>? ??
+          const [];
+      final childrenList = List.generate(
+        list.length,
+        (index) => StreamingEntrance(
+          child: StreamingWidget(
+            props: childrenProperty.getMapProperty('[$index]'),
+          ),
+        ),
+      );
+
+      return AdaptiveAnimatedSize(
+        alignment: Alignment.topCenter,
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: childrenList,
+        ),
+      );
+    }
+
     return StreamBuilder<List<dynamic>>(
       stream: childrenProperty.stream,
       builder: (context, snapshot) {

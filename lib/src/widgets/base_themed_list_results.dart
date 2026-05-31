@@ -24,6 +24,7 @@ class BaseThemedListResultsCard extends StatefulWidget {
 
 class _BaseThemedListResultsCardState extends State<BaseThemedListResultsCard> {
   bool _isPressed = false;
+  Map<String, dynamic> _latestData = const {};
 
   @override
   Widget build(BuildContext context) {
@@ -34,6 +35,7 @@ class _BaseThemedListResultsCardState extends State<BaseThemedListResultsCard> {
         stream: mapStream.stream,
         builder: (context, snapshot) {
           final data = snapshot.data ?? const {};
+          _latestData = data;
           final settings =
               data["themeSettings"] as Map<String, dynamic>? ?? const {};
 
@@ -195,10 +197,9 @@ class _BaseThemedListResultsCardState extends State<BaseThemedListResultsCard> {
           ),
           const SizedBox(height: 12),
           // Streaming tile rows
-          StreamBuilder<List<dynamic>>(
-            stream: itemsProp.asList.stream,
-            builder: (context, snapshot) {
-              final list = snapshot.data ?? const [];
+          Builder(
+            builder: (context) {
+              final list = _latestData["items"] as List<dynamic>? ?? const [];
               if (list.isEmpty) {
                 return const Padding(
                   padding: EdgeInsets.symmetric(vertical: 20.0),

@@ -27,6 +27,7 @@ class BaseThemedProductResultCard extends StatefulWidget {
 class _BaseThemedProductResultCardState
     extends State<BaseThemedProductResultCard> {
   bool _isPressed = false;
+  Map<String, dynamic> _latestData = const {};
 
   @override
   Widget build(BuildContext context) {
@@ -37,6 +38,7 @@ class _BaseThemedProductResultCardState
         stream: mapStream.stream,
         builder: (context, snapshot) {
           final data = snapshot.data ?? const {};
+          _latestData = data;
           final settings =
               data["themeSettings"] as Map<String, dynamic>? ?? const {};
 
@@ -292,10 +294,10 @@ class _BaseThemedProductResultCardState
                 ),
               ],
               // Dynamic feature bullet items
-              StreamBuilder<List<dynamic>>(
-                stream: featuresProp.asList.stream,
-                builder: (context, featuresSnapshot) {
-                  final list = featuresSnapshot.data ?? const [];
+              Builder(
+                builder: (context) {
+                  final list =
+                      _latestData["features"] as List<dynamic>? ?? const [];
                   if (list.isEmpty) return const SizedBox.shrink();
 
                   return Column(

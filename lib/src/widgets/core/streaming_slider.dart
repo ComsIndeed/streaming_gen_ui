@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:llm_json_stream/llm_json_stream.dart';
 import 'package:streaming_gen_ui/src/widgets/accumulating_string_stream_builder.dart';
 import 'package:streaming_gen_ui/src/widgets/core/streaming_entrance.dart';
+import 'package:streaming_gen_ui/src/widgets/streaming_widget.dart';
 
 /// A custom slider component that reveals its track first, then expands labels,
 /// and scales up the interactive thumb once resolved.
@@ -42,6 +43,139 @@ class _StreamingSliderState extends State<StreamingSlider> {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
+
+    final element =
+        context.getElementForInheritedWidgetOfExactType<StreamingUiProvider>();
+    final provider = element?.widget as StreamingUiProvider?;
+    final isClosed = provider?.disableAnimations ?? false;
+
+    if (isClosed) {
+      final data = provider?.latestProperties ?? const {};
+      final min = (data["min"] as num?)?.toDouble() ?? 0.0;
+      final max = (data["max"] as num?)?.toDouble() ?? 100.0;
+      final initialValue = (data["value"] as num?)?.toDouble() ?? min;
+      final clampedValue = (_currentValue ?? initialValue).clamp(min, max);
+
+      final label = data["label"] as String? ?? '';
+      final action = data["action"] as String? ?? '';
+      final isEnabled = action.isNotEmpty;
+
+      return StreamingEntrance(
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            if (label.isNotEmpty)
+              Padding(
+                padding: const EdgeInsets.only(bottom: 6.0, left: 4.0),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Text(
+                      label,
+                      style: TextStyle(
+                        fontSize: 14,
+                        fontWeight: FontWeight.w600,
+                        color: theme.colorScheme.onSurface,
+                      ),
+                    ),
+                    AnimatedContainer(
+                      duration: const Duration(milliseconds: 150),
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 6,
+                        vertical: 2,
+                      ),
+                      decoration: BoxDecoration(
+                        color: isEnabled
+                            ? theme.colorScheme.primaryContainer.withValues(
+                                alpha: 0.4,
+                              )
+                            : theme.colorScheme.surfaceContainerHigh,
+                        borderRadius: BorderRadius.circular(6),
+                      ),
+                      child: Text(
+                        clampedValue.toStringAsFixed(1),
+                        style: TextStyle(
+                          fontSize: 12,
+                          fontWeight: FontWeight.bold,
+                          fontFamily: 'monospace',
+                          color: isEnabled
+                              ? theme.colorScheme.primary
+                              : theme.colorScheme.onSurfaceVariant,
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            Row(
+              children: [
+                Text(
+                  min.toStringAsFixed(0),
+                  style: TextStyle(
+                    fontSize: 12,
+                    color: theme.colorScheme.onSurfaceVariant.withValues(
+                      alpha: 0.5,
+                    ),
+                  ),
+                ),
+                Expanded(
+                  child: SliderTheme(
+                    data: theme.sliderTheme.copyWith(
+                      activeTrackColor: isEnabled
+                          ? theme.colorScheme.primary
+                          : theme.colorScheme.outline.withValues(alpha: 0.12),
+                      inactiveTrackColor: theme.colorScheme.outline.withValues(
+                        alpha: 0.06,
+                      ),
+                      disabledActiveTrackColor: theme.colorScheme.outline
+                          .withValues(alpha: 0.12),
+                      disabledInactiveTrackColor: theme.colorScheme.outline
+                          .withValues(alpha: 0.06),
+                      thumbColor: isEnabled
+                          ? theme.colorScheme.primary
+                          : theme.colorScheme.outline.withValues(alpha: 0.24),
+                      disabledThumbColor: theme.colorScheme.outline.withValues(
+                        alpha: 0.24,
+                      ),
+                      trackHeight: 4,
+                      thumbShape: RoundSliderThumbShape(
+                        enabledThumbRadius: isEnabled ? 8 : 6,
+                        disabledThumbRadius: 6,
+                      ),
+                      overlayColor: theme.colorScheme.primary.withValues(
+                        alpha: 0.12,
+                      ),
+                    ),
+                    child: Slider(
+                      min: min,
+                      max: max,
+                      value: clampedValue,
+                      onChanged: isEnabled
+                          ? (val) {
+                              setState(() {
+                                _currentValue = val;
+                              });
+                            }
+                          : null,
+                    ),
+                  ),
+                ),
+                Text(
+                  max.toStringAsFixed(0),
+                  style: TextStyle(
+                    fontSize: 12,
+                    color: theme.colorScheme.onSurfaceVariant.withValues(
+                      alpha: 0.5,
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ],
+        ),
+      );
+    }
 
     return StreamingEntrance(
       child: StreamBuilder<Map<String, dynamic>>(

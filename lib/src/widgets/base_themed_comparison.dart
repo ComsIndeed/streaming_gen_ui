@@ -24,6 +24,7 @@ class BaseThemedComparisonCard extends StatefulWidget {
 
 class _BaseThemedComparisonCardState extends State<BaseThemedComparisonCard> {
   bool _isPressed = false;
+  Map<String, dynamic> _latestData = const {};
 
   @override
   Widget build(BuildContext context) {
@@ -34,6 +35,7 @@ class _BaseThemedComparisonCardState extends State<BaseThemedComparisonCard> {
         stream: mapStream.stream,
         builder: (context, snapshot) {
           final data = snapshot.data ?? const {};
+          _latestData = data;
           final settings =
               data["themeSettings"] as Map<String, dynamic>? ?? const {};
 
@@ -149,12 +151,12 @@ class _BaseThemedComparisonCardState extends State<BaseThemedComparisonCard> {
           Text(title, style: titleStyle.copyWith(fontSize: 16)),
           const SizedBox(height: 12),
           // Streaming layout for side-by-side comparative elements
-          StreamBuilder2<List<dynamic>, List<dynamic>>(
-            streamA: productsProp.asList.stream,
-            streamB: featuresProp.asList.stream,
-            builder: (context, products, features) {
-              final safeProducts = products ?? const [];
-              final safeFeatures = features ?? const [];
+          Builder(
+            builder: (context) {
+              final safeProducts =
+                  _latestData["products"] as List<dynamic>? ?? const [];
+              final safeFeatures =
+                  _latestData["features"] as List<dynamic>? ?? const [];
 
               if (safeProducts.isEmpty) {
                 return const SizedBox(

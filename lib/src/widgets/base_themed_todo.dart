@@ -24,6 +24,7 @@ class BaseThemedTodoCard extends StatefulWidget {
 
 class _BaseThemedTodoCardState extends State<BaseThemedTodoCard> {
   bool _isPressed = false;
+  Map<String, dynamic> _latestData = const {};
   // Local completion state overrides
   final Map<int, bool> _localCompleted = {};
 
@@ -36,6 +37,7 @@ class _BaseThemedTodoCardState extends State<BaseThemedTodoCard> {
         stream: mapStream.stream,
         builder: (context, snapshot) {
           final data = snapshot.data ?? const {};
+          _latestData = data;
           final settings =
               data["themeSettings"] as Map<String, dynamic>? ?? const {};
 
@@ -179,10 +181,9 @@ class _BaseThemedTodoCardState extends State<BaseThemedTodoCard> {
           ),
           const SizedBox(height: 12),
           // Streaming checklists
-          StreamBuilder<List<dynamic>>(
-            stream: itemsProp.asList.stream,
-            builder: (context, snapshot) {
-              final list = snapshot.data ?? const [];
+          Builder(
+            builder: (context) {
+              final list = _latestData["items"] as List<dynamic>? ?? const [];
               if (list.isEmpty) {
                 return const Padding(
                   padding: EdgeInsets.symmetric(vertical: 20.0),

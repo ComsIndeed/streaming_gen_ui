@@ -24,6 +24,7 @@ class BaseThemedWeatherCard extends StatefulWidget {
 
 class _BaseThemedWeatherCardState extends State<BaseThemedWeatherCard> {
   bool _isPressed = false;
+  Map<String, dynamic> _latestData = const {};
 
   @override
   Widget build(BuildContext context) {
@@ -34,6 +35,7 @@ class _BaseThemedWeatherCardState extends State<BaseThemedWeatherCard> {
         stream: mapStream.stream,
         builder: (context, snapshot) {
           final data = snapshot.data ?? const {};
+          _latestData = data;
           final settings =
               data["themeSettings"] as Map<String, dynamic>? ?? const {};
 
@@ -374,10 +376,10 @@ class _BaseThemedWeatherCardState extends State<BaseThemedWeatherCard> {
                 ],
               ),
               // Forecast list if streamed
-              StreamBuilder<List<dynamic>>(
-                stream: forecastProp.asList.stream,
-                builder: (context, forecastSnapshot) {
-                  final list = forecastSnapshot.data ?? const [];
+              Builder(
+                builder: (context) {
+                  final list =
+                      _latestData["forecast"] as List<dynamic>? ?? const [];
                   if (list.isEmpty) return const SizedBox.shrink();
 
                   return Column(

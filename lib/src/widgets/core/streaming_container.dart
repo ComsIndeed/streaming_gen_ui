@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:llm_json_stream/llm_json_stream.dart';
 import 'package:streaming_gen_ui/src/widgets/streaming_widget.dart';
 import 'package:streaming_gen_ui/src/widgets/core/streaming_entrance.dart';
+import 'package:streaming_gen_ui/src/widgets/adaptive_stream_builder.dart';
+import 'package:streaming_gen_ui/src/widgets/core/adaptive_animated_size.dart';
 
 /// A styled layout box container that morphs its sizes and colors fluidly,
 /// utilizing AnimatedSize and stable alignment to prevent jitter during streaming.
@@ -17,7 +19,7 @@ class StreamingContainer extends StatelessWidget {
     final childProp = mapStream.getMapProperty("child");
 
     return StreamingEntrance(
-      child: StreamBuilder<Map<String, dynamic>>(
+      child: AdaptiveStreamBuilder<Map<String, dynamic>>(
         stream: containerStream,
         builder: (context, snapshot) {
           final data = snapshot.data ?? const {};
@@ -86,9 +88,7 @@ class StreamingContainer extends StatelessWidget {
                 ),
               ],
             ),
-            child: AnimatedSize(
-              duration: const Duration(milliseconds: 300),
-              curve: Curves.easeOutCubic,
+            child: AdaptiveAnimatedSize(
               alignment: Alignment.topLeft, // The Stable Alignment Rule
               child: Padding(
                 padding: EdgeInsets.all(paddingVal),
