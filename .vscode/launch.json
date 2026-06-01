@@ -14,6 +14,18 @@
       ]
     },
     {
+      "name": "Edit Implementation Test App (Windows Debug)",
+      "request": "launch",
+      "type": "dart",
+      "program": "lib/main.dart",
+      "cwd": "playground/edit_implementation_test",
+      "args": [
+        "-d",
+        "windows",
+        "--dart-define-from-file=../../.env"
+      ]
+    },
+    {
       "name": "Catalog App (Windows Profile)",
       "request": "launch",
       "type": "dart",
