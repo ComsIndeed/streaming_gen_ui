@@ -89,6 +89,24 @@ class _HomepageContentState extends State<_HomepageContent> {
                           ),
                           Row(
                             children: [
+                              BlocBuilder<ChatDemoCubit, ChatDemoState>(
+                                builder: (context, state) {
+                                  return Row(
+                                    mainAxisSize: MainAxisSize.min,
+                                    children: [
+                                      const Text("Raw", style: TextStyle(fontSize: 12, color: Colors.grey)),
+                                      const SizedBox(width: 4),
+                                      Switch(
+                                        value: !state.showRawView,
+                                        onChanged: (_) => cubit.toggleRawView(),
+                                      ),
+                                      const SizedBox(width: 4),
+                                      const Text("UI View", style: TextStyle(fontSize: 12, color: Colors.grey)),
+                                    ],
+                                  );
+                                },
+                              ),
+                              const SizedBox(width: 12),
                               TextButton.icon(
                                 icon: const Icon(Icons.delete_sweep_outlined, size: 18),
                                 label: const Text("Clear"),
@@ -203,23 +221,25 @@ class _HomepageContentState extends State<_HomepageContent> {
                                       ),
                                     ),
                                     const SizedBox(height: 4),
-                                    if (isUser)
-                                      Text(
-                                        message.text,
-                                        style: TextStyle(
-                                          color: Theme.of(context).colorScheme.onPrimaryContainer,
-                                        ),
-                                      )
-                                    else
-                                      ListenableBuilder(
-                                        listenable: cubit.generativeUi,
-                                        builder: (context, _) {
-                                          return cubit.generativeUi.view(
-                                            message.id,
-                                            textBlockBuilder: (context, text) => GptMarkdown(text),
-                                          );
-                                        },
-                                      ),
+                                     if (isUser)
+                                       Text(
+                                         message.text,
+                                         style: TextStyle(
+                                           color: Theme.of(context).colorScheme.onPrimaryContainer,
+                                         ),
+                                       )
+                                     else if (state.showRawView)
+                                       GptMarkdown(message.text)
+                                     else
+                                       ListenableBuilder(
+                                         listenable: cubit.generativeUi,
+                                         builder: (context, _) {
+                                           return cubit.generativeUi.view(
+                                             message.id,
+                                             textBlockBuilder: (context, text) => GptMarkdown(text),
+                                           );
+                                         },
+                                       ),
                                   ],
                                 ),
                               ),
@@ -242,7 +262,7 @@ class _HomepageContentState extends State<_HomepageContent> {
                               Expanded(
                                 child: TextField(
                                   controller: _controller,
-                                  maxLines: null,
+                                  maxLines: 1,
                                   decoration: InputDecoration(
                                     hintText: state.isThinking ? "Thinking..." : "Type your prompt...",
                                     border: const OutlineInputBorder(),

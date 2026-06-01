@@ -2,6 +2,7 @@ import 'dart:async';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:streaming_gen_ui/streaming_gen_ui.dart';
 import 'package:dartantic_ai/dartantic_ai.dart' as ai;
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:edit_implementation_test/services/chat_agent_service.dart';
 
 class ChatMessage {
@@ -31,33 +32,39 @@ class ChatDemoState {
   final List<ChatMessage> messages;
   final bool isThinking;
   final String? errorMessage;
+  final bool showRawView;
 
   const ChatDemoState({
     required this.messages,
     required this.isThinking,
     this.errorMessage,
+    this.showRawView = false,
   });
 
   ChatDemoState copyWith({
     List<ChatMessage>? messages,
     bool? isThinking,
     String? errorMessage,
+    bool? showRawView,
   }) {
     return ChatDemoState(
       messages: messages ?? this.messages,
       isThinking: isThinking ?? this.isThinking,
       errorMessage: errorMessage ?? this.errorMessage,
+      showRawView: showRawView ?? this.showRawView,
     );
   }
 
   ChatDemoState copyWithClearedError({
     List<ChatMessage>? messages,
     bool? isThinking,
+    bool? showRawView,
   }) {
     return ChatDemoState(
       messages: messages ?? this.messages,
       isThinking: isThinking ?? this.isThinking,
       errorMessage: null,
+      showRawView: showRawView ?? this.showRawView,
     );
   }
 }
@@ -81,6 +88,24 @@ class ChatDemoCubit extends Cubit<ChatDemoState> {
       },
     );
     _history.add(ai.ChatMessage.system(systemPrompt));
+    _loadPreferences();
+  }
+
+  Future<void> _loadPreferences() async {
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      final raw = prefs.getBool('show_raw_view') ?? false;
+      emit(state.copyWith(showRawView: raw));
+    } catch (_) {}
+  }
+
+  Future<void> toggleRawView() async {
+    final newVal = !state.showRawView;
+    emit(state.copyWith(showRawView: newVal));
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      await prefs.setBool('show_raw_view', newVal);
+    } catch (_) {}
   }
 
   String get systemPrompt => '''
